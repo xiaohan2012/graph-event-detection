@@ -1,8 +1,14 @@
 # Convert a list of interactions into a meta interaction graph
 
+import re
+import numpy as np
+import ujson as json
+import nltk
+import gensim
 import networkx as nt
 from collections import defaultdict
 
+from util import load_items_by_line
 
 def convert_to_meta_graph(node_names, sources, targets, time_stamps):
         """
@@ -37,6 +43,9 @@ def convert_to_meta_graph(node_names, sources, targets, time_stamps):
 
 
 class EnronUtil(object):
+    stoplist = load_items_by_line('lemur-stopwords.txt')
+    valid_token_regexp = re.compile('^[a-z]+$')
+
     @classmethod
     def get_meta_graph(cls, interactions):
         """
@@ -55,7 +64,41 @@ class EnronUtil(object):
             g.node[n]['body'] = i['body']
             g.node[n]['subject'] = i['subject']
 
-        return (g, interactions)
+        return g
+
+    @classmethod
+    def tokenize_document(cls, doc):
+        return [
+            word for word in nltk.word_tokenize(doc.lower())
+            if (word not in cls.stoplist and
+                cls.valid_token_regexp.match(word) and
+                len(word) > 2)
+        ]
+
+    @classmethod
+    def add_topics_to_graph(cls, g, lda_model, dictionary):
+        for n in g.nodes():
+            doc = u'{} {}'.format(g.node[n]['subject'], g.node[n]['body'])
+            topic_dist = lda_model.get_document_topics(
+                dictionary.doc2bow(cls.tokenize_document(doc))
+            )
+            g.node[n]['topics'] = np.asarray([v for _, v in topic_dist],
+                                             dtype=np.float)
+        return g
+
+
+def main(json_path='enron.json'):
+    interactions = json.load(open(json_path))
+    g = EnronUtil.get_meta_graph(interactions)
+    print(len(g.nodes()))
+    print(len(g.edges()))
+
+    lda_model = gensim.models.ldamodel.LdaModel.load('model-4-50.lda')
+    dictionary = gensim.corpora.dictionary.Dictionary.load('dictionary.gsm')
+
+    g = EnronUtil.add_topics_to_graph(g, lda_model, dictionary)
+    import pdb; pdb.set_trace()
     
 
-
+if __name__ == '__main__':
+    main()
