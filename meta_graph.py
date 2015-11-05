@@ -1,6 +1,5 @@
 # Convert a list of interactions into a meta interaction graph
 
-import ujson as json
 import networkx as nt
 from collections import defaultdict
 
@@ -8,7 +7,7 @@ from collections import defaultdict
 class MetaGraph(object):
 
     @classmethod
-    def convert_enron(cls, node_names, sources, targets, time_stamps):
+    def convert(cls, node_names, sources, targets, time_stamps):
         """
         sources: list of source node id for each interaction
         targets: list of target node ids for each interaction
@@ -35,3 +34,19 @@ class MetaGraph(object):
                 for n2 in s2n[t]:
                     g.add_edge(n1, n2)
         return g
+
+
+class EnronMetaGraph(MetaGraph):
+    @classmethod
+    def get_meta_graph(cls, interactions):
+        """
+        Return the meta graph together with temporally sorted interactions
+        """
+        interactions = sorted(interactions, key=lambda r: r['datetime'])
+        node_names = [i['message_id'] for i in interactions]
+        sources = [i['sender_id'] for i in interactions]
+        targets = [i['recipient_ids'] for i in interactions]
+        time_stamps = [i['datetime'] for i in interactions]
+
+        return (cls.convert(node_names, sources, targets, time_stamps),
+                interactions)
