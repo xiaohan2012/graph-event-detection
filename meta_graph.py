@@ -4,10 +4,7 @@ import networkx as nt
 from collections import defaultdict
 
 
-class MetaGraph(object):
-
-    @classmethod
-    def convert(cls, node_names, sources, targets, time_stamps):
+def convert_to_meta_graph(node_names, sources, targets, time_stamps):
         """
         sources: list of source node id for each interaction
         targets: list of target node ids for each interaction
@@ -27,6 +24,9 @@ class MetaGraph(object):
             # remove entries of n1 in s2n
             s2n[s].remove(n1)
 
+            # add node, can be singleton
+            g.add_node(n1)
+            
             # add edges
             for n2 in s2n[s]:
                 g.add_edge(n1, n2)
@@ -36,7 +36,7 @@ class MetaGraph(object):
         return g
 
 
-class EnronMetaGraph(MetaGraph):
+class EnronUtil(object):
     @classmethod
     def get_meta_graph(cls, interactions):
         """
@@ -47,6 +47,15 @@ class EnronMetaGraph(MetaGraph):
         sources = [i['sender_id'] for i in interactions]
         targets = [i['recipient_ids'] for i in interactions]
         time_stamps = [i['datetime'] for i in interactions]
+        
+        g = convert_to_meta_graph(node_names, sources,
+                                  targets, time_stamps)
+        for i in interactions:
+            n = i['message_id']
+            g.node[n]['body'] = i['body']
+            g.node[n]['subject'] = i['subject']
 
-        return (cls.convert(node_names, sources, targets, time_stamps),
-                interactions)
+        return (g, interactions)
+    
+
+
