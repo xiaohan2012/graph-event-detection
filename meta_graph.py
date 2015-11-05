@@ -63,7 +63,8 @@ class EnronUtil(object):
             n = i['message_id']
             g.node[n]['body'] = i['body']
             g.node[n]['subject'] = i['subject']
-
+            g.node[n]['datetime'] = i['datetime']
+            
         return g
 
     @classmethod
@@ -85,6 +86,29 @@ class EnronUtil(object):
             g.node[n]['topics'] = np.asarray([v for _, v in topic_dist],
                                              dtype=np.float)
         return g
+
+    @classmethod
+    def assign_edge_weight(cls, g, target_topic):
+        """
+        assign weight to edges by calculating the distance 
+        """
+
+    @classmethod
+    def filter_dag_given_root(cls, g, r, filter_func):
+        """filter nodes given root and some filter function
+
+        Return:
+        a DAG, sub_g of which all nodes in sub_g passes filter_func
+        """
+        sub_g = nt.DiGraph()
+        stack = [(r, child) for child in g.neighbors(r)]
+        while len(stack) > 0:
+            parent, child = stack.pop()
+            if filter_func(child):
+                sub_g.add_edge(parent, child)
+                for grand_child in g.neighbors(child):
+                    stack.append((child, grand_child))
+        return sub_g
 
 
 def main(json_path='enron.json'):
