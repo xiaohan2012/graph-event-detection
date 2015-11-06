@@ -40,6 +40,14 @@ class EnronMetaGraphTest(unittest.TestCase):
         dictionary = gensim.corpora.dictionary.Dictionary.load('dictionary.gsm')
         return EnronUtil.add_topics_to_graph(self.g, lda_model, dictionary)
 
+    def _get_weighted_graph(self):
+        g = self._get_topical_graph()
+        ref_vect = numpy.asarray([0, 0, 1, 0], dtype=numpy.float)
+        return EnronUtil.assign_vertex_weight(
+            g, ref_vect,
+            dist_func=scipy.stats.entropy
+        )
+        
     def test_add_topics(self):
         g = self._get_topical_graph()
         for n in g.nodes():
@@ -83,3 +91,12 @@ class EnronMetaGraphTest(unittest.TestCase):
             )
         assert_equal(numpy.argmax([g.node[n]['w'] for n in g.nodes()]),
                      4)
+
+    def test_round_vertex_weight(self):
+        g = self._get_weighted_graph()
+        
+        g = EnronUtil.round_vertex_weight(g)
+        expected_values = [1, 1, 1, 1, 3]
+        for n, expected in zip(g.nodes(), expected_values):
+            assert_equal(g.node[n]['w'], expected)
+        

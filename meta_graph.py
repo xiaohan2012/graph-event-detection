@@ -123,7 +123,15 @@ class EnronUtil(object):
             g.node[n]['w'] = dist_func(ref_vect, g.node[n]['topics'])
         return g
 
-        
+    @classmethod
+    def round_vertex_weight(cls, g):
+        """
+        rounding the vertex weight to integer
+        """
+        for n in g.nodes():
+            g.node[n]['w'] = int(round(g.node[n]['w']))
+        return g
+
 def main(json_path='enron.json'):
     interactions = json.load(open(json_path))
     g = EnronUtil.get_meta_graph(interactions)
