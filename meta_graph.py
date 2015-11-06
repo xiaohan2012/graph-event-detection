@@ -87,11 +87,6 @@ class EnronUtil(object):
                                              dtype=np.float)
         return g
 
-    @classmethod
-    def assign_edge_weight(cls, g, target_topic):
-        """
-        assign weight to edges by calculating the distance 
-        """
 
     @classmethod
     def filter_dag_given_root(cls, g, r, filter_func):
@@ -116,15 +111,13 @@ class EnronUtil(object):
         Assign vertex weight by the difference between
         vertex topic vector and reference vector
         
-        By convention, the distance value is inversed and used as the weight
-
         Return:
         -----------
         a DAG, whose nodes are weighted accordingly on attribute 'w'
         """
         for n in g.nodes():
             assert ref_vect.shape == g.node[n]['topics'].shape
-            g.node[n]['w'] = - dist_func(ref_vect, g.node[n]['topics'])
+            g.node[n]['w'] = dist_func(ref_vect, g.node[n]['topics'])
         return g
 
         
@@ -138,6 +131,7 @@ def main(json_path='enron.json'):
     dictionary = gensim.corpora.dictionary.Dictionary.load('dictionary.gsm')
 
     g = EnronUtil.add_topics_to_graph(g, lda_model, dictionary)
+    # EnronUtil.assign_vertex_weight(g, )
     import pdb; pdb.set_trace()
     
 

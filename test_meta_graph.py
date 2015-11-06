@@ -66,7 +66,8 @@ class EnronMetaGraphTest(unittest.TestCase):
         assert_equal(sorted(sub_g.edges()), sorted(expected_edges))
 
     def test_assign_vertex_weight(self):
-        ref_vect = numpy.asarray([0, 0, 1, 0])  # the 'enronxgate'
+        ref_vect = numpy.asarray([0, 0, 1, 0],
+                                 dtype=numpy.float)  # the 'enronxgate'
         g = self._get_topical_graph()
         for n in g.nodes():
             assert_true('w' not in g.node[n])
@@ -78,6 +79,7 @@ class EnronMetaGraphTest(unittest.TestCase):
         for n in g.nodes():
             numpy.testing.assert_array_almost_equal(
                 entropy(ref_vect, g.node[n]['topics']),
-                -g.node[n]['w']
+                g.node[n]['w']
             )
-
+        assert_equal(numpy.argmax([g.node[n]['w'] for n in g.nodes()]),
+                     4)
