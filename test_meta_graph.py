@@ -1,5 +1,6 @@
 import unittest
 
+import scipy
 import numpy
 import string
 import ujson as json
@@ -34,10 +35,13 @@ class EnronMetaGraphTest(unittest.TestCase):
         assert_equal(self.g.node[2]['subject'], '...')
         assert_equal(self.g.node[2]['datetime'], 989587577)
         
-    def test_add_topics(self):
+    def _get_topical_graph(self):
         lda_model = gensim.models.ldamodel.LdaModel.load('model-4-50.lda')
         dictionary = gensim.corpora.dictionary.Dictionary.load('dictionary.gsm')
-        g = EnronUtil.add_topics_to_graph(self.g, lda_model, dictionary)
+        return EnronUtil.add_topics_to_graph(self.g, lda_model, dictionary)
+
+    def test_add_topics(self):
+        g = self._get_topical_graph()
         for n in g.nodes():
             assert_equal(len(g.node[n]['topics']), 4)
             assert_true(isinstance(g.node[n]['topics'], numpy.ndarray))
@@ -60,4 +64,20 @@ class EnronMetaGraphTest(unittest.TestCase):
                 self.g.node[n]['datetime'] - self.g.node[r]['datetime'] <= max_time_diff
             )
         assert_equal(sorted(sub_g.edges()), sorted(expected_edges))
-        
+
+    def test_assign_vertex_weight(self):
+        ref_vect = numpy.asarray([0, 0, 1, 0])  # the 'enronxgate'
+        g = self._get_topical_graph()
+        for n in g.nodes():
+            assert_true('w' not in g.node[n])
+        entropy = scipy.stats.entropy
+        g = EnronUtil.assign_vertex_weight(
+            g, ref_vect,
+            dist_func=entropy
+        )
+        for n in g.nodes():
+            numpy.testing.assert_array_almost_equal(
+                entropy(ref_vect, g.node[n]['topics']),
+                -g.node[n]['w']
+            )
+

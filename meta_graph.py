@@ -109,8 +109,25 @@ class EnronUtil(object):
                 for grand_child in g.neighbors(child):
                     stack.append((child, grand_child))
         return sub_g
+    
+    @classmethod
+    def assign_vertex_weight(cls, g, ref_vect, dist_func):
+        """
+        Assign vertex weight by the difference between
+        vertex topic vector and reference vector
+        
+        By convention, the distance value is inversed and used as the weight
 
+        Return:
+        -----------
+        a DAG, whose nodes are weighted accordingly on attribute 'w'
+        """
+        for n in g.nodes():
+            assert ref_vect.shape == g.node[n]['topics'].shape
+            g.node[n]['w'] = - dist_func(ref_vect, g.node[n]['topics'])
+        return g
 
+        
 def main(json_path='enron.json'):
     interactions = json.load(open(json_path))
     g = EnronUtil.get_meta_graph(interactions)
