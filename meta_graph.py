@@ -130,5 +130,5 @@ class EnronUtil(object):
         rounding the vertex weight to integer
         """
         for n in g.nodes():
-            g.node[n]['w'] = int(round(g.node[n]['w']))
+            g.node[n]['r_w'] = int(round(g.node[n]['w']))
         return g

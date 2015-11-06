@@ -105,5 +105,5 @@ class EnronMetaGraphTest(unittest.TestCase):
         g = EnronUtil.round_vertex_weight(g)
         expected_values = [1, 1, 1, 1, 3]
         for n, expected in zip(g.nodes(), expected_values):
-            assert_equal(g.node[n]['w'], expected)
+            assert_equal(g.node[n]['r_w'], expected)
         
