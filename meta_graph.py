@@ -1,6 +1,7 @@
 # Convert a list of interactions into a meta interaction graph
 
 import re
+import scipy
 import numpy as np
 import ujson as json
 import nltk
@@ -81,12 +82,13 @@ class EnronUtil(object):
         for n in g.nodes():
             doc = u'{} {}'.format(g.node[n]['subject'], g.node[n]['body'])
             topic_dist = lda_model.get_document_topics(
-                dictionary.doc2bow(cls.tokenize_document(doc))
+                dictionary.doc2bow(cls.tokenize_document(doc)),
+                minimum_probability=0
             )
             g.node[n]['topics'] = np.asarray([v for _, v in topic_dist],
                                              dtype=np.float)
+            
         return g
-
 
     @classmethod
     def filter_dag_given_root(cls, g, r, filter_func):
@@ -116,7 +118,8 @@ class EnronUtil(object):
         a DAG, whose nodes are weighted accordingly on attribute 'w'
         """
         for n in g.nodes():
-            assert ref_vect.shape == g.node[n]['topics'].shape
+            assert ref_vect.shape == g.node[n]['topics'].shape, \
+                'Shape mismatch {} != {}'.format(ref_vect.shape, g.node[n]['topics'].shape)
             g.node[n]['w'] = dist_func(ref_vect, g.node[n]['topics'])
         return g
 
@@ -131,7 +134,9 @@ def main(json_path='enron.json'):
     dictionary = gensim.corpora.dictionary.Dictionary.load('dictionary.gsm')
 
     g = EnronUtil.add_topics_to_graph(g, lda_model, dictionary)
-    # EnronUtil.assign_vertex_weight(g, )
+    ref_vect = np.asarray([0, 0, 1, 0],
+                          dtype=np.float)
+    g = EnronUtil.assign_vertex_weight(g, ref_vect, scipy.stats.entropy)
     import pdb; pdb.set_trace()
     
 

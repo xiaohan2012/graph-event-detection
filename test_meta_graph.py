@@ -43,7 +43,7 @@ class EnronMetaGraphTest(unittest.TestCase):
     def test_add_topics(self):
         g = self._get_topical_graph()
         for n in g.nodes():
-            assert_equal(len(g.node[n]['topics']), 4)
+            assert_equal(g.node[n]['topics'].shape, (4, ))
             assert_true(isinstance(g.node[n]['topics'], numpy.ndarray))
 
     def test_filter_nodes_given_root(self):
