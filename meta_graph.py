@@ -1,15 +1,15 @@
 # Convert a list of interactions into a meta interaction graph
 
 import re
-import scipy
 import numpy as np
-import ujson as json
 import nltk
-import gensim
 import networkx as nt
+
+from datetime import datetime
 from collections import defaultdict
 
 from util import load_items_by_line
+
 
 def convert_to_meta_graph(node_names, sources, targets, time_stamps):
     """
@@ -64,7 +64,8 @@ class EnronUtil(object):
             n = i['message_id']
             g.node[n]['body'] = i['body']
             g.node[n]['subject'] = i['subject']
-            g.node[n]['datetime'] = i['datetime']
+            g.node[n]['timestamp'] = i['datetime']
+            g.node[n]['datetime'] = datetime.fromtimestamp(i['datetime'])
             
         return g
 
@@ -131,22 +132,3 @@ class EnronUtil(object):
         for n in g.nodes():
             g.node[n]['w'] = int(round(g.node[n]['w']))
         return g
-
-def main(json_path='enron.json'):
-    interactions = json.load(open(json_path))
-    g = EnronUtil.get_meta_graph(interactions)
-    print(len(g.nodes()))
-    print(len(g.edges()))
-
-    lda_model = gensim.models.ldamodel.LdaModel.load('model-4-50.lda')
-    dictionary = gensim.corpora.dictionary.Dictionary.load('dictionary.gsm')
-
-    g = EnronUtil.add_topics_to_graph(g, lda_model, dictionary)
-    ref_vect = np.asarray([0, 0, 1, 0],
-                          dtype=np.float)
-    g = EnronUtil.assign_vertex_weight(g, ref_vect, scipy.stats.entropy)
-    import pdb; pdb.set_trace()
-    
-
-if __name__ == '__main__':
-    main()

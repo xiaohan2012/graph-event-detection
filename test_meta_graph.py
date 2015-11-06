@@ -3,9 +3,12 @@ import unittest
 import scipy
 import numpy
 import string
-import ujson as json
-from nose.tools import assert_equal, assert_true
 import gensim
+import ujson as json
+
+from datetime import datetime
+from nose.tools import assert_equal, assert_true
+
 from .meta_graph import convert_to_meta_graph, EnronUtil
 
 
@@ -30,10 +33,14 @@ class EnronMetaGraphTest(unittest.TestCase):
                      sorted(self.g.edges()))
         assert_equal(self.g.node[1]['body'], 'b1')
         assert_equal(self.g.node[1]['subject'], 's1')
-        assert_equal(self.g.node[1]['datetime'], 989587576)
+        assert_equal(self.g.node[1]['timestamp'], 989587576)
+        assert_equal(self.g.node[1]['datetime'],
+                     datetime.fromtimestamp(989587576))
         assert_equal(self.g.node[2]['body'], '...')
         assert_equal(self.g.node[2]['subject'], '...')
-        assert_equal(self.g.node[2]['datetime'], 989587577)
+        assert_equal(self.g.node[2]['timestamp'], 989587577)
+        assert_equal(self.g.node[2]['datetime'],
+                     datetime.fromtimestamp(989587577))
         
     def _get_topical_graph(self):
         lda_model = gensim.models.ldamodel.LdaModel.load('model-4-50.lda')
@@ -69,7 +76,7 @@ class EnronMetaGraphTest(unittest.TestCase):
             sub_g = EnronUtil.filter_dag_given_root(
                 self.g, r,
                 lambda n:
-                self.g.node[n]['datetime'] - self.g.node[r]['datetime'] <= max_time_diff
+                self.g.node[n]['timestamp'] - self.g.node[r]['timestamp'] <= max_time_diff
             )
         assert_equal(sorted(sub_g.edges()), sorted(expected_edges))
 
