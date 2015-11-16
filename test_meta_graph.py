@@ -23,6 +23,19 @@ def test_meta_graph():
     assert_equal(expected_edges, sorted(graph.edges()))
 
 
+def test_meta_graph_1():
+    a, b, c, d = 'a', 'b', 'c', 'd'
+    node_names = range(1, 6)
+    sources = [a, a, b, d, b]
+    targets = [c, b, a, c, d]
+    time_stamps = [1, 1, 2, 2, 3]
+    
+    g = convert_to_meta_graph(node_names, sources, targets, time_stamps)
+    
+    expected_edges = sorted([(2, 3), (3, 5), (2, 5)])
+    assert_equal(expected_edges, sorted(g.edges()))
+
+
 class EnronMetaGraphTest(unittest.TestCase):
     def setUp(self):
         interactions = json.load(open('enron_test.json'))

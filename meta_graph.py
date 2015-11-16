@@ -11,7 +11,7 @@ from collections import defaultdict
 from util import load_items_by_line
 
 
-def convert_to_meta_graph(node_names, sources, targets, time_stamps):
+def convert_to_meta_graph(interaction_names, sources, targets, time_stamps):
     """
     sources: list of source node id for each interaction
     targets: list of target node ids for each interaction
@@ -20,27 +20,33 @@ def convert_to_meta_graph(node_names, sources, targets, time_stamps):
     All four fields shall be sorted from earliest to lastest
     according to time_stamps
     """
-    assert len(node_names) == len(sources) == len(targets) == len(time_stamps), \
-        "{},{},{},{}".format(len(node_names), len(sources), len(targets), len(time_stamps))
+    assert len(interaction_names) == len(sources) == len(targets) == len(time_stamps), \
+        "{},{},{},{}".format(len(interaction_names), len(sources), len(targets), len(time_stamps))
     g = nt.DiGraph()
     
-    s2n = defaultdict(set)  # source to nodes mapping
-    for n, s in zip(node_names, sources):
-        s2n[s].add(n)
+    # source to nodes mapping
+    # interpretation:
+    # s is associated with a list of interactions that take it as source
+    s2i = defaultdict(set)
+    for i, s, time in zip(interaction_names, sources, time_stamps):
+        s2i[s].add((i, time))
     
-    for n1, s, ts in zip(node_names, sources, targets):
-        # remove entries of n1 in s2n
-        s2n[s].remove(n1)
+    for i1, s, ts, time1 in zip(
+            interaction_names, sources, targets, time_stamps):
+        # remove entries of i1 in s2i
+        s2i[s].remove((i1, time1))
 
         # add node, can be singleton
-        g.add_node(n1)
+        g.add_node(i1)
         
         # add edges
-        for n2 in s2n[s]:
-            g.add_edge(n1, n2)
+        for i2, time2 in s2i[s]:
+            if time1 < time2:
+                g.add_edge(i1, i2)
         for t in ts:
-            for n2 in s2n[t]:
-                g.add_edge(n1, n2)
+            for i2, time2 in s2i[t]:
+                if time1 < time2:
+                    g.add_edge(i1, i2)
     return g
 
 
@@ -54,12 +60,12 @@ class EnronUtil(object):
         Return the meta graph together with temporally sorted interactions
         """
         interactions = sorted(interactions, key=lambda r: r['datetime'])
-        node_names = [i['message_id'] for i in interactions]
+        interaction_names = [i['message_id'] for i in interactions]
         sources = [i['sender_id'] for i in interactions]
         targets = [i['recipient_ids'] for i in interactions]
         time_stamps = [i['datetime'] for i in interactions]
         
-        g = convert_to_meta_graph(node_names, sources,
+        g = convert_to_meta_graph(interaction_names, sources,
                                   targets, time_stamps)
         for i in interactions:
             n = i['message_id']
