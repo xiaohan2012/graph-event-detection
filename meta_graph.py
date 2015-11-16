@@ -20,7 +20,8 @@ def convert_to_meta_graph(node_names, sources, targets, time_stamps):
     All four fields shall be sorted from earliest to lastest
     according to time_stamps
     """
-    assert len(node_names) == len(sources) == len(targets) == len(time_stamps)
+    assert len(node_names) == len(sources) == len(targets) == len(time_stamps), \
+        "{},{},{},{}".format(len(node_names), len(sources), len(targets), len(time_stamps))
     g = nt.DiGraph()
     
     s2n = defaultdict(set)  # source to nodes mapping
