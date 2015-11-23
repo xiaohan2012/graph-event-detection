@@ -28,3 +28,18 @@ Def of word:
 - [Enron Criss Timeline][https://www.ferc.gov/industries/electric/indus-act/wec/chron/chronology.pdf]
 
 
+# Dairy
+
+Day 1: 
+
+- improved preprocessing
+- checked the topic results
+- meta graph construction(decomposing multiple-recipients node, add weight to edge, round to fixed decimal point)
+
+Day 2:
+
+- binarize general DAG, add reward attribute to node(as we need to create dummy nodes)
+- preprocess enron.json
+- Write the algorithm that gets A_u[i] for all nodes
+- Q: what do events with highest score look like? what are the top K events?
+- parameter tuning(embedded task)
