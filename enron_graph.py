@@ -39,22 +39,25 @@ class EnronUtil(object):
                         rec)
                     new_interactions.append(interaction)
             else:
-                i['message_id'] = unicode(i['message_id'])
-                new_interactions.append(i)
+                interaction = copy.deepcopy(i)
+                interaction['message_id'] = unicode(i['message_id'])
+                new_interactions.append(interaction)
         return new_interactions
     
     @classmethod
     def unzip_interactions(cls, interactions):
         """
+        sort interactions by time and 
         convert list of interactions to
         tuple of (interaction_names, sources, targets, time_stamps)
         """
+        print(interactions)
         interactions = sorted(interactions, key=lambda r: r['datetime'])
         interaction_names = [i['message_id'] for i in interactions]
         sources = [i['sender_id'] for i in interactions]
         targets = [i['recipient_ids'] for i in interactions]
         time_stamps = [i['datetime'] for i in interactions]
-        return [interaction_names, sources, targets, time_stamps]
+        return (interaction_names, sources, targets, time_stamps)
 
     @classmethod
     def get_meta_graph(cls, interactions):
@@ -146,7 +149,7 @@ class EnronUtil(object):
         return g
         
     @classmethod
-    def round_edge_weight_to_fixpoint(cls, g, decimal_point):
+    def round_edge_weight_to_decimal_point(cls, g, decimal_point):
         denom = float(10**decimal_point)
         for s, t in g.edges():
             g[s][t]['r_w'] = int(round(g[s][t]['w'] * denom)) / denom
@@ -161,10 +164,11 @@ class EnronUtil(object):
             cls.add_topics_to_graph(
                 cls.get_meta_graph(interactions),
                 lda_model, dictionary
-            )
+            ),
+            dist_func
         )
 
         if weight_decimal_point:
-            return cls.round_edge_weight_to_fixpoint(g, weight_decimal_point)
+            return cls.round_edge_weight_to_decimal_point(g, weight_decimal_point)
         else:
             return g
