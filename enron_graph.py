@@ -78,6 +78,7 @@ class EnronUtil(object):
             g.node[n]['subject'] = i['subject']
             g.node[n]['timestamp'] = i['datetime']
             g.node[n]['datetime'] = datetime.fromtimestamp(i['datetime'])
+            g.node[n][cls.VERTEX_REWARD_KEY] = 1
             
         return g
 

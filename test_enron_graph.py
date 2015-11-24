@@ -34,6 +34,10 @@ class EnronMetaGraphTest(unittest.TestCase):
                      sorted(self.g.edges()))
         assert_equal(7, len(self.g.nodes()))
         
+        for n in self.g.nodes():
+            assert_equal(1,
+                         self.g.node[n][EnronUtil.VERTEX_REWARD_KEY])
+        
         assert_equal(self.g.node['1.B']['body'], 'b1')
         assert_equal(self.g.node['1.B']['subject'], 's1')
         assert_equal(self.g.node['1.B']['timestamp'], 989587576)
