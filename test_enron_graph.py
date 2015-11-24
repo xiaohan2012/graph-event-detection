@@ -17,13 +17,13 @@ CURDIR = os.path.dirname(os.path.abspath(__file__))
 class EnronMetaGraphTest(unittest.TestCase):
     def setUp(self):
         self.lda_model = gensim.models.ldamodel.LdaModel.load(
-            os.path.join(CURDIR, 'model-4-50.lda')
+            os.path.join(CURDIR, 'test/data/test.lda')
         )
         self.dictionary = gensim.corpora.dictionary.Dictionary.load(
-            os.path.join(CURDIR, 'dictionary.gsm')
+            os.path.join(CURDIR, 'test/data/test_dictionary.gsm')
         )
         self.interactions = json.load(open(os.path.join(CURDIR,
-                                                        'enron_test.json')))
+                                                        'test/data/enron_test.json')))
         self.g = EnronUtil.get_meta_graph(self.interactions)
 
     def test_get_meta_graph(self):
@@ -83,49 +83,22 @@ class EnronMetaGraphTest(unittest.TestCase):
             )
         assert_equal(sorted(sub_g.edges()), sorted(expected_edges))
 
-    # DEPRECATED
-    # def test_assign_vertex_weight(self):
-    #     ref_vect = numpy.asarray([0, 0, 1, 0],
-    #                              dtype=numpy.float)  # the 'enronxgate'
-    #     g = self._get_topical_graph()
-    #     for n in g.nodes():
-    #         assert_true('w' not in g.node[n])
-    #     entropy = scipy.stats.entropy
-    #     g = EnronUtil.assign_vertex_weight(
-    #         g, ref_vect,
-    #         dist_func=entropy
-    #     )
-    #     for n in g.nodes():
-    #         numpy.testing.assert_array_almost_equal(
-    #             entropy(ref_vect, g.node[n]['topics']),
-    #             g.node[n]['w']
-    #         )
-    #     assert_equal(numpy.argmax([g.node[n]['w'] for n in g.nodes()]),
-    #                  4)
-
-    # def test_round_vertex_weight(self):
-    #     g = self._get_vertex_weighted_graph()
-        
-    #     g = EnronUtil.round_vertex_weight(g)
-    #     expected_values = [1, 1, 1, 1, 3]
-    #     for n, expected in zip(g.nodes(), expected_values):
-    #         assert_equal(g.node[n]['r_w'], expected)
-
     def test_assign_edge_weight(self):
         g = self._get_topical_graph()
         g = EnronUtil.assign_edge_weights(g, scipy.stats.entropy)
         
         for s, t in g.edges():
             print(s, t, g.node[s]['topics'], g.node[t]['topics'],
-                  g[s][t]['w'])
+                  g[s][t][EnronUtil.EDGE_COST_KEY])
             numpy.testing.assert_array_almost_equal(
                 scipy.stats.entropy(g.node[s]['topics'], g.node[t]['topics']),
-                g[s][t]['w']
+                g[s][t][EnronUtil.EDGE_COST_KEY]
             )
         # 5 is quite different from the rest
-        assert_true(g['1.D']['5']['w'] > g['1.D']['3']['w'])
+        assert_true(g['1.D']['5'][EnronUtil.EDGE_COST_KEY] > g['1.D']['3'][EnronUtil.EDGE_COST_KEY])
         # the rest are almost equal to each other
-        numpy.testing.assert_almost_equal(g['1.D']['4']['w'], g['2']['4']['w'])
+        numpy.testing.assert_almost_equal(g['1.D']['4'][EnronUtil.EDGE_COST_KEY],
+                                          g['2']['4'][EnronUtil.EDGE_COST_KEY])
 
     def test_decompose_interactions(self):
         d_interactions = EnronUtil.decompose_interactions(self.interactions)
@@ -158,7 +131,11 @@ class EnronMetaGraphTest(unittest.TestCase):
         assert_equal(decomposed_3[0]['message_id'], '1.D')
 
     def test_unzip_interactions(self):
-        interaction_names, sources, targets, time_stamps = EnronUtil.unzip_interactions(self.interactions)
+        (interaction_names,
+         sources,
+         targets,
+         time_stamps) = EnronUtil.unzip_interactions(self.interactions)
+
         assert_equal(range(1, 6),
                      interaction_names)
         assert_equal(['A', 'A', 'D', 'A', 'D'],
@@ -172,7 +149,7 @@ class EnronMetaGraphTest(unittest.TestCase):
         g = self._get_topical_graph()
         g = EnronUtil.assign_edge_weights(g, scipy.stats.entropy)
         g = EnronUtil.round_edge_weight_to_decimal_point(g, 2)
-        assert_equal(g['1.D']['5']['r_w'], 0.15)
+        assert_equal(g['1.D']['5'][EnronUtil.EDGE_ROUNDED_COST_KEY], 0.15)
 
     def test_get_topic_meta_graph(self):
         g = EnronUtil.get_topic_meta_graph(self.interactions,
@@ -181,7 +158,7 @@ class EnronMetaGraphTest(unittest.TestCase):
                                            dist_func=scipy.stats.entropy,
                                            weight_decimal_point=3)
         
-        assert_equal(g['1.D']['5']['r_w'], 0.151)
+        assert_equal(g['1.D']['5'][EnronUtil.EDGE_ROUNDED_COST_KEY], 0.151)
         assert_equal(7, len(g.nodes()))
         assert_equal(sorted([('1.B', '2'), ('1.C', '2'), ('1.D', '2'),
                              ('1.B', '4'), ('1.C', '4'), ('1.D', '4'),

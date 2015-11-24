@@ -23,6 +23,10 @@ class EnronUtil(object):
     - assign_vertex_weight
     - round_vertex_weight(if necessary)
     """
+    VERTEX_REWARD_KEY = 'r'
+    EDGE_COST_KEY = 'c'
+    EDGE_ROUNDED_COST_KEY = 'c'
+    
     stoplist = load_items_by_line(os.path.join(CURDIR, 'lemur-stopwords.txt'))
     valid_token_regexp = re.compile('^[a-z]+$')
 
@@ -118,44 +122,23 @@ class EnronUtil(object):
         return sub_g
     
     @classmethod
-    def assign_vertex_weight(cls, g, ref_vect, dist_func):
-        """
-        Assign vertex weight by the difference between
-        vertex topic vector and reference vector
-        
-        Return:
-        -----------
-        a DAG, whose nodes are weighted accordingly on attribute 'w'
-        """
-        for n in g.nodes():
-            assert ref_vect.shape == g.node[n]['topics'].shape, \
-                'Shape mismatch {} != {}'.format(ref_vect.shape, g.node[n]['topics'].shape)
-            g.node[n]['w'] = dist_func(ref_vect, g.node[n]['topics'])
-        return g
-
-    @classmethod
-    def round_vertex_weight(cls, g):
-        """
-        rounding the vertex weight to integer
-        """
-        for n in g.nodes():
-            g.node[n]['r_w'] = int(round(g.node[n]['w']))
-        return g
-
-    @classmethod
     def assign_edge_weights(cls, g, dist_func):
         for s, t in g.edges():
-            g[s][t]['w'] = dist_func(g.node[s]['topics'], g.node[t]['topics'])
+            g[s][t][cls.EDGE_COST_KEY] = dist_func(
+                g.node[s]['topics'],
+                g.node[t]['topics'])
         return g
         
     @classmethod
     def round_edge_weight_to_decimal_point(cls, g, decimal_point):
         denom = float(10**decimal_point)
         for s, t in g.edges():
-            g[s][t]['r_w'] = int(round(g[s][t]['w'] * denom)) / denom
+            g[s][t][cls.EDGE_ROUNDED_COST_KEY] = int(
+                round(g[s][t][cls.EDGE_COST_KEY] * denom)
+            ) / denom
         return g
 
-    @classmethod        
+    @classmethod
     def get_topic_meta_graph(cls, interactions,
                              lda_model, dictionary,
                              dist_func,
@@ -169,6 +152,8 @@ class EnronUtil(object):
         )
 
         if weight_decimal_point:
-            return cls.round_edge_weight_to_decimal_point(g, weight_decimal_point)
+            return cls.round_edge_weight_to_decimal_point(
+                g,
+                weight_decimal_point)
         else:
             return g
