@@ -19,13 +19,13 @@ def binarize_dag(g,
     for u in nx.topological_sort(g):
         nbs = g.neighbors(u)
         while len(nbs) > 2:
-            print(list(chunks(nbs, 2)))
             for p_1, p_2 in chunks(nbs, 2):
                 v = "{}{}".format(
                     dummy_node_name_prefix,
                     dummy_node_counter
                 )
                 g.add_node(v)
+                g.node[v]['dummy'] = True
                 g.add_edge(u, v)
                 g.add_edges_from([(v, p_1),
                                   (v, p_2)])
@@ -39,7 +39,13 @@ def binarize_dag(g,
                 dummy_node_counter += 1
             nbs = g.neighbors(u)
     return g
-            
+
+
+def unbinarize_dag(g):
+    """
+    convert binarized dag back to the original dag
+    """
+
 
 def is_binary(g):
     """check if the DAG is binary

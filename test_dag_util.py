@@ -62,3 +62,8 @@ def test_binarize_dag():
         assert_equal(c, binary_g[s][t][EnronUtil.EDGE_COST_KEY])
         
     assert_true(is_binary(binary_g))
+
+    # check `dummy` attribute is ON for dummy nodes
+    for n in g.nodes():
+        if isinstance(n, basestring) and n.startswith('d_'):
+            assert_true(g.node[n].get('dummy'))
