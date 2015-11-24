@@ -29,7 +29,6 @@ def lst_dag(G, r, U,
         D[n][0] = {n}
 
         BP[n] = defaultdict(list)  # backpointer corresponding to A[u][i]
-
     for n in topological_sort(G, reverse=True):  # leaves come first
         children = G.neighbors(n)
         reward = G.node[n][node_reward_key]
@@ -72,9 +71,12 @@ def lst_dag(G, r, U,
                             max_val = val
                             max_nodes = lset | rset | {n}
                             prev = [(lchild, j), (rchild, i-j-lw-rw)]
-                A[n][i] = max_val
-                D[n][i] = max_nodes
-                BP[n][i] = prev
+
+                if max_nodes != None:
+                    # we should have at least one *feasible* solution
+                    A[n][i] = max_val
+                    D[n][i] = max_nodes
+                    BP[n][i] = prev
             if n == r:  # no need to continue once we processed root
                 break
 

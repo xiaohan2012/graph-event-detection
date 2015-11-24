@@ -2,6 +2,7 @@ from .lst import lst_dag
 from nose.tools import assert_equal
 from networkx.classes.digraph import DiGraph
 
+from .dag_util import binarize_dag
 
 def test_lst_dag():
     # input
@@ -37,3 +38,43 @@ def test_lst_dag():
         actual = lst_dag(g, r, u)
         print('u={}'.format(u))
         assert_equal(expected.edges(), actual.edges())
+
+
+def _get_more_complicated_example_1():
+    g = DiGraph()
+    g.add_nodes_from(range(1, 10))
+    g.add_edges_from([(1, 2), (1, 3), (1, 7),
+                      (2, 4), (2, 5), (2, 6),
+                      (2, 7), (3, 8), (3, 9)])
+    rewards = range(1, 10)
+    for r, n in zip(rewards, g.nodes()):
+        g.node[n]['r'] = r
+        
+    # all edges have cost 2 except 1 -> 2 and 1 -> 3(cost 1)
+    for s, t in g.edges():
+        g[s][t]['c'] = 2
+    g[1][2]['c'] = 1
+    g[1][3]['c'] = 1
+    
+    return binarize_dag(g,
+                        vertex_weight_key='r',
+                        edge_weight_key='c',
+                        dummy_node_name_prefix='d_')
+    
+
+def test_lst_dag_more_complicated_example():
+    g = _get_more_complicated_example_1()
+    print(g.edges())
+    U = [0, 2, 3, 4, 100]
+    print(g.edges())
+    expected_edges_set = [
+        [(1, 'd_1')],
+        [(1, 7)],
+        [(1, 'd_1'), ('d_1', 3), (3, 9)],
+        [(1, 'd_1'), ('d_1', 3), (3, 9), ('d_1', 2), (2, 'd_2')],
+        list(set(g.edges()) - set([(1, 7)]))
+    ]
+
+    for u, edges in zip(U, expected_edges_set):
+        assert_equal(sorted(edges),
+                     sorted(lst_dag(g, 1, u).edges()))
