@@ -1,10 +1,9 @@
 import networkx as nx
-from .dag_util import binarize_dag, is_binary
+from .dag_util import binarize_dag, is_binary, unbinarize_dag
 from .enron_graph import EnronUtil
 from nose.tools import assert_equal, assert_true
 
-
-def test_binarize_dag():
+def _get_example_dag():
     # When create structure
     g = nx.DiGraph()
     g.add_nodes_from(range(1, 13))
@@ -21,6 +20,12 @@ def test_binarize_dag():
     for s, t in g.edges():
         g[s][t][EnronUtil.EDGE_COST_KEY] = 1
     g[1][2][EnronUtil.EDGE_COST_KEY] = 10  # some special treatment
+    
+    return g
+
+
+def test_binarize_dag():
+    g = _get_example_dag()
     
     # It should...
     binary_g = binarize_dag(g,
@@ -67,3 +72,21 @@ def test_binarize_dag():
     for n in g.nodes():
         if isinstance(n, basestring) and n.startswith('d_'):
             assert_true(g.node[n].get('dummy'))
+
+
+def test_unbinarize_dag():
+    g1 = _get_example_dag()
+    binary_g = binarize_dag(g1,
+                            vertex_weight_key=EnronUtil.VERTEX_REWARD_KEY,
+                            edge_weight_key=EnronUtil.EDGE_COST_KEY,
+                            dummy_node_name_prefix='d_')
+    g2 = unbinarize_dag(binary_g,
+                        edge_weight_key=EnronUtil.EDGE_COST_KEY,
+    )
+    assert_equal(sorted(g1.nodes()), sorted(g2.nodes()))
+    assert_equal(sorted(g1.edges()), sorted(g2.edges()))
+    match_func = lambda a1, a2: a1.items() == a2.items()
+    assert_true(nx.is_isomorphic(g1, g2,
+                                 node_match=match_func,
+                                 edge_match=match_func))
+    

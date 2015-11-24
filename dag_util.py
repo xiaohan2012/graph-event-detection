@@ -41,10 +41,22 @@ def binarize_dag(g,
     return g
 
 
-def unbinarize_dag(g):
+def unbinarize_dag(g,
+                   edge_weight_key):
     """
     convert binarized dag back to the original dag
     """
+    g = g.copy()  # be functional
+    for v in nx.topological_sort(g):
+        if g.node[v].get('dummy'):
+            parents = g.in_edges(v)
+            assert len(parents) == 1
+            u = parents[0][0]
+            for c in g.neighbors(v):
+                g.add_edge(u, c)
+                g[u][c][edge_weight_key] = g[v][c][edge_weight_key]
+            g.remove_node(v)
+    return g
 
 
 def is_binary(g):
