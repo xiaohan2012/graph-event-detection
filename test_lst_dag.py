@@ -41,6 +41,9 @@ def test_lst_dag():
 
 
 def _get_more_complicated_example_1():
+    """get a binarized example, whose original graph is 
+    more complicated than the above example
+    """
     g = DiGraph()
     g.add_nodes_from(range(1, 10))
     g.add_edges_from([(1, 2), (1, 3), (1, 7),
@@ -64,9 +67,7 @@ def _get_more_complicated_example_1():
 
 def test_lst_dag_more_complicated_example():
     g = _get_more_complicated_example_1()
-    print(g.edges())
     U = [0, 2, 3, 4, 100]
-    print(g.edges())
     expected_edges_set = [
         [(1, 'd_1')],
         [(1, 7)],

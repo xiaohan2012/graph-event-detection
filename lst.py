@@ -89,6 +89,12 @@ def lst_dag(G, r, U,
     while len(stack) > 0:
         parent, child, cost = stack.pop(0)
         tree.add_edge(parent, child)
+
+        # copy the attributes
+        tree[parent][child] = G[parent][child]
+        tree.node[parent] = G.node[parent]
+        tree.node[child] = G.node[child]
+
         for grandchild, cost2 in BP[child][cost]:
             stack.append((child, grandchild, cost2))
     return tree

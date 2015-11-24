@@ -3,6 +3,7 @@ from .dag_util import binarize_dag, is_binary, unbinarize_dag
 from .enron_graph import EnronUtil
 from nose.tools import assert_equal, assert_true
 
+
 def _get_example_dag():
     # When create structure
     g = nx.DiGraph()

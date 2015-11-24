@@ -48,6 +48,7 @@ def unbinarize_dag(g,
     """
     g = g.copy()  # be functional
     for v in nx.topological_sort(g):
+        print(v, g.node[v])
         if g.node[v].get('dummy'):
             parents = g.in_edges(v)
             assert len(parents) == 1
