@@ -1,7 +1,7 @@
 import networkx as nx
-from .dag_util import binarize_dag
+from .dag_util import binarize_dag, is_binary
 from .enron_graph import EnronUtil
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_true
 
 
 def test_binarize_dag():
@@ -60,3 +60,5 @@ def test_binarize_dag():
                   1, 1]
     for c, (s, t) in zip(edge_costs, expected_edges):
         assert_equal(c, binary_g[s][t][EnronUtil.EDGE_COST_KEY])
+        
+    assert_true(is_binary(binary_g))

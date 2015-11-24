@@ -40,3 +40,11 @@ def binarize_dag(g,
             nbs = g.neighbors(u)
     return g
             
+
+def is_binary(g):
+    """check if the DAG is binary
+    """
+    for n in g.nodes():
+        if len(g.neighbors(n)) > 2:
+            return False
+    return True
