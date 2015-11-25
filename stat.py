@@ -1,6 +1,5 @@
 import numpy as np
 from pprint import pformat
-from collections import OrderedDict
 
 
 class MetaGraphStat(object):
@@ -19,9 +18,11 @@ class MetaGraphStat(object):
         out_degrees = np.asarray([self.g.out_degree(n)
                                   for n in self.g.nodes()],
                                  dtype=np.int64)
-        
+        degrees = in_degrees + out_degrees
+
         return {
             '#nodes': len(self.g.nodes()),
+            '#singleton': len(np.nonzero(degrees == 0)[0]),
             '#edges': len(self.g.edges()),
             'in_degree': {
                 'min': in_degrees.min(),

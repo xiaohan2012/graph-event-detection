@@ -36,6 +36,7 @@ class MetaGraphStatTest(unittest.TestCase):
     def test_basic_structure_stats(self):
         expected = {
             '#nodes': 7,
+            '#singleton': 0,
             '#edges': 10,
             'in_degree': {
                 'min': 0,
