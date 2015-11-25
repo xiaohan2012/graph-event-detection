@@ -37,6 +37,7 @@ class EnronUtil(object):
         for i in new_interactions:
             # remove duplicate recipients
             i['recipient_ids'] = list(set(i['recipient_ids']))
+            assert 'datetime' in i
         return new_interactions
 
     @classmethod
@@ -134,6 +135,12 @@ class EnronUtil(object):
                 sub_g.add_edge(parent, child)
                 for grand_child in g.neighbors(child):
                     stack.append((child, grand_child))
+
+        # copying attrs
+        for n in sub_g.nodes():
+            sub_g.node[n] = g.node[n]
+        for s, t in sub_g.edges():
+            sub_g[s][t] = g[s][t]
         return sub_g
         
     @classmethod

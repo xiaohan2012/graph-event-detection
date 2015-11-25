@@ -93,7 +93,14 @@ class EnronMetaGraphTest(unittest.TestCase):
                 lambda n:
                 self.g.node[n]['timestamp'] - self.g.node[r]['timestamp'] <= max_time_diff
             )
-        assert_equal(sorted(sub_g.edges()), sorted(expected_edges))
+            assert_equal(sorted(sub_g.edges()), sorted(expected_edges))
+
+            # make sure attributes are copied
+            for s, t in sub_g.edges():
+                assert_equal(sub_g[s][t], self.g[s][t])
+
+            for n in sub_g.nodes():
+                assert_equal(sub_g.node[n], self.g.node[n])
 
     def test_get_rooted_subgraph_within_timespan(self):
         time_deltas = [timedelta(seconds=i)
@@ -127,7 +134,8 @@ class EnronMetaGraphTest(unittest.TestCase):
                 g[s][t][EnronUtil.EDGE_COST_KEY]
             )
         # 5 is quite different from the rest
-        assert_true(g['1.D']['5'][EnronUtil.EDGE_COST_KEY] > g['1.D']['3'][EnronUtil.EDGE_COST_KEY])
+        assert_true(g['1.D']['5'][EnronUtil.EDGE_COST_KEY] >
+                    g['1.D']['3'][EnronUtil.EDGE_COST_KEY])
         # the rest are almost equal to each other
         numpy.testing.assert_almost_equal(g['1.D']['4'][EnronUtil.EDGE_COST_KEY],
                                           g['2']['4'][EnronUtil.EDGE_COST_KEY])
@@ -203,3 +211,4 @@ class EnronMetaGraphTest(unittest.TestCase):
                              ('1.D', '3'), ('2', '4'), ('1.D', '5'),
                              ('3', '5')]),
                      sorted(g.edges()))
+    
