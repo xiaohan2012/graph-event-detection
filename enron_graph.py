@@ -29,13 +29,24 @@ class EnronUtil(object):
     
     stoplist = load_items_by_line(os.path.join(CURDIR, 'lemur-stopwords.txt'))
     valid_token_regexp = re.compile('^[a-z]+$')
+    
+    @classmethod
+    def clean_interactions(self, interactions):
+        """Some cleaning. Functional
+        """
+        new_interactions = copy.deepcopy(interactions)
+        for i in new_interactions:
+            # remove duplicate recipients
+            i['recipient_ids'] = list(set(i['recipient_ids']))
+        return new_interactions
 
     @classmethod
     def decompose_interactions(cls, interactions):
         new_interactions = []
         for i in interactions:
-            if len(i['recipient_ids']) > 1:
-                for rec in i['recipient_ids']:
+            recs = set(i['recipient_ids'])  # remove duplicates
+            if len(recs) > 1:
+                for rec in recs:
                     interaction = copy.deepcopy(i)
                     interaction['recipient_ids'] = [rec]
                     interaction['message_id'] = u'{}.{}'.format(
@@ -51,12 +62,13 @@ class EnronUtil(object):
     @classmethod
     def unzip_interactions(cls, interactions):
         """
-        sort interactions by time and 
+        sort interactions by time and
         convert list of interactions to
         tuple of (interaction_names, sources, targets, time_stamps)
         """
-        print(interactions)
+        # sorting is important
         interactions = sorted(interactions, key=lambda r: r['datetime'])
+        
         interaction_names = [i['message_id'] for i in interactions]
         sources = [i['sender_id'] for i in interactions]
         targets = [i['recipient_ids'] for i in interactions]
@@ -70,7 +82,11 @@ class EnronUtil(object):
         
         Decompose interactions if necessary
         """            
-        interactions = cls.decompose_interactions(interactions)
+        interactions = cls.decompose_interactions(
+            cls.clean_interactions(
+                interactions
+            )
+        )
         g = convert_to_meta_graph(*cls.unzip_interactions(interactions))
         for i in interactions:
             n = i['message_id']
@@ -95,7 +111,6 @@ class EnronUtil(object):
     def add_topics_to_graph(cls, g, lda_model, dictionary):
         for n in g.nodes():
             doc = u'{} {}'.format(g.node[n]['subject'], g.node[n]['body'])
-            print(n, doc, cls.tokenize_document(doc))
             topic_dist = lda_model.get_document_topics(
                 dictionary.doc2bow(cls.tokenize_document(doc)),
                 minimum_probability=0

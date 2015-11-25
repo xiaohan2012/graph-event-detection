@@ -2,6 +2,6 @@
 	{"body":"b1","recipient_ids":["B","C","D"],"sender_id":"A","datetime":989587576,"message_id":1,"subject":"s1"},
 	{"body":"...","recipient_ids":["F"],"sender_id":"A","datetime":989587577,"message_id":2,"subject":"..."},
 	{"body":"...","recipient_ids":["E"],"sender_id":"D","datetime":989587578,"message_id":3,"subject":""},
-	{"body":"...","recipient_ids":["B"],"sender_id":"A","datetime":989587579,"message_id":4,"subject":""},
+	{"body":"...","recipient_ids":["B", "B"],"sender_id":"A","datetime":989587579,"message_id":4,"subject":""},
 	{"body":"davis utilities san plant plants times million utility blackouts generators","recipient_ids":["F"],"sender_id":"D","datetime":989587580,"message_id":5,"subject":""}
 ]

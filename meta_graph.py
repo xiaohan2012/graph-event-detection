@@ -4,6 +4,10 @@ import networkx as nt
 
 from collections import defaultdict
 
+import logging
+logger = logging.getLogger("convert_to_meta_graph")
+logger.setLevel(logging.INFO)
+
 
 def convert_to_meta_graph(interaction_names, sources, targets, time_stamps):
     """
@@ -22,9 +26,13 @@ def convert_to_meta_graph(interaction_names, sources, targets, time_stamps):
     # interpretation:
     # s is associated with a list of interactions that take it as source
     s2i = defaultdict(set)
+
     for i, s, time in zip(interaction_names, sources, time_stamps):
-        s2i[s].add((i, time))
-    
+        if (i, time) in s2i[s]:
+            logger.warning("{} added already".format((i, time)))
+        else:
+            s2i[s].add((i, time))
+
     for i1, s, ts, time1 in zip(
             interaction_names, sources, targets, time_stamps):
         # remove entries of i1 in s2i
@@ -34,9 +42,11 @@ def convert_to_meta_graph(interaction_names, sources, targets, time_stamps):
         g.add_node(i1)
         
         # add edges
+        # broadcast pattern
         for i2, time2 in s2i[s]:
             if time1 < time2:
                 g.add_edge(i1, i2)
+        # relay pattern
         for t in ts:
             for i2, time2 in s2i[t]:
                 if time1 < time2:

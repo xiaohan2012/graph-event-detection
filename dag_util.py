@@ -13,7 +13,7 @@ def chunks(lst, chunk_size):
 def binarize_dag(g,
                  vertex_weight_key,
                  edge_weight_key,
-                 dummy_node_name_prefix='d'):
+                 dummy_node_name_prefix='d_'):
     g = g.copy()  # be functional
     dummy_node_counter = 1
     for u in nx.topological_sort(g):

@@ -24,7 +24,15 @@ class EnronMetaGraphTest(unittest.TestCase):
         )
         self.interactions = json.load(open(os.path.join(CURDIR,
                                                         'test/data/enron_test.json')))
+        
         self.g = EnronUtil.get_meta_graph(self.interactions)
+
+    def test_clean_interactions(self):
+        assert_equal(self.interactions[3]['recipient_ids'], ["B", "B"])
+        cleaned_interactions = EnronUtil.clean_interactions(
+            self.interactions
+        )
+        assert_equal(cleaned_interactions[3]['recipient_ids'], ["B"])
 
     def test_get_meta_graph(self):
         assert_equal(sorted([('1.B', '2'), ('1.C', '2'), ('1.D', '2'),
@@ -125,7 +133,11 @@ class EnronMetaGraphTest(unittest.TestCase):
                                           g['2']['4'][EnronUtil.EDGE_COST_KEY])
 
     def test_decompose_interactions(self):
-        d_interactions = EnronUtil.decompose_interactions(self.interactions)
+        d_interactions = EnronUtil.decompose_interactions(
+            EnronUtil.clean_interactions(
+                self.interactions
+            )
+        )
         assert_equal(7, len(d_interactions))
 
         # ['B', 'C', 'D'] should be decomposed
@@ -158,14 +170,19 @@ class EnronMetaGraphTest(unittest.TestCase):
         (interaction_names,
          sources,
          targets,
-         time_stamps) = EnronUtil.unzip_interactions(self.interactions)
+         time_stamps) = EnronUtil.unzip_interactions(
+             EnronUtil.clean_interactions(
+                 self.interactions
+             )
+         )
 
         assert_equal(range(1, 6),
                      interaction_names)
         assert_equal(['A', 'A', 'D', 'A', 'D'],
                      sources)
-        assert_equal([["B", "C", "D"], ['F'], ['E'], ['B'], ['F']],
-                     targets)
+        for e, a in zip([["B", "C", "D"], ['F'], ['E'], ['B'], ['F']],
+                        targets):
+            assert_equal(sorted(e), sorted(a))
         assert_equal([989587576, 989587577, 989587578, 989587579, 989587580],
                      time_stamps)
         
@@ -188,6 +205,4 @@ class EnronMetaGraphTest(unittest.TestCase):
                              ('1.B', '4'), ('1.C', '4'), ('1.D', '4'),
                              ('1.D', '3'), ('2', '4'), ('1.D', '5'),
                              ('3', '5')]),
-                     sorted(g.edges()))
-        
-        
+                     sorted(g.edges()))                
