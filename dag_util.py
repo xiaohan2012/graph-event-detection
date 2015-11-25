@@ -26,6 +26,8 @@ def binarize_dag(g,
                 )
                 g.add_node(v)
                 g.node[v]['dummy'] = True
+                print(g.node[u])
+                g.node[v]['datetime'] = g.node[u]['datetime']
                 g.add_edge(u, v)
                 g.add_edges_from([(v, p_1),
                                   (v, p_2)])
