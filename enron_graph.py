@@ -25,7 +25,6 @@ class EnronUtil(object):
     """
     VERTEX_REWARD_KEY = 'r'
     EDGE_COST_KEY = 'c'
-    EDGE_ROUNDED_COST_KEY = 'c'
     
     stoplist = load_items_by_line(os.path.join(CURDIR, 'lemur-stopwords.txt'))
     valid_token_regexp = re.compile('^[a-z]+$')
@@ -157,30 +156,13 @@ class EnronUtil(object):
         return g
         
     @classmethod
-    def round_edge_weight_to_decimal_point(cls, g, decimal_point):
-        denom = float(10**decimal_point)
-        for s, t in g.edges():
-            g[s][t][cls.EDGE_ROUNDED_COST_KEY] = int(
-                round(g[s][t][cls.EDGE_COST_KEY] * denom)
-            ) / denom
-        return g
-
-    @classmethod
     def get_topic_meta_graph(cls, interactions,
                              lda_model, dictionary,
-                             dist_func,
-                             weight_decimal_point=1):
-        g = cls.assign_edge_weights(
+                             dist_func):
+        return cls.assign_edge_weights(
             cls.add_topics_to_graph(
                 cls.get_meta_graph(interactions),
                 lda_model, dictionary
             ),
             dist_func
         )
-
-        if weight_decimal_point:
-            return cls.round_edge_weight_to_decimal_point(
-                g,
-                weight_decimal_point)
-        else:
-            return g

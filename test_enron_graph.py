@@ -7,7 +7,7 @@ import gensim
 import ujson as json
 
 from datetime import datetime, timedelta
-from nose.tools import assert_equal, assert_true
+from nose.tools import assert_equal, assert_true, assert_almost_equal
 
 from .enron_graph import EnronUtil
 
@@ -186,23 +186,20 @@ class EnronMetaGraphTest(unittest.TestCase):
         assert_equal([989587576, 989587577, 989587578, 989587579, 989587580],
                      time_stamps)
         
-    def test_round_edge_weight_to_decimal_point(self):
-        g = self._get_topical_graph()
-        g = EnronUtil.assign_edge_weights(g, scipy.stats.entropy)
-        g = EnronUtil.round_edge_weight_to_decimal_point(g, 2)
-        assert_equal(g['1.D']['5'][EnronUtil.EDGE_ROUNDED_COST_KEY], 0.15)
-
     def test_get_topic_meta_graph(self):
         g = EnronUtil.get_topic_meta_graph(self.interactions,
                                            self.lda_model,
                                            self.dictionary,
-                                           dist_func=scipy.stats.entropy,
-                                           weight_decimal_point=3)
+                                           dist_func=scipy.stats.entropy)
         
-        assert_equal(g['1.D']['5'][EnronUtil.EDGE_ROUNDED_COST_KEY], 0.151)
+        assert_almost_equal(
+            g['1.D']['5'][EnronUtil.EDGE_COST_KEY],
+            0.1511326,
+            places=4
+        )
         assert_equal(7, len(g.nodes()))
         assert_equal(sorted([('1.B', '2'), ('1.C', '2'), ('1.D', '2'),
                              ('1.B', '4'), ('1.C', '4'), ('1.D', '4'),
                              ('1.D', '3'), ('2', '4'), ('1.D', '5'),
                              ('3', '5')]),
-                     sorted(g.edges()))                
+                     sorted(g.edges()))
