@@ -121,7 +121,18 @@ class EnronUtil(object):
                 for grand_child in g.neighbors(child):
                     stack.append((child, grand_child))
         return sub_g
-    
+        
+    @classmethod
+    def get_rooted_subgraph_within_timespan(cls, g, r, secs):
+        """collect the subtrees, st, rooted at r that all nodes in st
+        are within a timeframe of length secs start from r['datetime']
+        """
+        return cls.filter_dag_given_root(
+            g, r,
+            lambda n:
+            g.node[n]['timestamp'] - g.node[r]['timestamp'] <= secs
+        )
+        
     @classmethod
     def assign_edge_weights(cls, g, dist_func):
         for s, t in g.edges():

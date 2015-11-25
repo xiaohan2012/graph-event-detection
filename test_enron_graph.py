@@ -6,7 +6,7 @@ import numpy
 import gensim
 import ujson as json
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from nose.tools import assert_equal, assert_true
 
 from .enron_graph import EnronUtil
@@ -87,13 +87,33 @@ class EnronMetaGraphTest(unittest.TestCase):
             )
         assert_equal(sorted(sub_g.edges()), sorted(expected_edges))
 
+    def test_get_rooted_subgraph_within_timespan(self):
+        time_deltas = [timedelta(seconds=i)
+                       for i in range(5)]  # 0 ... 4 secs
+        expected_edges_list = [
+            [],
+            [('1.D', '2')],
+            [('1.D', '2'), ('1.D', '3')],
+            [('1.D', '2'), ('1.D', '3'), ('1.D', '4'), ('2', '4')],
+            [('1.D', '2'), ('1.D', '3'), ('1.D', '4'), ('2', '4'),
+             ('1.D', u'5'), ('3', u'5')]
+        ]
+        for time_delta, expected_edges in \
+            zip(time_deltas, expected_edges_list):
+            assert_equal(
+                sorted(expected_edges),
+                sorted(
+                    EnronUtil.get_rooted_subgraph_within_timespan(
+                        self.g, '1.D', time_delta.total_seconds()
+                    ).edges()
+                )
+            )
+        
     def test_assign_edge_weight(self):
         g = self._get_topical_graph()
         g = EnronUtil.assign_edge_weights(g, scipy.stats.entropy)
         
         for s, t in g.edges():
-            print(s, t, g.node[s]['topics'], g.node[t]['topics'],
-                  g[s][t][EnronUtil.EDGE_COST_KEY])
             numpy.testing.assert_array_almost_equal(
                 scipy.stats.entropy(g.node[s]['topics'], g.node[t]['topics']),
                 g[s][t][EnronUtil.EDGE_COST_KEY]
@@ -169,3 +189,5 @@ class EnronMetaGraphTest(unittest.TestCase):
                              ('1.D', '3'), ('2', '4'), ('1.D', '5'),
                              ('3', '5')]),
                      sorted(g.edges()))
+        
+        
