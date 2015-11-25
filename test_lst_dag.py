@@ -4,6 +4,7 @@ from networkx.classes.digraph import DiGraph
 
 from .dag_util import binarize_dag
 
+
 def test_lst_dag():
     # input
     g = DiGraph()
@@ -36,12 +37,54 @@ def test_lst_dag():
 
     for u, expected in zip(U, expected_dags):
         actual = lst_dag(g, r, u)
-        print('u={}'.format(u))
+        assert_equal(expected.edges(), actual.edges())
+
+
+
+def test_lst_dag_with_decimal_point():
+    """
+    the case where edge weight are float
+    """
+    def _create_g():
+        # input
+        g = DiGraph()
+        g.add_edges_from([[1, 2], [1, 3], [2, 4], [3, 4]])
+
+        g.node[1]['r'] = 1
+        g.node[2]['r'] = 1
+        g.node[3]['r'] = 1.5
+        g.node[4]['r'] = 1
+
+        g[1][2]['c'] = 0.021
+        g[1][3]['c'] = 0.011
+        g[2][4]['c'] = 0.009
+        g[3][4]['c'] = 0.03
+
+        return g
+        
+    r = 1  # root
+    U = [float(i) / 100 for i in xrange(6)]  # 0...5
+
+    # expected value
+    one_node_tree = DiGraph()
+    one_node_tree.add_node(1)
+    expected_dags = [
+        one_node_tree,
+        DiGraph([(1, 3)]),
+        DiGraph([(1, 3)]),  # DiGraph([(1, 2)])
+        DiGraph([(1, 2), (1, 3)]),
+        DiGraph([(1, 2), (1, 3), (2, 4)]),
+        DiGraph([(1, 2), (1, 3), (2, 4)])
+    ]
+
+    for u, expected in zip(U, expected_dags)[:2]:
+        actual = lst_dag(_create_g(), r, u,
+                         edge_weight_decimal_point=2)
         assert_equal(expected.edges(), actual.edges())
 
 
 def _get_more_complicated_example_1():
-    """get a binarized example, whose original graph is 
+    """get a binarized example, whose original graph is
     more complicated than the above example
     """
     g = DiGraph()

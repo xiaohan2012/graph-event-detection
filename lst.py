@@ -7,6 +7,7 @@ from networkx.algorithms.dag import topological_sort
 def lst_dag(G, r, U,
             node_reward_key='r',
             edge_cost_key='c',
+            edge_weight_decimal_point=None,
             debug=False):
     """
     Param:
@@ -19,6 +20,14 @@ def lst_dag(G, r, U,
     maximum-sum subtree rooted at r whose sum of edge weights <= A
     ------------
     """
+    # round edge weight to fixed decimal point if necessary
+    if edge_weight_decimal_point:
+        multiplier = 10**edge_weight_decimal_point
+        for s, t in G.edges():
+            G[s][t][edge_cost_key] = int(round(
+                G[s][t][edge_cost_key] * multiplier)
+            )
+        U = int(U * multiplier)
     ns = G.nodes()
     A, D, BP = {}, {}, {}
     for n in ns:
@@ -80,6 +89,7 @@ def lst_dag(G, r, U,
             if n == r:  # no need to continue once we processed root
                 break
 
+    print(r)
     best_cost = max(xrange(U + 1),
                     key=lambda i: A[r][i] if i in A[r] else float('-inf'))
     tree = DiGraph()
