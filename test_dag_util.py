@@ -2,7 +2,7 @@ import networkx as nx
 from .dag_util import binarize_dag, is_binary, unbinarize_dag
 from .enron_graph import EnronUtil
 from nose.tools import assert_equal, assert_true
-import random
+
 
 def _get_example_dag():
     # When create structure
@@ -22,10 +22,6 @@ def _get_example_dag():
         g[s][t][EnronUtil.EDGE_COST_KEY] = 1
     g[1][2][EnronUtil.EDGE_COST_KEY] = 10  # some special treatment
     
-    # add some time to nodes
-    for n in g.nodes():
-        g.node[n]['datetime'] = random.random()
-
     return g
 
 
@@ -77,8 +73,6 @@ def test_binarize_dag():
     for n in g.nodes():
         if isinstance(n, basestring) and n.startswith('d_'):
             assert_true(g.node[n].get('dummy'))
-            p = g.in_edges(n)[0]
-            assert_equal(g.node[n]['datetime'], g.node[p]['datetime'])
 
 
 def test_unbinarize_dag():
