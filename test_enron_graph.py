@@ -78,8 +78,6 @@ class EnronMetaGraphTest(unittest.TestCase):
             assert_true(isinstance(g.node[n]['topics'], numpy.ndarray))
 
             # certain fields are deleted and certain fields are added
-            assert_true('subject' not in g.node[n])
-            assert_true('body' not in g.node[n])
             assert_true('doc_bow' in g.node[n])
 
     def test_filter_nodes_given_root(self):
@@ -219,3 +217,16 @@ class EnronMetaGraphTest(unittest.TestCase):
                              ('1.D', '3'), ('2', '4'), ('1.D', '5'),
                              ('3', '5')]),
                      sorted(g.edges()))        
+
+    def test_compactize_meta_graph(self):
+        # assure node topic vectors are deleted
+        g = EnronUtil.get_topic_meta_graph(self.interactions,
+                                           self.lda_model,
+                                           self.dictionary,
+                                           dist_func=scipy.stats.entropy)
+        g = EnronUtil.compactize_meta_graph(g)
+        
+        for n in self.g.nodes():
+            assert_true('topics' not in g.node[n])
+            assert_true('subject' not in g.node[n])
+            assert_true('body' not in g.node[n])

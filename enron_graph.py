@@ -138,8 +138,6 @@ class EnronUtil(object):
             )            
             g.node[n]['topics'] = np.asarray([v for _, v in topic_dist],
                                              dtype=np.float)
-            del g.node[n]['subject']
-            del g.node[n]['body']
             g.node[n]['doc_bow'] = bow
             
         return g
@@ -189,10 +187,7 @@ class EnronUtil(object):
                 g[s][t][cls.EDGE_COST_KEY] = dist_func(
                     g.node[s]['topics'],
                     g.node[t]['topics'])
-                # for pr in g.node[s]['peers']:
-                #     print(s, t)
-                #     print(pr)
-                #     g[pr][t][cls.EDGE_COST_KEY] = g[s][t][cls.EDGE_COST_KEY]
+        
         return g
         
     @classmethod
@@ -218,3 +213,16 @@ class EnronUtil(object):
         return cls.assign_edge_weights(tmg,
                                        dist_func,
                                        debug)
+
+    @classmethod
+    def compactize_meta_graph(self, g):
+        g = g.copy()
+        # remove topics, body, subject to save space
+        for n in g.nodes():
+            del g.node[n]['topics']
+            del g.node[n]['subject']
+            del g.node[n]['body']
+
+        return g
+
+            
