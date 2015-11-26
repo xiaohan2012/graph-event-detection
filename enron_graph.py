@@ -131,12 +131,16 @@ class EnronUtil(object):
                 if i % 100 == 0:
                     print('{} / {}'.format(i, N))
             doc = u'{} {}'.format(g.node[n]['subject'], g.node[n]['body'])
+            bow = dictionary.doc2bow(cls.tokenize_document(doc))
             topic_dist = lda_model.get_document_topics(
-                dictionary.doc2bow(cls.tokenize_document(doc)),
+                bow,
                 minimum_probability=0
-            )
+            )            
             g.node[n]['topics'] = np.asarray([v for _, v in topic_dist],
                                              dtype=np.float)
+            del g.node[n]['subject']
+            del g.node[n]['body']
+            g.node[n]['doc_bow'] = bow
             
         return g
 

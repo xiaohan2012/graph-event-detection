@@ -4,14 +4,17 @@ length-constrained maximum-sum subtree algorithms
 
 # Processing of messages
 
-- removed "\ "
-- removed "= "
-- removed "[IMAGE]"
-
+- "= \ " to ""
+- "\ " to " "
+- "=\r\n" to ""
+- "\r\n=" to ""
+- "[IMAGE]" to ""
+- "\r\n" to " "
+- "\n" to " " \# collapse to one line
 
 Def of word:
 
-1. only alphabetic letters: 14981 unique tokens
+1. only alphabetic letters: 13041 unique tokens
 2. otherwise:  21862 unique tokens
 
 
@@ -25,7 +28,7 @@ Def of word:
 
 # Resources
 
-- [Enron Criss Timeline][https://www.ferc.gov/industries/electric/indus-act/wec/chron/chronology.pdf]
+- [Enron Crisis Timeline](https://www.ferc.gov/industries/electric/indus-act/wec/chron/chronology.pdf)
 
 
 # Dairy
@@ -40,6 +43,18 @@ Day 2:
 
 - binarize general DAG, add reward attribute to node(as we need to create dummy nodes)
 - preprocess enron.json
+- test `lst` for binarized DAG
+- binarized DAG back to its original form
+- two bugs found in `lst_dag`: 1, attr not copying 2, assign solution even if `max_nodes` is None
+
+Day 3:
+
+- test `get_rooted_subgraph_within_timespan`
+- remove duplicate recipients(some nodes don't have `datetime`)
+
+Day 4:
+
+- functional test for subset of `enron.json`
 - Write the algorithm that gets A_u[i] for all nodes
 - Q: what do events with highest score look like? what are the top K events?
 - parameter tuning(embedded task)

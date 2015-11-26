@@ -77,6 +77,11 @@ class EnronMetaGraphTest(unittest.TestCase):
             assert_equal(g.node[n]['topics'].shape, (4, ))
             assert_true(isinstance(g.node[n]['topics'], numpy.ndarray))
 
+            # certain fields are deleted and certain fields are added
+            assert_true('subject' not in g.node[n])
+            assert_true('body' not in g.node[n])
+            assert_true('doc_bow' in g.node[n])
+
     def test_filter_nodes_given_root(self):
         r = '1.D'
         max_time_diffs = range(5)  # 0 ... 4 secs
@@ -213,5 +218,4 @@ class EnronMetaGraphTest(unittest.TestCase):
                              ('1.B', '4'), ('1.C', '4'), ('1.D', '4'),
                              ('1.D', '3'), ('2', '4'), ('1.D', '5'),
                              ('3', '5')]),
-                     sorted(g.edges()))
-    
+                     sorted(g.edges()))        
