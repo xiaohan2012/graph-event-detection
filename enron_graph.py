@@ -121,37 +121,33 @@ class EnronUtil(object):
         return g
 
     @classmethod
-    def filter_dag_given_root(cls, g, r, filter_func):
+    def filter_dag_given_root(cls, g, r, filter_func, debug=False):
         """filter nodes given root and some filter function
 
         Return:
         a DAG, sub_g of which all nodes in sub_g passes filter_func
         """
-        sub_g = nt.DiGraph()
-        stack = [(r, child) for child in g.neighbors(r)]
-        while len(stack) > 0:
-            parent, child = stack.pop()
-            if filter_func(child):
-                sub_g.add_edge(parent, child)
-                for grand_child in g.neighbors(child):
-                    stack.append((child, grand_child))
+        sub_g = g.copy()
+        
+        descendants_of_r = set(nt.descendants(g, r)) | {r}
+        
+        nodes_to_be_removed = [n for n in sub_g.nodes()
+                               if (not filter_func(n) or
+                                   n not in descendants_of_r)]
+        sub_g.remove_nodes_from(nodes_to_be_removed)
 
-        # copying attrs
-        for n in sub_g.nodes():
-            sub_g.node[n] = g.node[n]
-        for s, t in sub_g.edges():
-            sub_g[s][t] = g[s][t]
         return sub_g
         
     @classmethod
-    def get_rooted_subgraph_within_timespan(cls, g, r, secs):
+    def get_rooted_subgraph_within_timespan(cls, g, r, secs, debug=False):
         """collect the subtrees, st, rooted at r that all nodes in st
         are within a timeframe of length secs start from r['datetime']
         """
         return cls.filter_dag_given_root(
             g, r,
             lambda n:
-            g.node[n]['timestamp'] - g.node[r]['timestamp'] <= secs
+            (g.node[n]['timestamp'] - g.node[r]['timestamp'] <= secs),
+            debug
         )
         
     @classmethod

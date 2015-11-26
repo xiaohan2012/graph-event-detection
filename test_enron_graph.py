@@ -91,7 +91,7 @@ class EnronMetaGraphTest(unittest.TestCase):
             sub_g = EnronUtil.filter_dag_given_root(
                 self.g, r,
                 lambda n:
-                self.g.node[n]['timestamp'] - self.g.node[r]['timestamp'] <= max_time_diff
+                self.g.node[n]['timestamp'] - self.g.node[r]['timestamp'] <= max_time_diff,
             )
             assert_equal(sorted(sub_g.edges()), sorted(expected_edges))
 

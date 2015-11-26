@@ -67,3 +67,7 @@ def is_binary(g):
         if len(g.neighbors(n)) > 2:
             return False
     return True
+
+
+def assert_no_cycle(g):
+    assert len(list(nx.simple_cycles(g))) == 0, 'g is cyclic'

@@ -28,7 +28,11 @@ def lst_dag(G, r, U,
                 G[s][t][edge_cost_key] * multiplier)
             )
         U = int(U * multiplier)
+
     ns = G.nodes()
+    if debug:
+        print("total #nodes {}".format(len(ns)))
+    
     A, D, BP = {}, {}, {}
     for n in ns:
         A[n] = {}  # maximum sum of node u at a cost i
@@ -38,7 +42,13 @@ def lst_dag(G, r, U,
         D[n][0] = {n}
 
         BP[n] = defaultdict(list)  # backpointer corresponding to A[u][i]
-    for n in topological_sort(G, reverse=True):  # leaves come first
+
+    for n_i, n in enumerate(
+            topological_sort(G, reverse=True)):  # leaves come first
+
+        if debug:
+            print("#nodes processed {}".format(n_i))
+        
         children = G.neighbors(n)
         reward = G.node[n][node_reward_key]
         if len(children) == 1:
@@ -88,8 +98,7 @@ def lst_dag(G, r, U,
                     BP[n][i] = prev
             if n == r:  # no need to continue once we processed root
                 break
-
-    print(r)
+                
     best_cost = max(xrange(U + 1),
                     key=lambda i: A[r][i] if i in A[r] else float('-inf'))
     tree = DiGraph()
@@ -97,6 +106,10 @@ def lst_dag(G, r, U,
     for n, cost in BP[r][best_cost]:
         stack.append((r, n, cost))
     while len(stack) > 0:
+        if debug:
+            print('stack size: {}'.format(len(stack)))
+            print('stack: {}'.format(stack))
+        
         parent, child, cost = stack.pop(0)
         tree.add_edge(parent, child)
 
@@ -106,5 +119,8 @@ def lst_dag(G, r, U,
         tree.node[child] = G.node[child]
 
         for grandchild, cost2 in BP[child][cost]:
+            if debug:
+                print(grandchild, cost2)
             stack.append((child, grandchild, cost2))
+
     return tree
