@@ -46,16 +46,23 @@ class EnronUtil(object):
         for i in interactions:
             recs = set(i['recipient_ids'])  # remove duplicates
             if len(recs) > 1:
+                new_node_name = lambda rec: u'{}.{}'.format(
+                    i['message_id'],
+                    rec)
+                decomposed_node_names = map(new_node_name, recs)
                 for rec in recs:
                     interaction = copy.deepcopy(i)
                     interaction['recipient_ids'] = [rec]
-                    interaction['message_id'] = u'{}.{}'.format(
-                        interaction['message_id'],
-                        rec)
+                    interaction['message_id'] = new_node_name(rec)
+
+                    # to avoid document vector being calculated multiple times,
+                    # we add this additional attr
+                    interaction['peers'] = decomposed_node_names
                     new_interactions.append(interaction)
             else:
                 interaction = copy.deepcopy(i)
                 interaction['message_id'] = unicode(i['message_id'])
+                interaction['peers'] = []
                 new_interactions.append(interaction)
         return new_interactions
     
@@ -73,6 +80,7 @@ class EnronUtil(object):
         sources = [i['sender_id'] for i in interactions]
         targets = [i['recipient_ids'] for i in interactions]
         time_stamps = [i['datetime'] for i in interactions]
+
         return (interaction_names, sources, targets, time_stamps)
 
     @classmethod
@@ -81,7 +89,7 @@ class EnronUtil(object):
         Return the meta graph together with temporally sorted interactions
         
         Decompose interactions if necessary
-        """            
+        """
 
         interactions = cls.decompose_interactions(
             cls.clean_interactions(
@@ -93,9 +101,13 @@ class EnronUtil(object):
             n = i['message_id']
             g.node[n]['body'] = i['body']
             g.node[n]['subject'] = i['subject']
+            
             g.node[n]['timestamp'] = i['datetime']
             g.node[n]['datetime'] = datetime.fromtimestamp(i['datetime'])
+
             g.node[n][cls.VERTEX_REWARD_KEY] = 1
+
+            g.node[n]['peers'] = i['peers']
             
         return g
 
@@ -110,12 +122,14 @@ class EnronUtil(object):
 
     @classmethod
     def add_topics_to_graph(cls, g, lda_model, dictionary, debug=False):
+        """
+        """
         nodes = g.nodes()
         N = len(nodes)
         for i, n in enumerate(nodes):
             if debug:
-                print('{} / {}'.format(i, N))
-            
+                if i % 100 == 0:
+                    print('{} / {}'.format(i, N))
             doc = u'{} {}'.format(g.node[n]['subject'], g.node[n]['body'])
             topic_dist = lda_model.get_document_topics(
                 dictionary.doc2bow(cls.tokenize_document(doc)),
@@ -158,14 +172,23 @@ class EnronUtil(object):
         
     @classmethod
     def assign_edge_weights(cls, g, dist_func, debug=False):
+        """
+        # TODO: same edge can calculated multiple times due to decomposition
+        """
         edges = g.edges()
         N = len(edges)
         for i, (s, t) in enumerate(edges):
             if debug:
-                print('{}/{}'.format(i, N))
-            g[s][t][cls.EDGE_COST_KEY] = dist_func(
-                g.node[s]['topics'],
-                g.node[t]['topics'])
+                if i % 10000 == 0:
+                    print('{}/{}'.format(i, N))
+            if cls.EDGE_COST_KEY not in g[s][t]:
+                g[s][t][cls.EDGE_COST_KEY] = dist_func(
+                    g.node[s]['topics'],
+                    g.node[t]['topics'])
+                # for pr in g.node[s]['peers']:
+                #     print(s, t)
+                #     print(pr)
+                #     g[pr][t][cls.EDGE_COST_KEY] = g[s][t][cls.EDGE_COST_KEY]
         return g
         
     @classmethod
@@ -176,6 +199,7 @@ class EnronUtil(object):
         if debug:
             print('get_meta_graph')
         mg = cls.get_meta_graph(interactions)
+
         if debug:
             print('add topics')
         tmg = cls.add_topics_to_graph(
@@ -184,6 +208,7 @@ class EnronUtil(object):
             dictionary,
             debug
         )
+
         if debug:
             print('assign_edge_weights')
         return cls.assign_edge_weights(tmg,

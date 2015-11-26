@@ -49,11 +49,13 @@ class EnronMetaGraphTest(unittest.TestCase):
         assert_equal(self.g.node['1.B']['body'], 'b1')
         assert_equal(self.g.node['1.B']['subject'], 's1')
         assert_equal(self.g.node['1.B']['timestamp'], 989587576)
+        assert_equal(sorted(self.g.node['1.B']['peers']), sorted(['1.B', '1.C', '1.D']))
         assert_equal(self.g.node['1.B']['datetime'],
                      datetime.fromtimestamp(989587576))
         assert_equal(self.g.node['2']['body'], '...')
         assert_equal(self.g.node['2']['subject'], '...')
         assert_equal(self.g.node['2']['timestamp'], 989587577)
+        assert_equal(self.g.node['2']['peers'], [])
         assert_equal(self.g.node['2']['datetime'],
                      datetime.fromtimestamp(989587577))
         
@@ -136,6 +138,7 @@ class EnronMetaGraphTest(unittest.TestCase):
         # 5 is quite different from the rest
         assert_true(g['1.D']['5'][EnronUtil.EDGE_COST_KEY] >
                     g['1.D']['3'][EnronUtil.EDGE_COST_KEY])
+
         # the rest are almost equal to each other
         numpy.testing.assert_almost_equal(g['1.D']['4'][EnronUtil.EDGE_COST_KEY],
                                           g['2']['4'][EnronUtil.EDGE_COST_KEY])
