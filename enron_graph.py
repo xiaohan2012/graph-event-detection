@@ -82,6 +82,7 @@ class EnronUtil(object):
         
         Decompose interactions if necessary
         """            
+
         interactions = cls.decompose_interactions(
             cls.clean_interactions(
                 interactions
@@ -108,8 +109,13 @@ class EnronUtil(object):
         ]
 
     @classmethod
-    def add_topics_to_graph(cls, g, lda_model, dictionary):
-        for n in g.nodes():
+    def add_topics_to_graph(cls, g, lda_model, dictionary, debug=False):
+        nodes = g.nodes()
+        N = len(nodes)
+        for i, n in enumerate(nodes):
+            if debug:
+                print('{} / {}'.format(i, N))
+            
             doc = u'{} {}'.format(g.node[n]['subject'], g.node[n]['body'])
             topic_dist = lda_model.get_document_topics(
                 dictionary.doc2bow(cls.tokenize_document(doc)),
@@ -151,8 +157,12 @@ class EnronUtil(object):
         )
         
     @classmethod
-    def assign_edge_weights(cls, g, dist_func):
-        for s, t in g.edges():
+    def assign_edge_weights(cls, g, dist_func, debug=False):
+        edges = g.edges()
+        N = len(edges)
+        for i, (s, t) in enumerate(edges):
+            if debug:
+                print('{}/{}'.format(i, N))
             g[s][t][cls.EDGE_COST_KEY] = dist_func(
                 g.node[s]['topics'],
                 g.node[t]['topics'])
@@ -161,11 +171,21 @@ class EnronUtil(object):
     @classmethod
     def get_topic_meta_graph(cls, interactions,
                              lda_model, dictionary,
-                             dist_func):
-        return cls.assign_edge_weights(
-            cls.add_topics_to_graph(
-                cls.get_meta_graph(interactions),
-                lda_model, dictionary
-            ),
-            dist_func
+                             dist_func,
+                             debug=False):
+        if debug:
+            print('get_meta_graph')
+        mg = cls.get_meta_graph(interactions)
+        if debug:
+            print('add topics')
+        tmg = cls.add_topics_to_graph(
+            mg,
+            lda_model,
+            dictionary,
+            debug
         )
+        if debug:
+            print('assign_edge_weights')
+        return cls.assign_edge_weights(tmg,
+                                       dist_func,
+                                       debug)

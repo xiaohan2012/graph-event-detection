@@ -203,7 +203,7 @@ class EnronMetaGraphTest(unittest.TestCase):
         assert_almost_equal(
             g['1.D']['5'][EnronUtil.EDGE_COST_KEY],
             0.1511326,
-            places=4
+            places=3
         )
         assert_equal(7, len(g.nodes()))
         assert_equal(sorted([('1.B', '2'), ('1.C', '2'), ('1.D', '2'),
