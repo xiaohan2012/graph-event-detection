@@ -230,3 +230,7 @@ class EnronMetaGraphTest(unittest.TestCase):
             assert_true('topics' not in g.node[n])
             assert_true('subject' not in g.node[n])
             assert_true('body' not in g.node[n])
+            assert_true('timestamp' not in g.node[n])
+            assert_true('peer' not in g.node[n])
+            assert_true('doc_bow' not in g.node[n])
+            

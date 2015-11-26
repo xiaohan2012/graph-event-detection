@@ -218,11 +218,8 @@ class EnronUtil(object):
     def compactize_meta_graph(self, g):
         g = g.copy()
         # remove topics, body, subject to save space
+        fields = ['topics', 'subject', 'body', 'timestamp', 'peers', 'doc_bow']
         for n in g.nodes():
-            del g.node[n]['topics']
-            del g.node[n]['subject']
-            del g.node[n]['body']
-
+            for f in fields:
+                del g.node[n][f]
         return g
-
-            
