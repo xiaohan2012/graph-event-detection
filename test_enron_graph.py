@@ -49,7 +49,8 @@ class EnronMetaGraphTest(unittest.TestCase):
         assert_equal(self.g.node['1.B']['body'], 'b1')
         assert_equal(self.g.node['1.B']['subject'], 's1')
         assert_equal(self.g.node['1.B']['timestamp'], 989587576)
-        assert_equal(sorted(self.g.node['1.B']['peers']), sorted(['1.B', '1.C', '1.D']))
+        assert_equal(sorted(self.g.node['1.B']['peers']),
+                     sorted(['1.B', '1.C', '1.D']))
         assert_equal(self.g.node['1.B']['datetime'],
                      datetime.fromtimestamp(989587576))
         assert_equal(self.g.node['2']['body'], '...')
@@ -152,7 +153,7 @@ class EnronMetaGraphTest(unittest.TestCase):
                 self.interactions
             )
         )
-        assert_equal(7, len(d_interactions))
+        assert_equal(8, len(d_interactions))
 
         # ['B', 'C', 'D'] should be decomposed
         assert_equal(0,
@@ -190,14 +191,14 @@ class EnronMetaGraphTest(unittest.TestCase):
              )
          )
 
-        assert_equal(range(1, 6),
+        assert_equal(range(1, 7),
                      interaction_names)
-        assert_equal(['A', 'A', 'D', 'A', 'D'],
+        assert_equal(['A', 'A', 'D', 'A', 'D', 'XXX'],
                      sources)
-        for e, a in zip([["B", "C", "D"], ['F'], ['E'], ['B'], ['F']],
+        for e, a in zip([["B", "C", "D"], ['F'], ['E'], ['B'], ['F'], ['XXX']],
                         targets):
             assert_equal(sorted(e), sorted(a))
-        assert_equal([989587576, 989587577, 989587578, 989587579, 989587580],
+        assert_equal([989587576, 989587577, 989587578, 989587579, 989587580, 989587581],
                      time_stamps)
         
     def test_get_topic_meta_graph(self):
@@ -233,4 +234,3 @@ class EnronMetaGraphTest(unittest.TestCase):
             assert_true('timestamp' not in g.node[n])
             assert_true('peer' not in g.node[n])
             assert_true('doc_bow' not in g.node[n])
-            

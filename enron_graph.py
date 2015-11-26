@@ -84,7 +84,7 @@ class EnronUtil(object):
         return (interaction_names, sources, targets, time_stamps)
 
     @classmethod
-    def get_meta_graph(cls, interactions):
+    def get_meta_graph(cls, interactions, remove_singleton=True):
         """
         Return the meta graph together with temporally sorted interactions
         
@@ -108,7 +108,11 @@ class EnronUtil(object):
             g.node[n][cls.VERTEX_REWARD_KEY] = 1
 
             g.node[n]['peers'] = i['peers']
-            
+        
+        if remove_singleton:
+            for n in g.nodes():
+                if g.degree(n) == 0:
+                    g.remove_node(n)
         return g
 
     @classmethod
