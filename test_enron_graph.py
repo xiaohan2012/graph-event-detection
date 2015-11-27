@@ -209,7 +209,8 @@ class EnronMetaGraphTest(unittest.TestCase):
         g = EnronUtil.get_topic_meta_graph(self.interactions,
                                            self.lda_model,
                                            self.dictionary,
-                                           dist_func=scipy.stats.entropy)
+                                           dist_func=scipy.stats.entropy,
+                                           preprune_secs=None)
         
         assert_almost_equal(
             g['1.D']['5'][EnronUtil.EDGE_COST_KEY],
@@ -221,7 +222,22 @@ class EnronMetaGraphTest(unittest.TestCase):
                              ('1.B', '4'), ('1.C', '4'), ('1.D', '4'),
                              ('1.D', '3'), ('2', '4'), ('1.D', '5'),
                              ('3', '5')]),
-                     sorted(g.edges()))        
+                     sorted(g.edges()))
+
+    def test_get_topic_meta_graph_with_prepruning(self):
+        g = EnronUtil.get_topic_meta_graph(self.interactions,
+                                           self.lda_model,
+                                           self.dictionary,
+                                           dist_func=scipy.stats.entropy,
+                                           preprune_secs=1.0)
+        
+        assert_almost_equal(
+            g['1.D']['2'][EnronUtil.EDGE_COST_KEY],
+            0
+        )
+        assert_equal(7, len(g.nodes()))
+        assert_equal(sorted([('1.B', '2'), ('1.C', '2'), ('1.D', '2')]),
+                     sorted(g.edges()))
 
     def test_compactize_meta_graph(self):
         # assure node topic vectors are deleted
@@ -230,7 +246,7 @@ class EnronMetaGraphTest(unittest.TestCase):
                                            self.dictionary,
                                            dist_func=scipy.stats.entropy)
         original_g = g.copy()
-        g, str2id = EnronUtil.compactize_meta_graph(g, preprune_secs=None)
+        g, str2id = EnronUtil.compactize_meta_graph(g)
         
         for n in original_g.nodes():
             n = str2id[n]
@@ -255,22 +271,9 @@ class EnronMetaGraphTest(unittest.TestCase):
             assert_equal(original_g[s][t][EnronUtil.EDGE_COST_KEY],
                          g[s1][t1][EnronUtil.EDGE_COST_KEY])
 
-    def test_compactize_meta_graph_with_preprune(self):
-        g = EnronUtil.get_topic_meta_graph(self.interactions,
-                                           self.lda_model,
-                                           self.dictionary,
-                                           dist_func=scipy.stats.entropy)
-        g, str2id = EnronUtil.compactize_meta_graph(g, preprune_secs=1.0)
-        expected_edges = sorted([
-            ('1.B', '2'), ('1.C', '2'), ('1.D', '2')
-        ])
-        expected_edges = sorted([(str2id[s], str2id[t])
-                                 for s, t in expected_edges])
-        assert_equal(expected_edges, sorted(g.edges()))
-
     def test_preprune_edges_by_timespan(self):
         g = EnronUtil.preprune_edges_by_timespan(self.g, 1.0)
         expected_edges = sorted([
             ('1.B', '2'), ('1.C', '2'), ('1.D', '2')
-        ]) 
+        ])
         assert_equal(expected_edges, sorted(g.edges()))

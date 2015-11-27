@@ -207,6 +207,7 @@ class EnronUtil(object):
     def get_topic_meta_graph(cls, interactions,
                              lda_model, dictionary,
                              dist_func,
+                             preprune_secs=None,
                              debug=False):
         if debug:
             print('get_meta_graph')
@@ -221,6 +222,16 @@ class EnronUtil(object):
             debug
         )
 
+        if isinstance(preprune_secs, int) or isinstance(preprune_secs, float):
+            if debug:
+                print("preprune_by_secs enabled..")
+                print('before pruning: #edges:{}'.format(len(tmg.edges())))
+            
+            tmg = cls.preprune_edges_by_timespan(tmg, preprune_secs)
+
+            if debug:
+                print('after pruning: #edges:{}'.format(len(tmg.edges())))
+
         if debug:
             print('assign_edge_weights')
         return cls.assign_edge_weights(tmg,
@@ -228,12 +239,10 @@ class EnronUtil(object):
                                        debug)
 
     @classmethod
-    def compactize_meta_graph(cls, g, preprune_secs=None):
+    def compactize_meta_graph(cls, g):
         """remove unnecessary fields and convert node name to integer
         """
         g = g.copy()
-        if isinstance(preprune_secs, int) or isinstance(preprune_secs, float):
-            g = cls.preprune_edges_by_timespan(g, preprune_secs)
             
         # remove topics, body, subject to save space
         fields = ['topics', 'subject', 'body', 'timestamp', 'peers', 'doc_bow']
