@@ -228,11 +228,13 @@ class EnronUtil(object):
                                        debug)
 
     @classmethod
-    def compactize_meta_graph(cls, g):
+    def compactize_meta_graph(cls, g, preprune_secs=None):
         """remove unnecessary fields and convert node name to integer
         """
         g = g.copy()
-
+        if isinstance(preprune_secs, int):
+            g = cls.preprune_edges_by_timespan(g, preprune_secs)
+            
         # remove topics, body, subject to save space
         fields = ['topics', 'subject', 'body', 'timestamp', 'peers', 'doc_bow']
         for n in g.nodes():
@@ -243,4 +245,18 @@ class EnronUtil(object):
         node_str2int = {n: i
                         for i, n in enumerate(g.nodes())}
         return nx.relabel_nodes(g, mapping=node_str2int, copy=True), node_str2int
+                
+    @classmethod
+    def preprune_edges_by_timespan(cls, g, secs):
+        """for each node, prune its connecting nodes
+        that are temporally far away from it
+        """
+        g = g.copy()
+        for n in g.nodes():
+            nbrs = g.neighbors(n)
+            for nb in nbrs:
+                if g.node[nb]['timestamp'] - g.node[n]['timestamp'] > secs:
+                    g.remove_edge(n, nb)
+
+        return g
                 
