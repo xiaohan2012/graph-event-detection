@@ -70,4 +70,7 @@ def is_binary(g):
 
 
 def assert_no_cycle(g):
+    """Use this carefully especially with big graph,
+    it's quite slow
+    """
     assert len(list(nx.simple_cycles(g))) == 0, 'g is cyclic'
