@@ -4,7 +4,7 @@ import nltk
 import copy
 
 import numpy as np
-import networkx as nt
+import networkx as nx
 
 from datetime import datetime
 from util import load_items_by_line
@@ -12,6 +12,13 @@ from util import load_items_by_line
 from meta_graph import convert_to_meta_graph
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
+
+
+class CompactDiGraph(nx.DiGraph):
+    def __init__(self, str2id, *args, **kwargs):
+        self.str2id = str2id
+        super(CompactDiGraph, self).__init__(*args, **kwargs)
+        
 
 
 class EnronUtil(object):
@@ -54,7 +61,7 @@ class EnronUtil(object):
                     interaction = copy.deepcopy(i)
                     interaction['recipient_ids'] = [rec]
                     interaction['message_id'] = new_node_name(rec)
-
+                    interaction['original_message_id'] = i['message_id']
                     # to avoid document vector being calculated multiple times,
                     # we add this additional attr
                     interaction['peers'] = decomposed_node_names
@@ -62,6 +69,7 @@ class EnronUtil(object):
             else:
                 interaction = copy.deepcopy(i)
                 interaction['message_id'] = unicode(i['message_id'])
+                interaction['original_message_id'] = i['message_id']
                 interaction['peers'] = []
                 new_interactions.append(interaction)
         return new_interactions
@@ -99,6 +107,7 @@ class EnronUtil(object):
         g = convert_to_meta_graph(*cls.unzip_interactions(interactions))
         for i in interactions:
             n = i['message_id']
+            g.node[n]['message_id'] = i['original_message_id']
             g.node[n]['body'] = i['body']
             g.node[n]['subject'] = i['subject']
             
@@ -155,7 +164,7 @@ class EnronUtil(object):
         """
         sub_g = g.copy()
         
-        descendants_of_r = set(nt.descendants(g, r)) | {r}
+        descendants_of_r = set(nx.descendants(g, r)) | {r}
         
         nodes_to_be_removed = [n for n in sub_g.nodes()
                                if (not filter_func(n) or
@@ -219,11 +228,19 @@ class EnronUtil(object):
                                        debug)
 
     @classmethod
-    def compactize_meta_graph(self, g):
+    def compactize_meta_graph(cls, g):
+        """remove unnecessary fields and convert node name to integer
+        """
         g = g.copy()
+
         # remove topics, body, subject to save space
         fields = ['topics', 'subject', 'body', 'timestamp', 'peers', 'doc_bow']
         for n in g.nodes():
             for f in fields:
                 del g.node[n][f]
-        return g
+        
+        # map node id to integer
+        node_str2int = {n: i
+                        for i, n in enumerate(g.nodes())}
+        return nx.relabel_nodes(g, mapping=node_str2int, copy=True), node_str2int
+                

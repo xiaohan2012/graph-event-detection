@@ -47,6 +47,7 @@ class EnronMetaGraphTest(unittest.TestCase):
                          self.g.node[n][EnronUtil.VERTEX_REWARD_KEY])
         
         assert_equal(self.g.node['1.B']['body'], 'b1')
+        assert_equal(self.g.node['1.B']['message_id'], 1)
         assert_equal(self.g.node['1.B']['subject'], 's1')
         assert_equal(self.g.node['1.B']['timestamp'], 989587576)
         assert_equal(sorted(self.g.node['1.B']['peers']),
@@ -54,6 +55,7 @@ class EnronMetaGraphTest(unittest.TestCase):
         assert_equal(self.g.node['1.B']['datetime'],
                      datetime.fromtimestamp(989587576))
         assert_equal(self.g.node['2']['body'], '...')
+        assert_equal(self.g.node['2']['message_id'], 2)
         assert_equal(self.g.node['2']['subject'], '...')
         assert_equal(self.g.node['2']['timestamp'], 989587577)
         assert_equal(self.g.node['2']['peers'], [])
@@ -166,6 +168,7 @@ class EnronMetaGraphTest(unittest.TestCase):
         assert_equal(2, len(decomposed_1))  # originally, we have an A->B
         assert_equal(decomposed_1[1]['message_id'], '4')  # check if name is convered to string
         assert_equal(decomposed_1[0]['message_id'], '1.B')
+        assert_equal(decomposed_1[0]['original_message_id'], 1)
         
         decomposed_2 = filter(lambda i: i["recipient_ids"] == ["C"] and
                               i["sender_id"] == "A",
@@ -173,13 +176,14 @@ class EnronMetaGraphTest(unittest.TestCase):
         
         assert_equal(1, len(decomposed_2))
         assert_equal(decomposed_2[0]['message_id'], '1.C')
-        
+        assert_equal(decomposed_2[0]['original_message_id'], 1)
         decomposed_3 = filter(lambda i: i["recipient_ids"] == ["D"] and
                               i["sender_id"] == "A",
                               d_interactions)
         
         assert_equal(1, len(decomposed_3))
         assert_equal(decomposed_3[0]['message_id'], '1.D')
+        assert_equal(decomposed_3[0]['original_message_id'], 1)
 
     def test_unzip_interactions(self):
         (interaction_names,
@@ -225,12 +229,30 @@ class EnronMetaGraphTest(unittest.TestCase):
                                            self.lda_model,
                                            self.dictionary,
                                            dist_func=scipy.stats.entropy)
-        g = EnronUtil.compactize_meta_graph(g)
+        original_g = g.copy()
+        g, str2id = EnronUtil.compactize_meta_graph(g)
         
-        for n in self.g.nodes():
+        for n in original_g.nodes():
+            n = str2id[n]
             assert_true('topics' not in g.node[n])
             assert_true('subject' not in g.node[n])
             assert_true('body' not in g.node[n])
             assert_true('timestamp' not in g.node[n])
             assert_true('peer' not in g.node[n])
             assert_true('doc_bow' not in g.node[n])
+            assert_true('message_id' in g.node[n])
+        
+        for n in g.nodes():
+            assert_true(isinstance(n, int))
+
+        # structure + weight is the same
+        for n in original_g.nodes():
+            assert_equal(original_g.node[n][EnronUtil.VERTEX_REWARD_KEY],
+                         g.node[str2id[n]][EnronUtil.VERTEX_REWARD_KEY])
+
+        print(str2id)
+        for s, t in original_g.edges():
+            s1, t1 = str2id[s], str2id[t]
+            print(s, t, original_g[s][t], s1, t1, g[s1][t1])
+            assert_equal(original_g[s][t][EnronUtil.EDGE_COST_KEY],
+                         g[s1][t1][EnronUtil.EDGE_COST_KEY])
