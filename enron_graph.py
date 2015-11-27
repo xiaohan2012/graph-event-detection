@@ -245,7 +245,7 @@ class EnronUtil(object):
         g = g.copy()
             
         # remove topics, body, subject to save space
-        fields = ['topics', 'subject', 'body', 'timestamp', 'peers', 'doc_bow']
+        fields = ['topics', 'subject', 'body', 'peers', 'doc_bow']
         for n in g.nodes():
             for f in fields:
                 del g.node[n][f]
