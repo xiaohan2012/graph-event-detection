@@ -260,7 +260,7 @@ class EnronMetaGraphTest(unittest.TestCase):
                                            self.lda_model,
                                            self.dictionary,
                                            dist_func=scipy.stats.entropy)
-        g, str2id = EnronUtil.compactize_meta_graph(g, preprune_secs=1)
+        g, str2id = EnronUtil.compactize_meta_graph(g, preprune_secs=1.0)
         expected_edges = sorted([
             ('1.B', '2'), ('1.C', '2'), ('1.D', '2')
         ])
@@ -269,7 +269,7 @@ class EnronMetaGraphTest(unittest.TestCase):
         assert_equal(expected_edges, sorted(g.edges()))
 
     def test_preprune_edges_by_timespan(self):
-        g = EnronUtil.preprune_edges_by_timespan(self.g, 1)
+        g = EnronUtil.preprune_edges_by_timespan(self.g, 1.0)
         expected_edges = sorted([
             ('1.B', '2'), ('1.C', '2'), ('1.D', '2')
         ]) 

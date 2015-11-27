@@ -232,7 +232,7 @@ class EnronUtil(object):
         """remove unnecessary fields and convert node name to integer
         """
         g = g.copy()
-        if isinstance(preprune_secs, int):
+        if isinstance(preprune_secs, int) or isinstance(preprune_secs, float):
             g = cls.preprune_edges_by_timespan(g, preprune_secs)
             
         # remove topics, body, subject to save space
