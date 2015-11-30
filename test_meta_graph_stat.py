@@ -22,12 +22,10 @@ class MetaGraphStatTest(unittest.TestCase):
             os.path.join(CURDIR,
                          'models/dictionary.pkl')
         )
-        self.interactions = EnronUtil.decompose_interactions(
-            json.load(
-                open(os.path.join(CURDIR, 'test/data/enron_test.json'))
-            )
+        self.interactions = json.load(
+            open(os.path.join(CURDIR, 'test/data/enron_test.json'))
         )
-        
+
         self.g = EnronUtil.get_meta_graph(self.interactions)
         
         # some pseudo cost
@@ -133,3 +131,25 @@ class MetaGraphStatTest(unittest.TestCase):
         assert_true('topic_dist' in s)
         assert_true('topic_terms' in s)
         assert_true('subjects(top' in s)
+        
+    def test_disable_method(self):
+        s = MetaGraphStat(self.g,
+                          kws={
+                              'temporal_traffic': False,
+                              'topics': {
+                                  'interactions': self.interactions,
+                                  'dictionary': self.dictionary,
+                                  'lda': self.lda_model,
+                                  'top_k': 5
+                              },
+                              'email_content': {
+                                  'interactions': self.interactions
+                              }
+                          })
+
+        summary = s.summary()
+        assert_true(isinstance(summary, basestring))
+        assert_true('email_count_hist' not in summary)
+        assert_true('topic_dist' in summary)
+        assert_true('topic_terms' in summary)
+        assert_true('subjects(top' in summary)

@@ -13,11 +13,13 @@ K = 10
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
 
+interactions = []
 with open('data/enron.json', 'r') as f:
-    id2msg = {}
     for l in f:
-        m = json.loads(l)
-        id2msg[m['message_id']] = "{} {}".format(m['subject'], m['body'])
+        interactions.append(json.loads(l))
+
+# interactions = EnronUtil.decompose_interactions(interactions)
+print map(lambda m: m['message_id'], interactions)
 
 dictionary = gensim.corpora.dictionary.Dictionary.load(
     os.path.join(CURDIR, 'models/dictionary.pkl')
@@ -33,20 +35,30 @@ nodes_of_trees = [set(t.nodes()) for t in trees]
 
 selected_ids = argmax_k_coverage(nodes_of_trees, K)
 
+STAT_KWS = {
+    'temporal_traffic': {
+        'time_resolution': 'day'
+    },
+    'topics': {
+        'interactions': interactions,
+        'dictionary': dictionary,
+        'lda': lda,
+        'top_k': 10
+    },
+    'email_content': {
+        'interactions': interactions,
+        'top_k': 5
+    }
+}
+
+
+def get_summary(g):
+    return MetaGraphStat(g, kws=STAT_KWS).summary()
+
 
 for i in selected_ids:
     t = trees[i]
-    print('Tree simmary:\n{}'.format(MetaGraphStat(t).summary()))
-    message_ids = [t.node[n]['message_id']
-                   for n in t.nodes()]
-    concated_msg = ' '.join([id2msg[mid] for mid in message_ids])
-    bow = dictionary.doc2bow(EnronUtil.tokenize_document(concated_msg))
-    topic_dist = lda.get_document_topics(
-        bow,
-        minimum_probability=0
-    )
-    print(topic_dist)
-
+    print('Tree simmary:\n{}'.format(get_summary(t)))
 
 mat = np.zeros((K, K))
 

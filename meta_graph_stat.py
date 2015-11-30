@@ -15,15 +15,9 @@ class MetaGraphStat(object):
                 g.nodes()[0]
             ))
             
-        self.kws = {
-            m: {}
-            for m in dir(self)
-            if (not m.startswith('_')
-                and m != 'summary'
-                and callable(getattr(self, m)))
-        }
-        if kws:
-            self.kws.update(kws)
+        for kw in kws:
+            assert hasattr(self, kw) and callable(getattr(self, kw))
+        self.kws = kws
 
     def time_span(self):
         if len(self.g.nodes()) == 0:
@@ -86,9 +80,10 @@ class MetaGraphStat(object):
         id2subject = {}
         for m in interactions:
             id2subject[m['message_id']] = m['subject']
-        nodes = nx.topological_sort(self.g)[:top_k]
+        mids = [self.g.node[n]['message_id']
+                for n in nx.topological_sort(self.g)[:top_k]]
         return {
-            'subjects(top{})'.format(top_k): [id2subject[n] for n in nodes]
+            'subjects(top{})'.format(top_k): [id2subject[id] for id in mids]
         }
         
     def topics(self, interactions, dictionary, lda, top_k=10):
@@ -124,10 +119,15 @@ class MetaGraphStat(object):
         return {'topic_dist': topic_dist,
                 'topic_terms': topic_terms}
 
-
     def summary(self):
+        print(self.kws)
         return pformat(
-            {m: getattr(self, m)(**self.kws[m])
+            {m: getattr(self, m)(**self.kws.get(m, {}))
              for m in dir(self)
-             if not m.startswith('_') and m != 'summary' and callable(getattr(self, m))})
+             if (not m.startswith('_') and
+                 m != 'summary' and
+                 callable(getattr(self, m)) and
+                 self.kws.get(m) is not False  # if False, disable
+             )}
+        )
         
