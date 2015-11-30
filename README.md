@@ -72,8 +72,10 @@ Day 5:
 Day 1: 
 
 - histogram(#email vs time)
+- edge cost(more granularity)
+- event topic terms
+
 - participants(needs id2email mapping)
-- topic similarity hist(more granularity)
 
 Day 2:
 

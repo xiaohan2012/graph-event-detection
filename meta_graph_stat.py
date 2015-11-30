@@ -2,6 +2,8 @@ import numpy as np
 from pprint import pformat
 from collections import Counter
 
+from enron_graph import EnronUtil
+
 
 class MetaGraphStat(object):
     def __init__(self, g, kws={}):
@@ -78,6 +80,32 @@ class MetaGraphStat(object):
                 'median': np.median(out_degrees)
             }
         }
+
+    def topics(self, id2msg, dictionary, lda, top_k=10):
+        message_ids = [self.g.node[n]['message_id']
+                       for n in self.g.nodes()]
+        concated_msg = ' '.join([id2msg[mid] for mid in message_ids])
+        bow = dictionary.doc2bow(EnronUtil.tokenize_document(concated_msg))
+        topic_dist = lda.get_document_topics(
+            bow,
+            minimum_probability=0
+        )
+        topic_dist = np.asarray([v for _, v in topic_dist])
+        
+        beta = lda.state.get_lambda()
+
+        # normalize and weight by beta dist
+        weighted_terms = (
+            beta / beta.sum(axis=1)[:, None] * topic_dist[:, None]
+        ).sum(axis=0)
+
+        print(weighted_terms)
+        bestn = np.argsort(weighted_terms)[::-1][:top_k]
+        print(bestn)
+        topic_terms = [lda.id2word[id] for id in bestn]
+
+        return {'topic_dist': topic_dist,
+                'topic_terms': topic_terms}
 
     def summary(self):
         return pformat(
