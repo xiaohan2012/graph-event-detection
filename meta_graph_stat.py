@@ -42,7 +42,7 @@ class MetaGraphStat(object):
                                             for attr in selected_attrs]))
         time_signatures = [slice_datetime(self.g.node[n]['datetime'])
                            for n in self.g.nodes()]
-        return {'email_count_hist': Counter(time_signatures)}
+        return {'email_count_hist': sorted(Counter(time_signatures).items())}
         
     def edge_costs(self):
         costs = np.asarray([self.g[s][t]['c'] for s, t in self.g.edges()])
