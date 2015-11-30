@@ -244,7 +244,7 @@ class EnronMetaGraphTest(unittest.TestCase):
                                            self.dictionary,
                                            dist_func=scipy.stats.entropy)
         original_g = g.copy()
-        g, str2id = EnronUtil.compactize_meta_graph(g)
+        g, str2id = EnronUtil.compactize_meta_graph(g, map_nodes=True)
         
         for n in original_g.nodes():
             n = str2id[n]
@@ -267,6 +267,23 @@ class EnronMetaGraphTest(unittest.TestCase):
             s1, t1 = str2id[s], str2id[t]
             assert_equal(original_g[s][t][EnronUtil.EDGE_COST_KEY],
                          g[s1][t1][EnronUtil.EDGE_COST_KEY])
+
+    def test_compactize_meta_graph_without_node_name_mapping(self):
+                # assure node topic vectors are deleted
+        g = EnronUtil.get_topic_meta_graph(self.interactions,
+                                           self.lda_model,
+                                           self.dictionary,
+                                           dist_func=scipy.stats.entropy)
+        original_g = g.copy()
+        g = EnronUtil.compactize_meta_graph(g, map_nodes=False)
+
+        for n in original_g.nodes():
+            assert_true('topics' not in g.node[n])
+            assert_true('subject' not in g.node[n])
+            assert_true('body' not in g.node[n])
+            assert_true('peer' not in g.node[n])
+            assert_true('doc_bow' not in g.node[n])
+            assert_true('message_id' in g.node[n])
 
     def test_preprune_edges_by_timespan(self):
         g = EnronUtil.preprune_edges_by_timespan(self.g, 1.0)

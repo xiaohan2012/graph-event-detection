@@ -17,22 +17,17 @@ class MetaGraphStatTest(unittest.TestCase):
         self.lda_model = gensim.models.ldamodel.LdaModel.load(
             os.path.join(CURDIR,
                          'models/model-4-50.lda')
-                         # 'test/data/test.lda')
         )
         self.dictionary = gensim.corpora.dictionary.Dictionary.load(
             os.path.join(CURDIR,
                          'models/dictionary.pkl')
-                         # 'test/data/test_dictionary.gsm')
         )
-        self.interactions = json.load(open(os.path.join(CURDIR,
-                                                        'test/data/enron_test.json')))
-        
-        self.id2msg = {}
-        for m in self.interactions:
-            self.id2msg[m['message_id']] = "{} {}".format(
-                m['subject'], m['body']
+        self.interactions = EnronUtil.decompose_interactions(
+            json.load(
+                open(os.path.join(CURDIR, 'test/data/enron_test.json'))
             )
-
+        )
+        
         self.g = EnronUtil.get_meta_graph(self.interactions)
         
         # some pseudo cost
@@ -45,10 +40,13 @@ class MetaGraphStatTest(unittest.TestCase):
                                        'time_resolution': 'hour'
                                    },
                                    'topics': {
-                                       'id2msg': self.id2msg,
+                                       'interactions': self.interactions,
                                        'dictionary': self.dictionary,
                                        'lda': self.lda_model,
                                        'top_k': 5
+                                   },
+                                   'email_content': {
+                                       'interactions': self.interactions
                                    }
                                })
 
@@ -111,8 +109,10 @@ class MetaGraphStatTest(unittest.TestCase):
                      self.s.temporal_traffic(time_resolution='hour'))
 
     def test_topics(self):
-
-        actual = self.s.topics(self.id2msg, self.dictionary, self.lda_model, 5)
+        actual = self.s.topics(self.interactions,
+                               self.dictionary,
+                               self.lda_model,
+                               5)
         assert_equal(
             (4, ),
             actual['topic_dist'].shape
@@ -122,9 +122,14 @@ class MetaGraphStatTest(unittest.TestCase):
         assert_true('utilities' in
                     actual['topic_terms'])
         
+    def test_email_content(self):
+        actual = self.s.email_content(self.interactions, 1)
+        assert_equal(actual['subjects(top1)'], ['s1'])
+
     def test_summary(self):
         s = self.s.summary()
         assert_true(isinstance(s, basestring))
         assert_true('email_count_hist' in s)
         assert_true('topic_dist' in s)
         assert_true('topic_terms' in s)
+        assert_true('subjects(top' in s)

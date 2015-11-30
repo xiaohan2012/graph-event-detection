@@ -14,13 +14,6 @@ from meta_graph import convert_to_meta_graph
 CURDIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class CompactDiGraph(nx.DiGraph):
-    def __init__(self, str2id, *args, **kwargs):
-        self.str2id = str2id
-        super(CompactDiGraph, self).__init__(*args, **kwargs)
-        
-
-
 class EnronUtil(object):
     """
     To create a topical meta graph, do the following:
@@ -239,7 +232,7 @@ class EnronUtil(object):
                                        debug)
 
     @classmethod
-    def compactize_meta_graph(cls, g):
+    def compactize_meta_graph(cls, g, map_nodes=True):
         """remove unnecessary fields and convert node name to integer
         """
         g = g.copy()
@@ -250,10 +243,15 @@ class EnronUtil(object):
             for f in fields:
                 del g.node[n][f]
         
-        # map node id to integer
-        node_str2int = {n: i
-                        for i, n in enumerate(g.nodes())}
-        return nx.relabel_nodes(g, mapping=node_str2int, copy=True), node_str2int
+        if map_nodes:
+            # map node id to integer
+            node_str2int = {n: i
+                            for i, n in enumerate(g.nodes())}
+            return (nx.relabel_nodes(g,
+                                     mapping=node_str2int, copy=True),
+                    node_str2int)
+        else:
+            return g
                 
     @classmethod
     def preprune_edges_by_timespan(cls, g, secs):

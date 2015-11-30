@@ -1,4 +1,5 @@
 import numpy as np
+import networkx as nx
 from pprint import pformat
 from collections import Counter
 
@@ -81,7 +82,23 @@ class MetaGraphStat(object):
             }
         }
 
-    def topics(self, id2msg, dictionary, lda, top_k=10):
+    def email_content(self, interactions, top_k=5):
+        id2subject = {}
+        for m in interactions:
+            id2subject[m['message_id']] = m['subject']
+        nodes = nx.topological_sort(self.g)[:top_k]
+        return {
+            'subjects(top{})'.format(top_k): [id2subject[n] for n in nodes]
+        }
+        
+    def topics(self, interactions, dictionary, lda, top_k=10):
+        id2msg = {}
+        for m in interactions:
+            id2msg[m['message_id']] = "{} {}".format(
+                m['subject'], m['body']
+            )        
+
+        # topic_dist
         message_ids = [self.g.node[n]['message_id']
                        for n in self.g.nodes()]
         concated_msg = ' '.join([id2msg[mid] for mid in message_ids])
@@ -92,6 +109,7 @@ class MetaGraphStat(object):
         )
         topic_dist = np.asarray([v for _, v in topic_dist])
         
+        # topic_terms
         beta = lda.state.get_lambda()
 
         # normalize and weight by beta dist
@@ -99,13 +117,13 @@ class MetaGraphStat(object):
             beta / beta.sum(axis=1)[:, None] * topic_dist[:, None]
         ).sum(axis=0)
 
-        print(weighted_terms)
         bestn = np.argsort(weighted_terms)[::-1][:top_k]
-        print(bestn)
+
         topic_terms = [lda.id2word[id] for id in bestn]
 
         return {'topic_dist': topic_dist,
                 'topic_terms': topic_terms}
+
 
     def summary(self):
         return pformat(
