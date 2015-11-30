@@ -2,6 +2,7 @@ import os
 import unittest
 import gensim
 import ujson as json
+import numpy as np
 from datetime import datetime
 from collections import Counter
 
@@ -65,25 +66,36 @@ class MetaGraphStatTest(unittest.TestCase):
         assert_equal(expected,
                      self.s.basic_structure_stats())
 
-    def test_email_count_histogram(self):
+    def test_edge_costs(self):
+        actual = self.s.edge_costs(max_values=[2, 3])
+        for key in ['histogram(<=2)', 'histogram(<=3)']:
+            for i in xrange(2):
+                np.testing.assert_array_almost_equal(
+                    actual['histogram(all)'][i],
+                    actual[key][i]
+                )
+        
+    def test_temporal_traffic(self):
         expected = {
-            'email_count_hist': Counter({
-                (2001, 5, 11, 16, 26, 16): 3,
-                (2001, 5, 11, 16, 26, 17): 1,
-                (2001, 5, 11, 16, 26, 18): 1,
-                (2001, 5, 11, 16, 26, 19): 1,
-                (2001, 5, 11, 16, 26, 20): 1,
-            })}
+            'email_count_hist': [
+                ((2001, 5, 11, 16, 26, 16), 3),
+                ((2001, 5, 11, 16, 26, 17), 1),
+                ((2001, 5, 11, 16, 26, 18), 1),
+                ((2001, 5, 11, 16, 26, 19), 1),
+                ((2001, 5, 11, 16, 26, 20), 1),
+            ]}
         assert_equal(expected,
                      self.s.temporal_traffic(time_resolution='second'))
     
-    def test_email_count_histogram_using_hour(self):
+    def test_temporal_traffic_using_hour(self):
         expected = {
-            'email_count_hist': Counter({
-                (2001, 5, 11, 16): 7
-            })}
+            'email_count_hist': [
+                ((2001, 5, 11, 16), 7)
+            ]}
         assert_equal(expected,
                      self.s.temporal_traffic(time_resolution='hour'))
 
     def test_summary(self):
-        assert_true(isinstance(self.s.summary(), basestring))
+        s = self.s.summary()
+        assert_true(isinstance(s, basestring))
+        assert_true('email_count_hist' in s)

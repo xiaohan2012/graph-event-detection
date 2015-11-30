@@ -44,10 +44,14 @@ class MetaGraphStat(object):
                            for n in self.g.nodes()]
         return {'email_count_hist': sorted(Counter(time_signatures).items())}
         
-    def edge_costs(self):
+    def edge_costs(self, max_values=[1.0]):
         costs = np.asarray([self.g[s][t]['c'] for s, t in self.g.edges()])
-        return {'histogram': np.histogram(costs)}
-        
+        data = {'histogram(all)': np.histogram(costs)}
+        for max_value in max_values:
+            key = 'histogram(<={})'.format(max_value)
+            data[key] = np.histogram(costs[costs <= max_value])
+        return data
+
     def basic_structure_stats(self):
         in_degrees = np.asarray([self.g.in_degree(n)
                                  for n in self.g.nodes()],

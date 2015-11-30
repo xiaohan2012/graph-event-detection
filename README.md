@@ -33,6 +33,8 @@ Def of word:
 
 # Dairy
 
+## Week 1(Nov 23)
+
 Day 1: 
 
 - improved preprocessing
@@ -56,5 +58,25 @@ Day 4:
 
 - functional test for subset of `enron.json`
 - Write the algorithm that gets A_u[i] for all nodes
+- maximum coverage algorithm
+
+Day 5:
+
+- Pickling graph is slow. Tried to convert node label to integer but still slow. 
+- some bench mark: 30 mins for 500 nodes(find the best tree process)
+- Check overlap in the final events(no overlap)
 - Q: what do events with highest score look like? what are the top K events?
+
+## Week 2
+
+Day 1: 
+
+- histogram(#email vs time)
+- participants(needs id2email mapping)
+- topic similarity hist(more granularity)
+
+Day 2:
+
+- Algorithm 2
 - parameter tuning(embedded task)
+

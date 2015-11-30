@@ -19,7 +19,7 @@ TIMESPAN = timedelta(weeks=4).total_seconds()  # three month
 
 DEBUG = True
 
-CALCULATE_GRAPH = True
+CALCULATE_GRAPH = False
 
 if CALCULATE_GRAPH:
     # input_path = os.path.join(CURDIR, 'data/enron-random-500.json')
@@ -58,7 +58,14 @@ if not CALCULATE_GRAPH:
 #     print("checking cycles...")
 #     assert_no_cycle(g)
 
-print(MetaGraphStat(g).summary())
+print(
+    MetaGraphStat(
+        g, kws={
+            'temporal_traffic': {'time_resolution': 'month'},
+            'edge_costs': {'max_values': [1.0, 0.1]}
+        }
+    ).summary()
+)
 
 # roots = [u'233107.206',  # (30, datetime.datetime(2001, 2, 3, 12, 19))
 #          u'253127.1180']
