@@ -3,10 +3,11 @@ import unittest
 import gensim
 import ujson as json
 from datetime import datetime
+from collections import Counter
 
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_true
 from .enron_graph import EnronUtil
-from .stat import MetaGraphStat
+from .meta_graph_stat import MetaGraphStat
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -23,7 +24,17 @@ class MetaGraphStatTest(unittest.TestCase):
                                                         'test/data/enron_test.json')))
         
         self.g = EnronUtil.get_meta_graph(self.interactions)
-        self.s = MetaGraphStat(self.g)
+
+        # some pseudo cost
+        for s, t in self.g.edges():
+            self.g[s][t]['c'] = 1
+
+        self.s = MetaGraphStat(self.g,
+                               kws={
+                                   'temporal_traffic': {
+                                       'time_resolution': 'hour'
+                                   }
+                               })
 
     def test_time_span(self):
         # time zone issue might occur
@@ -53,3 +64,26 @@ class MetaGraphStatTest(unittest.TestCase):
         }
         assert_equal(expected,
                      self.s.basic_structure_stats())
+
+    def test_email_count_histogram(self):
+        expected = {
+            'email_count_hist': Counter({
+                (2001, 5, 11, 16, 26, 16): 3,
+                (2001, 5, 11, 16, 26, 17): 1,
+                (2001, 5, 11, 16, 26, 18): 1,
+                (2001, 5, 11, 16, 26, 19): 1,
+                (2001, 5, 11, 16, 26, 20): 1,
+            })}
+        assert_equal(expected,
+                     self.s.temporal_traffic(time_resolution='second'))
+    
+    def test_email_count_histogram_using_hour(self):
+        expected = {
+            'email_count_hist': Counter({
+                (2001, 5, 11, 16): 7
+            })}
+        assert_equal(expected,
+                     self.s.temporal_traffic(time_resolution='hour'))
+
+    def test_summary(self):
+        assert_true(isinstance(self.s.summary(), basestring))

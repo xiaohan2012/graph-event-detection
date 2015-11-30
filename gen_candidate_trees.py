@@ -15,11 +15,11 @@ from experiment_util import sample_nodes
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
 
-TIMESPAN = timedelta(weeks=1).total_seconds()  # three month
+TIMESPAN = timedelta(weeks=4).total_seconds()  # three month
 
 DEBUG = True
 
-CALCULATE_GRAPH = False
+CALCULATE_GRAPH = True
 
 if CALCULATE_GRAPH:
     # input_path = os.path.join(CURDIR, 'data/enron-random-500.json')
@@ -31,10 +31,10 @@ if CALCULATE_GRAPH:
 
     print('loading lda...')
     lda_model = gensim.models.ldamodel.LdaModel.load(
-        os.path.join(CURDIR, 'test/data/test.lda')
+        os.path.join(CURDIR, 'models/model-4-50.lda')
     )
     dictionary = gensim.corpora.dictionary.Dictionary.load(
-        os.path.join(CURDIR, 'test/data/test_dictionary.gsm')
+        os.path.join(CURDIR, 'models/dictionary.pkl')
     )
 
     print('calculating meta_graph...')
@@ -109,7 +109,7 @@ for ni, r in enumerate(roots):
     results.append(unbinarize_dag(tree, edge_weight_key=EnronUtil.EDGE_COST_KEY))
 
 pickle.dump(results,
-            open('tmp/results.json', 'w'),
+            open('tmp/results.pkl', 'w'),
             protocol=pickle.HIGHEST_PROTOCOL)
 
 

@@ -148,7 +148,7 @@ class EnronUtil(object):
             topic_dist = lda_model.get_document_topics(
                 bow,
                 minimum_probability=0
-            )            
+            )
             g.node[n]['topics'] = np.asarray([v for _, v in topic_dist],
                                              dtype=np.float)
             g.node[n]['doc_bow'] = bow
