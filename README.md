@@ -73,12 +73,15 @@ Day 1:
 
 - histogram(#email vs time)
 - edge cost(more granularity)
-- event topic terms
+- event topic terms and subject display
 - calculating the meta graph(include pickling): takes ~ 5 mins, takes space 29M
-- participants(needs id2email mapping)
+
 
 Day 2:
 
+- baseline
+- dynamic programming in one shot
+- participants(needs id2email mapping)
 - Algorithm 2
 - parameter tuning(embedded task)
 
