@@ -76,14 +76,27 @@ class MetaGraphStat(object):
             }
         }
 
-    def email_content(self, interactions, top_k=5):
+    def email_content(self, interactions, top_k=5, unique=True):
         id2subject = {}
         for m in interactions:
             id2subject[m['message_id']] = m['subject']
+        msgs = []
         mids = [self.g.node[n]['message_id']
-                for n in nx.topological_sort(self.g)[:top_k]]
+                for n in nx.topological_sort(self.g)]
+
+        if unique:
+            msgs = set()
+            for mid in mids:
+                cand_msg = id2subject[mid]
+                if cand_msg not in msgs:
+                    msgs.add(cand_msg)
+                if len(msgs) == top_k:
+                    break
+            msgs = list(msgs)
+        else:
+            msgs = [id2subject[id] for id in mids[:top_k]]
         return {
-            'subjects(top{})'.format(top_k): [id2subject[id] for id in mids]
+            'subjects(top{})'.format(top_k): msgs
         }
         
     def topics(self, interactions, dictionary, lda, top_k=10):

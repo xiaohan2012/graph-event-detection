@@ -133,8 +133,15 @@ class MetaGraphStatTest(unittest.TestCase):
                     actual['topic_terms'])
         
     def test_email_content(self):
-        actual = self.s.email_content(self.interactions, 1)
+        actual = self.s.email_content(self.interactions, 1, unique=False)
         assert_equal(actual['subjects(top1)'], ['s1'])
+
+    def test_email_content_without_duplicates(self):
+        actual = self.s.email_content(self.interactions,
+                                      top_k=1000,
+                                      unique=True)
+        assert_equal(sorted(actual['subjects(top1000)']),
+                     sorted(['s1', '', '...']))
 
     def test_participants(self):
         # Note: we are operating on decomposed interactions

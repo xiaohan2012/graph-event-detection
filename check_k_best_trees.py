@@ -1,25 +1,18 @@
 import os
 import cPickle as pickle
-import ujson as json
 import gensim
 import numpy as np
 
-from enron_graph import EnronUtil
 from meta_graph_stat import MetaGraphStat
 from max_cover import argmax_k_coverage
+from util import load_json_by_line
 
-
-K = 10
+K = 5
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
 
-interactions = []
-with open('data/enron.json', 'r') as f:
-    for l in f:
-        interactions.append(json.loads(l))
-
-# interactions = EnronUtil.decompose_interactions(interactions)
-print map(lambda m: m['message_id'], interactions)
+interactions = load_json_by_line('data/enron.json')
+people_info = load_json_by_line('data/people.json')
 
 dictionary = gensim.corpora.dictionary.Dictionary.load(
     os.path.join(CURDIR, 'models/dictionary.pkl')
@@ -46,6 +39,11 @@ STAT_KWS = {
         'top_k': 10
     },
     'email_content': {
+        'interactions': interactions,
+        'top_k': 5
+    },
+    'participants': {
+        'people_info': people_info,
         'interactions': interactions,
         'top_k': 5
     }
