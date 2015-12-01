@@ -78,10 +78,12 @@ Day 1:
 
 
 Day 2:
+- participants(needs id2email mapping)
+
 
 - baseline
 - dynamic programming in one shot
-- participants(needs id2email mapping)
+
 - Algorithm 2
 - parameter tuning(embedded task)
 

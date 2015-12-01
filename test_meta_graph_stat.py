@@ -6,6 +6,7 @@ import numpy as np
 from datetime import datetime
 
 from nose.tools import assert_equal, assert_true
+from .util import load_json_by_line
 from .enron_graph import EnronUtil
 from .meta_graph_stat import MetaGraphStat
 
@@ -16,17 +17,24 @@ class MetaGraphStatTest(unittest.TestCase):
     def setUp(self):
         self.lda_model = gensim.models.ldamodel.LdaModel.load(
             os.path.join(CURDIR,
-                         'models/model-4-50.lda')
+                         'test/data/test.lda')
         )
         self.dictionary = gensim.corpora.dictionary.Dictionary.load(
             os.path.join(CURDIR,
-                         'models/dictionary.pkl')
+                         'test/data/test_dictionary.gsm')
         )
-        self.interactions = json.load(
-            open(os.path.join(CURDIR, 'test/data/enron_test.json'))
+        self.interactions = EnronUtil.clean_interactions(
+            json.load(
+                open(os.path.join(CURDIR, 'test/data/enron_test.json'))
+            )
         )
 
-        self.g = EnronUtil.get_meta_graph(self.interactions)
+        self.people_info = load_json_by_line(
+            os.path.join(CURDIR, 'test/data/people.json')
+        )
+
+        self.g = EnronUtil.get_meta_graph(self.interactions,
+                                          remove_singleton=True)
         
         # some pseudo cost
         for s, t in self.g.edges():
@@ -44,6 +52,10 @@ class MetaGraphStatTest(unittest.TestCase):
                                        'top_k': 5
                                    },
                                    'email_content': {
+                                       'interactions': self.interactions
+                                   },
+                                   'participants': {
+                                       'people_info': self.people_info,
                                        'interactions': self.interactions
                                    }
                                })
@@ -124,6 +136,26 @@ class MetaGraphStatTest(unittest.TestCase):
         actual = self.s.email_content(self.interactions, 1)
         assert_equal(actual['subjects(top1)'], ['s1'])
 
+    def test_participants(self):
+        # Note: we are operating on decomposed interactions
+        actual = self.s.participants(self.people_info, self.interactions,
+                                     top_k=5)
+        assert_equal(actual['sender_count'],
+                     [(('A', 'A@enron.com'), 5),
+                      (('D', 'D@enron.com'), 2)])
+        assert_equal(actual['recipient_count'],
+                     [(('B', 'B@enron.com'), 4),
+                      (('D', 'D@enron.com'), 3),
+                      (('C', 'C@enron.com'), 3),
+                      (('F', 'F@enron.com'), 2),
+                      (('E', 'E@enron.com'), 1)])
+        assert_equal(actual['participant_count'],
+                     [(('D', 'D@enron.com'), 5),
+                      (('A', 'A@enron.com'), 5),
+                      (('B', 'B@enron.com'), 4),
+                      (('C', 'C@enron.com'), 3),
+                      (('F', 'F@enron.com'), 2)])
+
     def test_summary(self):
         s = self.s.summary()
         assert_true(isinstance(s, basestring))
@@ -131,6 +163,7 @@ class MetaGraphStatTest(unittest.TestCase):
         assert_true('topic_dist' in s)
         assert_true('topic_terms' in s)
         assert_true('subjects(top' in s)
+        assert_true('participant_count' in s)
         
     def test_disable_method(self):
         s = MetaGraphStat(self.g,
@@ -144,7 +177,8 @@ class MetaGraphStatTest(unittest.TestCase):
                               },
                               'email_content': {
                                   'interactions': self.interactions
-                              }
+                              },
+                              'participants': False
                           })
 
         summary = s.summary()
@@ -153,3 +187,4 @@ class MetaGraphStatTest(unittest.TestCase):
         assert_true('topic_dist' in summary)
         assert_true('topic_terms' in summary)
         assert_true('subjects(top' in summary)
+        assert_true('participant_count' not in summary)

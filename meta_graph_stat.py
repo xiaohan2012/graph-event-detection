@@ -119,8 +119,48 @@ class MetaGraphStat(object):
         return {'topic_dist': topic_dist,
                 'topic_terms': topic_terms}
 
+    def participants(self, people_info, interactions, top_k=10):
+        peopleid2info = {r['id']: (r['name'], r['email'])
+                         for r in people_info}
+
+        mid2sender = {m['message_id']: m['sender_id']
+                      for m in interactions}
+        mid2recipients = {m['message_id']: m['recipient_ids']
+                          for m in interactions}
+        
+        def populate_user_info(counter):
+            data = dict(map(lambda (people_id, count):
+                            (peopleid2info[people_id], count),
+                            counter.items()))
+            return Counter(data)
+
+        result = {}
+        result['sender_count'] = Counter(
+            [mid2sender[self.g.node[n]['message_id']]
+             for n in self.g.nodes()]
+        )
+
+        result['sender_count'] = populate_user_info(result['sender_count'])
+
+        result['recipient_count'] = Counter([
+            r
+            for n in self.g.nodes()
+            for r in mid2recipients[self.g.node[n]['message_id']]
+        ])
+        result['recipient_count'] = populate_user_info(
+            result['recipient_count']
+        )
+        
+        result['participant_count'] = (result['sender_count'] +
+                                       result['recipient_count'])
+        for key in result:
+            result[key] = sorted(result[key].items(),
+                                 key=lambda (info, c): (c, info),
+                                 reverse=True)[:top_k]
+        
+        return result
+
     def summary(self):
-        print(self.kws)
         return pformat(
             {m: getattr(self, m)(**self.kws.get(m, {}))
              for m in dir(self)
