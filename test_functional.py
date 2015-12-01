@@ -5,7 +5,7 @@ import gensim
 import scipy
 from datetime import timedelta
 
-from .test_lst_dag import _get_more_complicated_example_1
+from .test_lst_dag import get_example_3
 from .dag_util import unbinarize_dag, binarize_dag
 from .lst import lst_dag
 from .enron_graph import EnronUtil
@@ -20,9 +20,8 @@ def test_lst_dag_and_unbinarize_dag():
     """
     lst_dag + unbinarize_dag
     """
-    g = _get_more_complicated_example_1()
+    g, U, _ = get_example_3()
 
-    U = [0, 2, 3, 4, 100]
     expected_edges_set = [
         [],
         [(1, 7)],
