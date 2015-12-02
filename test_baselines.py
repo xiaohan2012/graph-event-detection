@@ -33,6 +33,29 @@ class Example1():
         return U, edges
 
 
+class Example2():
+    @classmethod
+    def get_graph(cls):
+        g = Example1.get_graph()
+        g.add_edges_from([(2, 3, {'c': 1.5}),
+                          (1, 6, {'c': 4.5}),
+                          (2, 8, {'c': 6.5}),
+                          (3, 10, {'c': 8.5})])
+        return g
+
+    @classmethod
+    def get_data_of_greedy_tree(self):
+        U = [6, 16, 30, 100]
+        edges = [
+            [(1, 2), (2, 3), (1, 4)],
+            [(1, 2), (2, 3), (1, 4), (4, 5), (1, 6)],
+            [(1, 2), (2, 3), (1, 4), (4, 5), (1, 6), (3, 7), (2, 8)],
+            [(1, 2), (2, 3), (1, 4), (4, 5), (1, 6), (3, 7), (2, 8),
+             (2, 9), (3, 10)]
+        ]
+        return U, edges
+
+
 class GrowingTreeTest(unittest.TestCase):
     
     def test_new_frontier(self):
@@ -53,15 +76,22 @@ class GrowingTreeTest(unittest.TestCase):
             nodes.append(n)
             assert_equal(sorted(edges), sorted(frontier))
 
-    def test_greedy_grow_tree_1(self):
-        g = Example1.get_graph()
-        U, expected_edge_list = Example1.get_data_of_greedy_tree()
+    def greedy_approach_template(self, data_class):
+        g = data_class.get_graph()
+        U, expected_edge_list = data_class.get_data_of_greedy_tree()
         
         for u, expected_edges in zip(U, expected_edge_list):
+            print(u)
             actual = grow_tree_general(g, 1, u, greedy_choice_by_cost)
             assert_equal(sorted(expected_edges),
                          sorted(actual.edges()))
     
+    def test_greedy_grow_tree_1(self):
+        self.greedy_approach_template(Example1)
+
+    def test_greedy_grow_tree_2(self):
+        self.greedy_approach_template(Example2)
+
     def test_random_grow_tree_1(self):
         g = Example1.get_graph()
         random.seed(123456)
