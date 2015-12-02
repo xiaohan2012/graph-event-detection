@@ -13,7 +13,7 @@ from .dag_util import unbinarize_dag, binarize_dag
 from .lst import lst_dag
 from .enron_graph import EnronUtil
 from .meta_graph_stat import MetaGraphStat
-from .baselines import grow_tree_general, greedy_choice_by_cost, random_choice
+from .baselines import grow_tree_general, greedy_grow, random_grow
 from nose.tools import assert_equal
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
@@ -63,7 +63,7 @@ class TreeGenerationMethodsTest(unittest.TestCase):
                            grow_tree_general(g, r, U, greedy_choice_by_cost))
         self.binarize_gen_tree_and_unbinarize(r, g, U,
                                               expected_edges_set,
-                                              greedy_approach)
+                                              greedy_grow)
 
     def test_random_3(self):
         random.seed(123456)
@@ -78,11 +78,9 @@ class TreeGenerationMethodsTest(unittest.TestCase):
              (2, 4), (2, 5), (2, 6),
              (1, 7), (3, 8), (3, 9)]
         ]
-        greedy_approach = (lambda g, r, U:
-                           grow_tree_general(g, r, U, random_choice))
         self.binarize_gen_tree_and_unbinarize(r, g, U,
                                               expected_edges_set,
-                                              greedy_approach)
+                                              random_grow)
 
 
 

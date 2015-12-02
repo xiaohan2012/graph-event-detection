@@ -52,4 +52,8 @@ def grow_tree_general(g, r, U, choose_edge, edge_cost_key='c'):
     if cost_sum > U:
         t.remove_edge(*last_added_edge)
     return t
-        
+
+greedy_grow = lambda g, r, U: grow_tree_general(g, r, U,
+                                                greedy_choice_by_cost)
+random_grow = lambda g, r, U: grow_tree_general(g, r, U,
+                                                random_choice)

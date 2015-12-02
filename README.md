@@ -79,10 +79,12 @@ Day 1:
 
 Day 2:
 - participants(needs id2email mapping)
+- dynamic programming general form(Algorithm 2 missing)
 
+Day 3:
 
-- baseline
-- dynamic programming in one shot
+- two baselines(greedy, random)
+- documents for baseline
 
 - Algorithm 2
 - parameter tuning(embedded task)
