@@ -51,7 +51,7 @@ def unbinarize_dag(g,
     for v in nx.topological_sort(g):
         if g.node[v].get('dummy'):
             parents = g.in_edges(v)
-            assert len(parents) == 1
+            assert len(parents) == 1, "{}: {} != 1".format(v, len(parents))
             u = parents[0][0]
             for c in g.neighbors(v):
                 g.add_edge(u, c)

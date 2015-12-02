@@ -47,7 +47,7 @@ def grow_tree_general(g, r, U, choose_edge, edge_cost_key='c'):
 
         # copy attributes
         t[u][v] = g[u][v]
-        t.node[u] = g.node[v]
+        t.node[u] = g.node[u]
         t.node[v] = g.node[v]
     if cost_sum > U:
         t.remove_edge(*last_added_edge)

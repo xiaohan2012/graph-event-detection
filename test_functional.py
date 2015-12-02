@@ -1,5 +1,8 @@
 # Some functiona tests
+
+import unittest
 import os
+import random
 import ujson as json
 import gensim
 import scipy
@@ -10,35 +13,78 @@ from .dag_util import unbinarize_dag, binarize_dag
 from .lst import lst_dag
 from .enron_graph import EnronUtil
 from .meta_graph_stat import MetaGraphStat
-
+from .baselines import grow_tree_general, greedy_choice_by_cost, random_choice
 from nose.tools import assert_equal
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
 
 
-def test_lst_dag_and_unbinarize_dag():
-    """
-    lst_dag + unbinarize_dag
-    """
-    g, U, _ = get_example_3()
+class TreeGenerationMethodsTest(unittest.TestCase):
+    def binarize_gen_tree_and_unbinarize(self, r, g, U, expected_edges_set,
+                                         gen_tree_func):
+        for u, edges in zip(U, expected_edges_set):
+            print(u)
+            t = gen_tree_func(g, r, u)
+            assert_equal(sorted(edges),
+                         sorted(
+                             unbinarize_dag(
+                                 t,
+                                 edge_weight_key=EnronUtil.EDGE_COST_KEY
+                             ).edges()))
 
-    expected_edges_set = [
-        [],
-        [(1, 7)],
-        [(1, 3), (3, 9)],
-        [(1, 3), (3, 9), (1, 2)],
-        [(1, 2), (1, 3),
-         (2, 4), (2, 5), (2, 6),
-         (2, 7), (3, 8), (3, 9)]
-    ]
+    def test_lst_3(self):
+        g, U, _ = get_example_3()
+        r = 1
+        expected_edges_set = [
+            [],
+            [(1, 7)],
+            [(1, 3), (3, 9)],
+            [(1, 3), (3, 9), (1, 2)],
+            [(1, 2), (1, 3),
+             (2, 4), (2, 5), (2, 6),
+             (2, 7), (3, 8), (3, 9)]
+        ]
+        self.binarize_gen_tree_and_unbinarize(r, g, U,
+                                              expected_edges_set, lst_dag)
 
-    for u, edges in zip(U, expected_edges_set):
-        assert_equal(sorted(edges),
-                     sorted(
-                         unbinarize_dag(
-                             lst_dag(g, 1, u),
-                             edge_weight_key=EnronUtil.EDGE_COST_KEY
-                         ).edges()))
+    def test_greedy_3(self):
+        g, U, _ = get_example_3()
+        r = 1
+        expected_edges_set = [
+            [],
+            [(1, 2), (1, 3)],
+            [(1, 2), (1, 3)],
+            [(1, 2), (1, 3), (2, 5)],
+            [(1, 2), (1, 3),
+             (2, 4), (2, 5), (2, 6),
+             (1, 7), (3, 8), (3, 9)]
+        ]
+        greedy_approach = (lambda g, r, U:
+                           grow_tree_general(g, r, U, greedy_choice_by_cost))
+        self.binarize_gen_tree_and_unbinarize(r, g, U,
+                                              expected_edges_set,
+                                              greedy_approach)
+
+    def test_random_3(self):
+        random.seed(123456)
+        g, U, _ = get_example_3()
+        r = 1
+        expected_edges_set = [
+            [],
+            [(1, 7)],
+            [(1, 3), (3, 8)],
+            [(1, 2), (1, 3), (2, 7)],
+            [(1, 2), (1, 3),
+             (2, 4), (2, 5), (2, 6),
+             (1, 7), (3, 8), (3, 9)]
+        ]
+        greedy_approach = (lambda g, r, U:
+                           grow_tree_general(g, r, U, random_choice))
+        self.binarize_gen_tree_and_unbinarize(r, g, U,
+                                              expected_edges_set,
+                                              greedy_approach)
+
+
 
 
 def est_enron_subset():
