@@ -1,7 +1,7 @@
 import unittest
 import networkx as nx
 import random
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_true
 
 from .baselines import (grow_tree_general,
                         greedy_choice_by_cost,
@@ -18,6 +18,9 @@ class Example1():
                           (4, 6, {'c': 5}), (3, 7, {'c': 6}),
                           (3, 8, {'c': 7}), (2, 9, {'c': 8}),
                           (2, 10, {'c': 9})])
+
+        for n in g.nodes():
+            g.node[n]['r'] = 1
         return g
     
     @classmethod
@@ -41,6 +44,8 @@ class Example2():
                           (1, 6, {'c': 4.5}),
                           (2, 8, {'c': 6.5}),
                           (3, 10, {'c': 8.5})])
+        for n in g.nodes():
+            g.node[n]['r'] = 1
         return g
 
     @classmethod
@@ -85,7 +90,11 @@ class GrowingTreeTest(unittest.TestCase):
             actual = grow_tree_general(g, 1, u, greedy_choice_by_cost)
             assert_equal(sorted(expected_edges),
                          sorted(actual.edges()))
-    
+            for n in actual.nodes():
+                assert_true('r' in actual.node[n])
+            for u, v in actual.edges():
+                assert_true('c' in actual[u][v])
+
     def test_greedy_grow_tree_1(self):
         self.greedy_approach_template(Example1)
 

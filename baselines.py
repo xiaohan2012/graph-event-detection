@@ -39,11 +39,16 @@ def grow_tree_general(g, r, U, choose_edge, edge_cost_key='c'):
 
     while cost_sum <= U and len(frontier) > 0:
         e = choose_edge(g, frontier)
+        u, v = e
         t.add_edge(*e)
-        frontier = new_frontier(e[1], t.nodes(), g, frontier)
+        frontier = new_frontier(v, t.nodes(), g, frontier)
         last_added_edge = e
-        cost_sum += g[e[0]][e[1]][edge_cost_key]
+        cost_sum += g[u][v][edge_cost_key]
 
+        # copy attributes
+        t[u][v] = g[u][v]
+        t.node[u] = g.node[v]
+        t.node[v] = g.node[v]
     if cost_sum > U:
         t.remove_edge(*last_added_edge)
     return t
