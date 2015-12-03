@@ -187,7 +187,15 @@ class MetaGraphStat(object):
         
         result['participant_count'] = (result['sender_count'] +
                                        result['recipient_count'])
-        for key in result:
+
+        result['sender_entropy'] = scipy.stats.entropy(
+            result['sender_count'].values())
+        result['recipient_entropy'] = scipy.stats.entropy(
+            result['recipient_count'].values())
+        result['participant_entropy'] = scipy.stats.entropy(
+            result['participant_count'].values())
+        
+        for key in ('sender_count', 'recipient_count', 'participant_count'):
             result[key] = sorted(result[key].items(),
                                  key=lambda (info, c): (c, info),
                                  reverse=True)[:top_k]

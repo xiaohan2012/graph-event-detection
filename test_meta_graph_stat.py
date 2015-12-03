@@ -3,6 +3,7 @@ import unittest
 import gensim
 import ujson as json
 import numpy as np
+import scipy
 from datetime import datetime
 
 from nose.tools import assert_equal, assert_true, assert_almost_equal
@@ -178,6 +179,9 @@ class MetaGraphStatTest(unittest.TestCase):
                       (('B', 'B@enron.com'), 4),
                       (('C', 'C@enron.com'), 3),
                       (('F', 'F@enron.com'), 2)])
+        assert_almost_equal(0.598, actual['sender_entropy'], places=3)
+        assert_true('recipient_entropy' in actual)
+        assert_true('participant_entropy' in actual)
 
     def test_summary(self):
         s = self.s.summary()
