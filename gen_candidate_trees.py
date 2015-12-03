@@ -41,7 +41,7 @@ def run(gen_tree_func,
     interactions = load_json_by_line(enron_json_path)
     people_info = load_json_by_line(people_data_path)
         
-    print('loading lda...')
+    logger.info('loading lda...')
     lda_model = gensim.models.ldamodel.LdaModel.load(
         os.path.join(CURDIR, lda_model_path)
     )
@@ -81,7 +81,7 @@ def run(gen_tree_func,
         ).summary()
 
     if print_summary:
-        print(get_summary(g))
+        logger.debug(get_summary(g))
 
     roots = sample_nodes(g, cand_tree_number)
 
@@ -89,43 +89,35 @@ def run(gen_tree_func,
     results = []
 
     for ni, r in enumerate(roots):
-        if debug:
-            print('Nodes procssed {}'.format(ni))
-            print('getting rooted subgraph within timespan')
+        logger.info('Nodes procssed {}'.format(ni))
+        logger.debug('Getting rooted subgraph within timespan')
 
         sub_g = EnronUtil.get_rooted_subgraph_within_timespan(
             g, r, timespan, debug=False
         )
 
         if len(sub_g.edges()) == 0:
-            print("empty rooted sub graph")
+            logger.debug("empty rooted sub graph")
             continue
 
-        if debug and print_summary:
-            print("sub_g summary: \n{}".format(
-                get_summary(sub_g)
-            ))
-
-        if debug:
-            logger.info('binarizing dag...')
+        logger.debug('binarizing dag...')
 
         binary_sub_g = binarize_dag(sub_g,
                                     EnronUtil.VERTEX_REWARD_KEY,
                                     EnronUtil.EDGE_COST_KEY,
                                     dummy_node_name_prefix="d_")
 
-        if debug:
-            logger.info('generating tree ')
+        logger.debug('generating tree ')
 
         tree = gen_tree_func(binary_sub_g, r, U)
 
         tree = unbinarize_dag(tree, edge_weight_key=EnronUtil.EDGE_COST_KEY)
         if len(tree.edges()) == 0:
-            print("empty tree")
+            logger.debug("empty tree")
             continue
 
-        if debug and print_summary:
-            print('tree summary:\n{}'.format(get_summary(tree)))
+        if print_summary:
+            logger.debug('tree summary:\n{}'.format(get_summary(tree)))
 
         results.append(tree)
 
@@ -134,18 +126,20 @@ def run(gen_tree_func,
                 protocol=pickle.HIGHEST_PROTOCOL)
 
 if __name__ == '__main__':
+    import random
+    import numpy
+    random.seed(123456)
+    numpy.random.seed(123456)
+
+    import sys
     lst = lambda g, r, U: lst_dag(g, r, U,
                                   edge_weight_decimal_point=2,
                                   debug=False)
+    method = sys.argv[1]
+    assert method in ('lst', 'greedy', 'random')
+    methods = {'lst': lst, 'greedy': greedy_grow, 'random': random_grow}
+    print('Running {}'.format(method))
 
-    # run(cand_tree_number=10, result_pkl_path='tmp/test.pkl')
-    run(lst,
-        timespan=timedelta(weeks=2).total_seconds(),  # 1 month
-        enron_json_path='test/data/enron-head-100.json',
-        lda_model_path='test/data/test.lda',
-        corpus_dict_path='test/data/test_dictionary.gsm',
-        enron_pkl_path='test/data/enron-head-100.pkl',
-        cand_tree_number=10, result_pkl_path='test/data/tmp/test.pkl',
-        calculate_graph=True,
-        debug=True,
-        print_summary=True)
+    run(methods[method],
+        result_pkl_path='tmp/{}.pkl'.format(method))
+
