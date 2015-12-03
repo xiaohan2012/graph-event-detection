@@ -88,8 +88,30 @@ Day 3:
 
 Day 4:
 
-- experiment
-- more measures
+- functional tests for generating candidate trees
+- experiment(greedy is better than lst?)
+- measures(participants distribution entropy, topic coherence)
+- greedy
+
+
+Tree: 2
+[0, 0, 0, 0, 1, 0, 4, 12, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+23
+lst(round): 41
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+50
+lst(ceil): 51
+[0, 0, 0, 0, 1, 11, 0, 0, 6, 6, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+47
+lst(floor): 42
+
+
+Why ceil achieves better result than floor? Why floor selects edges with weight 11 and 23
+
+This is a big tree to compute.
+
+{'basic_structure_stats': {'#edges': 38984,
+                           '#nodes': 19539
 
 - Algorithm 2
 - parameter tuning(embedded task)

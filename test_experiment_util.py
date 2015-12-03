@@ -35,7 +35,8 @@ class ExperimentUtilTest(unittest.TestCase):
         trees = pkl.load(open(output_path))
         assert_equal(6, len(trees))
         for t in trees:
-            assert_true(isinstance(t, nx.DiGraph))
+            for n in t.nodes():
+                assert_true(len(t.neighbors(n)) <= 2)
 
     def tearDown(self):
         for p in glob.glob(os.path.join(CURDIR, 'test/data/tmp/*')):

@@ -1,8 +1,11 @@
 import numpy as np
 import networkx as nx
+import cPickle as pkl
+from datetime import timedelta
+
+
 from enron_graph import EnronUtil
 from dag_util import binarize_dag
-import cPickle as pkl
 
 
 def sample_nodes(g, node_sample_size=100):
@@ -19,7 +22,8 @@ def sample_rooted_binary_graphs_within_timespan(
     g = nx.read_gpickle(meta_graph_pickle_path)
     roots = sample_nodes(g, sample_number)
     results = []
-    for r in roots:
+    for i, r in enumerate(roots):
+        print('done:', i)
         sub_g = EnronUtil.get_rooted_subgraph_within_timespan(
             g, r, timespan, debug=False
         )
@@ -32,3 +36,14 @@ def sample_rooted_binary_graphs_within_timespan(
             results.append(binary_sub_g)
 
     pkl.dump(results, open(output_path, 'w'))
+
+
+if __name__ == '__main__':
+    sample_rooted_binary_graphs_within_timespan(
+        meta_graph_pickle_path='data/enron.pkl',
+        sample_number=20,
+        timespan=timedelta(weeks=4).total_seconds(),
+        output_path='tmp/binary_rooted_tree_samples.pkl'
+    )
+
+    

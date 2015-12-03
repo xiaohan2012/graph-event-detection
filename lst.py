@@ -166,8 +166,10 @@ def lst_dag(G, r, U,
     if edge_weight_decimal_point:
         multiplier = 10**edge_weight_decimal_point
         for s, t in G.edges():
-            G[s][t][edge_cost_key] = int(fixed_point_func(
-                G[s][t][edge_cost_key] * multiplier)
+            G[s][t][edge_cost_key] = int(
+                fixed_point_func(
+                    G[s][t][edge_cost_key] * multiplier
+                )
             )
         U = int(U * multiplier)
 
@@ -205,7 +207,7 @@ def lst_dag(G, r, U,
                     D[n][i] = D[child][i-w] | {n}
                     BP[n][i] = [(child, i-w)]
         elif len(children) > 1:
-            assert len(children) == 2
+            assert len(children) == 2, "{} != 2".format(len(children))
             lchild, rchild = children
             lw = G[n][lchild][edge_cost_key]
             rw = G[n][rchild][edge_cost_key]

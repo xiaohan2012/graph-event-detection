@@ -208,14 +208,15 @@ class MetaGraphStat(object):
         
         return result
 
+    def summary_dict(self):
+        return {m: getattr(self, m)(**self.kws.get(m, {}))
+                for m in dir(self)
+                if (not m.startswith('_') and
+                    not m.startswith('summary') and
+                    callable(getattr(self, m)) and
+                    self.kws.get(m) is not False  # if False, disable
+                )}
+
     def summary(self):
-        return pformat(
-            {m: getattr(self, m)(**self.kws.get(m, {}))
-             for m in dir(self)
-             if (not m.startswith('_') and
-                 m != 'summary' and
-                 callable(getattr(self, m)) and
-                 self.kws.get(m) is not False  # if False, disable
-             )}
-        )
+        return pformat(self.summary_dict())
         
