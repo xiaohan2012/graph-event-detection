@@ -7,3 +7,5 @@
 ## Python
 
 - [Summing two counters](http://stackoverflow.com/questions/19356055/summing-the-contents-of-two-collections-counter-objects)
+- [Remove all contents under some directory](http://stackoverflow.com/questions/185936/delete-folder-contents-in-python)
+- [Python Logging datetime formatter](https://docs.python.org/3/library/logging.html)

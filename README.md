@@ -86,6 +86,11 @@ Day 3:
 - two baselines(greedy, random)
 - documents for baseline
 
+Day 4:
+
+- experiment
+- more measures
+
 - Algorithm 2
 - parameter tuning(embedded task)
 
