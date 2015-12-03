@@ -86,7 +86,8 @@ class MetaGraphStatTest(unittest.TestCase):
                 'max': 4,
                 'average': 1.4285714285714286,
                 'median': 1.0,
-            }
+            },
+            'roots': sorted(['1.B', '1.C', '1.D'])
         }
         assert_equal(expected,
                      self.s.basic_structure_stats())

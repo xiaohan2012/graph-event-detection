@@ -51,14 +51,18 @@ class MetaGraphStat(object):
         return data
 
     def basic_structure_stats(self):
+        nodes = self.g.nodes()
         in_degrees = np.asarray([self.g.in_degree(n)
-                                 for n in self.g.nodes()],
+                                 for n in nodes],
                                 dtype=np.int64)
         out_degrees = np.asarray([self.g.out_degree(n)
-                                  for n in self.g.nodes()],
+                                  for n in nodes],
                                  dtype=np.int64)
         degrees = in_degrees + out_degrees
 
+        root_indices = np.nonzero(np.logical_and(in_degrees == 0,
+                                                 out_degrees > 0))[0]
+        roots = [nodes[i] for i in root_indices]
         return {
             '#nodes': len(self.g.nodes()),
             '#singleton': len(np.nonzero(degrees == 0)[0]),
@@ -74,7 +78,8 @@ class MetaGraphStat(object):
                 'max': out_degrees.max() if len(in_degrees) > 0 else None,
                 'average': out_degrees.mean(),
                 'median': np.median(out_degrees)
-            }
+            },
+            'roots': sorted(roots)
         }
 
     def email_content(self, interactions, top_k=5, unique=True):
