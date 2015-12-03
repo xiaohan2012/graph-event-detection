@@ -5,7 +5,7 @@ import ujson as json
 import numpy as np
 from datetime import datetime
 
-from nose.tools import assert_equal, assert_true
+from nose.tools import assert_equal, assert_true, assert_almost_equal
 from .util import load_json_by_line
 from .enron_graph import EnronUtil
 from .meta_graph_stat import MetaGraphStat
@@ -15,6 +15,7 @@ CURDIR = os.path.dirname(os.path.abspath(__file__))
 
 class MetaGraphStatTest(unittest.TestCase):
     def setUp(self):
+        np.random.seed(123456)
         self.lda_model = gensim.models.ldamodel.LdaModel.load(
             os.path.join(CURDIR,
                          'test/data/test.lda')
@@ -131,6 +132,21 @@ class MetaGraphStatTest(unittest.TestCase):
                     actual['topic_terms'])
         assert_true('utilities' in
                     actual['topic_terms'])
+
+        assert_almost_equal(0.105, actual['topic_divergence'], places=3)
+        
+    def test__topic_divergence(self):
+        id2msg = {}
+        for m in self.interactions:
+            id2msg[m['message_id']] = "{} {}".format(
+                m['subject'], m['body']
+            )
+        msg_ids = [self.s.g.node[n]['message_id']
+                   for n in self.s.g.nodes()]
+        actual = self.s._topic_divergence(msg_ids, id2msg,
+                                          self.dictionary,
+                                          self.lda_model)
+        assert_almost_equal(0.106, actual, places=3)
         
     def test_email_content(self):
         actual = self.s.email_content(self.interactions, 1, unique=False)

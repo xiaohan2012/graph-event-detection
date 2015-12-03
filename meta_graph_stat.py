@@ -1,3 +1,4 @@
+import scipy
 import numpy as np
 import networkx as nx
 from pprint import pformat
@@ -99,12 +100,29 @@ class MetaGraphStat(object):
             'subjects(top{})'.format(top_k): msgs
         }
         
+    def _topic_divergence(self, msg_ids, id2msg, dictionary, lda):
+        raw_topics = [
+            lda.get_document_topics(
+                dictionary.doc2bow(
+                    EnronUtil.tokenize_document(id2msg[id_])
+                )
+            )
+            for id_ in msg_ids
+        ]
+        topic_vects = np.array([[v for _, v in topics]
+                                for topics in raw_topics])
+        mean_topic_vect = np.mean(topic_vects, axis=0)
+        diffs = [scipy.stats.entropy(mean_topic_vect, v)
+                 for v in topic_vects]
+
+        return np.mean(diffs)
+
     def topics(self, interactions, dictionary, lda, top_k=10):
         id2msg = {}
         for m in interactions:
             id2msg[m['message_id']] = "{} {}".format(
                 m['subject'], m['body']
-            )        
+            )
 
         # topic_dist
         message_ids = [self.g.node[n]['message_id']
@@ -128,9 +146,12 @@ class MetaGraphStat(object):
         bestn = np.argsort(weighted_terms)[::-1][:top_k]
 
         topic_terms = [lda.id2word[id] for id in bestn]
-
+        
+        topic_divergence = self._topic_divergence(message_ids, id2msg,
+                                                  dictionary, lda)
         return {'topic_dist': topic_dist,
-                'topic_terms': topic_terms}
+                'topic_terms': topic_terms,
+                'topic_divergence': topic_divergence}
 
     def participants(self, people_info, interactions, top_k=10):
         peopleid2info = {r['id']: (r['name'], r['email'])
