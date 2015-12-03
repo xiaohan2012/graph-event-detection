@@ -1,4 +1,5 @@
 import unittest
+import math
 from nose.tools import assert_equal
 from networkx.classes.digraph import DiGraph
 
@@ -121,7 +122,6 @@ class LstDagTestCase(unittest.TestCase):
         for u, expected in zip(U, expected_edge_list):
             actual = lst_dag(g, r, u,
                              edge_weight_decimal_point=2)
-            print(actual.edges())
             assert_equal(expected, actual.edges())
 
     def test_lst_dag_example_3(self):
@@ -131,6 +131,24 @@ class LstDagTestCase(unittest.TestCase):
             assert_equal(sorted(edges),
                          sorted(lst_dag(g, 1, u).edges()))
 
+    def test_lst_dag_exampl_2_using_floor(self):
+        g, U, _ = get_example_2()
+        r = 1
+        expected_edge_list = [
+            [],
+            [(1, 3)],
+            [(1, 2), (2, 4)],
+            [(1, 2), (1, 3), (2, 4)],
+            [(1, 2), (1, 3), (2, 4)],
+            [(1, 2), (1, 3), (2, 4)]
+        ]
+        for u, expected in zip(U, expected_edge_list):
+            print(u)
+            actual = lst_dag(g, r, u,
+                             fixed_point_func=math.floor,
+                             edge_weight_decimal_point=2)
+            assert_equal(expected, actual.edges())
+        
 
 class LstDagGeneralTest(unittest.TestCase):
     def setUp(self):

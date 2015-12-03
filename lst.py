@@ -148,6 +148,7 @@ def lst_dag(G, r, U,
             node_reward_key='r',
             edge_cost_key='c',
             edge_weight_decimal_point=None,
+            fixed_point_func=round,
             debug=False):
     """
     Param:
@@ -165,7 +166,7 @@ def lst_dag(G, r, U,
     if edge_weight_decimal_point:
         multiplier = 10**edge_weight_decimal_point
         for s, t in G.edges():
-            G[s][t][edge_cost_key] = int(round(
+            G[s][t][edge_cost_key] = int(fixed_point_func(
                 G[s][t][edge_cost_key] * multiplier)
             )
         U = int(U * multiplier)
