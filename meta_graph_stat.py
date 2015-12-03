@@ -105,7 +105,8 @@ class MetaGraphStat(object):
             lda.get_document_topics(
                 dictionary.doc2bow(
                     EnronUtil.tokenize_document(id2msg[id_])
-                )
+                ),
+                minimum_probability=0
             )
             for id_ in msg_ids
         ]
