@@ -10,11 +10,19 @@ from nose.tools import assert_equal, assert_true
 
 from datetime import timedelta
 
-from .experiment_util import sample_rooted_binary_graphs_within_timespan
+from .experiment_util import (sample_rooted_binary_graphs_within_timespan,
+                              experiment_signature)
 
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
 
+
+def test_experiment_signature():
+    assert_equal("", experiment_signature())
+    assert_equal("a=1--b=two--c=True--d=1.5--e=asarray--f=28days",
+                 experiment_signature(a=1, b='two', c=True, d=1.5,
+                                      e=np.asarray, f=timedelta(weeks=4)))
+    
 
 class ExperimentUtilTest(unittest.TestCase):
     def setUp(self):
@@ -41,3 +49,6 @@ class ExperimentUtilTest(unittest.TestCase):
     def tearDown(self):
         for p in glob.glob(os.path.join(CURDIR, 'test/data/tmp/*')):
             os.remove(p)
+
+
+        

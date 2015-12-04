@@ -1,6 +1,5 @@
 import os
 import gensim
-import scipy
 import cPickle as pickle
 import networkx as nx
 from datetime import timedelta
@@ -10,10 +9,11 @@ from dag_util import unbinarize_dag, binarize_dag
 from lst import lst_dag
 from enron_graph import EnronUtil
 from meta_graph_stat import MetaGraphStat
-from experiment_util import sample_nodes
+from experiment_util import sample_nodes, experiment_signature
 from util import load_json_by_line
 from baselines import greedy_grow, random_grow
-
+from scipy.spatial.distance import euclidean, cosine
+from scipy.stats import entropy
 
 logging.basicConfig(format="%(asctime)s;%(levelname)s;%(message)s",
                     datefmt="%Y-%m-%d %H:%M:%S")
@@ -25,16 +25,34 @@ CURDIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def run(gen_tree_func,
-        timespan=timedelta(weeks=4).total_seconds(),  # 1 month
         enron_json_path=os.path.join(CURDIR, 'data/enron.json'),
         lda_model_path=os.path.join(CURDIR, 'models/model-4-50.lda'),
         corpus_dict_path=os.path.join(CURDIR, 'models/dictionary.pkl'),
-        enron_pkl_path=os.path.join(CURDIR, 'data/enron.pkl'),
+        enron_pkl_path_prefix=os.path.join(CURDIR, 'data/enron'),
         cand_tree_number=500,
-        result_pkl_path=os.path.join(CURDIR, 'tmp/results.pkl'),
+        result_pkl_path_prefix=os.path.join(CURDIR, 'tmp/results'),
+        meta_graph_kws={
+            'dist_func': entropy
+        },
+        gen_tree_kws={
+            'timespan': timedelta(weeks=4),
+            'U': 0.5,
+        },
         debug=True,
         calculate_graph=False,
         print_summary=True):
+    result_pkl_path = "{}--{}----{}.pkl".format(
+        result_pkl_path_prefix,
+        experiment_signature(**gen_tree_kws),
+        experiment_signature(**meta_graph_kws)
+    )
+    timespan = gen_tree_kws['timespan'].total_seconds()
+    U = gen_tree_kws['U']
+    
+    enron_pkl_path = "{}--{}.pkl".format(
+        enron_pkl_path_prefix,
+        experiment_signature(**meta_graph_kws)
+    )
     
     people_data_path = os.path.join(CURDIR, 'data/people.json')
 
@@ -53,9 +71,9 @@ def run(gen_tree_func,
         logger.info('calculating meta_graph...')
         g = EnronUtil.get_topic_meta_graph(interactions,
                                            lda_model, dictionary,
-                                           dist_func=scipy.stats.entropy,
                                            preprune_secs=timespan,
-                                           debug=True)
+                                           debug=True,
+                                           **meta_graph_kws)
 
         logger.info('pickling...')
         nx.write_gpickle(EnronUtil.compactize_meta_graph(g, map_nodes=False),
@@ -64,7 +82,7 @@ def run(gen_tree_func,
     if not calculate_graph:
         logger.info('loading pickle...')
         g = nx.read_gpickle(enron_pkl_path)
-
+        
     def get_summary(g):
         return MetaGraphStat(
             g, kws={
@@ -84,6 +102,7 @@ def run(gen_tree_func,
         logger.debug(get_summary(g))
 
     roots = sample_nodes(g, cand_tree_number)
+    print(roots)
 
     U = 0.5
     results = []
@@ -121,6 +140,7 @@ def run(gen_tree_func,
 
         results.append(tree)
 
+    print('result_pkl_path:', result_pkl_path)
     pickle.dump(results,
                 open(result_pkl_path, 'w'),
                 protocol=pickle.HIGHEST_PROTOCOL)
@@ -136,10 +156,24 @@ if __name__ == '__main__':
                                   edge_weight_decimal_point=2,
                                   debug=False)
     method = sys.argv[1]
+    dist_func = sys.argv[2]
     assert method in ('lst', 'greedy', 'random')
+    assert dist_func in ('entropy', 'euclidean', 'cosine')
     methods = {'lst': lst, 'greedy': greedy_grow, 'random': random_grow}
+    dist_funcs = {'entropy': entropy, 'euclidean': euclidean, 'cosine': cosine}
+
+    dist_func = dist_funcs[dist_func]
     print('Running {}'.format(method))
+    print('Dist func {}'.format(dist_func))
 
     run(methods[method],
-        result_pkl_path='tmp/{}.pkl'.format(method))
-
+        result_pkl_path_prefix='tmp/result-{}'.format(method),
+        meta_graph_kws={
+            'dist_func': dist_func
+        },
+        gen_tree_kws={
+            'timespan': timedelta(weeks=4),
+            'U': 0.5,
+        },
+        calculate_graph=True
+    )

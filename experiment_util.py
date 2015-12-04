@@ -38,6 +38,18 @@ def sample_rooted_binary_graphs_within_timespan(
     pkl.dump(results, open(output_path, 'w'))
 
 
+def experiment_signature(**kws):
+    def value_str(v):
+        if callable(v):
+            return v.__name__
+        elif isinstance(v, timedelta):
+            return '{}days'.format(v.days)
+        else:
+            return str(v)
+
+    return '--'.join(["{}={}".format(k, value_str(v))
+                      for k, v in sorted(kws.items())])
+
 if __name__ == '__main__':
     sample_rooted_binary_graphs_within_timespan(
         meta_graph_pickle_path='data/enron.pkl',
@@ -45,5 +57,3 @@ if __name__ == '__main__':
         timespan=timedelta(weeks=4).total_seconds(),
         output_path='tmp/binary_rooted_tree_samples.pkl'
     )
-
-    
