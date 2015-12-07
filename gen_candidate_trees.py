@@ -18,7 +18,7 @@ from scipy.stats import entropy
 logging.basicConfig(format="%(asctime)s;%(levelname)s;%(message)s",
                     datefmt="%Y-%m-%d %H:%M:%S")
 logger = logging.getLogger("cand_tree_genration")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
@@ -102,7 +102,6 @@ def run(gen_tree_func,
         logger.debug(get_summary(g))
 
     roots = sample_nodes(g, cand_tree_number)
-    print(roots)
 
     U = 0.5
     results = []
@@ -175,5 +174,5 @@ if __name__ == '__main__':
             'timespan': timedelta(weeks=4),
             'U': 0.5,
         },
-        calculate_graph=True
+        calculate_graph=False,
     )

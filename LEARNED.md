@@ -11,3 +11,8 @@
 - [Python Logging datetime formatter](https://docs.python.org/3/library/logging.html)
 - [Numpy logical_and](http://docs.scipy.org/doc/numpy/reference/generated/numpy.logical_and.html)
 - [Python lambda function keep value of local variable](http://stackoverflow.com/questions/10452770/python-lambdas-binding-to-local-values)
+- [matplotlib multiple figures and axes](http://matplotlib.org/users/pyplot_tutorial.html)
+- [subplot in loop](http://stackoverflow.com/questions/17210646/python-subplot-within-a-loop-first-panel-appears-in-wrong-position)
+- [histogram given bins and weights](http://stackoverflow.com/questions/17238087/histogram-from-data-which-is-already-binned-i-have-bins-and-frequency-values)
+- [savefig without X](http://stackoverflow.com/questions/4931376/generating-matplotlib-graphs-without-a-running-x-server)
+- [bar chart](http://matplotlib.org/examples/api/barchart_demo.html)

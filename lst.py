@@ -261,11 +261,11 @@ def lst_dag(G, r, U,
                     A[n][i] = max_val
                     D[n][i] = max_nodes
                     BP[n][i] = prev
-            if n == r:  # no need to continue once we processed root
-                break
+            # if n == r:  # no need to continue once we processed root
+            #     break
                 
     if debug:
-        print('A', A)
+        print('A[r]', A[r])
 
     best_cost = max(xrange(U + 1),
                     key=lambda i: A[r][i] if i in A[r] else float('-inf'))
@@ -277,9 +277,9 @@ def lst_dag(G, r, U,
     for n, cost in BP[r][best_cost]:
         stack.append((r, n, cost))
     while len(stack) > 0:
-        if debug:
-            print('stack size: {}'.format(len(stack)))
-            print('stack: {}'.format(stack))
+        # if debug:
+        #     print('stack size: {}'.format(len(stack)))
+        #     print('stack: {}'.format(stack))
         
         parent, child, cost = stack.pop(0)
         tree.add_edge(parent, child)
@@ -290,8 +290,8 @@ def lst_dag(G, r, U,
         tree.node[child] = G.node[child]
 
         for grandchild, cost2 in BP[child][cost]:
-            if debug:
-                print(grandchild, cost2)
+            # if debug:
+            #     print(grandchild, cost2)
             stack.append((child, grandchild, cost2))
 
     return tree

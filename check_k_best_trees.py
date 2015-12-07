@@ -7,6 +7,8 @@ from meta_graph_stat import MetaGraphStat
 from max_cover import argmax_k_coverage
 from util import load_json_by_line
 
+result_path = 'tmp/greedy.pkl'
+
 K = 5
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
@@ -22,7 +24,7 @@ lda = gensim.models.ldamodel.LdaModel.load(
     os.path.join(CURDIR, 'models/model-4-50.lda')
 )
 
-trees = pickle.load(open('tmp/results.pkl'))
+trees = pickle.load(open(result_path))
 
 nodes_of_trees = [set(t.nodes()) for t in trees]
 
@@ -54,8 +56,9 @@ def get_summary(g):
     return MetaGraphStat(g, kws=STAT_KWS).summary()
 
 
-for i in selected_ids:
+for ind, i in enumerate(selected_ids):
     t = trees[i]
+    print("############ {}".format(ind+1))
     print('Tree simmary:\n{}'.format(get_summary(t)))
 
 mat = np.zeros((K, K))

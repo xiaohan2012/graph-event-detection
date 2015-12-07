@@ -136,6 +136,27 @@ def get_example_4_float():
     return (g, U, expected_edge_set)
 
 
+def get_example_5():
+    g = DiGraph()
+    g.add_edges_from([(0, 1), (0, 2), (1, 3), (1, 4),
+                      (2, 4), (2, 5), (2, 6)])
+    for s, t in g.edges():
+        g[s][t]['c'] = 1
+    g[1][4]['c'] = 0
+    g[2][4]['c'] = 0
+    g[2][6]['c'] = 3
+    for n in g.nodes():
+        g.node[n]['r'] = 1
+    g.node[3]['r'] = 10
+    g.node[4]['r'] = 100
+    g.node[5]['r'] = 11
+
+    U = [10]
+    # sub-optimal answer actually
+    expected_edge_set = [[(0, 2), (2, 4), (2, 5), (2, 6)]]
+    return (g, U, expected_edge_set)
+
+
 class LstDagTestCase(unittest.TestCase):
 
     def run_case(self, example_data, **lst_kws):
