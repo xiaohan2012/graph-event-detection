@@ -9,7 +9,8 @@ import scipy
 from datetime import timedelta
 
 from .test_lst_dag import (get_example_3, get_example_4,
-                           get_example_4_float, get_example_5)
+                           get_example_4_float, get_example_5,
+                           get_example_6)
 from .dag_util import unbinarize_dag, binarize_dag
 from .lst import lst_dag
 from .enron_graph import EnronUtil
@@ -61,6 +62,13 @@ class TreeGenerationMethodsTest(unittest.TestCase):
 
     def test_lst_5(self):
         g, U, expected = get_example_5()
+        r = 0
+        self.binarize_gen_tree_and_unbinarize(r, g, U,
+                                              expected,
+                                              lst_dag)
+
+    def test_lst_6(self):
+        g, U, expected = get_example_6()
         r = 0
         self.binarize_gen_tree_and_unbinarize(r, g, U,
                                               expected,
