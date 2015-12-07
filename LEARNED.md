@@ -16,3 +16,6 @@
 - [histogram given bins and weights](http://stackoverflow.com/questions/17238087/histogram-from-data-which-is-already-binned-i-have-bins-and-frequency-values)
 - [savefig without X](http://stackoverflow.com/questions/4931376/generating-matplotlib-graphs-without-a-running-x-server)
 - [bar chart](http://matplotlib.org/examples/api/barchart_demo.html)
+- [GNU Parallel run multiple commands](https://www.gnu.org/software/parallel/parallel_tutorial.html#A-single-input-source)
+- [GNU parallel working directory](https://www.gnu.org/software/parallel/parallel_tutorial.html#Working-dir)
+- [Bash iterate through array](http://www.cyberciti.biz/faq/bash-iterate-array/)
