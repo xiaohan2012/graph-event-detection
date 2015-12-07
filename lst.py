@@ -144,6 +144,23 @@ def lst_dag_local(G, r, U,
     pass
 
 
+def round_edge_weights_by_multiplying(G,
+                                      U,
+                                      edge_weight_decimal_point,
+                                      edge_cost_key='c',
+                                      fixed_point_func=round):
+    G = G.copy()
+    multiplier = 10**edge_weight_decimal_point
+    for s, t in G.edges():
+        G[s][t][edge_cost_key] = int(
+            fixed_point_func(
+                G[s][t][edge_cost_key] * multiplier
+            )
+        )
+    U = int(U * multiplier)
+    return G, U
+
+
 def lst_dag(G, r, U,
             node_reward_key='r',
             edge_cost_key='c',
@@ -162,16 +179,17 @@ def lst_dag(G, r, U,
     ------------
     """
     # round edge weight to fixed decimal point if necessary
-    G = G.copy()
+
     if edge_weight_decimal_point:
-        multiplier = 10**edge_weight_decimal_point
-        for s, t in G.edges():
-            G[s][t][edge_cost_key] = int(
-                fixed_point_func(
-                    G[s][t][edge_cost_key] * multiplier
-                )
-            )
-        U = int(U * multiplier)
+        G, U = round_edge_weights_by_multiplying(
+            G,
+            U,
+            edge_weight_decimal_point,
+            edge_cost_key=edge_cost_key,
+            fixed_point_func=fixed_point_func
+        )
+
+    G = G.copy()
 
     if debug:
         print('U => {}'.format(U))
@@ -247,10 +265,13 @@ def lst_dag(G, r, U,
                 break
                 
     if debug:
-        print('A\n', A)
+        print('A', A)
 
     best_cost = max(xrange(U + 1),
                     key=lambda i: A[r][i] if i in A[r] else float('-inf'))
+    if debug:
+        print("best_cost", best_cost)
+
     tree = DiGraph()
     stack = []
     for n, cost in BP[r][best_cost]:

@@ -3,7 +3,7 @@ import math
 from nose.tools import assert_equal
 from networkx.classes.digraph import DiGraph
 
-from .lst import lst_dag, lst_dag_general
+from .lst import lst_dag, lst_dag_general, round_edge_weights_by_multiplying
 from .dag_util import binarize_dag
 
 
@@ -103,33 +103,60 @@ def get_example_3():
     return (g, U, expected_edges_set)
 
 
+def get_example_4():
+    g = DiGraph()
+    g.add_edges_from([(0, 1), (1, 2), (2, 3), (2, 14),  # tree 1
+                      (2, 15), (3, 16), (3, 17),
+                      (0, 4), (4, 5), (4, 6),  # tree 2
+                      (5, 11), (6, 11), (6, 12), (6, 13),
+                      (0, 7), (7, 8), (7, 9),  # tree 3
+                      (8, 10), (8, 11), (9, 12), (9, 13)])
+    for s, t in g.edges():
+        g[s][t]['c'] = 1
+    for n in g.nodes():
+        g.node[n]['r'] = 1
+    g.node[10]['r'] = 2
+
+    U = [7]
+    expected_edge_set = [
+        [(0, 7), (7, 8), (7, 9),  # tree 3
+         (8, 10), (8, 11), (9, 12), (9, 13)]
+    ]
+    return (g, U, expected_edge_set)
+
+
+def get_example_4_float():
+    g, U, expected_edge_set = get_example_4()
+    g = g.copy()
+    scaling_factor = float(1e6)
+    U = [u / scaling_factor for u in U]
+    for s, t in g.edges():
+        g[s][t]['c'] = g[s][t]['c'] / scaling_factor
+
+    return (g, U, expected_edge_set)
+
+
 class LstDagTestCase(unittest.TestCase):
 
-    def test_lst_dag_example_1(self):
-        g, U, expected_edge_list = get_example_1()
+    def run_case(self, example_data, **lst_kws):
+        g, U, expected_edge_list = example_data
         r = 1
         for u, expected in zip(U, expected_edge_list):
-            actual = lst_dag(g, r, u)
+            actual = lst_dag(g, r, u, **lst_kws)
             assert_equal(sorted(expected),
                          sorted(actual.edges()))
+
+    def test_lst_dag_example_1(self):
+        self.run_case(get_example_1())
 
     def test_lst_dag_example_2(self):
         """
         the case where edge weight are float
         """
-        g, U, expected_edge_list = get_example_2()
-        r = 1
-        for u, expected in zip(U, expected_edge_list):
-            actual = lst_dag(g, r, u,
-                             edge_weight_decimal_point=2)
-            assert_equal(expected, actual.edges())
+        self.run_case(get_example_2(), edge_weight_decimal_point=2)
 
     def test_lst_dag_example_3(self):
-        g, U, expected_edges_set = get_example_3()
-        for u, edges in zip(U, expected_edges_set):
-            print(u)
-            assert_equal(sorted(edges),
-                         sorted(lst_dag(g, 1, u).edges()))
+        self.run_case(get_example_3())
 
     def test_lst_dag_exampl_2_using_floor(self):
         g, U, _ = get_example_2()
@@ -214,3 +241,17 @@ class LstDagGeneralTest(unittest.TestCase):
                              ).edges()
                          )
                      )
+
+
+def test_round_edge_weights_by_multiplying():
+    g, U, _ = get_example_4_float()
+    U = U[0]
+    funcs = [round, math.ceil, math.floor]
+    for f in funcs:
+        new_g, new_U = round_edge_weights_by_multiplying(
+            g, U, 6, fixed_point_func=f
+        )
+        assert_equal(7, new_U)
+        for s, t in new_g.edges():
+            assert_equal(1, new_g[s][t]['c'])
+        

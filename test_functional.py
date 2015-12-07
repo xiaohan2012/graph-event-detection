@@ -8,12 +8,12 @@ import gensim
 import scipy
 from datetime import timedelta
 
-from .test_lst_dag import get_example_3
+from .test_lst_dag import get_example_3, get_example_4, get_example_4_float
 from .dag_util import unbinarize_dag, binarize_dag
 from .lst import lst_dag
 from .enron_graph import EnronUtil
 from .meta_graph_stat import MetaGraphStat
-from .baselines import grow_tree_general, greedy_grow, random_grow
+from .baselines import greedy_grow, random_grow
 from nose.tools import assert_equal
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
@@ -21,10 +21,14 @@ CURDIR = os.path.dirname(os.path.abspath(__file__))
 
 class TreeGenerationMethodsTest(unittest.TestCase):
     def binarize_gen_tree_and_unbinarize(self, r, g, U, expected_edges_set,
-                                         gen_tree_func):
+                                         gen_tree_func,
+                                         **gen_tree_kws):
+        g = binarize_dag(g,
+                         EnronUtil.VERTEX_REWARD_KEY,
+                         EnronUtil.EDGE_COST_KEY)
         for u, edges in zip(U, expected_edges_set):
             print(u)
-            t = gen_tree_func(g, r, u)
+            t = gen_tree_func(g, r, u, **gen_tree_kws)
             assert_equal(sorted(edges),
                          sorted(
                              unbinarize_dag(
@@ -47,6 +51,22 @@ class TreeGenerationMethodsTest(unittest.TestCase):
         self.binarize_gen_tree_and_unbinarize(r, g, U,
                                               expected_edges_set, lst_dag)
 
+    def test_lst_4(self):
+        g, U, expected = get_example_4()
+        r = 0
+        self.binarize_gen_tree_and_unbinarize(r, g, U,
+                                              expected,
+                                              lst_dag)
+
+    def test_lst_4_float(self):
+        g, U, expected = get_example_4_float()
+        r = 0
+        self.binarize_gen_tree_and_unbinarize(r, g, U,
+                                              expected,
+                                              lst_dag,
+                                              edge_weight_decimal_point=6,
+                                              debug=True)
+
     def test_greedy_3(self):
         g, U, _ = get_example_3()
         r = 1
@@ -59,8 +79,7 @@ class TreeGenerationMethodsTest(unittest.TestCase):
              (2, 4), (2, 5), (2, 6),
              (1, 7), (3, 8), (3, 9)]
         ]
-        greedy_approach = (lambda g, r, U:
-                           grow_tree_general(g, r, U, greedy_choice_by_cost))
+
         self.binarize_gen_tree_and_unbinarize(r, g, U,
                                               expected_edges_set,
                                               greedy_grow)
