@@ -37,6 +37,7 @@ class GenCandidateTreeTest(unittest.TestCase):
             'gen_tree_kws': {
                 'timespan': timedelta(weeks=2),
                 'U': 0.5,
+                'dijkstra': False
             }
         }
         self.lst = lambda g, r, U: lst_dag(
@@ -61,10 +62,14 @@ class GenCandidateTreeTest(unittest.TestCase):
         result_pickle_prefix = os.path.join(CURDIR,
                                             "test/data/tmp",
                                             "result-{}".format(test_name))
+
+        pickle_path_suffix = 'U=0.5--dijkstra={}--timespan=14days----dist_func=entropy'
+
         if self.some_kws_of_run['gen_tree_kws'].get('dijkstra'):
-            pickle_path_suffix = 'U=0.5--dijkstra=True--timespan=14days----dist_func=entropy'
+            pickle_path_suffix = pickle_path_suffix.format("True")
         else:
-            pickle_path_suffix = 'U=0.5--timespan=14days----dist_func=entropy'
+            pickle_path_suffix = pickle_path_suffix.format("False")
+
         pickle_path = "{}--{}.pkl".format(
             result_pickle_prefix,
             pickle_path_suffix
