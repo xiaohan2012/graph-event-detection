@@ -94,25 +94,23 @@ Day 4:
 - greedy
 
 
-Tree: 2
-[0, 0, 0, 0, 1, 0, 4, 12, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-23
-lst(round): 41
-[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-50
-lst(ceil): 51
-[0, 0, 0, 0, 1, 11, 0, 0, 6, 6, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-47
-lst(floor): 42
+Day 5:
+
+- Discussion
 
 
-Why ceil achieves better result than floor? Why floor selects edges with weight 11 and 23
+## Week 3
 
-This is a big tree to compute.
+Day 1:
 
-{'basic_structure_stats': {'#edges': 38984,
-                           '#nodes': 19539
+- Debugging
+- Found dynamic programming is not optimal
+- Found a counter example
 
-- Algorithm 2
-- parameter tuning(embedded task)
+Day 2:
 
+- Reported the Day 1 result
+- Discussed/polished slides
+- Came up with two algorithms:
+  - Dijkstra + DP
+  - PCST approximation
