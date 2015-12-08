@@ -1,4 +1,6 @@
 import networkx as nx
+from networkx.algorithms.shortest_paths.weighted import single_source_dijkstra_path
+from enron_graph import EnronUtil
 
 
 def chunks(lst, chunk_size):
@@ -74,3 +76,17 @@ def assert_no_cycle(g):
     it's quite slow
     """
     assert len(list(nx.simple_cycles(g))) == 0, 'g is cyclic'
+
+
+def remove_edges_via_dijkstra(g, source, weight=EnronUtil.EDGE_COST_KEY):
+    g = g.copy()
+    paths = single_source_dijkstra_path(g,
+                                        source=source,
+                                        weight=weight)
+    print(paths)
+    edges = [(path[i], path[i+1])
+             for path in paths.values()
+             for i in xrange(len(path)-1)]
+    edges_to_remove = set(g.edges()) - set(edges)
+    g.remove_edges_from(edges_to_remove)
+    return g

@@ -19,3 +19,5 @@
 - [GNU Parallel run multiple commands](https://www.gnu.org/software/parallel/parallel_tutorial.html#A-single-input-source)
 - [GNU parallel working directory](https://www.gnu.org/software/parallel/parallel_tutorial.html#Working-dir)
 - [Bash iterate through array](http://www.cyberciti.biz/faq/bash-iterate-array/)
+- [argparse action="store_true|false"](https://docs.python.org/3/library/argparse.html#action)
+- [Python subprocess](https://docs.python.org/2/library/subprocess.html)

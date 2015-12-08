@@ -7,6 +7,7 @@ import cPickle as pkl
 
 from datetime import timedelta
 from nose.tools import assert_equal, assert_true
+from subprocess import check_output
 
 from gen_candidate_trees import run
 from scipy.stats import entropy
@@ -15,6 +16,14 @@ from .lst import lst_dag
 from .baselines import greedy_grow, random_grow
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
+
+
+def remove_tmp_data(directory):
+        # remove the pickles
+        files = glob.glob(os.path.join(CURDIR,
+                                       "{}/*".format(directory)))
+        for f in files:
+            os.remove(f)
 
 
 class GenCandidateTreeTest(unittest.TestCase):
@@ -37,6 +46,7 @@ class GenCandidateTreeTest(unittest.TestCase):
             'gen_tree_kws': {
                 'timespan': timedelta(weeks=2),
                 'U': 0.5,
+                'dijkstra': False
             }
         }
         self.lst = lambda g, r, U: lst_dag(
@@ -61,9 +71,17 @@ class GenCandidateTreeTest(unittest.TestCase):
         result_pickle_prefix = os.path.join(CURDIR,
                                             "test/data/tmp",
                                             "result-{}".format(test_name))
+
+        pickle_path_suffix = 'U=0.5--dijkstra={}--timespan=14days----dist_func=entropy'
+
+        if self.some_kws_of_run['gen_tree_kws'].get('dijkstra'):
+            pickle_path_suffix = pickle_path_suffix.format("True")
+        else:
+            pickle_path_suffix = pickle_path_suffix.format("False")
+
         pickle_path = "{}--{}.pkl".format(
             result_pickle_prefix,
-            'U=0.5--timespan=14days----dist_func=entropy'
+            pickle_path_suffix
         )
 
         run(tree_gen_func,
@@ -77,6 +95,7 @@ class GenCandidateTreeTest(unittest.TestCase):
         assert_equal(expected_tree_number, len(trees))
         for t in trees:
             assert_true(len(t.edges()) > 0)
+        return trees
 
     def test_greedy_grow(self):
         self.check('greedy', greedy_grow, 2)
@@ -87,9 +106,38 @@ class GenCandidateTreeTest(unittest.TestCase):
     def test_lst_dag(self):
         self.check('lst', self.lst, 2)
 
+    def test_lst_dag_after_dijkstra(self):
+        trees = self.check('lst', self.lst, 2)
+
+        self.some_kws_of_run['gen_tree_kws']['dijkstra'] = True
+        trees_with_dij = self.check('lst', self.lst, 4)
+
+        for t, t_dij in zip(trees, trees_with_dij):
+            assert_true(sorted(t.edges()) != sorted(t_dij))
+
     def tearDown(self):
-        # remove the pickles
-        files = glob.glob(os.path.join(CURDIR,
-                                       "test/data/tmp/*"))
-        for f in files:
-            os.remove(f)
+        remove_tmp_data('test/data/tmp')
+
+
+class GenCandidateTreeCMDTest(unittest.TestCase):
+    """test for commandline
+    """
+    def setUp(self):
+        random.seed(123456)
+        numpy.random.seed(123456)
+
+    def test_simple(self):
+        script_path = os.path.join(CURDIR, "gen_candidate_trees.py")
+        result_dir = os.path.join(CURDIR, "test/data/tmp")
+        cmd = "python {} --method=random --dist=entropy --cand_n=1 --res_dir={}".format(
+            script_path, result_dir
+        ).split()
+        output = check_output(cmd)
+        assert_true("traceback" not in output.lower())
+        
+        output_path = os.path.join(CURDIR,
+                                   "test/data/tmp/result-random--U=0.5--dijkstra=False--timespan=28days----dist_func=entropy.pkl")
+        assert_true(os.path.exists(output_path))
+
+    def tearDown(self):
+        remove_tmp_data('test/data/tmp')
