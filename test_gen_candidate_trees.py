@@ -61,9 +61,13 @@ class GenCandidateTreeTest(unittest.TestCase):
         result_pickle_prefix = os.path.join(CURDIR,
                                             "test/data/tmp",
                                             "result-{}".format(test_name))
+        if self.some_kws_of_run['gen_tree_kws'].get('dijkstra'):
+            pickle_path_suffix = 'U=0.5--dijkstra=True--timespan=14days----dist_func=entropy'
+        else:
+            pickle_path_suffix = 'U=0.5--timespan=14days----dist_func=entropy'
         pickle_path = "{}--{}.pkl".format(
             result_pickle_prefix,
-            'U=0.5--timespan=14days----dist_func=entropy'
+            pickle_path_suffix
         )
 
         run(tree_gen_func,
@@ -77,6 +81,7 @@ class GenCandidateTreeTest(unittest.TestCase):
         assert_equal(expected_tree_number, len(trees))
         for t in trees:
             assert_true(len(t.edges()) > 0)
+        return trees
 
     def test_greedy_grow(self):
         self.check('greedy', greedy_grow, 2)
@@ -86,6 +91,15 @@ class GenCandidateTreeTest(unittest.TestCase):
 
     def test_lst_dag(self):
         self.check('lst', self.lst, 2)
+
+    def test_lst_dag_after_dijkstra(self):
+        trees = self.check('lst', self.lst, 2)
+
+        self.some_kws_of_run['gen_tree_kws']['dijkstra'] = True
+        trees_with_dij = self.check('lst', self.lst, 4)
+
+        for t, t_dij in zip(trees, trees_with_dij):
+            assert_true(sorted(t.edges()) != sorted(t_dij))
 
     def tearDown(self):
         # remove the pickles

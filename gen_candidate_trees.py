@@ -5,7 +5,7 @@ import networkx as nx
 from datetime import timedelta
 import logging
 
-from dag_util import unbinarize_dag, binarize_dag
+from dag_util import unbinarize_dag, binarize_dag, remove_edges_via_dijkstra
 from lst import lst_dag
 from enron_graph import EnronUtil
 from meta_graph_stat import MetaGraphStat
@@ -37,6 +37,7 @@ def run(gen_tree_func,
         gen_tree_kws={
             'timespan': timedelta(weeks=4),
             'U': 0.5,
+            'dijkstra': False
         },
         debug=True,
         calculate_graph=False,
@@ -118,13 +119,21 @@ def run(gen_tree_func,
             logger.debug("empty rooted sub graph")
             continue
 
+        if gen_tree_kws.get('dijkstra'):
+            logger.debug('applying dijkstra')
+            sub_g = remove_edges_via_dijkstra(
+                sub_g,
+                source=r,
+                weight=EnronUtil.EDGE_COST_KEY
+            )
+
         logger.debug('binarizing dag...')
 
         binary_sub_g = binarize_dag(sub_g,
                                     EnronUtil.VERTEX_REWARD_KEY,
                                     EnronUtil.EDGE_COST_KEY,
                                     dummy_node_name_prefix="d_")
-
+        
         logger.debug('generating tree ')
 
         tree = gen_tree_func(binary_sub_g, r, U)
