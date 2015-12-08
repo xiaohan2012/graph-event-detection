@@ -7,7 +7,9 @@ from meta_graph_stat import MetaGraphStat
 from max_cover import argmax_k_coverage
 from util import load_json_by_line
 
-result_path = 'tmp/greedy.pkl'
+import sys
+
+result_path = sys.argv[1]
 
 K = 5
 
