@@ -11,7 +11,7 @@ from datetime import timedelta
 from .test_lst_dag import (get_example_3, get_example_4,
                            get_example_4_float, get_example_5,
                            get_example_6)
-from .dag_util import unbinarize_dag, binarize_dag
+from .dag_util import unbinarize_dag, binarize_dag, remove_edges_via_dijkstra
 from .lst import lst_dag
 from .enron_graph import EnronUtil
 from .meta_graph_stat import MetaGraphStat
@@ -68,9 +68,20 @@ class TreeGenerationMethodsTest(unittest.TestCase):
                                               lst_dag)
 
     def test_lst_6(self):
+        # sub optimal
         g, U, expected = get_example_6()
         r = 0
         self.binarize_gen_tree_and_unbinarize(r, g, U,
+                                              expected,
+                                              lst_dag)
+
+    def test_lst_6_after_dijkstra(self):
+        # now, should be optimal
+        g, U, _ = get_example_6()
+        expected = [[(0, 1), (1, 3), (0, 2), (2, 4), (2, 5)]]
+        r = 0
+        t = remove_edges_via_dijkstra(g, r)
+        self.binarize_gen_tree_and_unbinarize(r, t, U,
                                               expected,
                                               lst_dag)
 
