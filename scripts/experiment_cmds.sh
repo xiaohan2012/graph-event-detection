@@ -1,9 +1,8 @@
-python gen_candidate_trees.py lst entropy
-python gen_candidate_trees.py lst euclidean
-python gen_candidate_trees.py lst cosine
-python gen_candidate_trees.py greedy entropy
-python gen_candidate_trees.py greedy euclidean
-python gen_candidate_trees.py greedy cosine
-python gen_candidate_trees.py random entropy
-python gen_candidate_trees.py random euclidean
-python gen_candidate_trees.py random cosine
+python gen_candidate_trees.py --method lst --dist euclidean
+python gen_candidate_trees.py --method lst --dist cosine
+python gen_candidate_trees.py --method greedy --dist euclidean
+python gen_candidate_trees.py --method greedy --dist cosine
+python gen_candidate_trees.py --method random --dist euclidean
+python gen_candidate_trees.py --method random --dist cosine
+python gen_candidate_trees.py --method lst --dist euclidean --dij
+python gen_candidate_trees.py --method lst --dist cosine --dij
