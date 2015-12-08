@@ -1,5 +1,9 @@
 import networkx as nx
-from .dag_util import binarize_dag, is_binary, unbinarize_dag
+import unittest
+from .dag_util import (binarize_dag, is_binary,
+                       unbinarize_dag,
+                       remove_edges_via_dijkstra)
+from .test_lst_dag import get_example_6
 from .enron_graph import EnronUtil
 from nose.tools import assert_equal, assert_true
 
@@ -90,4 +94,14 @@ def test_unbinarize_dag():
     assert_true(nx.is_isomorphic(g1, g2,
                                  node_match=match_func,
                                  edge_match=match_func))
+
+
+class remove_edges_via_dijkstraTest(unittest.TestCase):
+    def test_remove_edges_via_dijkstra(self):
+        g, _, _  = get_example_6()
+        expected_edges = set(g.edges()) - set([(1, 4)])
+        g.add_edges_from([(3, 4, {'c': 1}),
+                          (4, 5, {'c': 1})])
     
+        t = remove_edges_via_dijkstra(g, source=0)
+        assert_equal(expected_edges, set(t.edges()))
