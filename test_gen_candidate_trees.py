@@ -7,6 +7,7 @@ import cPickle as pkl
 
 from datetime import timedelta
 from nose.tools import assert_equal, assert_true
+from subprocess import check_output
 
 from gen_candidate_trees import run
 from scipy.stats import entropy
@@ -15,6 +16,14 @@ from .lst import lst_dag
 from .baselines import greedy_grow, random_grow
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
+
+
+def remove_tmp_data(directory):
+        # remove the pickles
+        files = glob.glob(os.path.join(CURDIR,
+                                       "{}/*".format(directory)))
+        for f in files:
+            os.remove(f)
 
 
 class GenCandidateTreeTest(unittest.TestCase):
@@ -107,8 +116,28 @@ class GenCandidateTreeTest(unittest.TestCase):
             assert_true(sorted(t.edges()) != sorted(t_dij))
 
     def tearDown(self):
-        # remove the pickles
-        files = glob.glob(os.path.join(CURDIR,
-                                       "test/data/tmp/*"))
-        for f in files:
-            os.remove(f)
+        remove_tmp_data('test/data/tmp')
+
+
+class GenCandidateTreeCMDTest(unittest.TestCase):
+    """test for commandline
+    """
+    def setUp(self):
+        random.seed(123456)
+        numpy.random.seed(123456)
+
+    def test_simple(self):
+        script_path = os.path.join(CURDIR, "gen_candidate_trees.py")
+        result_dir = os.path.join(CURDIR, "test/data/tmp")
+        cmd = "python {} --method=random --dist=entropy --cand_n=1 --res_dir={}".format(
+            script_path, result_dir
+        ).split()
+        output = check_output(cmd)
+        assert_true("traceback" not in output.lower())
+        
+        output_path = os.path.join(CURDIR,
+                                   "test/data/tmp/result-random--U=0.5--dijkstra=False--timespan=28days----dist_func=entropy.pkl")
+        assert_true(os.path.exists(output_path))
+
+    def tearDown(self):
+        remove_tmp_data('test/data/tmp')
