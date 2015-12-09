@@ -114,3 +114,11 @@ Day 2:
 - Came up with two algorithms:
   - Dijkstra + DP
   - PCST approximation
+
+Day 3:
+
+- Presentation
+- Some feedback:
+  - Better sampling schemes
+  - Other ways to get the tree of DAG, such as minimum spanning tree
+  - Joint dynamic programming(some papers by GianMarco)

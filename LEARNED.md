@@ -21,3 +21,4 @@
 - [Bash iterate through array](http://www.cyberciti.biz/faq/bash-iterate-array/)
 - [argparse action="store_true|false"](https://docs.python.org/3/library/argparse.html#action)
 - [Python subprocess](https://docs.python.org/2/library/subprocess.html)
+- [datetime.strftime cheatsheet](http://strftime.org/)
