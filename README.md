@@ -149,3 +149,14 @@ Some ideas:
   - Baseline modification: randomly/greedily grow *DAG* instead of tree
 - Any baseline to operate directly on the original graph?
   - One baseline: given an event vector, select *M* nodes whose vectors are closest to the event vector.
+  
+- Better evaluation?
+  - Possible to pick up the nodes that are non-relevant to the event?
+  - Some more sophisticated metric that topic divergence?
+    - [Topic coherence metric](http://dirichlet.net/pdf/mimno11optimizing.pdf)
+  - Measuring topic diversity across events?
+    - Is the average distance between each of them large?
+- More interpretable summarization
+  - Phrases
+  - Multidocument summarization
+  - Information extraction?
