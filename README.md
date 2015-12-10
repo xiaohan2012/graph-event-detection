@@ -122,3 +122,30 @@ Day 3:
   - Better sampling schemes
   - Other ways to get the tree of DAG, such as minimum spanning tree
   - Joint dynamic programming(some papers by GianMarco)
+
+
+Day 4:
+
+Some ideas:
+
+- **K-MST**: minimize edge cost subject to node coverage constraint(K-MST problem)
+  - Even we can add weight to node, the *Quota problem*(almost same as K-MST) in [this paper](http://dl.acm.org/citation.cfm?id=338637)
+  - The budget problem can be approximated using the quota problem routine(using binary search): set Q, solve. If edge cost is bigger than B, the half Q if smaller than B, double Q. On and on...
+  - Are GW Minimization and Net Worth Maximization equavalent in approximation?
+    - GW Minimization version:
+	  - http://www.sciencedirect.com/science/article/pii/S0166218X03003809
+	  - http://epubs.siam.org/doi/pdf/10.1137/090771429
+	  - http://link.springer.com/chapter/10.1007/978-3-540-24854-5_125
+	- Net worth
+	  - [One paer on net worth maximization formulation](http://link.springer.com/article/10.1007/s10107-005-0660-x#page-1)
+- **Graph partitioning**: what we have done is roughtly graph partitioning(however we throw out some nodes), can we apply off-the-shell graph parititioning algogirthm?
+  - Need an algorithm working with directed graph with edge cost
+  - In this case, the event/partition can be a DAG
+- Map the event tree back to original graph
+  - What is the subgraph like?
+  - How are the participants connected? Are there any patterns(star?)
+- Event as DAG
+  - What is the difference between event as a tree and a DAG?
+  - Baseline modification: randomly/greedily grow *DAG* instead of tree
+- Any baseline to operate directly on the original graph?
+  - One baseline: given an event vector, select *M* nodes whose vectors are closest to the event vector.
