@@ -160,3 +160,16 @@ Some ideas:
   - Phrases
   - Multidocument summarization
   - Information extraction?
+- Twitter dataset, what it should be like:
+  - we know what events are there
+  - the events should be inter-connected somehow
+
+Day 5:
+
+- Discussion with Kiran:
+  - reply network in Twitter
+  - Twitter is big
+- Ask Polina:
+  - one algorithm provided by her as baseline
+  - what an event should be like
+  
