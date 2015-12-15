@@ -19,17 +19,17 @@ CURDIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def remove_tmp_data(directory):
-        # remove the pickles
-        files = glob.glob(os.path.join(CURDIR,
-                                       "{}/*".format(directory)))
-        for f in files:
-            os.remove(f)
+    # remove the pickles
+    files = glob.glob(os.path.join(CURDIR,
+                                  "{}/*".format(directory)))
+    for f in files:
+        os.remove(f)
 
 
 class GenCandidateTreeTest(unittest.TestCase):
     def setUp(self):
-        random.seed(123456)
-        numpy.random.seed(123456)
+        random.seed(1)
+        numpy.random.seed(1)
     
         self.some_kws_of_run = {
             'enron_json_path': os.path.join(CURDIR,
@@ -44,7 +44,7 @@ class GenCandidateTreeTest(unittest.TestCase):
                 'dist_func': entropy
             },
             'gen_tree_kws': {
-                'timespan': timedelta(weeks=2),
+                'timespan': timedelta(weeks=4),
                 'U': 0.5,
                 'dijkstra': False
             }
@@ -55,13 +55,19 @@ class GenCandidateTreeTest(unittest.TestCase):
             debug=False
         )
 
+        if not os.path.exists(
+                os.path.join(
+                    CURDIR,
+                    'test/data/enron-head-100--dist_func=entropy.pkl')):
+                self._calc_enron_pkl()
+
     def _calc_enron_pkl(self):
         run(
             self.lst,
             calculate_graph=True,
-            debug=True,
-            print_summary=True,
-            result_pkl_path_prefix=os.path.join(CURDIR, 'test/data/tmp/test'),
+            debug=False,
+            print_summary=False,
+            result_pkl_path_prefix=os.path.join(CURDIR, 'test/data/tmp/test'),  # can be ignored
             **self.some_kws_of_run
         )
         
@@ -72,7 +78,7 @@ class GenCandidateTreeTest(unittest.TestCase):
                                             "test/data/tmp",
                                             "result-{}".format(test_name))
 
-        pickle_path_suffix = 'U=0.5--dijkstra={}--timespan=14days----dist_func=entropy'
+        pickle_path_suffix = 'U=0.5--dijkstra={}--timespan=28days----dist_func=entropy'
 
         if self.some_kws_of_run['gen_tree_kws'].get('dijkstra'):
             pickle_path_suffix = pickle_path_suffix.format("True")
@@ -98,19 +104,19 @@ class GenCandidateTreeTest(unittest.TestCase):
         return trees
 
     def test_greedy_grow(self):
-        self.check('greedy', greedy_grow, 2)
+        self.check('greedy', greedy_grow, 1)
 
     def test_random_grow(self):
-        self.check('random', random_grow, 2)
+        self.check('random', random_grow, 1)
 
     def test_lst_dag(self):
-        self.check('lst', self.lst, 2)
+        self.check('lst', self.lst, 1)
 
     def test_lst_dag_after_dijkstra(self):
-        trees = self.check('lst', self.lst, 2)
+        trees = self.check('lst', self.lst, 1)
 
         self.some_kws_of_run['gen_tree_kws']['dijkstra'] = True
-        trees_with_dij = self.check('lst', self.lst, 4)
+        trees_with_dij = self.check('lst', self.lst, 1)
 
         for t, t_dij in zip(trees, trees_with_dij):
             assert_true(sorted(t.edges()) != sorted(t_dij))

@@ -39,9 +39,9 @@ def run(gen_tree_func,
             'U': 0.5,
             'dijkstra': False
         },
-        debug=True,
+        debug=False,
         calculate_graph=False,
-        print_summary=True):
+        print_summary=False):
     result_pkl_path = "{}--{}----{}.pkl".format(
         result_pkl_path_prefix,
         experiment_signature(**gen_tree_kws),
