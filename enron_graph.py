@@ -53,11 +53,17 @@ class EnronUtil(object):
                 for rec in recs:
                     interaction = copy.deepcopy(i)
                     interaction['recipient_ids'] = [rec]
+
+                    # the transformed message_id
+                    # can be different from original
                     interaction['message_id'] = new_node_name(rec)
+
                     interaction['original_message_id'] = i['message_id']
+
                     # to avoid document vector being calculated multiple times,
                     # we add this additional attr
                     interaction['peers'] = decomposed_node_names
+
                     new_interactions.append(interaction)
             else:
                 interaction = copy.deepcopy(i)
@@ -231,28 +237,6 @@ class EnronUtil(object):
                                        dist_func,
                                        debug)
 
-    @classmethod
-    def compactize_meta_graph(cls, g, map_nodes=True):
-        """remove unnecessary fields and convert node name to integer
-        """
-        g = g.copy()
-            
-        # remove topics, body, subject to save space
-        fields = ['topics', 'subject', 'body', 'peers', 'doc_bow']
-        for n in g.nodes():
-            for f in fields:
-                del g.node[n][f]
-        
-        if map_nodes:
-            # map node id to integer
-            node_str2int = {n: i
-                            for i, n in enumerate(g.nodes())}
-            return (nx.relabel_nodes(g,
-                                     mapping=node_str2int, copy=True),
-                    node_str2int)
-        else:
-            return g
-                
     @classmethod
     def preprune_edges_by_timespan(cls, g, secs):
         """for each node, prune its connecting nodes
