@@ -53,3 +53,11 @@ def convert_to_meta_graph(interaction_names, sources, targets, time_stamps):
                     g.add_edge(i1, i2)
     return g
     
+
+def convert_to_original_graph(mg):
+    g = nt.DiGraph()
+    for n in mg.nodes():
+        for sender in mg.node[n]['sender_id']:
+            for recipient in mg.node[n]['recipient_ids']:
+                g.add_edge(sender, recipient)
+    return g

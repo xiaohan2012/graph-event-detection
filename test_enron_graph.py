@@ -22,8 +22,9 @@ class EnronMetaGraphTest(unittest.TestCase):
         self.dictionary = gensim.corpora.dictionary.Dictionary.load(
             os.path.join(CURDIR, 'test/data/test_dictionary.gsm')
         )
-        self.interactions = json.load(open(os.path.join(CURDIR,
-                                                        'test/data/enron_test.json')))
+        self.interactions = json.load(
+            open(os.path.join(CURDIR,
+                              'test/data/enron_test.json')))
         
         self.g = EnronUtil.get_meta_graph(self.interactions)
 
@@ -65,15 +66,6 @@ class EnronMetaGraphTest(unittest.TestCase):
     def _get_topical_graph(self):
         return EnronUtil.add_topics_to_graph(self.g, self.lda_model, self.dictionary)
 
-    # DEPRECATED
-    # def _get_vertex_weighted_graph(self):
-    #     g = self._get_topical_graph()
-    #     ref_vect = numpy.asarray([0, 0, 1, 0], dtype=numpy.float)
-    #     return EnronUtil.assign_vertex_weight(
-    #         g, ref_vect,
-    #         dist_func=scipy.stats.entropy
-    #     )
-        
     def test_add_topics(self):
         g = self._get_topical_graph()
         for n in g.nodes():
@@ -202,9 +194,10 @@ class EnronMetaGraphTest(unittest.TestCase):
         for e, a in zip([["B", "C", "D"], ['F'], ['E'], ['B'], ['F'], ['XXX']],
                         targets):
             assert_equal(sorted(e), sorted(a))
-        assert_equal([989587576, 989587577, 989587578, 989587579, 989587580, 989587581],
+        assert_equal([989587576, 989587577, 989587578, 989587579,
+                      989587580, 989587581],
                      time_stamps)
-        
+
     def test_get_topic_meta_graph(self):
         g = EnronUtil.get_topic_meta_graph(self.interactions,
                                            self.lda_model,
@@ -237,6 +230,57 @@ class EnronMetaGraphTest(unittest.TestCase):
         assert_equal(sorted([('1.B', '2'), ('1.C', '2'), ('1.D', '2')]),
                      sorted(g.edges()))
 
+    def test_compactize_meta_graph(self):
+        # assure node topic vectors are deleted
+        g = EnronUtil.get_topic_meta_graph(self.interactions,
+                                           self.lda_model,
+                                           self.dictionary,
+                                           dist_func=scipy.stats.entropy)
+        original_g = g.copy()
+        g, str2id = EnronUtil.compactize_meta_graph(g, map_nodes=True)
+        
+        for n in original_g.nodes():
+            n = str2id[n]
+            assert_true('topics' not in g.node[n])
+            assert_true('subject' not in g.node[n])
+            assert_true('body' not in g.node[n])
+            assert_true('peer' not in g.node[n])
+            assert_true('doc_bow' not in g.node[n])
+            assert_true('message_id' in g.node[n])
+            assert_true('sender_id' in g.node[n])
+            assert_true('recipient_ids' in g.node[n])
+        
+        for n in g.nodes():
+            assert_true(isinstance(n, int))
+
+        # structure + weight is the same
+        for n in original_g.nodes():
+            assert_equal(original_g.node[n][EnronUtil.VERTEX_REWARD_KEY],
+                         g.node[str2id[n]][EnronUtil.VERTEX_REWARD_KEY])
+
+        for s, t in original_g.edges():
+            s1, t1 = str2id[s], str2id[t]
+            assert_equal(original_g[s][t][EnronUtil.EDGE_COST_KEY],
+                         g[s1][t1][EnronUtil.EDGE_COST_KEY])
+
+    def test_compactize_meta_graph_without_node_name_mapping(self):
+                # assure node topic vectors are deleted
+        g = EnronUtil.get_topic_meta_graph(self.interactions,
+                                           self.lda_model,
+                                           self.dictionary,
+                                           dist_func=scipy.stats.entropy)
+        original_g = g.copy()
+        g = EnronUtil.compactize_meta_graph(g, map_nodes=False)
+
+        for n in original_g.nodes():
+            assert_true('topics' not in g.node[n])
+            assert_true('subject' not in g.node[n])
+            assert_true('body' not in g.node[n])
+            assert_true('peer' not in g.node[n])
+            assert_true('doc_bow' not in g.node[n])
+            assert_true('message_id' in g.node[n])
+            assert_true('sender_id' in g.node[n])
+            assert_true('recipient_ids' in g.node[n])
 
     def test_preprune_edges_by_timespan(self):
         g = EnronUtil.preprune_edges_by_timespan(self.g, 1.0)

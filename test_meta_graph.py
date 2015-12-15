@@ -1,8 +1,11 @@
 import string
+import scipy
 from nose.tools import assert_equal
 
-from .meta_graph import convert_to_meta_graph
+from .meta_graph import convert_to_meta_graph, convert_to_original_graph
 from .enron_graph import EnronUtil
+
+from .test_util import load_meta_graph_necessities
 
 
 def test_meta_graph():
@@ -37,3 +40,15 @@ def test_meta_graph_1():
     
     expected_edges = sorted([(2, 3), (3, 5), (2, 5)])
     assert_equal(expected_edges, sorted(g.edges()))
+
+
+def test_convert_to_original_graph():
+    lda_model, dictionary, interactions = load_meta_graph_necessities()
+    g = EnronUtil.get_topic_meta_graph(interactions,
+                                       lda_model,
+                                       dictionary,
+                                       dist_func=scipy.stats.entropy)
+    og = convert_to_original_graph(g)
+    expected = [('A', 'B'), ('A', 'C'), ('A', 'D'),
+                ('A', 'F'), ('D', 'E'), ('D', 'F')]
+    assert_equal(sorted(expected), sorted(og.edges()))

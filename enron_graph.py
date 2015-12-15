@@ -116,6 +116,8 @@ class EnronUtil(object):
             g.node[n][cls.VERTEX_REWARD_KEY] = 1
 
             g.node[n]['peers'] = i['peers']
+            g.node[n]['sender_id'] = i['sender_id']
+            g.node[n]['recipient_ids'] = i['recipient_ids']
         
         if remove_singleton:
             for n in g.nodes():
@@ -237,6 +239,28 @@ class EnronUtil(object):
                                        dist_func,
                                        debug)
 
+    @classmethod
+    def compactize_meta_graph(cls, g, map_nodes=True):
+        """remove unnecessary fields and convert node name to integer
+        """
+        g = g.copy()
+            
+        # remove topics, body, subject to save space
+        fields = ['topics', 'subject', 'body', 'peers', 'doc_bow']
+        for n in g.nodes():
+            for f in fields:
+                del g.node[n][f]
+        
+        if map_nodes:
+            # map node id to integer
+            node_str2int = {n: i
+                            for i, n in enumerate(g.nodes())}
+            return (nx.relabel_nodes(g,
+                                     mapping=node_str2int, copy=True),
+                    node_str2int)
+        else:
+            return g
+                
     @classmethod
     def preprune_edges_by_timespan(cls, g, secs):
         """for each node, prune its connecting nodes
