@@ -103,6 +103,13 @@ class GenCandidateTreeTest(unittest.TestCase):
             assert_true(len(t.edges()) > 0)
         return trees
 
+    def test_if_sender_and_recipient_information_saved(self):
+        trees = self.check('random', random_grow, 1)
+        for t in trees:
+            for n in t.nodes():
+                assert_true('sender_id' in t.node[n])
+                assert_true('recipient_ids' in t.node[n])
+        
     def test_greedy_grow(self):
         self.check('greedy', greedy_grow, 1)
 
