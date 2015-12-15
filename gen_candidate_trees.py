@@ -129,6 +129,13 @@ def run(gen_tree_func,
 
         logger.debug('binarizing dag...')
 
+        def check_g_attrs(g):
+            logger.debug("checking sender id")
+            for n in g.nodes():
+                if not n.startswith('dummy'):
+                    assert 'sender_id' in g.node[n]        
+        check_g_attrs(sub_g)
+
         binary_sub_g = binarize_dag(sub_g,
                                     EnronUtil.VERTEX_REWARD_KEY,
                                     EnronUtil.EDGE_COST_KEY,
@@ -207,5 +214,5 @@ if __name__ == '__main__':
             'dijkstra': args.dij
         },
         cand_tree_number=args.cand_n,
-        calculate_graph=False
+        calculate_graph=True
     )

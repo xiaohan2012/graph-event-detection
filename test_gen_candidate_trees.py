@@ -1,7 +1,6 @@
 import random
 import os
 import unittest
-import glob
 import numpy
 import cPickle as pkl
 
@@ -14,16 +13,7 @@ from scipy.stats import entropy
 
 from .lst import lst_dag
 from .baselines import greedy_grow, random_grow
-
-CURDIR = os.path.dirname(os.path.abspath(__file__))
-
-
-def remove_tmp_data(directory):
-    # remove the pickles
-    files = glob.glob(os.path.join(CURDIR,
-                                  "{}/*".format(directory)))
-    for f in files:
-        os.remove(f)
+from .test_util import remove_tmp_data, CURDIR
 
 
 class GenCandidateTreeTest(unittest.TestCase):
@@ -104,7 +94,7 @@ class GenCandidateTreeTest(unittest.TestCase):
         return trees
 
     def test_if_sender_and_recipient_information_saved(self):
-        trees = self.check('random', random_grow, 1)
+        trees = self.check('lst', self.lst, 1)
         for t in trees:
             for n in t.nodes():
                 assert_true('sender_id' in t.node[n])

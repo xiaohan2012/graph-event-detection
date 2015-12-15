@@ -186,3 +186,24 @@ Day 5:
   - one algorithm provided by her as baseline
   - what an event should be like
   
+## Week 4
+
+Day 1:
+
+- Weekly summary
+- Resource finding
+
+Day 2:
+
+- Tried to find algorithms for the rooted and directed k-mst
+  - [this paper](http://www.csd.uwo.ca/~bma/CS873/papers/A%203-approximation%20for%20the%20minimum%20tree%20spanning%20k%20vertices.pdf) for the *undirected* version
+  - Current solution: use Edmond's to get the optimal spanning tree and then greedily select the node with least edge cost
+  - [Edmond's algorithm example](https://www.cs.princeton.edu/courses/archive/spring13/cos423/lectures/04DemoEdmondsBranching.pdf)
+  - [Python implementation of Edmond's algo](https://github.com/mlbright/edmonds/blob/master/edmonds/edmonds.py)
+  - [C++ impl](http://edmonds-alg.sourceforge.net/)
+  - Which should I use? Or write my own
+- Event graph structure code
+
+- How about the DP algorithm for global topic divergence
+- Let's check a chain/path in the tree to see if topic drift happens
+- Depth/width of tree
