@@ -264,7 +264,8 @@ class EnronUtil(object):
         fields = ['topics', 'subject', 'body', 'peers', 'doc_bow']
         for n in g.nodes():
             for f in fields:
-                del g.node[n][f]
+                if f in g.node[n]:
+                    del g.node[n][f]
         
         if map_nodes:
             # map node id to integer

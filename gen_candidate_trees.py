@@ -32,7 +32,8 @@ def run(gen_tree_func,
         cand_tree_number=500,
         result_pkl_path_prefix=os.path.join(CURDIR, 'tmp/results'),
         meta_graph_kws={
-            'dist_func': entropy
+            'dist_func': entropy,
+            'decompose_interactions': True,
         },
         gen_tree_kws={
             'timespan': timedelta(weeks=4),
@@ -54,6 +55,7 @@ def run(gen_tree_func,
         enron_pkl_path_prefix,
         experiment_signature(**meta_graph_kws)
     )
+    print('enron_pkl_path:', enron_pkl_path)
     
     people_data_path = os.path.join(CURDIR, 'data/people.json')
 
@@ -132,8 +134,8 @@ def run(gen_tree_func,
         def check_g_attrs(g):
             logger.debug("checking sender id")
             for n in g.nodes():
-                if not n.startswith('dummy'):
-                    assert 'sender_id' in g.node[n]        
+                if isinstance(n, basestring) and not n.startswith('dummy'):
+                    assert 'sender_id' in g.node[n]
         check_g_attrs(sub_g)
 
         binary_sub_g = binarize_dag(sub_g,
@@ -206,7 +208,8 @@ if __name__ == '__main__':
         result_pkl_path_prefix='{}/result-{}'.format(
             args.res_dir, args.method),
         meta_graph_kws={
-            'dist_func': dist_func
+            'dist_func': dist_func,
+            'decompose_interactions': False
         },
         gen_tree_kws={
             'timespan': timedelta(weeks=4),
@@ -214,5 +217,5 @@ if __name__ == '__main__':
             'dijkstra': args.dij
         },
         cand_tree_number=args.cand_n,
-        calculate_graph=True
+        calculate_graph=False
     )

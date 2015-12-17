@@ -31,7 +31,8 @@ class GenCandidateTreeTest(unittest.TestCase):
                                                   'test/data/enron-head-100'),
             'cand_tree_number': 5,
             'meta_graph_kws': {
-                'dist_func': entropy
+                'dist_func': entropy,
+                'decompose_interactions': False
             },
             'gen_tree_kws': {
                 'timespan': timedelta(weeks=4),
@@ -44,12 +45,13 @@ class GenCandidateTreeTest(unittest.TestCase):
             edge_weight_decimal_point=2,
             debug=False
         )
-
-        if not os.path.exists(
-                os.path.join(
-                    CURDIR,
-                    'test/data/enron-head-100--dist_func=entropy.pkl')):
-                self._calc_enron_pkl()
+        pkl_path = os.path.join(
+            CURDIR,
+            'test/data/enron-head-100--decompose_interactions=False--dist_func=entropy.pkl'
+        )
+        if not os.path.exists(pkl_path):
+            print('calc meta graph')
+            self._calc_enron_pkl()
 
     def _calc_enron_pkl(self):
         run(
@@ -59,8 +61,8 @@ class GenCandidateTreeTest(unittest.TestCase):
             print_summary=False,
             result_pkl_path_prefix=os.path.join(CURDIR, 'test/data/tmp/test'),  # can be ignored
             **self.some_kws_of_run
-        )
-        
+        )        
+    
     def check(self, test_name, tree_gen_func, expected_tree_number):
         # empty trees are ignored
         # thus, the actual tree number should <= expected_tree_number
@@ -68,7 +70,7 @@ class GenCandidateTreeTest(unittest.TestCase):
                                             "test/data/tmp",
                                             "result-{}".format(test_name))
 
-        pickle_path_suffix = 'U=0.5--dijkstra={}--timespan=28days----dist_func=entropy'
+        pickle_path_suffix = 'U=0.5--dijkstra={}--timespan=28days----decompose_interactions=False--dist_func=entropy'
 
         if self.some_kws_of_run['gen_tree_kws'].get('dijkstra'):
             pickle_path_suffix = pickle_path_suffix.format("True")
@@ -94,26 +96,26 @@ class GenCandidateTreeTest(unittest.TestCase):
         return trees
 
     def test_if_sender_and_recipient_information_saved(self):
-        trees = self.check('lst', self.lst, 1)
+        trees = self.check('lst', self.lst, 2)
         for t in trees:
             for n in t.nodes():
                 assert_true('sender_id' in t.node[n])
                 assert_true('recipient_ids' in t.node[n])
         
     def test_greedy_grow(self):
-        self.check('greedy', greedy_grow, 1)
+        self.check('greedy', greedy_grow, 2)
 
     def test_random_grow(self):
         self.check('random', random_grow, 1)
 
     def test_lst_dag(self):
-        self.check('lst', self.lst, 1)
+        self.check('lst', self.lst, 2)
 
     def test_lst_dag_after_dijkstra(self):
-        trees = self.check('lst', self.lst, 1)
+        trees = self.check('lst', self.lst, 2)
 
         self.some_kws_of_run['gen_tree_kws']['dijkstra'] = True
-        trees_with_dij = self.check('lst', self.lst, 1)
+        trees_with_dij = self.check('lst', self.lst, 5)
 
         for t, t_dij in zip(trees, trees_with_dij):
             assert_true(sorted(t.edges()) != sorted(t_dij))
@@ -139,7 +141,7 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         assert_true("traceback" not in output.lower())
         
         output_path = os.path.join(CURDIR,
-                                   "test/data/tmp/result-random--U=0.5--dijkstra=False--timespan=28days----dist_func=entropy.pkl")
+                                   "test/data/tmp/result-random--U=0.5--dijkstra=False--timespan=28days----decompose_interactions=False--dist_func=entropy.pkl")
         assert_true(os.path.exists(output_path))
 
     def tearDown(self):
