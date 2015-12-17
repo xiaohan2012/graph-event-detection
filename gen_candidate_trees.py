@@ -184,7 +184,12 @@ if __name__ == '__main__':
     parser.add_argument('--dij', action="store_true",
                         default=False,
                         help="Whether to use Dijkstra or not")
-
+    parser.add_argument('--calc_mg', action="store_true",
+                        default=False,
+                        help="Whether to recalculate meta graph or not")
+    parser.add_argument('--decompose', action="store_true",
+                        default=False,
+                        help="Whether to decompose interactions")
     parser.add_argument('--cand_n',
                         default=500,
                         type=int,
@@ -202,6 +207,7 @@ if __name__ == '__main__':
     
     print('Running: {}'.format(args.method))
     print('Dist func: {}'.format(args.dist))
+    print('Decompose interactions: {}'.format(args.decompose))
     print('Dijkstra: {}'.format(args.dij))
 
     run(methods[args.method],
@@ -209,7 +215,7 @@ if __name__ == '__main__':
             args.res_dir, args.method),
         meta_graph_kws={
             'dist_func': dist_func,
-            'decompose_interactions': False
+            'decompose_interactions': args.decompose
         },
         gen_tree_kws={
             'timespan': timedelta(weeks=4),
@@ -217,5 +223,5 @@ if __name__ == '__main__':
             'dijkstra': args.dij
         },
         cand_tree_number=args.cand_n,
-        calculate_graph=False
+        calculate_graph=args.calc_mg
     )
