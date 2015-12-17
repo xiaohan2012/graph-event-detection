@@ -8,16 +8,20 @@ from .enron_graph import EnronUtil
 from .test_util import load_meta_graph_necessities
 
 
-def test_meta_graph():
+def get_example():
     A, B, C, D, E, F, G = string.ascii_uppercase[:7]
     interactions = [
-        {'sender_id': A, 'recipient_ids': (B, C, D),'datetime': 1, 'message_id': 1},
+        {'sender_id': A, 'recipient_ids': (B, C, D), 'datetime': 1, 'message_id': 1},
         {'sender_id': A, 'recipient_ids': [F], 'datetime': 2, 'message_id': 2},
         {'sender_id': D, 'recipient_ids': [E], 'datetime': 3, 'message_id': 3},
         {'sender_id': A, 'recipient_ids': [B], 'datetime': 4, 'message_id': 4},
         {'sender_id': G, 'recipient_ids': [F], 'datetime': 5, 'message_id': 5},
     ]
-    EnronUtil.decompose_interactions(interactions)
+    return interactions
+
+
+def test_meta_graph_with_decomposition():
+    interactions = get_example()
     node_names, sources, targets, time_stamps = EnronUtil.unzip_interactions(
         EnronUtil.decompose_interactions(interactions)
     )
@@ -26,6 +30,18 @@ def test_meta_graph():
     expected_edges = sorted([('1.B', '2'), ('1.C', '2'), ('1.D', '2'),
                              ('1.B', '4'), ('1.C', '4'), ('1.D', '4'),
                              ('1.D', '3'), ('2', '4')])
+    assert_equal(expected_edges, sorted(graph.edges()))
+
+
+def test_meta_graph_without_decomposition():
+    interactions = get_example()
+    node_names, sources, targets, time_stamps = EnronUtil.unzip_interactions(
+        interactions
+    )
+    graph = convert_to_meta_graph(node_names, sources, targets, time_stamps)
+
+    expected_edges = sorted([(1, 2), (1, 4),
+                             (1, 3), (2, 4)])
     assert_equal(expected_edges, sorted(graph.edges()))
 
 
