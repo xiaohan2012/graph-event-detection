@@ -224,6 +224,7 @@ Day 3:
 Day 4:
 
 - Find some issues with the current model
+  - `python event_graph_document.py tmp/result-greedy--U=0.5--dijkstra=False--timespan=28days----dist_func=cosine.pkl`
   - same messages are duplicated, for example:
     - id2count table for children: `{253809: 46, 253797: 46, 253127: 46}`
 	- for all nodes: `{253797: 46, 253094: 46, 253127: 46, 253808: 46, 253809: 46, 253798: 46, 175441: 2, 253795: 1, 175479: 1, 175451: 1, 175573: 1}`
@@ -231,3 +232,5 @@ Day 4:
     - construct the network in another way
 - Where to get more datasets:
   - [Debian mailing list](https://lists.debian.org/)
+  - Github repo issues
+  - Artificial
