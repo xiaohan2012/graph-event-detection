@@ -90,3 +90,26 @@ def remove_edges_via_dijkstra(g, source, weight=EnronUtil.EDGE_COST_KEY):
     edges_to_remove = set(g.edges()) - set(edges)
     g.remove_edges_from(edges_to_remove)
     return g
+
+
+def get_roots(g):
+    return [n for n in g.nodes_iter()
+            if (g.in_degree(n) == 0 and g.out_degree(n) > 0)]
+
+
+def get_leaves(g):
+    return [n for n in g.nodes_iter()
+            if g.out_degree(n) == 0 and g.in_degree(n) > 0]
+
+
+def all_simple_paths_from_source(g, root):
+    for n in g.nodes_iter():
+        if n != root:
+            paths = list(nx.all_simple_paths(g, root, n))
+            for path in paths:
+                yield path
+
+
+def longest_path(g, root):
+    return max(all_simple_paths_from_source(g, root),
+               key=lambda path: len(path))
