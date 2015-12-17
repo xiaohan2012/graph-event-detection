@@ -1,5 +1,6 @@
-
 import cPickle as pkl
+
+from collections import Counter
 
 from util import load_msgid2interaction_dict
 from dag_util import longest_path, get_roots
@@ -16,25 +17,45 @@ def children_documents(g, root, id2interaction):
             for s in g.successors(root)]
 
 
+def all_documents(g,  id2interaction):
+    return [get_doc(g.node[n]['message_id'], id2interaction)
+            for n in g.nodes_iter()]
+
+
 def longest_path_documents(g, root, id2interaction):
     path = longest_path(g, root)
     return [get_doc(g.node[s]['message_id'], id2interaction)
             for s in path]
 
 
+def count_message_ids(docs):
+    mids = [d['message_id'] for d in docs]
+    return Counter(mids)
+
+
 def main():
     import sys
     from pprint import pprint
-    from collections import Counter
     pkl_path = sys.argv[1]
 
     candidate_events = pkl.load(open(pkl_path))
     g = detect_events(candidate_events, 5)[0]
     mid2interaction = load_msgid2interaction_dict('data/enron.json')
     root = get_roots(g)[0]
-    docs = children_documents(g, root, mid2interaction)
-    mids = [d['message_id'] for d in docs]
-    pprint(Counter(mids))
+    pprint('children documents count: {}'.format(
+        count_message_ids(
+            children_documents(g, root, mid2interaction))))
+    pprint('all documents count: {}'.format(
+        count_message_ids(
+            all_documents(g, mid2interaction))))
+    lpd = longest_path_documents(g, root, mid2interaction)
+    pprint('longest path documents count: {}'.format(
+        count_message_ids(lpd)))
+
+    pprint('longest path documents\' subject: {}'.format(
+        [d['subject'] for d in lpd]
+    ))
+
 
 if __name__ == '__main__':
     main()

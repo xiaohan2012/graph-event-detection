@@ -204,6 +204,30 @@ Day 2:
   - Which should I use? Or write my own
 - Event graph structure code
 
+Day 3:
+
 - How about the DP algorithm for global topic divergence
 - Let's check a chain/path in the tree to see if topic drift happens
 - Depth/width of tree
+
+
+- John Shelk, Enron vice president for governmental affairs
+- Dave Perrino, Director, Government Affairs
+- Jeff Dasovich, Director for State Government Affair
+- Steve Kean, Lay's chief of staff
+- Alan Comnes, Director Government and Regulatory Affairs
+- James Steffes, former Vice President of Governmental Affairs
+- Karen Denne, vice president of communications
+- Ray Alvarez, Vice President- Regulatory
+
+
+Day 4:
+
+- Find some issues with the current model
+  - same messages are duplicated, for example:
+    - id2count table for children: `{253809: 46, 253797: 46, 253127: 46}`
+	- for all nodes: `{253797: 46, 253094: 46, 253127: 46, 253808: 46, 253809: 46, 253798: 46, 175441: 2, 253795: 1, 175479: 1, 175451: 1, 175573: 1}`
+  - how to deal with this
+    - construct the network in another way
+- Where to get more datasets:
+  - [Debian mailing list](https://lists.debian.org/)
