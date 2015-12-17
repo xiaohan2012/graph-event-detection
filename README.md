@@ -234,3 +234,8 @@ Day 4:
   - [Debian mailing list](https://lists.debian.org/)
   - Github repo issues
   - Artificial
+
+Day 5:
+
+- reduce *U* to 0.05, so we can limit the event size
+- 

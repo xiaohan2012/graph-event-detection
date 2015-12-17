@@ -91,22 +91,33 @@ class EnronUtil(object):
         return (interaction_names, sources, targets, time_stamps)
 
     @classmethod
-    def get_meta_graph(cls, interactions, remove_singleton=True):
+    def get_meta_graph(cls, interactions,
+                       decompose_interactions=True,
+                       remove_singleton=True):
         """
         Return the meta graph together with temporally sorted interactions
         
         Decompose interactions if necessary
         """
-
-        interactions = cls.decompose_interactions(
-            cls.clean_interactions(
+        if decompose_interactions:
+            interactions = cls.decompose_interactions(
+                cls.clean_interactions(
+                    interactions
+                )
+            )
+        else:
+            interactions = cls.clean_interactions(
                 interactions
             )
-        )
+
         g = convert_to_meta_graph(*cls.unzip_interactions(interactions))
         for i in interactions:
             n = i['message_id']
-            g.node[n]['message_id'] = i['original_message_id']
+            if decompose_interactions:
+                g.node[n]['message_id'] = i['original_message_id']
+            else:
+                g.node[n]['message_id'] = i['message_id']
+
             g.node[n]['body'] = i['body']
             g.node[n]['subject'] = i['subject']
             
@@ -115,7 +126,9 @@ class EnronUtil(object):
 
             g.node[n][cls.VERTEX_REWARD_KEY] = 1
 
-            g.node[n]['peers'] = i['peers']
+            if decompose_interactions:
+                g.node[n]['peers'] = i['peers']
+
             g.node[n]['sender_id'] = i['sender_id']
             g.node[n]['recipient_ids'] = i['recipient_ids']
         
@@ -209,10 +222,12 @@ class EnronUtil(object):
                              lda_model, dictionary,
                              dist_func,
                              preprune_secs=None,
+                             decompose_interactions=True,
                              debug=False):
         if debug:
             print('get_meta_graph')
-        mg = cls.get_meta_graph(interactions)
+        mg = cls.get_meta_graph(interactions,
+                                decompose_interactions=decompose_interactions)
 
         if debug:
             print('add topics')

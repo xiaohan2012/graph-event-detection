@@ -26,7 +26,9 @@ class EnronMetaGraphTest(unittest.TestCase):
             open(os.path.join(CURDIR,
                               'test/data/enron_test.json')))
         
-        self.g = EnronUtil.get_meta_graph(self.interactions)
+        self.g = EnronUtil.get_meta_graph(
+            self.interactions,
+            decompose_interactions=True)
 
     def test_clean_interactions(self):
         assert_equal(self.interactions[3]['recipient_ids'], ["B", "B"])
@@ -35,6 +37,16 @@ class EnronMetaGraphTest(unittest.TestCase):
         )
         assert_equal(cleaned_interactions[3]['recipient_ids'], ["B"])
 
+    def test_get_meta_graph_without_decomposition(self):
+        g = EnronUtil.get_meta_graph(
+            self.interactions,
+            decompose_interactions=False
+        )
+        assert_equal(sorted([(1, 2), (1, 4), (1, 3),
+                             (2, 4), (1, 5), (3, 5)]),
+                     sorted(g.edges()))
+        assert_equal(5, len(g.nodes()))
+                
     def test_get_meta_graph(self):
         assert_equal(sorted([('1.B', '2'), ('1.C', '2'), ('1.D', '2'),
                              ('1.B', '4'), ('1.C', '4'), ('1.D', '4'),
@@ -213,6 +225,22 @@ class EnronMetaGraphTest(unittest.TestCase):
                              ('1.B', '4'), ('1.C', '4'), ('1.D', '4'),
                              ('1.D', '3'), ('2', '4'), ('1.D', '5'),
                              ('3', '5')]),
+                     sorted(g.edges()))
+
+    def test_get_topic_meta_graph_without_decomposition(self):
+        g = EnronUtil.get_topic_meta_graph(self.interactions,
+                                           self.lda_model,
+                                           self.dictionary,
+                                           dist_func=scipy.stats.entropy,
+                                           decompose_interactions=False,
+                                           preprune_secs=None)
+        
+        assert_true(
+            g[1][5][EnronUtil.EDGE_COST_KEY] >= 0.8
+        )
+        assert_equal(5, len(g.nodes()))
+        assert_equal(sorted([(1, 2), (1, 4), (1, 3),
+                             (2, 4), (1, 5), (3, 5)]),
                      sorted(g.edges()))
 
     def test_get_topic_meta_graph_with_prepruning(self):
