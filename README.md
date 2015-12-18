@@ -237,5 +237,6 @@ Day 4:
 
 Day 5:
 
-- reduce *U* to 0.05, so we can limit the event size
-- 
+- Rerun the undecomposed meta graph with reduced *U*, 0.05 and increased time span, 56 days
+ - some observations: the davis event is not detected easily
+ - 

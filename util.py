@@ -17,3 +17,33 @@ def load_msgid2interaction_dict(path):
     interactions = load_json_by_line(path)
     return {i['message_id']: i
             for i in interactions}
+
+
+def to_d3_graph(g):
+    """convert networkx format graph to d3 format
+    """
+    data = {'nodes': [], 'edges': []}
+    for n in g.nodes_iter():
+        node = g.node[n]
+        node['name'] = n
+        data['nodes'].append(node)
+
+    name2index = {n: i
+                  for i, n in enumerate(g.nodes_iter())}
+
+    for s, t in g.edges_iter():
+        edge = g[s][t]
+        edge['source'] = name2index[s]
+        edge['target'] = name2index[t]
+        data['edges'].append(edge)
+
+    return data
+
+
+def main():
+    import ujson as json
+    with open('tmp/id2interaction.json', 'w') as f:
+        json.dump(load_msgid2interaction_dict('data/enron.json'), f)
+
+if __name__ == '__main__':
+    main()

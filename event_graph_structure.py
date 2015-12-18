@@ -76,8 +76,8 @@ def main():
     result_path = sys.argv[1]
     dirname = ''.join(os.path.basename(result_path).split('.')[:-1])
     events = detect_events_given_path(result_path, 5)
-    # plot_graphs(events, 'figures/{}'.format(dirname))
-    plot_events(events, 'figures/original-graph-of-event/{}'.format(dirname))
+    plot_graphs(events, 'figures/{}'.format(dirname))
+    # plot_events(events, 'figures/original-graph-of-event/{}'.format(dirname))
     
 if __name__ == '__main__':
     main()

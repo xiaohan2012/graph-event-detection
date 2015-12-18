@@ -12,7 +12,7 @@ import sys
 
 result_path = sys.argv[1]
 
-K = 5
+K = 25
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
 
