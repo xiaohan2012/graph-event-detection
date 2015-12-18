@@ -106,7 +106,6 @@ def run(gen_tree_func,
 
     roots = sample_nodes(g, cand_tree_number)
 
-    U = 0.5
     results = []
 
     for ni, r in enumerate(roots):
@@ -218,8 +217,8 @@ if __name__ == '__main__':
             'decompose_interactions': args.decompose
         },
         gen_tree_kws={
-            'timespan': timedelta(weeks=4),
-            'U': 0.5,
+            'timespan': timedelta(weeks=8),
+            'U': 0.05,
             'dijkstra': args.dij
         },
         cand_tree_number=args.cand_n,
