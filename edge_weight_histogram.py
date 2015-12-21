@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from experiment_util import experiment_signature
 from meta_graph_stat import MetaGraphStat
 
-DIST_FUNC = "entropy"
+DIST_FUNC = "euclidean"
 
 STAT_KWS = {
     'temporal_traffic': False,
@@ -24,7 +24,7 @@ STAT_KWS = {
 def get_summary(g):
     return MetaGraphStat(g, STAT_KWS).summary_dict()
 
-sig = experiment_signature(dist_func=DIST_FUNC)
+sig = experiment_signature(decompose_interactions=False, dist_func=DIST_FUNC)
 enron_pickle_path = "data/enron--{}.pkl".format(sig)
 
 

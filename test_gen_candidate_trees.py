@@ -121,7 +121,7 @@ class GenCandidateTreeTest(unittest.TestCase):
             assert_true(sorted(t.edges()) != sorted(t_dij))
 
     def tearDown(self):
-        remove_tmp_data('test/data/tmp')
+        remove_tmp_data('test/data/tmp/*')
 
 
 class GenCandidateTreeCMDTest(unittest.TestCase):
@@ -134,10 +134,11 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
     def test_simple(self):
         script_path = os.path.join(CURDIR, "gen_candidate_trees.py")
         result_dir = os.path.join(CURDIR, "test/data/tmp")
-        cmd = "python {} --method=random --dist=entropy --cand_n=1 --res_dir={}".format(
+        cmd = "python {} --method=random --dist=entropy --cand_n=1 --res_dir={} --weeks=4 --U=0.5 --lda=models/model-4-50.lda".format(
             script_path, result_dir
         ).split()
         output = check_output(cmd)
+        print(output)
         assert_true("traceback" not in output.lower())
         
         output_path = os.path.join(CURDIR,

@@ -197,6 +197,19 @@ if __name__ == '__main__':
                         default='tmp',
                         help="directory to save the results")
 
+    parser.add_argument('--lda',
+                        help="Path of LDA model")
+
+    parser.add_argument('--weeks',
+                        type=int,
+                        default=4,
+                        help="Time span in terms of weeks")
+
+    parser.add_argument('--U',
+                        type=float,
+                        default=0.5,
+                        help="Parameter U")
+
     args = parser.parse_args()
 
     methods = {'lst': lst, 'greedy': greedy_grow, 'random': random_grow}
@@ -217,8 +230,8 @@ if __name__ == '__main__':
             'decompose_interactions': args.decompose
         },
         gen_tree_kws={
-            'timespan': timedelta(weeks=8),
-            'U': 0.05,
+            'timespan': timedelta(weeks=args.weeks),
+            'U': args.U,
             'dijkstra': args.dij
         },
         cand_tree_number=args.cand_n,

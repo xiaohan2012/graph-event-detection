@@ -1,7 +1,11 @@
 import numpy
 import gensim
 
-m = gensim.models.ldamodel.LdaModel.load('models/model-4-50.lda')
+import sys
+
+path = sys.argv[1]
+
+m = gensim.models.ldamodel.LdaModel.load(path)
 
 
 def get_topic_terms(model, topicid, topn, id2token):
