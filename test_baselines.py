@@ -86,7 +86,6 @@ class GrowingTreeTest(unittest.TestCase):
         U, expected_edge_list = data_class.get_data_of_greedy_tree()
         
         for u, expected_edges in zip(U, expected_edge_list):
-            print(u)
             actual = grow_tree_general(g, 1, u, greedy_choice_by_cost)
             assert_equal(sorted(expected_edges),
                          sorted(actual.edges()))
@@ -94,6 +93,10 @@ class GrowingTreeTest(unittest.TestCase):
                 assert_true('r' in actual.node[n])
             for u, v in actual.edges():
                 assert_true('c' in actual[u][v])
+
+            roots = [n for n in actual.nodes_iter()
+                     if actual.in_degree(n) == 0]
+            assert_equal(1, len(roots))
 
     def test_greedy_grow_tree_1(self):
         self.greedy_approach_template(Example1)
@@ -115,3 +118,7 @@ class GrowingTreeTest(unittest.TestCase):
             actual = grow_tree_general(g, 1, u, random_choice)
             assert_equal(sorted(expected_edges),
                          sorted(actual.edges()))
+
+            roots = [n for n in actual.nodes_iter()
+                     if actual.in_degree(n) == 0]
+            assert_equal(1, len(roots))
