@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cat scripts/experiment_cmds.sh | parallel --workdir .
+cat scripts/experiment_cmds.sh | parallel --workdir . # --jobs 5

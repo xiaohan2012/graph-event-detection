@@ -261,4 +261,4 @@ Day 2:
 
 - decomposed case
 - d3: back to original network
-- add weights to nodes
+- add weights to nodes. Some nodes are more important
