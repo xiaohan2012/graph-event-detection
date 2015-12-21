@@ -62,7 +62,7 @@ def run(gen_tree_func,
     interactions = load_json_by_line(enron_json_path)
     people_info = load_json_by_line(people_data_path)
         
-    logger.info('loading lda...')
+    logger.info('loading lda from {}'.format(lda_model_path))
     lda_model = gensim.models.ldamodel.LdaModel.load(
         os.path.join(CURDIR, lda_model_path)
     )
@@ -223,6 +223,7 @@ if __name__ == '__main__':
     print('Dijkstra: {}'.format(args.dij))
 
     run(methods[args.method],
+        lda_model_path=args.lda,
         result_pkl_path_prefix='{}/result-{}'.format(
             args.res_dir, args.method),
         meta_graph_kws={

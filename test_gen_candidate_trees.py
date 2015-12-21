@@ -134,8 +134,9 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
     def test_simple(self):
         script_path = os.path.join(CURDIR, "gen_candidate_trees.py")
         result_dir = os.path.join(CURDIR, "test/data/tmp")
-        cmd = "python {} --method=random --dist=entropy --cand_n=1 --res_dir={} --weeks=4 --U=0.5 --lda=models/model-4-50.lda".format(
-            script_path, result_dir
+        lda_path = os.path.join(CURDIR, "test/data/test.lda")
+        cmd = "python {} --method=random --dist=entropy --cand_n=1 --res_dir={} --weeks=4 --U=0.5 --lda={}".format(
+            script_path, result_dir, lda_path
         ).split()
         output = check_output(cmd)
         print(output)
