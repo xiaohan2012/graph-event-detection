@@ -29,3 +29,9 @@
 - [Optional argument](http://stackoverflow.com/questions/3147640/javascript-optional-arguments-in-function)
 - Category palettes: `d3.scale.ordinal().domain([...]).range(d3.scale.category10().range());`
 - d3 time format: `d3.time.format("%Y-%m-%d")`
+
+
+## Github issues
+
+- [PyGithub](https://github.com/PyGithub/PyGithub)
+- [Github API: issues](https://developer.github.com/v3/issues/)
