@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from experiment_util import experiment_signature
 from meta_graph_stat import MetaGraphStat
 
-DIST_FUNC = "euclidean"
+DIST_FUNC = "cosine"
 
 STAT_KWS = {
     'temporal_traffic': False,
