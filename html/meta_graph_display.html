@@ -18,12 +18,12 @@ svg{
 
 
 .d3-tip {
-  line-height: 14px;
-  padding: 12px;
-   font-size: 9px;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  border-radius: 2px;
+   line-height: 14px;
+   padding: 12px;
+   font-size: 12px;
+   background: rgba(0, 0, 0, 0.8);
+   color: #fff;
+   border-radius: 2px;
    width: 70%;
 }
 
@@ -31,10 +31,51 @@ svg{
 
 
 <body>
+   <select id="dataPathSelection">
+   </select>
+   <select id="eventIndexSelection">
+	 <option value="1">1</option>
+	 <option value="2">2</option>
+	 <option value="3">3</option>
+	 <option value="4">4</option>
+	 <option value="5">5</option>
+   </select>
 </body>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.12/d3.min.js"></script>
 <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
 <script src="http://underscorejs.org/underscore-min.js"></script>
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script src="js/util.js"></script>
 <script src="js/app.js"></script>
+
+<script>
+ $(document).ready(function(){
+   var CLEAR_SVG = true;
+   d3.json("data/all_results.json", function(error, result_paths) {
+	 _.each(result_paths.sort(), function(p){
+	   var opt = $("<option>");
+	   opt.val(p);
+	   opt.text(p);
+	   $('#dataPathSelection').append(opt);
+	 });
+	 load_event(result_paths[0], 0);
+   });
+
+   $('#dataPathSelection').on('change', function(){
+	 var path = $(this).find(":selected").val();
+	 if(CLEAR_SVG){
+	   $('svg').remove();
+	 }
+	 load_event(path, 0);	 
+   })
+   $('#eventIndexSelection').on('change', function(){
+	 console.log("change");
+	 var index = parseInt($(this).find(":selected").val());
+	 var path = $('#dataPathSelection').find(":selected").val();
+	 load_event(path, index);
+   });
+ })
+ 
+ 
+</script>

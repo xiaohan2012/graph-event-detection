@@ -48,10 +48,10 @@ def to_d3_graph(g):
 
 def main():
     import ujson as json
-    with open('tmp/id2interaction.json', 'w') as f:
+    with open('html/data/id2interaction.json', 'w') as f:
         json.dump(load_msgid2interaction_dict('data/enron.json'), f)
 
-    with open('tmp/id2people.json', 'w') as f:
+    with open('html/data/id2people.json', 'w') as f:
         json.dump(load_peopleid2people_dict('data/people.json'), f)
 
 if __name__ == '__main__':
