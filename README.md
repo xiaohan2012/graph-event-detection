@@ -256,3 +256,9 @@ Day 1:
 - some difference between enron and forum network:
   - enron: with real interaction, hierarchical structure, clear roles
   - forums: almost virtual, flatter structure, less clear roles
+
+Day 2:
+
+- decomposed case
+- d3: back to original network
+- add weights to nodes
