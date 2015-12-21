@@ -29,9 +29,11 @@ svg.append("svg:defs")
 	.append("svg:path")
     .attr("d", "M0,-5L10,0L0,5");
 
+var data_path = "data/result-lst--U=005--dijkstra=True--timespan=56days----decompose_interactions=False--dist_func=euclidean.json";
+
 d3.json("data/id2interaction.json", function(error, id2interactions) {
 	d3.json("data/id2people.json", function(error, id2people) {
-		d3.json("data/result-greedy--U=005--dijkstra=False--timespan=56days----decompose_interactions=False--dist_func=cosine.json", function(error, graphs) {
+		d3.json(data_path, function(error, graphs) {
 			var tip = d3.tip()
 				.attr('class', 'd3-tip')
 			// .offset([100, 20])
@@ -62,6 +64,7 @@ d3.json("data/id2interaction.json", function(error, id2interactions) {
 				.attr("class", "link")
 				.attr("marker-end", "url(#triangle)")
 				.attr("stroke", function(d){
+					console.log(d['c']);
 					var s = d['source'], t = d['target'];
 					if(s["sender_id"] == t["sender_id"]){
 						return palette(EDGE_BROADCAST); // broadcast
