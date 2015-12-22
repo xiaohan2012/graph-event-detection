@@ -39,10 +39,11 @@ function load_event(data_path, kth){
 					.html(function(n) {
 						var i = id2interactions[n['message_id']];
 						i['date'] = format_time(new Date(i['datetime']*1000));
-						i['sender'] = id2people[i['sender_id']]['email'];
+						i['sender'] = id2people[i['sender_id']]['email'].replace("@enron.com", "");
 						i['recipients'] = _.map(i['recipient_ids'], function(k){
-							return id2people[k]['email'];
-						});
+							return id2people[k]['email'].replace("@enron.com", "");
+						}).join("    ");
+						console.log('iteraction:', i);
 						return dict2html(i, ['subject', 'body', 'sender', 'recipients', 'date', 'message_id']);
 					});
 				

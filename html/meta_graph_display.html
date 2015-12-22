@@ -24,7 +24,7 @@ svg{
    background: rgba(0, 0, 0, 0.8);
    color: #fff;
    border-radius: 2px;
-   width: 70%;
+   width: 75%;
 }
 
 </style>
@@ -34,11 +34,11 @@ svg{
    <select id="dataPathSelection">
    </select>
    <select id="eventIndexSelection">
-	 <option value="1">1</option>
-	 <option value="2">2</option>
-	 <option value="3">3</option>
-	 <option value="4">4</option>
-	 <option value="5">5</option>
+	 <option value="0">1</option>
+	 <option value="1">2</option>
+	 <option value="2">3</option>
+	 <option value="3">4</option>
+	 <option value="4">5</option>
    </select>
 </body>
 
@@ -69,10 +69,13 @@ svg{
 	 }
 	 load_event(path, 0);	 
    })
-   $('#eventIndexSelection').on('change', function(){
-	 console.log("change");
+   $('#eventIndexSelection').on('change', function(){	 
 	 var index = parseInt($(this).find(":selected").val());
+	console.log("change to index: ", index);
 	 var path = $('#dataPathSelection').find(":selected").val();
+	 if(CLEAR_SVG){
+	   $('svg').remove();
+	 }
 	 load_event(path, index);
    });
  })
