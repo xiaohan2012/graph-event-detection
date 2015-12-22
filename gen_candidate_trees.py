@@ -167,9 +167,6 @@ if __name__ == '__main__':
     random.seed(123456)
     numpy.random.seed(123456)
 
-    lst = lambda g, r, U: lst_dag(g, r, U,
-                                  edge_weight_decimal_point=2,
-                                  debug=False)
     import argparse
     parser = argparse.ArgumentParser(
         description="Generate candidate event trees"
@@ -210,7 +207,17 @@ if __name__ == '__main__':
                         default=0.5,
                         help="Parameter U")
 
+    parser.add_argument('--fixed_point',
+                        type=int,
+                        default=1,
+                        help="How many places to approximate for lst algorithm")
+
+
     args = parser.parse_args()
+
+    lst = lambda g, r, U: lst_dag(g, r, U,
+                                  edge_weight_decimal_point=args.fixed_point,
+                                  debug=False)
 
     methods = {'lst': lst, 'greedy': greedy_grow, 'random': random_grow}
     dist_funcs = {'entropy': entropy, 'euclidean': euclidean, 'cosine': cosine}
