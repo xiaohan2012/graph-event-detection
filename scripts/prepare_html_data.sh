@@ -7,6 +7,7 @@ fi
 
 pickle_dir=$1
 for p in $(ls $pickle_dir); do
+	echo "${p}"
 	python dump_events_to_json.py ${pickle_dir}/${p} html/data
 done
 
