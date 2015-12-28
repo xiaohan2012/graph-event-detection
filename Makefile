@@ -1,4 +1,5 @@
 all: 
+	rm -rf /cs/home/hxiao/public_html/figures/
 	cp -r figures/ /cs/home/hxiao/public_html
 	chmod -R a+xr /cs/home/hxiao/public_html/figures
 

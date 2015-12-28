@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 from networkx.drawing.nx_pylab import draw_spring
 
 from meta_graph import convert_to_original_graph
-from meta_graph_stat import MetaGraphStat
 from events import detect_events_given_path
 from util import load_json_by_line
 
@@ -74,10 +73,10 @@ def plot_graphs(gs, figure_dir, gen_kws_func=draw_kws_graphs):
 def main():
     import sys
     result_path = sys.argv[1]
-    dirname = ''.join(os.path.basename(result_path).split('.')[:-1])
+    dirname = os.path.basename(result_path).replace('.pkl', '')
     events = detect_events_given_path(result_path, 5)
-    plot_graphs(events, 'figures/{}'.format(dirname))
-    # plot_events(events, 'figures/original-graph-of-event/{}'.format(dirname))
+    # plot_graphs(events, 'figures/{}'.format(dirname))
+    plot_events(events, 'figures/original-graph-of-event/{}'.format(dirname))
     
 if __name__ == '__main__':
     main()

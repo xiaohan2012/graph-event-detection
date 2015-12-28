@@ -20,4 +20,4 @@ def get_topic_terms(model, topicid, topn, id2token):
     return [id2token[id] for id in bestn]
 
 for i in xrange(m.num_topics):
-    print(' '.join(get_topic_terms(m, i, 20, m.id2word)))
+    print(' '.join(get_topic_terms(m, i, 10, m.id2word)))

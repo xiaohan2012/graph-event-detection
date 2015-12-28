@@ -7,9 +7,8 @@ from util import to_d3_graph
 
 
 def run(candidate_tree_path, dirname=None):
-    output_name = '{}.json'.format(
-        ''.join(os.path.basename(candidate_tree_path).split('.')[:-1])
-    )
+    output_name = os.path.basename(
+        candidate_tree_path).replace('.pkl', '.json')
     if dirname:
         output_path = os.path.join(dirname, output_name)
     else:

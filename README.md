@@ -240,3 +240,26 @@ Day 5:
 - Rerun the undecomposed meta graph with reduced *U*, 0.05 and increased time span, 56 days
  - some observations: the davis event is not detected easily
  - 
+
+## Week 5
+
+Day 1:
+
+- better viz for event tree
+- inspected the event tree and found no obvious causal relationship
+- checked out Github API + issues/pull-request
+- LDA topics to 25 and experimented
+- some thoughts:
+  - similarity != causality: do we need a causality measure?
+  - are we aiming too high(takcling both summarization and causality/information-diffusion)
+  - if reply and forward exists, why not use them?
+- some difference between enron and forum network:
+  - enron: with real interaction, hierarchical structure, clear roles
+  - forums: almost virtual, flatter structure, less clear roles
+
+Day 2:
+
+- decomposed case
+<!-- - d3: back to original network -->
+<!-- - add weights to nodes. Some nodes are more important -->
+

@@ -51,6 +51,7 @@ def grow_tree_general(g, r, U, choose_edge, edge_cost_key='c'):
         t.node[v] = g.node[v]
     if cost_sum > U:
         t.remove_edge(*last_added_edge)
+        t.remove_node(last_added_edge[1])
     return t
 
 greedy_grow = lambda g, r, U: grow_tree_general(g, r, U,

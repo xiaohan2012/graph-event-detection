@@ -22,7 +22,7 @@
 - [argparse action="store_true|false"](https://docs.python.org/3/library/argparse.html#action)
 - [Python subprocess](https://docs.python.org/2/library/subprocess.html)
 - [datetime.strftime cheatsheet](http://strftime.org/)
-
+- [Pandas read_csv skip bad lines](http://stackoverflow.com/questions/18039057/python-pandas-error-tokenizing-data): pass `error_bad_lines=False`
 
 ## JavaScript
 
