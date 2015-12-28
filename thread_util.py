@@ -53,6 +53,16 @@ def add_recipients_to_islamic_dataset(path):
     return add_recipients(t)
 
 
+def collect_user_information(df,
+                             id_field='sender_id',
+                             other_fields=['sender_name']):
+    """
+    user id should be the first in `columns`
+    """
+    columns = [id_field] + other_fields
+    return df[columns].drop_duplicates(subset=id_field)
+
+    
 def main():
     df = add_recipients_to_islamic_dataset('~/Downloads/IslamicAwakening.txt')
     df.to_json('data/islamic.json', orient="records")
