@@ -10,14 +10,13 @@ def main():
                         help="number of topics")
     parser.add_argument('--n_iters', type=int, required=True,
                         help="number of iterations to run")
-    parser.add_argument('--id2token_path',  required=True,
-                        help="Path to id2token pickle")
-
     parser.add_argument('--lda_chunksize', type=int, default=-1,
                         help="chunksize argument to lda training function")
     parser.add_argument('--lda_update_every', type=int, default=1,
                         help="update_every argument to lda training function. if -1, then use all documents")
 
+    parser.add_argument('--id2token_path',  required=True,
+                        help="Path to id2token pickle")
     parser.add_argument('--mm_path', required=True,
                         help="Path to messages file(.mm extension)")
     parser.add_argument('--model_prefix', required=True,
