@@ -14,7 +14,7 @@ from .interactions import InteractionsUtil
 CURDIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class EnronMetaGraphTest(unittest.TestCase):
+class InteractionsUtilTest(unittest.TestCase):
     def setUp(self):
         self.lda_model = gensim.models.ldamodel.LdaModel.load(
             os.path.join(CURDIR, 'test/data/test.lda')
