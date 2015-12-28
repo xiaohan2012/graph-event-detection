@@ -23,6 +23,7 @@
 - [Python subprocess](https://docs.python.org/2/library/subprocess.html)
 - [datetime.strftime cheatsheet](http://strftime.org/)
 - [Pandas read_csv skip bad lines](http://stackoverflow.com/questions/18039057/python-pandas-error-tokenizing-data): pass `error_bad_lines=False`
+- [No such file or directory when subprocess](http://stackoverflow.com/questions/24306205/file-not-found-error-when-launching-a-subprocess)
 
 ## JavaScript
 
