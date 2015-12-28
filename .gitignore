@@ -61,3 +61,7 @@ target/
 /data/
 
 html/data
+
+figures/
+models/
+tmp/
