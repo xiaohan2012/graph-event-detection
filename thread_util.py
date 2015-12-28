@@ -65,7 +65,12 @@ def collect_user_information(df,
     
 def main():
     df = add_recipients_to_islamic_dataset('~/Downloads/IslamicAwakening.txt')
-    df.to_json('data/islamic.json', orient="records")
+    df.to_json('data/islamic/interactions.json', orient="records")
+
+    user_info = collect_user_information(df,
+                                         id_field='sender_id',
+                                         other_fields=['sender_name'])
+    user_info.to_json('data/islamic/people.json', orient="records")
 
 if __name__ == '__main__':
     main()
