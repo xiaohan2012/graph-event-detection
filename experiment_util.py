@@ -4,7 +4,7 @@ import cPickle as pkl
 from datetime import timedelta
 
 
-from enron_graph import EnronUtil
+from interactions import InteractionsUtil
 from dag_util import binarize_dag
 
 
@@ -24,12 +24,12 @@ def sample_rooted_binary_graphs_within_timespan(
     results = []
     for i, r in enumerate(roots):
         print('done:', i)
-        sub_g = EnronUtil.get_rooted_subgraph_within_timespan(
+        sub_g = InteractionsUtil.get_rooted_subgraph_within_timespan(
             g, r, timespan, debug=False
         )
         binary_sub_g = binarize_dag(sub_g,
-                                    EnronUtil.VERTEX_REWARD_KEY,
-                                    EnronUtil.EDGE_COST_KEY,
+                                    InteractionsUtil.VERTEX_REWARD_KEY,
+                                    InteractionsUtil.EDGE_COST_KEY,
                                     dummy_node_name_prefix="d_")
         
         if len(binary_sub_g.edges()) > 0:

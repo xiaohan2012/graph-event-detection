@@ -14,7 +14,7 @@ from meta_graph import convert_to_meta_graph
 CURDIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class EnronUtil(object):
+class InteractionsUtil(object):
     """
     To create a topical meta graph, do the following:
 

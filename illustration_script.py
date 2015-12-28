@@ -1,5 +1,5 @@
 from meta_graph import convert_to_meta_graph
-from enron_graph import EnronUtil
+from interactions import InteractionsUtil
 
 
 def main():
@@ -11,9 +11,9 @@ def main():
         {'sender_id': C, 'recipient_ids': [H], 'datetime': 2, 'message_id': 'C->H: eat(2)'},
         {'sender_id': H, 'recipient_ids': [C], 'datetime': 3, 'message_id': 'H->C: eat(2)'},
     ]
-    EnronUtil.decompose_interactions(interactions)
-    node_names, sources, targets, time_stamps = EnronUtil.unzip_interactions(
-        EnronUtil.decompose_interactions(interactions)
+    InteractionsUtil.decompose_interactions(interactions)
+    node_names, sources, targets, time_stamps = InteractionsUtil.unzip_interactions(
+        InteractionsUtil.decompose_interactions(interactions)
     )
     graph = convert_to_meta_graph(node_names, sources, targets, time_stamps)
 

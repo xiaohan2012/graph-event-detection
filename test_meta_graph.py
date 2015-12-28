@@ -3,7 +3,7 @@ import scipy
 from nose.tools import assert_equal
 
 from .meta_graph import convert_to_meta_graph, convert_to_original_graph
-from .enron_graph import EnronUtil
+from .interactions import InteractionsUtil
 
 from .test_util import load_meta_graph_necessities
 
@@ -22,8 +22,8 @@ def get_example():
 
 def test_meta_graph_with_decomposition():
     interactions = get_example()
-    node_names, sources, targets, time_stamps = EnronUtil.unzip_interactions(
-        EnronUtil.decompose_interactions(interactions)
+    node_names, sources, targets, time_stamps = InteractionsUtil.unzip_interactions(
+        InteractionsUtil.decompose_interactions(interactions)
     )
     graph = convert_to_meta_graph(node_names, sources, targets, time_stamps)
 
@@ -35,7 +35,7 @@ def test_meta_graph_with_decomposition():
 
 def test_meta_graph_without_decomposition():
     interactions = get_example()
-    node_names, sources, targets, time_stamps = EnronUtil.unzip_interactions(
+    node_names, sources, targets, time_stamps = InteractionsUtil.unzip_interactions(
         interactions
     )
     graph = convert_to_meta_graph(node_names, sources, targets, time_stamps)
@@ -60,10 +60,10 @@ def test_meta_graph_1():
 
 def test_convert_to_original_graph():
     lda_model, dictionary, interactions = load_meta_graph_necessities()
-    g = EnronUtil.get_topic_meta_graph(interactions,
-                                       lda_model,
-                                       dictionary,
-                                       dist_func=scipy.stats.entropy)
+    g = InteractionsUtil.get_topic_meta_graph(interactions,
+                                              lda_model,
+                                              dictionary,
+                                              dist_func=scipy.stats.entropy)
     og = convert_to_original_graph(g)
     expected = [('A', 'B'), ('A', 'C'), ('A', 'D'),
                 ('A', 'F'), ('D', 'E'), ('D', 'F')]

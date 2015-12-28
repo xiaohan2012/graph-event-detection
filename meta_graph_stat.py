@@ -4,7 +4,7 @@ import networkx as nx
 from pprint import pformat
 from collections import Counter
 
-from enron_graph import EnronUtil
+from interactions import InteractionsUtil
 
 
 class MetaGraphStat(object):
@@ -109,7 +109,7 @@ class MetaGraphStat(object):
         raw_topics = [
             lda.get_document_topics(
                 dictionary.doc2bow(
-                    EnronUtil.tokenize_document(id2msg[id_])
+                    InteractionsUtil.tokenize_document(id2msg[id_])
                 ),
                 minimum_probability=0
             )
@@ -134,7 +134,7 @@ class MetaGraphStat(object):
         message_ids = [self.g.node[n]['message_id']
                        for n in self.g.nodes()]
         concated_msg = ' '.join([id2msg[mid] for mid in message_ids])
-        bow = dictionary.doc2bow(EnronUtil.tokenize_document(concated_msg))
+        bow = dictionary.doc2bow(InteractionsUtil.tokenize_document(concated_msg))
         topic_dist = lda.get_document_topics(
             bow,
             minimum_probability=0

@@ -2,18 +2,20 @@ import os
 import gensim
 import cPickle as pickle
 import networkx as nx
-from datetime import timedelta
+import ujson as json
 import logging
+
+from datetime import timedelta
+from scipy.spatial.distance import euclidean, cosine
+from scipy.stats import entropy
 
 from dag_util import unbinarize_dag, binarize_dag, remove_edges_via_dijkstra
 from lst import lst_dag
-from enron_graph import EnronUtil
+from interactions import InteractionsUtil
 from meta_graph_stat import MetaGraphStat
 from experiment_util import sample_nodes, experiment_signature
 from util import load_json_by_line
 from baselines import greedy_grow, random_grow
-from scipy.spatial.distance import euclidean, cosine
-from scipy.stats import entropy
 
 logging.basicConfig(format="%(asctime)s;%(levelname)s;%(message)s",
                     datefmt="%Y-%m-%d %H:%M:%S")
@@ -25,10 +27,10 @@ CURDIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def run(gen_tree_func,
-        enron_json_path=os.path.join(CURDIR, 'data/enron.json'),
+        interaction_json_path=os.path.join(CURDIR, 'data/enron.json'),
         lda_model_path=os.path.join(CURDIR, 'models/model-4-50.lda'),
         corpus_dict_path=os.path.join(CURDIR, 'models/dictionary.pkl'),
-        enron_pkl_path_prefix=os.path.join(CURDIR, 'data/enron'),
+        cand_trees_pkl_path_prefix=os.path.join(CURDIR, 'data/enron'),
         cand_tree_number=500,
         result_pkl_path_prefix=os.path.join(CURDIR, 'tmp/results'),
         meta_graph_kws={
@@ -51,15 +53,19 @@ def run(gen_tree_func,
     timespan = gen_tree_kws['timespan'].total_seconds()
     U = gen_tree_kws['U']
     
-    enron_pkl_path = "{}--{}.pkl".format(
-        enron_pkl_path_prefix,
+    cand_trees_pkl_path = "{}--{}.pkl".format(
+        cand_trees_pkl_path_prefix,
         experiment_signature(**meta_graph_kws)
     )
-    print('enron_pkl_path:', enron_pkl_path)
+    print('cand_trees_pkl_path:', cand_trees_pkl_path)
     
     people_data_path = os.path.join(CURDIR, 'data/people.json')
 
-    interactions = load_json_by_line(enron_json_path)
+    try:
+        interactions = json.load(open(interaction_json_path))
+    except ValueError:
+        interactions = load_json_by_line(interaction_json_path)
+
     people_info = load_json_by_line(people_data_path)
         
     logger.info('loading lda from {}'.format(lda_model_path))
@@ -72,19 +78,19 @@ def run(gen_tree_func,
 
     if calculate_graph:
         logger.info('calculating meta_graph...')
-        g = EnronUtil.get_topic_meta_graph(interactions,
+        g = InteractionsUtil.get_topic_meta_graph(interactions,
                                            lda_model, dictionary,
                                            preprune_secs=timespan,
                                            debug=True,
                                            **meta_graph_kws)
 
         logger.info('pickling...')
-        nx.write_gpickle(EnronUtil.compactize_meta_graph(g, map_nodes=False),
-                         enron_pkl_path)
+        nx.write_gpickle(InteractionsUtil.compactize_meta_graph(g, map_nodes=False),
+                         cand_trees_pkl_path)
 
     if not calculate_graph:
         logger.info('loading pickle...')
-        g = nx.read_gpickle(enron_pkl_path)
+        g = nx.read_gpickle(cand_trees_pkl_path)
         
     def get_summary(g):
         return MetaGraphStat(
@@ -112,7 +118,7 @@ def run(gen_tree_func,
         logger.info('Nodes procssed {}'.format(ni))
         logger.debug('Getting rooted subgraph within timespan')
 
-        sub_g = EnronUtil.get_rooted_subgraph_within_timespan(
+        sub_g = InteractionsUtil.get_rooted_subgraph_within_timespan(
             g, r, timespan, debug=False
         )
 
@@ -125,7 +131,7 @@ def run(gen_tree_func,
             sub_g = remove_edges_via_dijkstra(
                 sub_g,
                 source=r,
-                weight=EnronUtil.EDGE_COST_KEY
+                weight=InteractionsUtil.EDGE_COST_KEY
             )
 
         logger.debug('binarizing dag...')
@@ -138,15 +144,15 @@ def run(gen_tree_func,
         check_g_attrs(sub_g)
 
         binary_sub_g = binarize_dag(sub_g,
-                                    EnronUtil.VERTEX_REWARD_KEY,
-                                    EnronUtil.EDGE_COST_KEY,
+                                    InteractionsUtil.VERTEX_REWARD_KEY,
+                                    InteractionsUtil.EDGE_COST_KEY,
                                     dummy_node_name_prefix="d_")
         
         logger.debug('generating tree ')
 
         tree = gen_tree_func(binary_sub_g, r, U)
 
-        tree = unbinarize_dag(tree, edge_weight_key=EnronUtil.EDGE_COST_KEY)
+        tree = unbinarize_dag(tree, edge_weight_key=InteractionsUtil.EDGE_COST_KEY)
         if len(tree.edges()) == 0:
             logger.debug("empty tree")
             continue

@@ -3,12 +3,11 @@ import unittest
 import gensim
 import ujson as json
 import numpy as np
-import scipy
 from datetime import datetime
 
 from nose.tools import assert_equal, assert_true, assert_almost_equal
 from .util import load_json_by_line
-from .enron_graph import EnronUtil
+from .interactions import InteractionsUtil
 from .meta_graph_stat import MetaGraphStat
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
@@ -25,7 +24,7 @@ class MetaGraphStatTest(unittest.TestCase):
             os.path.join(CURDIR,
                          'test/data/test_dictionary.gsm')
         )
-        self.interactions = EnronUtil.clean_interactions(
+        self.interactions = InteractionsUtil.clean_interactions(
             json.load(
                 open(os.path.join(CURDIR, 'test/data/enron_test.json'))
             )
@@ -35,7 +34,7 @@ class MetaGraphStatTest(unittest.TestCase):
             os.path.join(CURDIR, 'test/data/people.json')
         )
 
-        self.g = EnronUtil.get_meta_graph(self.interactions,
+        self.g = InteractionsUtil.get_meta_graph(self.interactions,
                                           remove_singleton=True)
         
         # some pseudo cost

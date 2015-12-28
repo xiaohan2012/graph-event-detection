@@ -32,6 +32,8 @@
 - `DataFrame.iterrows`
 - [ith row in DataFrame](http://stackoverflow.com/questions/25254016/pandas-get-first-row-value-of-a-given-column): `DataFrame.iloc[i]`
 - add column: `df.columns.tolist() + [something]`
+- `df.rename(columns={'old': 'new', ...}, inplace=True)`
+- `df.to_json(orient="records)"`
 
 ## JavaScript
 

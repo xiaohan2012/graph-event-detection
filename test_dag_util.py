@@ -4,7 +4,7 @@ from .dag_util import (binarize_dag, is_binary,
                        unbinarize_dag,
                        remove_edges_via_dijkstra)
 from .test_lst_dag import get_example_6
-from .enron_graph import EnronUtil
+from .interactions import InteractionsUtil
 from nose.tools import assert_equal, assert_true
 
 
@@ -19,12 +19,12 @@ def _get_example_dag():
                       (8, 12), (2, 8)])
     # When add weights
     for n in g.nodes():
-        g.node[n][EnronUtil.VERTEX_REWARD_KEY] = 1
-    g.node[2][EnronUtil.VERTEX_REWARD_KEY] = 11  # some special treatment
+        g.node[n][InteractionsUtil.VERTEX_REWARD_KEY] = 1
+    g.node[2][InteractionsUtil.VERTEX_REWARD_KEY] = 11  # some special treatment
 
     for s, t in g.edges():
-        g[s][t][EnronUtil.EDGE_COST_KEY] = 1
-    g[1][2][EnronUtil.EDGE_COST_KEY] = 10  # some special treatment
+        g[s][t][InteractionsUtil.EDGE_COST_KEY] = 1
+    g[1][2][InteractionsUtil.EDGE_COST_KEY] = 10  # some special treatment
     
     return g
 
@@ -34,8 +34,8 @@ def test_binarize_dag():
     
     # It should...
     binary_g = binarize_dag(g,
-                            vertex_weight_key=EnronUtil.VERTEX_REWARD_KEY,
-                            edge_weight_key=EnronUtil.EDGE_COST_KEY,
+                            vertex_weight_key=InteractionsUtil.VERTEX_REWARD_KEY,
+                            edge_weight_key=InteractionsUtil.EDGE_COST_KEY,
                             dummy_node_name_prefix='d_')
     expected_nodes = range(1, 13) + ['d_{}'.format(i) for i in range(1, 5)]
     assert_equal(
@@ -58,7 +58,7 @@ def test_binarize_dag():
     
     node_rewards = [1, 11] + [1] * 10 + [0] * 4
     for r, n in zip(node_rewards, expected_nodes):
-        assert_equal(r, binary_g.node[n][EnronUtil.VERTEX_REWARD_KEY])
+        assert_equal(r, binary_g.node[n][InteractionsUtil.VERTEX_REWARD_KEY])
 
     edge_costs = [0, 1, 10,
                   1, 1, 1,
@@ -69,7 +69,7 @@ def test_binarize_dag():
                   1, 1,
                   1, 1]
     for c, (s, t) in zip(edge_costs, expected_edges):
-        assert_equal(c, binary_g[s][t][EnronUtil.EDGE_COST_KEY])
+        assert_equal(c, binary_g[s][t][InteractionsUtil.EDGE_COST_KEY])
         
     assert_true(is_binary(binary_g))
 
@@ -82,11 +82,11 @@ def test_binarize_dag():
 def test_unbinarize_dag():
     g1 = _get_example_dag()
     binary_g = binarize_dag(g1,
-                            vertex_weight_key=EnronUtil.VERTEX_REWARD_KEY,
-                            edge_weight_key=EnronUtil.EDGE_COST_KEY,
+                            vertex_weight_key=InteractionsUtil.VERTEX_REWARD_KEY,
+                            edge_weight_key=InteractionsUtil.EDGE_COST_KEY,
                             dummy_node_name_prefix='d_')
     g2 = unbinarize_dag(binary_g,
-                        edge_weight_key=EnronUtil.EDGE_COST_KEY,
+                        edge_weight_key=InteractionsUtil.EDGE_COST_KEY,
     )
     assert_equal(sorted(g1.nodes()), sorted(g2.nodes()))
     assert_equal(sorted(g1.edges()), sorted(g2.edges()))
