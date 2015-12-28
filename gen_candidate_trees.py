@@ -59,15 +59,11 @@ def run(gen_tree_func,
     )
     print('cand_trees_pkl_path:', cand_trees_pkl_path)
     
-    people_data_path = os.path.join(CURDIR, 'data/people.json')
-
     try:
         interactions = json.load(open(interaction_json_path))
     except ValueError:
         interactions = load_json_by_line(interaction_json_path)
 
-    people_info = load_json_by_line(people_data_path)
-        
     logger.info('loading lda from {}'.format(lda_model_path))
     lda_model = gensim.models.ldamodel.LdaModel.load(
         os.path.join(CURDIR, lda_model_path)
@@ -78,15 +74,19 @@ def run(gen_tree_func,
 
     if calculate_graph:
         logger.info('calculating meta_graph...')
-        g = InteractionsUtil.get_topic_meta_graph(interactions,
-                                           lda_model, dictionary,
-                                           preprune_secs=timespan,
-                                           debug=True,
-                                           **meta_graph_kws)
+        g = InteractionsUtil.get_topic_meta_graph(
+            interactions,
+            lda_model, dictionary,
+            preprune_secs=timespan,
+            debug=True,
+            **meta_graph_kws
+        )
 
         logger.info('pickling...')
-        nx.write_gpickle(InteractionsUtil.compactize_meta_graph(g, map_nodes=False),
-                         cand_trees_pkl_path)
+        nx.write_gpickle(
+            InteractionsUtil.compactize_meta_graph(g, map_nodes=False),
+            cand_trees_pkl_path
+        )
 
     if not calculate_graph:
         logger.info('loading pickle...')
@@ -98,12 +98,7 @@ def run(gen_tree_func,
                 'temporal_traffic': {'time_resolution': 'month'},
                 'edge_costs': {'max_values': [1.0, 0.1]},
                 'topics': False,
-                'email_content': False,
-                'participants': {
-                    'people_info': people_info,
-                    'interactions': interactions,
-                    'top_k': 5
-                }
+                'email_content': False
             }
         ).summary()
 
