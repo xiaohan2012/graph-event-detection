@@ -34,6 +34,7 @@
 - add column: `df.columns.tolist() + [something]`
 - `df.rename(columns={'old': 'new', ...}, inplace=True)`
 - `df.to_json(orient="records)"`
+- `df.equals`
 
 ## JavaScript
 

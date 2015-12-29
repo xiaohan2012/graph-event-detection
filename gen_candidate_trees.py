@@ -11,7 +11,7 @@ from scipy.stats import entropy
 
 from dag_util import unbinarize_dag, binarize_dag, remove_edges_via_dijkstra
 from lst import lst_dag
-from interactions import InteractionsUtil
+from interactions import InteractionsUtil as IU
 from meta_graph_stat import MetaGraphStat
 from experiment_util import sample_nodes, experiment_signature
 from util import load_json_by_line
@@ -30,12 +30,13 @@ def run(gen_tree_func,
         interaction_json_path=os.path.join(CURDIR, 'data/enron.json'),
         lda_model_path=os.path.join(CURDIR, 'models/model-4-50.lda'),
         corpus_dict_path=os.path.join(CURDIR, 'models/dictionary.pkl'),
-        cand_trees_pkl_path_prefix=os.path.join(CURDIR, 'data/enron'),
+        meta_graph_pkl_path_prefix=os.path.join(CURDIR, 'data/enron'),
         cand_tree_number=500,
         result_pkl_path_prefix=os.path.join(CURDIR, 'tmp/results'),
         meta_graph_kws={
             'dist_func': entropy,
             'decompose_interactions': True,
+            'preprune_secs': timedelta(weeks=4),
         },
         gen_tree_kws={
             'timespan': timedelta(weeks=4),
@@ -52,13 +53,7 @@ def run(gen_tree_func,
     )
     timespan = gen_tree_kws['timespan'].total_seconds()
     U = gen_tree_kws['U']
-    
-    cand_trees_pkl_path = "{}--{}.pkl".format(
-        cand_trees_pkl_path_prefix,
-        experiment_signature(**meta_graph_kws)
-    )
-    print('cand_trees_pkl_path:', cand_trees_pkl_path)
-    
+        
     try:
         interactions = json.load(open(interaction_json_path))
     except ValueError:
@@ -72,25 +67,30 @@ def run(gen_tree_func,
         os.path.join(CURDIR, corpus_dict_path)
     )
 
+    meta_graph_pkl_path = "{}--{}.pkl".format(
+        meta_graph_pkl_path_prefix,
+        experiment_signature(**meta_graph_kws)
+    )
+    logger.info('meta_graph_pkl_path: {}'.format(meta_graph_pkl_path))
+
     if calculate_graph:
         logger.info('calculating meta_graph...')
-        g = InteractionsUtil.get_topic_meta_graph(
+        g = IU.get_topic_meta_graph(
             interactions,
             lda_model, dictionary,
-            preprune_secs=timespan,
             debug=True,
             **meta_graph_kws
         )
 
         logger.info('pickling...')
         nx.write_gpickle(
-            InteractionsUtil.compactize_meta_graph(g, map_nodes=False),
-            cand_trees_pkl_path
+            IU.compactize_meta_graph(g, map_nodes=False),
+            meta_graph_pkl_path
         )
 
     if not calculate_graph:
         logger.info('loading pickle...')
-        g = nx.read_gpickle(cand_trees_pkl_path)
+        g = nx.read_gpickle(meta_graph_pkl_path)
         
     def get_summary(g):
         return MetaGraphStat(
@@ -110,10 +110,10 @@ def run(gen_tree_func,
     results = []
 
     for ni, r in enumerate(roots):
-        logger.info('Nodes procssed {}'.format(ni))
-        logger.debug('Getting rooted subgraph within timespan')
+        logger.info('nodes procssed {}'.format(ni))
+        logger.debug('getting rooted subgraph within timespan')
 
-        sub_g = InteractionsUtil.get_rooted_subgraph_within_timespan(
+        sub_g = IU.get_rooted_subgraph_within_timespan(
             g, r, timespan, debug=False
         )
 
@@ -126,7 +126,7 @@ def run(gen_tree_func,
             sub_g = remove_edges_via_dijkstra(
                 sub_g,
                 source=r,
-                weight=InteractionsUtil.EDGE_COST_KEY
+                weight=IU.EDGE_COST_KEY
             )
 
         logger.debug('binarizing dag...')
@@ -139,15 +139,16 @@ def run(gen_tree_func,
         check_g_attrs(sub_g)
 
         binary_sub_g = binarize_dag(sub_g,
-                                    InteractionsUtil.VERTEX_REWARD_KEY,
-                                    InteractionsUtil.EDGE_COST_KEY,
+                                    IU.VERTEX_REWARD_KEY,
+                                    IU.EDGE_COST_KEY,
                                     dummy_node_name_prefix="d_")
         
         logger.debug('generating tree ')
 
         tree = gen_tree_func(binary_sub_g, r, U)
 
-        tree = unbinarize_dag(tree, edge_weight_key=InteractionsUtil.EDGE_COST_KEY)
+        tree = unbinarize_dag(tree,
+                              edge_weight_key=IU.EDGE_COST_KEY)
         if len(tree.edges()) == 0:
             logger.debug("empty tree")
             continue
@@ -175,6 +176,16 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description="Generate candidate event trees"
     )
+    parser.add_argument('--interaction_path', required=True,
+                        type=str,
+                        help="Path to the interaction json file")
+    parser.add_argument('--lda_path', required=True,
+                        help="Path of LDA model")
+    parser.add_argument('--corpus_dict_path', required=True,
+                        help="Path of corpus dictionary")
+    parser.add_argument('--meta_graph_path_prefix', required=True,
+                        help="Prefix of path of meta graph pickle")
+
     parser.add_argument('--method', required=True,
                         choices=("lst", "greedy", "random"),
                         help="Method you will use")
@@ -197,9 +208,6 @@ if __name__ == '__main__':
     parser.add_argument('--res_dir',
                         default='tmp',
                         help="directory to save the results")
-
-    parser.add_argument('--lda',
-                        help="Path of LDA model")
 
     parser.add_argument('--weeks',
                         type=int,
@@ -224,12 +232,17 @@ if __name__ == '__main__':
     print('Dijkstra: {}'.format(args.dij))
 
     run(methods[args.method],
-        lda_model_path=args.lda,
+        interaction_json_path=args.interaction_path,
+        corpus_dict_path=args.corpus_dict_path,
+        meta_graph_pkl_path_prefix=args.meta_graph_path_prefix,
+        lda_model_path=args.lda_path,
         result_pkl_path_prefix='{}/result-{}'.format(
-            args.res_dir, args.method),
+            args.res_dir, args.method
+        ),
         meta_graph_kws={
             'dist_func': dist_func,
-            'decompose_interactions': args.decompose
+            'decompose_interactions': args.decompose,
+            'preprune_secs': timedelta(weeks=args.weeks),
         },
         gen_tree_kws={
             'timespan': timedelta(weeks=args.weeks),
