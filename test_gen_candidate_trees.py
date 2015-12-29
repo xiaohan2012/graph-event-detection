@@ -23,16 +23,17 @@ class GenCandidateTreeTest(unittest.TestCase):
     
         self.some_kws_of_run = {
             'interaction_json_path': os.path.join(CURDIR,
-                                            'test/data/enron-head-100.json'),
+                                                  'test/data/enron-head-100.json'),
             'lda_model_path': os.path.join(CURDIR, 'test/data/test.lda'),
             'corpus_dict_path': os.path.join(CURDIR,
                                              'test/data/test_dictionary.gsm'),
-            'cand_trees_pkl_path_prefix': os.path.join(CURDIR,
-                                                  'test/data/enron-head-100'),
+            'meta_graph_pkl_path_prefix': os.path.join(CURDIR,
+                                                       'test/data/enron-head-100'),
             'cand_tree_number': 5,
             'meta_graph_kws': {
                 'dist_func': entropy,
-                'decompose_interactions': False
+                'decompose_interactions': False,
+                'preprune_secs': timedelta(weeks=4)
             },
             'gen_tree_kws': {
                 'timespan': timedelta(weeks=4),
@@ -47,7 +48,7 @@ class GenCandidateTreeTest(unittest.TestCase):
         )
         pkl_path = os.path.join(
             CURDIR,
-            'test/data/enron-head-100--decompose_interactions=False--dist_func=entropy.pkl'
+            'test/data/enron-head-100--decompose_interactions=False--dist_func=entropy--preprune_sec=28days.pkl'
         )
         if not os.path.exists(pkl_path):
             print('calc meta graph')
@@ -70,7 +71,7 @@ class GenCandidateTreeTest(unittest.TestCase):
                                             "test/data/tmp",
                                             "result-{}".format(test_name))
 
-        pickle_path_suffix = 'U=0.5--dijkstra={}--timespan=28days----decompose_interactions=False--dist_func=entropy'
+        pickle_path_suffix = 'U=0.5--dijkstra={}--timespan=28days----decompose_interactions=False--dist_func=entropy--preprune_secs=28days'
 
         if self.some_kws_of_run['gen_tree_kws'].get('dijkstra'):
             pickle_path_suffix = pickle_path_suffix.format("True")
@@ -106,7 +107,7 @@ class GenCandidateTreeTest(unittest.TestCase):
         self.check('greedy', greedy_grow, 2)
 
     def test_random_grow(self):
-        self.check('random', random_grow, 1)
+        self.check('random', random_grow, 2)
 
     def test_lst_dag(self):
         self.check('lst', self.lst, 2)
@@ -115,7 +116,7 @@ class GenCandidateTreeTest(unittest.TestCase):
         trees = self.check('lst', self.lst, 2)
 
         self.some_kws_of_run['gen_tree_kws']['dijkstra'] = True
-        trees_with_dij = self.check('lst', self.lst, 5)
+        trees_with_dij = self.check('lst', self.lst, 3)
 
         for t, t_dij in zip(trees, trees_with_dij):
             assert_true(sorted(t.edges()) != sorted(t_dij))
@@ -135,15 +136,32 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         script_path = os.path.join(CURDIR, "gen_candidate_trees.py")
         result_dir = os.path.join(CURDIR, "test/data/tmp")
         lda_path = os.path.join(CURDIR, "test/data/test.lda")
-        cmd = "python {} --method=random --dist=entropy --cand_n=1 --res_dir={} --weeks=4 --U=0.5 --lda={}".format(
-            script_path, result_dir, lda_path
+        interaction_json_path = os.path.join(CURDIR,
+                                             'test/data/enron-head-100.json')
+        corpus_dict_path = os.path.join(CURDIR,
+                                        'test/data/test_dictionary.gsm')
+        meta_graph_path_prefix = os.path.join(CURDIR,
+                                              'test/data/enron-head-100')
+        
+        cmd = """python {} --method=random \
+        --dist=entropy --cand_n=1 \
+        --res_dir={} --weeks=4 --U=0.5 \
+        --lda_path={} --interaction_path={} \
+        --corpus_dict_path={} \
+        --meta_graph_path_prefix={}""".format(
+            script_path,
+            result_dir,
+            lda_path,
+            interaction_json_path,
+            corpus_dict_path,
+            meta_graph_path_prefix
         ).split()
         output = check_output(cmd)
         print(output)
         assert_true("traceback" not in output.lower())
         
         output_path = os.path.join(CURDIR,
-                                   "test/data/tmp/result-random--U=0.5--dijkstra=False--timespan=28days----decompose_interactions=False--dist_func=entropy.pkl")
+                                   "test/data/tmp/result-random--U=0.5--dijkstra=False--timespan=28days----decompose_interactions=False--dist_func=entropy--preprune_secs=28days.pkl")
         assert_true(os.path.exists(output_path))
 
     def tearDown(self):
