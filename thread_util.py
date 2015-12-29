@@ -1,3 +1,5 @@
+# coding: utf-8
+
 # Processing thread-like documents
 import pandas as pd
 
@@ -45,7 +47,7 @@ def add_recipients_to_islamic_dataset(path):
         'ThreadID': KEY_THREAD_ID,
         'MemberID': KEY_SENDER_ID,
         'P_Date': KEY_DATETIME,
-        'MessageID': 'message_id',
+        '﻿MessageID': 'message_id',
         'ThreadName': 'subject',
         'Message': 'body',
         'MemberName': 'sender_name',

@@ -1,9 +1,13 @@
+# coding: utf-8
+import os
 import pandas as pd
 from nose.tools import assert_equal, assert_true
 from datetime import datetime
 from thread_util import add_recipients,\
     KEY_THREAD_ID, KEY_DATETIME, KEY_SENDER_ID, KEY_RECIPIENT_IDS,\
-    collect_user_information
+    collect_user_information, \
+    add_recipients_to_islamic_dataset
+from test_util import CURDIR
 
 
 def test_add_recipients():
@@ -37,3 +41,15 @@ def test_collect_user_information():
     )
     expected = data[:3]
     assert_true(expected.equals(actual))
+
+
+def test_add_recipients_to_islamic_dataset():
+    df = add_recipients_to_islamic_dataset(
+        os.path.join(CURDIR, 'test/data/islamic-head-10.txt')
+    )
+    assert_equal((10, 11), df.shape)
+    for c in ('message_id', 'subject', 'body',
+              KEY_THREAD_ID, KEY_DATETIME,
+              KEY_SENDER_ID, KEY_RECIPIENT_IDS):
+        print(c)
+        assert_true(c in df.columns)
