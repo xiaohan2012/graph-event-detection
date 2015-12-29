@@ -13,7 +13,7 @@ from .test_lst_dag import (get_example_3, get_example_4,
                            get_example_6)
 from .dag_util import unbinarize_dag, binarize_dag, remove_edges_via_dijkstra
 from .lst import lst_dag
-from .enron_graph import EnronUtil
+from .interactions import InteractionsUtil
 from .meta_graph_stat import MetaGraphStat
 from .baselines import greedy_grow, random_grow
 from nose.tools import assert_equal
@@ -26,8 +26,8 @@ class TreeGenerationMethodsTest(unittest.TestCase):
                                          gen_tree_func,
                                          **gen_tree_kws):
         g = binarize_dag(g,
-                         EnronUtil.VERTEX_REWARD_KEY,
-                         EnronUtil.EDGE_COST_KEY)
+                         InteractionsUtil.VERTEX_REWARD_KEY,
+                         InteractionsUtil.EDGE_COST_KEY)
         for u, edges in zip(U, expected_edges_set):
             print(u)
             t = gen_tree_func(g, r, u, **gen_tree_kws)
@@ -35,7 +35,7 @@ class TreeGenerationMethodsTest(unittest.TestCase):
                          sorted(
                              unbinarize_dag(
                                  t,
-                                 edge_weight_key=EnronUtil.EDGE_COST_KEY
+                                 edge_weight_key=InteractionsUtil.EDGE_COST_KEY
                              ).edges()))
 
     def test_lst_3(self):
@@ -127,41 +127,3 @@ class TreeGenerationMethodsTest(unittest.TestCase):
         self.binarize_gen_tree_and_unbinarize(r, g, U,
                                               expected_edges_set,
                                               random_grow)
-
-
-
-
-def est_enron_subset():
-    input_path = os.path.join(CURDIR, 'test/data/enron-last-100.json')
-    with open(input_path) as f:
-        interactions = [json.loads(l) for l in f]
-        
-    lda_model = gensim.models.ldamodel.LdaModel.load(
-        os.path.join(CURDIR, 'test/data/test.lda')
-    )
-    dictionary = gensim.corpora.dictionary.Dictionary.load(
-        os.path.join(CURDIR, 'test/data/test_dictionary.gsm')
-    )
-    
-    g = EnronUtil.get_topic_meta_graph(interactions,
-                                       lda_model, dictionary,
-                                       dist_func=scipy.stats.entropy)
-    U = 20
-
-    g_stat = MetaGraphStat(g)
-    print(g_stat.summary())
-
-    timespan = timedelta(weeks=4).total_seconds()  # one month
-    for r in g.nodes()[:5]:
-        sub_g = EnronUtil.get_rooted_subgraph_within_timespan(g, r, timespan)
-        binary_g = binarize_dag(sub_g,
-                                EnronUtil.VERTEX_REWARD_KEY,
-                                EnronUtil.EDGE_COST_KEY,
-                                dummy_node_name_prefix="d_")
-        sub_tree = lst_dag(binary_g, r, U,
-                           node_reward_key=EnronUtil.VERTEX_REWARD_KEY,
-                           edge_cost_key=EnronUtil.EDGE_COST_KEY
-                       )
-        print(sub_tree)
-    
-    

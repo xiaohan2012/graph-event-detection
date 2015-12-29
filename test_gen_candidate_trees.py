@@ -22,12 +22,12 @@ class GenCandidateTreeTest(unittest.TestCase):
         numpy.random.seed(1)
     
         self.some_kws_of_run = {
-            'enron_json_path': os.path.join(CURDIR,
+            'interaction_json_path': os.path.join(CURDIR,
                                             'test/data/enron-head-100.json'),
             'lda_model_path': os.path.join(CURDIR, 'test/data/test.lda'),
             'corpus_dict_path': os.path.join(CURDIR,
                                              'test/data/test_dictionary.gsm'),
-            'enron_pkl_path_prefix': os.path.join(CURDIR,
+            'cand_trees_pkl_path_prefix': os.path.join(CURDIR,
                                                   'test/data/enron-head-100'),
             'cand_tree_number': 5,
             'meta_graph_kws': {
@@ -51,9 +51,9 @@ class GenCandidateTreeTest(unittest.TestCase):
         )
         if not os.path.exists(pkl_path):
             print('calc meta graph')
-            self._calc_enron_pkl()
+            self._calc_cand_trees_pkl()
 
-    def _calc_enron_pkl(self):
+    def _calc_cand_trees_pkl(self):
         run(
             self.lst,
             calculate_graph=True,

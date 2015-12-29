@@ -263,3 +263,14 @@ Day 2:
 <!-- - d3: back to original network -->
 <!-- - add weights to nodes. Some nodes are more important -->
 
+
+# Week 6
+
+Day 1:
+
+- LDA into lst repo
+- Processed IslamicAwakening data
+  - LDA started
+  - to json for `gen_cand_trees`
+  - ready to get meta graphs
+

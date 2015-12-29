@@ -22,8 +22,18 @@
 - [argparse action="store_true|false"](https://docs.python.org/3/library/argparse.html#action)
 - [Python subprocess](https://docs.python.org/2/library/subprocess.html)
 - [datetime.strftime cheatsheet](http://strftime.org/)
-- [Pandas read_csv skip bad lines](http://stackoverflow.com/questions/18039057/python-pandas-error-tokenizing-data): pass `error_bad_lines=False`
 - [No such file or directory when subprocess](http://stackoverflow.com/questions/24306205/file-not-found-error-when-launching-a-subprocess)
+
+## Pandas
+
+- [Pandas read_csv skip bad lines](http://stackoverflow.com/questions/18039057/python-pandas-error-tokenizing-data): pass `error_bad_lines=False`
+- [nth group](http://stackoverflow.com/questions/20087713/pandas-dataframe-groupby-and-get-nth-row)
+- `Series.tolist`
+- `DataFrame.iterrows`
+- [ith row in DataFrame](http://stackoverflow.com/questions/25254016/pandas-get-first-row-value-of-a-given-column): `DataFrame.iloc[i]`
+- add column: `df.columns.tolist() + [something]`
+- `df.rename(columns={'old': 'new', ...}, inplace=True)`
+- `df.to_json(orient="records)"`
 
 ## JavaScript
 

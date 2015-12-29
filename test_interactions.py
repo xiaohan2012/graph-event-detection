@@ -9,12 +9,12 @@ import ujson as json
 from datetime import datetime, timedelta
 from nose.tools import assert_equal, assert_true, assert_almost_equal
 
-from .enron_graph import EnronUtil
+from .interactions import InteractionsUtil
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class EnronMetaGraphTest(unittest.TestCase):
+class InteractionsUtilTest(unittest.TestCase):
     def setUp(self):
         self.lda_model = gensim.models.ldamodel.LdaModel.load(
             os.path.join(CURDIR, 'test/data/test.lda')
@@ -26,19 +26,19 @@ class EnronMetaGraphTest(unittest.TestCase):
             open(os.path.join(CURDIR,
                               'test/data/enron_test.json')))
         
-        self.g = EnronUtil.get_meta_graph(
+        self.g = InteractionsUtil.get_meta_graph(
             self.interactions,
             decompose_interactions=True)
 
     def test_clean_interactions(self):
         assert_equal(self.interactions[3]['recipient_ids'], ["B", "B"])
-        cleaned_interactions = EnronUtil.clean_interactions(
+        cleaned_interactions = InteractionsUtil.clean_interactions(
             self.interactions
         )
         assert_equal(cleaned_interactions[3]['recipient_ids'], ["B"])
 
     def test_get_meta_graph_without_decomposition(self):
-        g = EnronUtil.get_meta_graph(
+        g = InteractionsUtil.get_meta_graph(
             self.interactions,
             decompose_interactions=False
         )
@@ -57,7 +57,7 @@ class EnronMetaGraphTest(unittest.TestCase):
         
         for n in self.g.nodes():
             assert_equal(1,
-                         self.g.node[n][EnronUtil.VERTEX_REWARD_KEY])
+                         self.g.node[n][InteractionsUtil.VERTEX_REWARD_KEY])
         
         assert_equal(self.g.node['1.B']['body'], 'b1')
         assert_equal(self.g.node['1.B']['message_id'], 1)
@@ -76,7 +76,9 @@ class EnronMetaGraphTest(unittest.TestCase):
                      datetime.fromtimestamp(989587577))
         
     def _get_topical_graph(self):
-        return EnronUtil.add_topics_to_graph(self.g, self.lda_model, self.dictionary)
+        return InteractionsUtil.add_topics_to_graph(self.g,
+                                                    self.lda_model,
+                                                    self.dictionary)
 
     def test_add_topics(self):
         g = self._get_topical_graph()
@@ -100,7 +102,7 @@ class EnronMetaGraphTest(unittest.TestCase):
         ]
         for max_time_diff, expected_edges in \
             zip(max_time_diffs, expected_edges_list):
-            sub_g = EnronUtil.filter_dag_given_root(
+            sub_g = InteractionsUtil.filter_dag_given_root(
                 self.g, r,
                 lambda n:
                 self.g.node[n]['timestamp'] - self.g.node[r]['timestamp'] <= max_time_diff,
@@ -130,7 +132,7 @@ class EnronMetaGraphTest(unittest.TestCase):
             assert_equal(
                 sorted(expected_edges),
                 sorted(
-                    EnronUtil.get_rooted_subgraph_within_timespan(
+                    InteractionsUtil.get_rooted_subgraph_within_timespan(
                         self.g, '1.D', time_delta.total_seconds()
                     ).edges()
                 )
@@ -138,24 +140,24 @@ class EnronMetaGraphTest(unittest.TestCase):
         
     def test_assign_edge_weight(self):
         g = self._get_topical_graph()
-        g = EnronUtil.assign_edge_weights(g, scipy.stats.entropy)
+        g = InteractionsUtil.assign_edge_weights(g, scipy.stats.entropy)
         
         for s, t in g.edges():
             numpy.testing.assert_array_almost_equal(
                 scipy.stats.entropy(g.node[s]['topics'], g.node[t]['topics']),
-                g[s][t][EnronUtil.EDGE_COST_KEY]
+                g[s][t][InteractionsUtil.EDGE_COST_KEY]
             )
         # 5 is quite different from the rest
-        assert_true(g['1.D']['5'][EnronUtil.EDGE_COST_KEY] >
-                    g['1.D']['3'][EnronUtil.EDGE_COST_KEY])
+        assert_true(g['1.D']['5'][InteractionsUtil.EDGE_COST_KEY] >
+                    g['1.D']['3'][InteractionsUtil.EDGE_COST_KEY])
 
         # the rest are almost equal to each other
-        numpy.testing.assert_almost_equal(g['1.D']['4'][EnronUtil.EDGE_COST_KEY],
-                                          g['2']['4'][EnronUtil.EDGE_COST_KEY])
+        numpy.testing.assert_almost_equal(g['1.D']['4'][InteractionsUtil.EDGE_COST_KEY],
+                                          g['2']['4'][InteractionsUtil.EDGE_COST_KEY])
 
     def test_decompose_interactions(self):
-        d_interactions = EnronUtil.decompose_interactions(
-            EnronUtil.clean_interactions(
+        d_interactions = InteractionsUtil.decompose_interactions(
+            InteractionsUtil.clean_interactions(
                 self.interactions
             )
         )
@@ -193,8 +195,8 @@ class EnronMetaGraphTest(unittest.TestCase):
         (interaction_names,
          sources,
          targets,
-         time_stamps) = EnronUtil.unzip_interactions(
-             EnronUtil.clean_interactions(
+         time_stamps) = InteractionsUtil.unzip_interactions(
+             InteractionsUtil.clean_interactions(
                  self.interactions
              )
          )
@@ -211,14 +213,14 @@ class EnronMetaGraphTest(unittest.TestCase):
                      time_stamps)
 
     def test_get_topic_meta_graph(self):
-        g = EnronUtil.get_topic_meta_graph(self.interactions,
+        g = InteractionsUtil.get_topic_meta_graph(self.interactions,
                                            self.lda_model,
                                            self.dictionary,
                                            dist_func=scipy.stats.entropy,
                                            preprune_secs=None)
         
         assert_true(
-            g['1.D']['5'][EnronUtil.EDGE_COST_KEY] >= 0.8
+            g['1.D']['5'][InteractionsUtil.EDGE_COST_KEY] >= 0.8
         )
         assert_equal(7, len(g.nodes()))
         assert_equal(sorted([('1.B', '2'), ('1.C', '2'), ('1.D', '2'),
@@ -228,7 +230,7 @@ class EnronMetaGraphTest(unittest.TestCase):
                      sorted(g.edges()))
 
     def test_get_topic_meta_graph_without_decomposition(self):
-        g = EnronUtil.get_topic_meta_graph(self.interactions,
+        g = InteractionsUtil.get_topic_meta_graph(self.interactions,
                                            self.lda_model,
                                            self.dictionary,
                                            dist_func=scipy.stats.entropy,
@@ -236,7 +238,7 @@ class EnronMetaGraphTest(unittest.TestCase):
                                            preprune_secs=None)
         
         assert_true(
-            g[1][5][EnronUtil.EDGE_COST_KEY] >= 0.8
+            g[1][5][InteractionsUtil.EDGE_COST_KEY] >= 0.8
         )
         assert_equal(5, len(g.nodes()))
         assert_equal(sorted([(1, 2), (1, 4), (1, 3),
@@ -244,14 +246,14 @@ class EnronMetaGraphTest(unittest.TestCase):
                      sorted(g.edges()))
 
     def test_get_topic_meta_graph_with_prepruning(self):
-        g = EnronUtil.get_topic_meta_graph(self.interactions,
+        g = InteractionsUtil.get_topic_meta_graph(self.interactions,
                                            self.lda_model,
                                            self.dictionary,
                                            dist_func=scipy.stats.entropy,
                                            preprune_secs=1.0)
         
         assert_almost_equal(
-            g['1.D']['2'][EnronUtil.EDGE_COST_KEY],
+            g['1.D']['2'][InteractionsUtil.EDGE_COST_KEY],
             0
         )
         assert_equal(7, len(g.nodes()))
@@ -260,12 +262,12 @@ class EnronMetaGraphTest(unittest.TestCase):
 
     def test_compactize_meta_graph(self):
         # assure node topic vectors are deleted
-        g = EnronUtil.get_topic_meta_graph(self.interactions,
+        g = InteractionsUtil.get_topic_meta_graph(self.interactions,
                                            self.lda_model,
                                            self.dictionary,
                                            dist_func=scipy.stats.entropy)
         original_g = g.copy()
-        g, str2id = EnronUtil.compactize_meta_graph(g, map_nodes=True)
+        g, str2id = InteractionsUtil.compactize_meta_graph(g, map_nodes=True)
         
         for n in original_g.nodes():
             n = str2id[n]
@@ -283,22 +285,22 @@ class EnronMetaGraphTest(unittest.TestCase):
 
         # structure + weight is the same
         for n in original_g.nodes():
-            assert_equal(original_g.node[n][EnronUtil.VERTEX_REWARD_KEY],
-                         g.node[str2id[n]][EnronUtil.VERTEX_REWARD_KEY])
+            assert_equal(original_g.node[n][InteractionsUtil.VERTEX_REWARD_KEY],
+                         g.node[str2id[n]][InteractionsUtil.VERTEX_REWARD_KEY])
 
         for s, t in original_g.edges():
             s1, t1 = str2id[s], str2id[t]
-            assert_equal(original_g[s][t][EnronUtil.EDGE_COST_KEY],
-                         g[s1][t1][EnronUtil.EDGE_COST_KEY])
+            assert_equal(original_g[s][t][InteractionsUtil.EDGE_COST_KEY],
+                         g[s1][t1][InteractionsUtil.EDGE_COST_KEY])
 
     def test_compactize_meta_graph_without_node_name_mapping(self):
                 # assure node topic vectors are deleted
-        g = EnronUtil.get_topic_meta_graph(self.interactions,
+        g = InteractionsUtil.get_topic_meta_graph(self.interactions,
                                            self.lda_model,
                                            self.dictionary,
                                            dist_func=scipy.stats.entropy)
         original_g = g.copy()
-        g = EnronUtil.compactize_meta_graph(g, map_nodes=False)
+        g = InteractionsUtil.compactize_meta_graph(g, map_nodes=False)
 
         for n in original_g.nodes():
             assert_true('topics' not in g.node[n])
@@ -311,7 +313,7 @@ class EnronMetaGraphTest(unittest.TestCase):
             assert_true('recipient_ids' in g.node[n])
 
     def test_preprune_edges_by_timespan(self):
-        g = EnronUtil.preprune_edges_by_timespan(self.g, 1.0)
+        g = InteractionsUtil.preprune_edges_by_timespan(self.g, 1.0)
         expected_edges = sorted([
             ('1.B', '2'), ('1.C', '2'), ('1.D', '2')
         ])
