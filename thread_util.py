@@ -46,6 +46,7 @@ def add_recipients_to_islamic_dataset(path):
         'MemberID': KEY_SENDER_ID,
         'P_Date': KEY_DATETIME,
         'MessageID': 'message_id',
+        'ThreadName': 'subject',
         'Message': 'body',
         'MemberName': 'sender_name',
     },
