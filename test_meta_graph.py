@@ -3,7 +3,8 @@ import scipy
 from nose.tools import assert_equal
 
 from .meta_graph import convert_to_meta_graph, convert_to_original_graph
-from .interactions import InteractionsUtil
+from .interactions import InteractionsUtil as IU, \
+    clean_decom_unzip, clean_unzip
 
 from .test_util import load_meta_graph_necessities
 
@@ -20,11 +21,18 @@ def get_example():
     return interactions
 
 
+def test_meta_graph_with_prepruning():
+    interactions = get_example()
+    node_names, sources, targets, time_stamps = clean_unzip(interactions)
+    graph = convert_to_meta_graph(node_names, sources, targets, time_stamps,
+                                  preprune_secs=0)
+    assert_equal(0, len(graph.edges()))
+
+
 def test_meta_graph_with_decomposition():
     interactions = get_example()
-    node_names, sources, targets, time_stamps = InteractionsUtil.unzip_interactions(
-        InteractionsUtil.decompose_interactions(interactions)
-    )
+    node_names, sources, targets, time_stamps = clean_decom_unzip(
+        interactions)
     graph = convert_to_meta_graph(node_names, sources, targets, time_stamps)
 
     expected_edges = sorted([('1.B', '2'), ('1.C', '2'), ('1.D', '2'),
@@ -35,9 +43,7 @@ def test_meta_graph_with_decomposition():
 
 def test_meta_graph_without_decomposition():
     interactions = get_example()
-    node_names, sources, targets, time_stamps = InteractionsUtil.unzip_interactions(
-        interactions
-    )
+    node_names, sources, targets, time_stamps = clean_unzip(interactions)
     graph = convert_to_meta_graph(node_names, sources, targets, time_stamps)
 
     expected_edges = sorted([(1, 2), (1, 4),
@@ -60,10 +66,10 @@ def test_meta_graph_1():
 
 def test_convert_to_original_graph():
     lda_model, dictionary, interactions = load_meta_graph_necessities()
-    g = InteractionsUtil.get_topic_meta_graph(interactions,
-                                              lda_model,
-                                              dictionary,
-                                              dist_func=scipy.stats.entropy)
+    g = IU.get_topic_meta_graph(interactions,
+                                lda_model,
+                                dictionary,
+                                dist_func=scipy.stats.entropy)
     og = convert_to_original_graph(g)
     expected = [('A', 'B'), ('A', 'C'), ('A', 'D'),
                 ('A', 'F'), ('D', 'E'), ('D', 'F')]

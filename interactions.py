@@ -2,16 +2,24 @@ import os
 import re
 import nltk
 import copy
+import logging
+import time
 
 import numpy as np
 import networkx as nx
 
-from datetime import datetime
-from util import load_items_by_line
+from memory_profiler import profile
+
+from util import load_items_by_line, get_datetime, compose
 
 from meta_graph import convert_to_meta_graph
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
+
+logging.basicConfig(format="%(asctime)s;%(levelname)s;%(message)s",
+                    datefmt="%Y-%m-%d %H:%M:%S")
+logger = logging.getLogger("InteractionsUtil")
+logger.setLevel(logging.DEBUG)
 
 
 class InteractionsUtil(object):
@@ -28,16 +36,33 @@ class InteractionsUtil(object):
     
     stoplist = load_items_by_line(os.path.join(CURDIR, 'lemur-stopwords.txt'))
     valid_token_regexp = re.compile('^[a-z]+$')
-    
+
     @classmethod
     def clean_interactions(self, interactions):
         """Some cleaning. Functional
         """
-        new_interactions = copy.deepcopy(interactions)
-        for i in new_interactions:
+        new_interactions = []
+        for i in interactions:
+            i = copy.deepcopy(i)
             # remove duplicate recipients
             i['recipient_ids'] = list(set(i['recipient_ids']))
-            assert 'datetime' in i
+            
+            # normalize datetime and timestamp
+            try:
+                i['datetime'] = get_datetime(i['datetime'])
+            except TypeError:
+                logger.warn(
+                    'Error parsing datetime, {} of type {}'.format(
+                        i['datetime'],
+                        type(i['datetime'])
+                    )
+                )
+                continue
+            i['timestamp'] = time.mktime(
+                i['datetime'].timetuple()
+            )
+             
+            new_interactions.append(i)
         return new_interactions
 
     @classmethod
@@ -86,12 +111,13 @@ class InteractionsUtil(object):
         interaction_names = [i['message_id'] for i in interactions]
         sources = [i['sender_id'] for i in interactions]
         targets = [i['recipient_ids'] for i in interactions]
-        time_stamps = [i['datetime'] for i in interactions]
+        time_stamps = [i['timestamp'] for i in interactions]
 
         return (interaction_names, sources, targets, time_stamps)
 
     @classmethod
     def get_meta_graph(cls, interactions,
+                       preprune_secs=None,
                        decompose_interactions=True,
                        remove_singleton=True):
         """
@@ -110,7 +136,8 @@ class InteractionsUtil(object):
                 interactions
             )
 
-        g = convert_to_meta_graph(*cls.unzip_interactions(interactions))
+        g = convert_to_meta_graph(*cls.unzip_interactions(interactions),
+                                  preprune_secs=preprune_secs)
         for i in interactions:
             n = i['message_id']
             if decompose_interactions:
@@ -120,9 +147,9 @@ class InteractionsUtil(object):
 
             g.node[n]['body'] = i['body']
             g.node[n]['subject'] = i['subject']
-            
-            g.node[n]['timestamp'] = i['datetime']
-            g.node[n]['datetime'] = datetime.fromtimestamp(i['datetime'])
+                    
+            g.node[n]['datetime'] = i['datetime']
+            g.node[n]['timestamp'] = i['timestamp']
 
             g.node[n][cls.VERTEX_REWARD_KEY] = 1
 
@@ -154,9 +181,8 @@ class InteractionsUtil(object):
         nodes = g.nodes()
         N = len(nodes)
         for i, n in enumerate(nodes):
-            if debug:
-                if i % 100 == 0:
-                    print('{} / {}'.format(i, N))
+            if i % 100 == 0:
+                logger.debug('{} / {}'.format(i, N))
             doc = u'{} {}'.format(g.node[n]['subject'], g.node[n]['body'])
             bow = dictionary.doc2bow(cls.tokenize_document(doc))
             topic_dist = lda_model.get_document_topics(
@@ -207,9 +233,8 @@ class InteractionsUtil(object):
         edges = g.edges()
         N = len(edges)
         for i, (s, t) in enumerate(edges):
-            if debug:
-                if i % 10000 == 0:
-                    print('{}/{}'.format(i, N))
+            if i % 10000 == 0:
+                logger.debug('{}/{}'.format(i, N))
             if cls.EDGE_COST_KEY not in g[s][t]:
                 g[s][t][cls.EDGE_COST_KEY] = dist_func(
                     g.node[s]['topics'],
@@ -224,13 +249,12 @@ class InteractionsUtil(object):
                              preprune_secs=None,
                              decompose_interactions=True,
                              debug=False):
-        if debug:
-            print('get_meta_graph')
+        logger.debug('getting meta graph...')
         mg = cls.get_meta_graph(interactions,
-                                decompose_interactions=decompose_interactions)
+                                decompose_interactions=decompose_interactions,
+                                preprune_secs=preprune_secs)
 
-        if debug:
-            print('add topics')
+        logger.debug('adding topics...')
         tmg = cls.add_topics_to_graph(
             mg,
             lda_model,
@@ -238,18 +262,7 @@ class InteractionsUtil(object):
             debug
         )
 
-        if isinstance(preprune_secs, int) or isinstance(preprune_secs, float):
-            if debug:
-                print("preprune_by_secs enabled..")
-                print('before pruning: #edges:{}'.format(len(tmg.edges())))
-            
-            tmg = cls.preprune_edges_by_timespan(tmg, preprune_secs)
-
-            if debug:
-                print('after pruning: #edges:{}'.format(len(tmg.edges())))
-
-        if debug:
-            print('assign_edge_weights')
+        logger.debug('assiging _edge weights')
         return cls.assign_edge_weights(tmg,
                                        dist_func,
                                        debug)
@@ -279,7 +292,7 @@ class InteractionsUtil(object):
                 
     @classmethod
     def preprune_edges_by_timespan(cls, g, secs):
-        """for each node, prune its connecting nodes
+        """for each node, prune its children nodes
         that are temporally far away from it
         """
         g = g.copy()
@@ -288,6 +301,15 @@ class InteractionsUtil(object):
             for nb in nbrs:
                 if g.node[nb]['timestamp'] - g.node[n]['timestamp'] > secs:
                     g.remove_edge(n, nb)
-
         return g
-                
+
+clean_decom_unzip = compose(
+    InteractionsUtil.clean_interactions,
+    InteractionsUtil.decompose_interactions,
+    InteractionsUtil.unzip_interactions
+)
+
+clean_unzip = compose(
+    InteractionsUtil.clean_interactions,
+    InteractionsUtil.unzip_interactions
+)
