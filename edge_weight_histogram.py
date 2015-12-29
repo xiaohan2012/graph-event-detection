@@ -1,14 +1,16 @@
 import matplotlib as mpl
 mpl.use('Agg')
 
+import sys
 import numpy as np
 import cPickle as pkl
 import matplotlib.pyplot as plt
+from datetime import timedelta
 
 from experiment_util import experiment_signature
 from meta_graph_stat import MetaGraphStat
 
-DIST_FUNC = "cosine"
+DIST_FUNC = "euclidean"
 
 STAT_KWS = {
     'temporal_traffic': False,
@@ -16,7 +18,7 @@ STAT_KWS = {
     'email_content': False,
     'participants': False,
     'edge_costs': {
-        'max_values': [1.0, 0.1, 1e-2, 1e-4, 1e-5, 1e-13, 1e-14, 1e-12]
+        'max_values': [1.0, 0.1, 1e-2, 1e-4, 1e-5, 1e-13]
     }
 }
 
@@ -24,9 +26,12 @@ STAT_KWS = {
 def get_summary(g):
     return MetaGraphStat(g, STAT_KWS).summary_dict()
 
-sig = experiment_signature(decompose_interactions=False, dist_func=DIST_FUNC)
-enron_pickle_path = "data/enron--{}.pkl".format(sig)
+# sig = experiment_signature(decompose_interactions=False,
+#                            dist_func=DIST_FUNC,
+#                            preprune_secs=timedelta(weeks=4))
+# enron_pickle_path = "data/enron--{}.pkl".format(sig)
 
+enron_pickle_path, output_path = sys.argv[1:]
 
 g = pkl.load(open(enron_pickle_path))
 
@@ -52,4 +57,5 @@ for i, (name, hist_data) in enumerate(sorted(hists.items())):
 
 fig.subplots_adjust(bottom=0.15)
 
-fig.savefig('figures/hist-{}.png'.format(sig))
+# fig.savefig('figures/hist-{}.png'.format(sig))
+fig.savefig(output_path)

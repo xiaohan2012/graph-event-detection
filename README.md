@@ -284,3 +284,4 @@ Day 2:
   - 20 mins to build meta-graph
   - 5 mins to pickle the result
   - ~700M for the meta graph pickkle
+- `filter_dag_given_root` is slow and memory-inefficient
