@@ -4,12 +4,14 @@ import networkx as nt
 
 from collections import defaultdict
 from memory_profiler import profile
+from itertools import izip
 
 import logging
+logging.basicConfig(format="%(asctime)s;%(levelname)s;%(message)s",
+                    datefmt="%Y-%m-%d %H:%M:%S")
 logger = logging.getLogger("convert_to_meta_graph")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
-@profile
 def convert_to_meta_graph(interaction_names, sources,
                           targets, time_stamps,
                           preprune_secs=None):
@@ -22,7 +24,7 @@ def convert_to_meta_graph(interaction_names, sources,
     according to time_stamps
     """
     if isinstance(preprune_secs, int) or isinstance(preprune_secs, float):
-        logger.debug("preprune_by_secs enabled..")
+        logger.info("preprune_by_secs {} enabled..".format(preprune_secs))
     else:
         if preprune_secs is not None:
             raise TypeError(
@@ -40,14 +42,17 @@ def convert_to_meta_graph(interaction_names, sources,
     # s is associated with a list of interactions that take it as source
     s2i = defaultdict(set)
 
-    for i, s, time in zip(interaction_names, sources, time_stamps):
+    for row_n, (i, s, time) in enumerate(izip(interaction_names, sources, time_stamps)):
         if (i, time) in s2i[s]:
             logger.warning("{} added already".format((i, time)))
         else:
             s2i[s].add((i, time))
 
-    for i1, s, ts, time1 in zip(
-            interaction_names, sources, targets, time_stamps):
+    for row_n, (i1, s, ts, time1) in enumerate(izip(
+            interaction_names, sources, targets, time_stamps)):
+        if row_n % 5000 == 0:
+            logger.debug("building: {} / {}".format(row_n, len(interaction_names)))
+
         # remove entries of i1 in s2i
         s2i[s].remove((i1, time1))
 

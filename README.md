@@ -274,3 +274,13 @@ Day 1:
   - to json for `gen_cand_trees`
   - ready to get meta graphs
 
+Day 2:
+
+- `gen_candidate_trees` cmd tool improvement
+- trying to get `meta graph` of islamic data(12k nodes, 1000k egdes)
+  - space optimization by prepruning in `get_meta_graph`
+  - datetime and timestamp normalization before all things starts
+- some stats when constructing meta graph:
+  - 20 mins to build meta-graph
+  - 5 mins to pickle the result
+  - ~700M for the meta graph pickkle

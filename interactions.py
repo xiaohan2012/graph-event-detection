@@ -42,7 +42,10 @@ class InteractionsUtil(object):
         """Some cleaning. Functional
         """
         new_interactions = []
-        for i in interactions:
+        for row_n, i in enumerate(interactions):
+            if row_n % 5000 == 0:
+                logger.debug("cleaning: {} / {}".format(row_n, len(interactions)))
+
             i = copy.deepcopy(i)
             # remove duplicate recipients
             i['recipient_ids'] = list(set(i['recipient_ids']))
@@ -126,12 +129,14 @@ class InteractionsUtil(object):
         Decompose interactions if necessary
         """
         if decompose_interactions:
+            logger.info("decomposing and cleaning interactions...")
             interactions = cls.decompose_interactions(
                 cls.clean_interactions(
                     interactions
                 )
             )
         else:
+            logger.info("cleaning interactions...")
             interactions = cls.clean_interactions(
                 interactions
             )
@@ -182,7 +187,7 @@ class InteractionsUtil(object):
         N = len(nodes)
         for i, n in enumerate(nodes):
             if i % 100 == 0:
-                logger.debug('{} / {}'.format(i, N))
+                logger.debug('adding topics: {} / {}'.format(i, N))
             doc = u'{} {}'.format(g.node[n]['subject'], g.node[n]['body'])
             bow = dictionary.doc2bow(cls.tokenize_document(doc))
             topic_dist = lda_model.get_document_topics(
@@ -228,13 +233,13 @@ class InteractionsUtil(object):
     @classmethod
     def assign_edge_weights(cls, g, dist_func, debug=False):
         """
-        # TODO: same edge can calculated multiple times due to decomposition
+        TODO: can be parallelized
         """
         edges = g.edges()
         N = len(edges)
         for i, (s, t) in enumerate(edges):
             if i % 10000 == 0:
-                logger.debug('{}/{}'.format(i, N))
+                logger.debug('adding edge cost: {}/{}'.format(i, N))
             if cls.EDGE_COST_KEY not in g[s][t]:
                 g[s][t][cls.EDGE_COST_KEY] = dist_func(
                     g.node[s]['topics'],
