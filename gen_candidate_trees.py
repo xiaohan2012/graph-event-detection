@@ -36,7 +36,7 @@ def run(gen_tree_func,
         meta_graph_kws={
             'dist_func': entropy,
             'decompose_interactions': True,
-            'preprune_secs': timedelta(weeks=4),
+            'preprune_secs': timedelta(weeks=4)
         },
         gen_tree_kws={
             'timespan': timedelta(weeks=4),
@@ -75,6 +75,9 @@ def run(gen_tree_func,
 
     if calculate_graph:
         logger.info('calculating meta_graph...')
+        import copy
+        meta_graph_kws = copy.deepcopy(meta_graph_kws)
+        meta_graph_kws['preprune_secs'] = meta_graph_kws['preprune_secs'].total_seconds()
         g = IU.get_topic_meta_graph(
             interactions,
             lda_model, dictionary,

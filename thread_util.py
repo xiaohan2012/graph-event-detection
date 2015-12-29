@@ -67,8 +67,8 @@ def collect_user_information(df,
 
     
 def main():
-    df = add_recipients_to_islamic_dataset('~/Downloads/IslamicAwakening.txt')
-    df.to_json('data/islamic/interactions.json', orient="records")
+    df = add_recipients_to_islamic_dataset('tmp/islamic-head-1000.txt')
+    df.to_json('tmp/islamic-head-1000.json', orient="records")
 
     user_info = collect_user_information(df,
                                          id_field='sender_id',

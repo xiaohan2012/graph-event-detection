@@ -7,7 +7,7 @@ from datetime import datetime
 
 from nose.tools import assert_equal, assert_true, assert_almost_equal
 from .util import load_json_by_line
-from .interactions import InteractionsUtil
+from .interactions import InteractionsUtil as IU
 from .meta_graph_stat import MetaGraphStat
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
@@ -24,7 +24,7 @@ class MetaGraphStatTest(unittest.TestCase):
             os.path.join(CURDIR,
                          'test/data/test_dictionary.gsm')
         )
-        self.interactions = InteractionsUtil.clean_interactions(
+        self.interactions = IU.clean_interactions(
             json.load(
                 open(os.path.join(CURDIR, 'test/data/enron_test.json'))
             )
@@ -34,9 +34,9 @@ class MetaGraphStatTest(unittest.TestCase):
             os.path.join(CURDIR, 'test/data/people.json')
         )
 
-        self.g = InteractionsUtil.get_meta_graph(self.interactions,
-                                          remove_singleton=True)
-        
+        self.g = IU.get_meta_graph(self.interactions,
+                                   remove_singleton=True)
+
         # some pseudo cost
         for s, t in self.g.edges():
             self.g[s][t]['c'] = 1

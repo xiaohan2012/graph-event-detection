@@ -3,13 +3,16 @@
 import networkx as nt
 
 from collections import defaultdict
+from memory_profiler import profile
 
 import logging
 logger = logging.getLogger("convert_to_meta_graph")
 logger.setLevel(logging.INFO)
 
-
-def convert_to_meta_graph(interaction_names, sources, targets, time_stamps):
+@profile
+def convert_to_meta_graph(interaction_names, sources,
+                          targets, time_stamps,
+                          preprune_secs=None):
     """
     sources: list of source node id for each interaction
     targets: list of target node ids for each interaction
@@ -18,6 +21,16 @@ def convert_to_meta_graph(interaction_names, sources, targets, time_stamps):
     All four fields shall be sorted from earliest to lastest
     according to time_stamps
     """
+    if isinstance(preprune_secs, int) or isinstance(preprune_secs, float):
+        logger.debug("preprune_by_secs enabled..")
+    else:
+        if preprune_secs is not None:
+            raise TypeError(
+                'preprune_secs should be int or float, is {}'.format(
+                    type(preprune_secs)
+                )
+            )
+
     assert len(interaction_names) == len(sources) == len(targets) == len(time_stamps), \
         "{},{},{},{}".format(len(interaction_names), len(sources), len(targets), len(time_stamps))
     g = nt.DiGraph()
@@ -45,12 +58,16 @@ def convert_to_meta_graph(interaction_names, sources, targets, time_stamps):
         # broadcast pattern
         for i2, time2 in s2i[s]:
             if time1 < time2:
-                g.add_edge(i1, i2)
+                if (preprune_secs is None or
+                    time2 - time1 <= preprune_secs):
+                    g.add_edge(i1, i2)
         # relay pattern
         for t in ts:
             for i2, time2 in s2i[t]:
                 if time1 < time2:
-                    g.add_edge(i1, i2)
+                    if (preprune_secs is None or
+                        time2 - time1 <= preprune_secs):
+                        g.add_edge(i1, i2)
     return g
     
 

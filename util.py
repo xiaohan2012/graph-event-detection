@@ -1,5 +1,6 @@
 import codecs
 import ujson as json
+from datetime import datetime
 
 
 def load_items_by_line(path):
@@ -46,6 +47,30 @@ def to_d3_graph(g):
     return data
 
 
+def get_datetime(obj):
+    if isinstance(obj, datetime):
+        return obj
+    elif isinstance(obj, float) or isinstance(obj, int):
+        return datetime.fromtimestamp(obj)
+    elif isinstance(obj, basestring):
+        patterns = ['%Y-%m-%d %X.%f', '%Y-%m-%d %X']
+        ok = False
+        for p in patterns:
+            try:
+                dt = datetime.strptime(
+                    obj, p
+                )
+                ok = True
+            except ValueError:
+                continue
+        if ok:
+            return dt
+        else:
+            raise ValueError('Bad datetime format for {}'.format(patterns))
+    else:
+        raise TypeError('Unacceptable type {}, {}'.format(type(obj), obj))
+
+
 def main():
     import ujson as json
     with open('html/data/id2interaction.json', 'w') as f:
@@ -53,6 +78,14 @@ def main():
 
     with open('html/data/id2people.json', 'w') as f:
         json.dump(load_peopleid2people_dict('data/people.json'), f)
+
+
+def compose(*functions):
+    def inner(arg):
+        for f in functions:
+            arg = f(arg)
+        return arg
+    return inner
 
 if __name__ == '__main__':
     main()

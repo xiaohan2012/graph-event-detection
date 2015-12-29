@@ -3,9 +3,10 @@ import gensim
 import ujson as json
 import glob
 import networkx as nx
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_true, assert_raises
+from datetime import datetime
 
-from .util import to_d3_graph
+from .util import to_d3_graph, get_datetime
 
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
@@ -59,3 +60,19 @@ def test_to_d3_graph():
             ]),
         sorted(d3_g['edges'])
     )
+
+
+def test_get_datetime():
+    data = [994832962,
+            '2004-04-28 00:00:00.000',
+            '2004-04-28 00:00:00',
+            datetime.fromtimestamp(994832962)]
+    for d in data:
+        assert_true(
+            isinstance(get_datetime(d),
+                       datetime)
+        )
+
+    assert_raises(TypeError, get_datetime, dict())
+    assert_raises(ValueError, get_datetime, 'bad formatsadfasfd')
+

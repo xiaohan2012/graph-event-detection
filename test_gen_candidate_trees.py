@@ -97,26 +97,26 @@ class GenCandidateTreeTest(unittest.TestCase):
         return trees
 
     def test_if_sender_and_recipient_information_saved(self):
-        trees = self.check('lst', self.lst, 2)
+        trees = self.check('lst', self.lst, 5)
         for t in trees:
             for n in t.nodes():
                 assert_true('sender_id' in t.node[n])
                 assert_true('recipient_ids' in t.node[n])
         
     def test_greedy_grow(self):
-        self.check('greedy', greedy_grow, 2)
+        self.check('greedy', greedy_grow, 5)
 
     def test_random_grow(self):
-        self.check('random', random_grow, 2)
+        self.check('random', random_grow, 5)
 
     def test_lst_dag(self):
-        self.check('lst', self.lst, 2)
+        self.check('lst', self.lst, 5)
 
     def test_lst_dag_after_dijkstra(self):
-        trees = self.check('lst', self.lst, 2)
+        trees = self.check('lst', self.lst, 5)
 
         self.some_kws_of_run['gen_tree_kws']['dijkstra'] = True
-        trees_with_dij = self.check('lst', self.lst, 3)
+        trees_with_dij = self.check('lst', self.lst, 4)
 
         for t, t_dij in zip(trees, trees_with_dij):
             assert_true(sorted(t.edges()) != sorted(t_dij))

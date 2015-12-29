@@ -9,7 +9,8 @@ import ujson as json
 from datetime import datetime, timedelta
 from nose.tools import assert_equal, assert_true, assert_almost_equal
 
-from .interactions import InteractionsUtil
+from .interactions import InteractionsUtil as IU,\
+    clean_decom_unzip, clean_unzip
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -26,19 +27,23 @@ class InteractionsUtilTest(unittest.TestCase):
             open(os.path.join(CURDIR,
                               'test/data/enron_test.json')))
         
-        self.g = InteractionsUtil.get_meta_graph(
+        self.g = IU.get_meta_graph(
             self.interactions,
             decompose_interactions=True)
 
     def test_clean_interactions(self):
         assert_equal(self.interactions[3]['recipient_ids'], ["B", "B"])
-        cleaned_interactions = InteractionsUtil.clean_interactions(
+        cleaned_interactions = IU.clean_interactions(
             self.interactions
         )
         assert_equal(cleaned_interactions[3]['recipient_ids'], ["B"])
+        assert_true(isinstance(cleaned_interactions[3]['datetime'],
+                               datetime))
+        assert_true(isinstance(cleaned_interactions[1]['timestamp'],
+                               float))
 
     def test_get_meta_graph_without_decomposition(self):
-        g = InteractionsUtil.get_meta_graph(
+        g = IU.get_meta_graph(
             self.interactions,
             decompose_interactions=False
         )
@@ -46,7 +51,10 @@ class InteractionsUtilTest(unittest.TestCase):
                              (2, 4), (1, 5), (3, 5)]),
                      sorted(g.edges()))
         assert_equal(5, len(g.nodes()))
-                
+        for n in g.nodes():
+            assert_true(isinstance(g.node[n]['datetime'], datetime))
+            assert_true(isinstance(g.node[n]['timestamp'], float))
+            
     def test_get_meta_graph(self):
         assert_equal(sorted([('1.B', '2'), ('1.C', '2'), ('1.D', '2'),
                              ('1.B', '4'), ('1.C', '4'), ('1.D', '4'),
@@ -57,7 +65,7 @@ class InteractionsUtilTest(unittest.TestCase):
         
         for n in self.g.nodes():
             assert_equal(1,
-                         self.g.node[n][InteractionsUtil.VERTEX_REWARD_KEY])
+                         self.g.node[n][IU.VERTEX_REWARD_KEY])
         
         assert_equal(self.g.node['1.B']['body'], 'b1')
         assert_equal(self.g.node['1.B']['message_id'], 1)
@@ -76,7 +84,7 @@ class InteractionsUtilTest(unittest.TestCase):
                      datetime.fromtimestamp(989587577))
         
     def _get_topical_graph(self):
-        return InteractionsUtil.add_topics_to_graph(self.g,
+        return IU.add_topics_to_graph(self.g,
                                                     self.lda_model,
                                                     self.dictionary)
 
@@ -102,7 +110,7 @@ class InteractionsUtilTest(unittest.TestCase):
         ]
         for max_time_diff, expected_edges in \
             zip(max_time_diffs, expected_edges_list):
-            sub_g = InteractionsUtil.filter_dag_given_root(
+            sub_g = IU.filter_dag_given_root(
                 self.g, r,
                 lambda n:
                 self.g.node[n]['timestamp'] - self.g.node[r]['timestamp'] <= max_time_diff,
@@ -132,7 +140,7 @@ class InteractionsUtilTest(unittest.TestCase):
             assert_equal(
                 sorted(expected_edges),
                 sorted(
-                    InteractionsUtil.get_rooted_subgraph_within_timespan(
+                    IU.get_rooted_subgraph_within_timespan(
                         self.g, '1.D', time_delta.total_seconds()
                     ).edges()
                 )
@@ -140,24 +148,24 @@ class InteractionsUtilTest(unittest.TestCase):
         
     def test_assign_edge_weight(self):
         g = self._get_topical_graph()
-        g = InteractionsUtil.assign_edge_weights(g, scipy.stats.entropy)
+        g = IU.assign_edge_weights(g, scipy.stats.entropy)
         
         for s, t in g.edges():
             numpy.testing.assert_array_almost_equal(
                 scipy.stats.entropy(g.node[s]['topics'], g.node[t]['topics']),
-                g[s][t][InteractionsUtil.EDGE_COST_KEY]
+                g[s][t][IU.EDGE_COST_KEY]
             )
         # 5 is quite different from the rest
-        assert_true(g['1.D']['5'][InteractionsUtil.EDGE_COST_KEY] >
-                    g['1.D']['3'][InteractionsUtil.EDGE_COST_KEY])
+        assert_true(g['1.D']['5'][IU.EDGE_COST_KEY] >
+                    g['1.D']['3'][IU.EDGE_COST_KEY])
 
         # the rest are almost equal to each other
-        numpy.testing.assert_almost_equal(g['1.D']['4'][InteractionsUtil.EDGE_COST_KEY],
-                                          g['2']['4'][InteractionsUtil.EDGE_COST_KEY])
+        numpy.testing.assert_almost_equal(g['1.D']['4'][IU.EDGE_COST_KEY],
+                                          g['2']['4'][IU.EDGE_COST_KEY])
 
     def test_decompose_interactions(self):
-        d_interactions = InteractionsUtil.decompose_interactions(
-            InteractionsUtil.clean_interactions(
+        d_interactions = IU.decompose_interactions(
+            IU.clean_interactions(
                 self.interactions
             )
         )
@@ -195,11 +203,7 @@ class InteractionsUtilTest(unittest.TestCase):
         (interaction_names,
          sources,
          targets,
-         time_stamps) = InteractionsUtil.unzip_interactions(
-             InteractionsUtil.clean_interactions(
-                 self.interactions
-             )
-         )
+         time_stamps) = clean_unzip(self.interactions)
 
         assert_equal(range(1, 7),
                      interaction_names)
@@ -209,18 +213,19 @@ class InteractionsUtilTest(unittest.TestCase):
                         targets):
             assert_equal(sorted(e), sorted(a))
         assert_equal([989587576, 989587577, 989587578, 989587579,
-                      989587580, 989587581],
+                          989587580, 989587581],
                      time_stamps)
 
     def test_get_topic_meta_graph(self):
-        g = InteractionsUtil.get_topic_meta_graph(self.interactions,
-                                           self.lda_model,
-                                           self.dictionary,
-                                           dist_func=scipy.stats.entropy,
-                                           preprune_secs=None)
+        g = IU.get_topic_meta_graph(
+            self.interactions,
+            self.lda_model,
+            self.dictionary,
+            dist_func=scipy.stats.entropy,
+            preprune_secs=None)
         
         assert_true(
-            g['1.D']['5'][InteractionsUtil.EDGE_COST_KEY] >= 0.8
+            g['1.D']['5'][IU.EDGE_COST_KEY] >= 0.8
         )
         assert_equal(7, len(g.nodes()))
         assert_equal(sorted([('1.B', '2'), ('1.C', '2'), ('1.D', '2'),
@@ -230,15 +235,15 @@ class InteractionsUtilTest(unittest.TestCase):
                      sorted(g.edges()))
 
     def test_get_topic_meta_graph_without_decomposition(self):
-        g = InteractionsUtil.get_topic_meta_graph(self.interactions,
-                                           self.lda_model,
-                                           self.dictionary,
-                                           dist_func=scipy.stats.entropy,
-                                           decompose_interactions=False,
-                                           preprune_secs=None)
+        g = IU.get_topic_meta_graph(self.interactions,
+                                    self.lda_model,
+                                    self.dictionary,
+                                    dist_func=scipy.stats.entropy,
+                                    decompose_interactions=False,
+                                    preprune_secs=None)
         
         assert_true(
-            g[1][5][InteractionsUtil.EDGE_COST_KEY] >= 0.8
+            g[1][5][IU.EDGE_COST_KEY] >= 0.8
         )
         assert_equal(5, len(g.nodes()))
         assert_equal(sorted([(1, 2), (1, 4), (1, 3),
@@ -246,28 +251,27 @@ class InteractionsUtilTest(unittest.TestCase):
                      sorted(g.edges()))
 
     def test_get_topic_meta_graph_with_prepruning(self):
-        g = InteractionsUtil.get_topic_meta_graph(self.interactions,
-                                           self.lda_model,
-                                           self.dictionary,
-                                           dist_func=scipy.stats.entropy,
-                                           preprune_secs=1.0)
+        g = IU.get_topic_meta_graph(self.interactions,
+                                    self.lda_model,
+                                    self.dictionary,
+                                    dist_func=scipy.stats.entropy,
+                                    preprune_secs=1.0)
         
         assert_almost_equal(
-            g['1.D']['2'][InteractionsUtil.EDGE_COST_KEY],
+            g['1.D']['2'][IU.EDGE_COST_KEY],
             0
         )
-        assert_equal(7, len(g.nodes()))
         assert_equal(sorted([('1.B', '2'), ('1.C', '2'), ('1.D', '2')]),
                      sorted(g.edges()))
 
     def test_compactize_meta_graph(self):
         # assure node topic vectors are deleted
-        g = InteractionsUtil.get_topic_meta_graph(self.interactions,
-                                           self.lda_model,
-                                           self.dictionary,
-                                           dist_func=scipy.stats.entropy)
+        g = IU.get_topic_meta_graph(self.interactions,
+                                    self.lda_model,
+                                    self.dictionary,
+                                    dist_func=scipy.stats.entropy)
         original_g = g.copy()
-        g, str2id = InteractionsUtil.compactize_meta_graph(g, map_nodes=True)
+        g, str2id = IU.compactize_meta_graph(g, map_nodes=True)
         
         for n in original_g.nodes():
             n = str2id[n]
@@ -285,22 +289,24 @@ class InteractionsUtilTest(unittest.TestCase):
 
         # structure + weight is the same
         for n in original_g.nodes():
-            assert_equal(original_g.node[n][InteractionsUtil.VERTEX_REWARD_KEY],
-                         g.node[str2id[n]][InteractionsUtil.VERTEX_REWARD_KEY])
+            assert_equal(original_g.node[n][IU.VERTEX_REWARD_KEY],
+                         g.node[str2id[n]][IU.VERTEX_REWARD_KEY])
 
         for s, t in original_g.edges():
             s1, t1 = str2id[s], str2id[t]
-            assert_equal(original_g[s][t][InteractionsUtil.EDGE_COST_KEY],
-                         g[s1][t1][InteractionsUtil.EDGE_COST_KEY])
+            assert_equal(original_g[s][t][IU.EDGE_COST_KEY],
+                         g[s1][t1][IU.EDGE_COST_KEY])
 
     def test_compactize_meta_graph_without_node_name_mapping(self):
                 # assure node topic vectors are deleted
-        g = InteractionsUtil.get_topic_meta_graph(self.interactions,
-                                           self.lda_model,
-                                           self.dictionary,
-                                           dist_func=scipy.stats.entropy)
+        g = IU.get_topic_meta_graph(
+            self.interactions,
+            self.lda_model,
+            self.dictionary,
+            dist_func=scipy.stats.entropy
+        )
         original_g = g.copy()
-        g = InteractionsUtil.compactize_meta_graph(g, map_nodes=False)
+        g = IU.compactize_meta_graph(g, map_nodes=False)
 
         for n in original_g.nodes():
             assert_true('topics' not in g.node[n])
@@ -313,7 +319,7 @@ class InteractionsUtilTest(unittest.TestCase):
             assert_true('recipient_ids' in g.node[n])
 
     def test_preprune_edges_by_timespan(self):
-        g = InteractionsUtil.preprune_edges_by_timespan(self.g, 1.0)
+        g = IU.preprune_edges_by_timespan(self.g, 1.0)
         expected_edges = sorted([
             ('1.B', '2'), ('1.C', '2'), ('1.D', '2')
         ])
