@@ -149,7 +149,7 @@ def round_edge_weights_by_multiplying(G,
                                       edge_weight_decimal_point,
                                       edge_cost_key='c',
                                       fixed_point_func=round):
-    G = G.copy()
+    # G = G.copy()
     multiplier = 10**edge_weight_decimal_point
     for s, t in G.edges():
         G[s][t][edge_cost_key] = int(
@@ -160,7 +160,7 @@ def round_edge_weights_by_multiplying(G,
     U = int(U * multiplier)
     return G, U
 
-
+@profile
 def lst_dag(G, r, U,
             node_reward_key='r',
             edge_cost_key='c',
@@ -180,7 +180,8 @@ def lst_dag(G, r, U,
     """
     # round edge weight to fixed decimal point if necessary
 
-    if edge_weight_decimal_point:
+    if edge_weight_decimal_point is not None:
+        G = G.copy()
         G, U = round_edge_weights_by_multiplying(
             G,
             U,
@@ -188,8 +189,6 @@ def lst_dag(G, r, U,
             edge_cost_key=edge_cost_key,
             fixed_point_func=fixed_point_func
         )
-
-    G = G.copy()
 
     if debug:
         print('U => {}'.format(U))
@@ -225,42 +224,42 @@ def lst_dag(G, r, U,
                     D[n][i] = D[child][i-w] | {n}
                     BP[n][i] = [(child, i-w)]
         elif len(children) > 1:
-            assert len(children) == 2, "{} != 2".format(len(children))
             lchild, rchild = children
             lw = G[n][lchild][edge_cost_key]
             rw = G[n][rchild][edge_cost_key]
 
-            for i in xrange(U, min(lw, rw) - 1, -1):
-                max_val = float('-inf')
-                max_nodes = None
-                prev = None
+            for i in A[lchild]:
+                c = lw + i
+                if debug:
+                    print('n={}, D={}, cost_child_tuples={}'.format(
+                        n, D, [(i, lchild)])
+                    )
+                    print('c={}'.format(c))
+                if c <= U:
+                    if A[n].get(c) is None or A[lchild][i] + reward > A[n][c]:
+                        A[n][c] = A[lchild][i] + reward
+                        D[n][c] = D[lchild][i] | {n}
+                        BP[n][c] = [(lchild, i)]
 
-                if i - lw >= 0 and (i - lw) in A[lchild]:
-                    max_val = A[lchild][i - lw] + reward
-                    max_nodes = D[lchild][i - lw] | {n}
-                    prev = [(lchild, i - lw)]
-                
-                if (i - rw >= 0
-                    and (i - rw) in A[rchild]
-                    and A[rchild][i - rw] + reward > max_val):
-                    max_val = A[rchild][i - rw] + reward
-                    max_nodes = D[rchild][i - rw] | {n}
-                    prev = [(rchild, i - rw)]
-
-                for j in xrange(i - lw - rw, -1, -1):
-                    if j in A[lchild] and (i-j-lw-rw) in A[rchild]:
-                        val = A[lchild][j] + A[rchild][i-j-lw-rw] + reward
-                        lset, rset = D[lchild][j], D[rchild][i-j-lw-rw]
-                        if val > max_val and len(lset & rset) == 0:
-                            max_val = val
-                            max_nodes = lset | rset | {n}
-                            prev = [(lchild, j), (rchild, i-j-lw-rw)]
-
-                if max_nodes != None:
-                    # we should have at least one *feasible* solution
-                    A[n][i] = max_val
-                    D[n][i] = max_nodes
-                    BP[n][i] = prev
+            for i in A[rchild]:
+                c = rw + i
+                if c <= U:
+                    if A[n].get(c) is None or A[rchild][i] + reward > A[n][c]:
+                        A[n][c] = A[rchild][i] + reward
+                        D[n][c] = D[rchild][i] | {n}
+                        BP[n][c] = [(rchild, i)]
+            
+            for i in A[lchild]:
+                for j in A[rchild]:
+                    c = lw + rw + i + j
+                    if c <= U:
+                        if (A[n].get(c) is None or
+                            A[lchild][i] + A[rchild][j] + reward > A[n][c]) and \
+                           len(D[lchild][i] & D[rchild][j]) == 0:
+                            A[n][c] = A[lchild][i] + A[rchild][j] + reward
+                            D[n][c] = D[lchild][i] | D[rchild][j] | {n}
+                            BP[n][c] = [(lchild, i), (rchild, j)]
+            
             # if n == r:  # no need to continue once we processed root
             #     break
                 

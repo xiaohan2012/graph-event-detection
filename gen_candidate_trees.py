@@ -25,7 +25,6 @@ logger.setLevel(logging.DEBUG)
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
 
-
 def run(gen_tree_func,
         interaction_json_path=os.path.join(CURDIR, 'data/enron.json'),
         lda_model_path=os.path.join(CURDIR, 'models/model-4-50.lda'),

@@ -23,7 +23,8 @@
 - [Python subprocess](https://docs.python.org/2/library/subprocess.html)
 - [datetime.strftime cheatsheet](http://strftime.org/)
 - [No such file or directory when subprocess](http://stackoverflow.com/questions/24306205/file-not-found-error-when-launching-a-subprocess)
-- [Python memory_profiler](http://www.huyng.com/posts/python-performance-analysis/)
+- [memory_profiler line by line](http://www.huyng.com/posts/python-performance-analysis/)
+- [time_profiler line by line](https://github.com/rkern/line_profiler)
 - [nosetest --nocapture](http://stackoverflow.com/questions/5975194/nosetests-is-capturing-the-output-of-my-print-statements-how-to-circumvent-this)
 
 ## Pandas
