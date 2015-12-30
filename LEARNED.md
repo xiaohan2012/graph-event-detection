@@ -26,6 +26,9 @@
 - [memory_profiler line by line](http://www.huyng.com/posts/python-performance-analysis/)
 - [time_profiler line by line](https://github.com/rkern/line_profiler)
 - [nosetest --nocapture](http://stackoverflow.com/questions/5975194/nosetests-is-capturing-the-output-of-my-print-statements-how-to-circumvent-this)
+- multiprocessing
+  - allows shared object event custom object
+  - can only pickle top level functions, classmethods not good, alternative, `pathos` 
 
 ## Pandas
 

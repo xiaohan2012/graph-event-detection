@@ -3,11 +3,15 @@ import gensim
 import cPickle as pickle
 import networkx as nx
 import ujson as json
+import copy
 import logging
 
 from datetime import timedelta
 from scipy.spatial.distance import euclidean, cosine
 from scipy.stats import entropy
+
+from pathos.multiprocessing import ProcessingPool as Pool
+from multiprocessing import Manager
 
 from dag_util import unbinarize_dag, binarize_dag, remove_edges_via_dijkstra
 from lst import lst_dag
@@ -25,13 +29,30 @@ logger.setLevel(logging.DEBUG)
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
 
+def get_summary(g):
+    return MetaGraphStat(
+        g, kws={
+            'temporal_traffic': {'time_resolution': 'month'},
+            'edge_costs': {'max_values': [1.0, 0.1]},
+            'topics': False,
+            'email_content': False
+        }
+    ).summary()
 
-def calc_tree(r, U,
+
+def calc_tree(node_i, r, U,
               gen_tree_func,
-              timespan, g, gen_tree_kws):
+              timespan, gen_tree_kws,
+              shared_dict,
+              print_summary):
+
+    # g is shared in memory
+    g = shared_dict['g']
     sub_g = IU.get_rooted_subgraph_within_timespan(
         g, r, timespan, debug=False
     )
+    logger.info('nodes procssed {}'.format(node_i))
+    logger.debug('getting rooted subgraph within timespan')
 
     if len(sub_g.edges()) == 0:
         logger.debug("empty rooted sub graph")
@@ -58,13 +79,22 @@ def calc_tree(r, U,
                                 IU.VERTEX_REWARD_KEY,
                                 IU.EDGE_COST_KEY,
                                 dummy_node_name_prefix="d_")
-    
+
     logger.debug('generating tree ')
 
     tree = gen_tree_func(binary_sub_g, r, U)
 
-    return unbinarize_dag(tree,
+    tree = unbinarize_dag(tree,
                           edge_weight_key=IU.EDGE_COST_KEY)
+
+    if len(tree.edges()) == 0:
+        logger.debug("empty event tree")
+        return None
+
+    if print_summary:
+        logger.debug('tree summary:\n{}'.format(get_summary(tree)))
+
+    return tree
 
 
 def run(gen_tree_func,
@@ -116,7 +146,6 @@ def run(gen_tree_func,
 
     if calculate_graph:
         logger.info('calculating meta_graph...')
-        import copy
         meta_graph_kws = copy.deepcopy(meta_graph_kws)
         meta_graph_kws['preprune_secs'] = meta_graph_kws['preprune_secs'].total_seconds()
         g = IU.get_topic_meta_graph(
@@ -136,40 +165,35 @@ def run(gen_tree_func,
         logger.info('loading pickle...')
         g = nx.read_gpickle(meta_graph_pkl_path)
         
-    def get_summary(g):
-        return MetaGraphStat(
-            g, kws={
-                'temporal_traffic': {'time_resolution': 'month'},
-                'edge_costs': {'max_values': [1.0, 0.1]},
-                'topics': False,
-                'email_content': False
-            }
-        ).summary()
-
     if print_summary:
         logger.debug(get_summary(g))
 
     roots = sample_nodes(g, cand_tree_number)
 
-    results = []
-
-    for ni, r in enumerate(roots):
-        logger.info('nodes procssed {}'.format(ni))
-        logger.debug('getting rooted subgraph within timespan')
-
-        tree = calc_tree(r, U, gen_tree_func, timespan, g, gen_tree_kws)
-        
-        if tree is None or len(tree.edges()) == 0:
-            logger.debug("empty tree")
-            continue
-
-        if print_summary:
-            logger.debug('tree summary:\n{}'.format(get_summary(tree)))
-
-        results.append(tree)
+    pool = Pool(4)
+    manager = Manager()
+    shared_dict = manager.dict([('g', g)])
+    
+    # params_of_task = ((i, r, U,
+    #                    gen_tree_func,
+    #                    timespan, gen_tree_kws,
+    #                    shared_dict,
+    #                    print_summary)
+    #                   for i, r in enumerate(roots))
+    from functools import partial
+    trees = pool.map(partial(calc_tree,
+                             U=U,
+                             gen_tree_func=gen_tree_func,
+                             timespan=timespan,
+                             gen_tree_kws=gen_tree_kws,
+                             shared_dict=shared_dict,
+                             print_summary=print_summary),
+                     xrange(len(roots)), roots)
+    
+    trees = filter(None, trees)  # remove Nones
 
     logger.info('result_pkl_path: {}'.format(result_pkl_path))
-    pickle.dump(results,
+    pickle.dump(trees,
                 open(result_pkl_path, 'w'),
                 protocol=pickle.HIGHEST_PROTOCOL)
 
