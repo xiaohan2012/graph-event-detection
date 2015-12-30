@@ -209,8 +209,15 @@ class InteractionsUtil(object):
         """
         dag = nx.DiGraph()
         stack = [(r, None)]  # current node and ancestor parent
+
+        # prevent re-push impossible nodes
+        # e.g: A, B, C -> bad_nodes
         black_node_set = set()
+
+        # prevent re-pushing pushed edges
+        # e.g: A, B, C, -> good_node -> C, E, F
         white_edge_set = set()
+
         while len(stack) > 0:
             node, parent = stack.pop()
             if filter_func(node) and (node, parent) not in white_edge_set:
