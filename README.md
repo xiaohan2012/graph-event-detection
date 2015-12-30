@@ -289,3 +289,5 @@ Day 2:
 Day 3:
 
 - `filter_dag_given_root` optimized
+- `lst_dag` optimized ~17% time reduction
+- parallelize tree calculation

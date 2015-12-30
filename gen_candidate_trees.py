@@ -172,14 +172,10 @@ def run(gen_tree_func,
 
     pool = Pool(4)
     manager = Manager()
+    logger.info('manager.dict ...')
     shared_dict = manager.dict([('g', g)])
-    
-    # params_of_task = ((i, r, U,
-    #                    gen_tree_func,
-    #                    timespan, gen_tree_kws,
-    #                    shared_dict,
-    #                    print_summary)
-    #                   for i, r in enumerate(roots))
+
+    logger.info('pool.map ...')
     from functools import partial
     trees = pool.map(partial(calc_tree,
                              U=U,
