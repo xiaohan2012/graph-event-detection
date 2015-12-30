@@ -6,6 +6,7 @@ import numpy
 import gensim
 import ujson as json
 
+from dag_util import binarize_dag
 from datetime import datetime, timedelta
 from nose.tools import assert_equal, assert_true, assert_almost_equal
 
@@ -29,7 +30,8 @@ class InteractionsUtilTest(unittest.TestCase):
         
         self.g = IU.get_meta_graph(
             self.interactions,
-            decompose_interactions=True)
+            decompose_interactions=True
+        )
 
     def test_clean_interactions(self):
         assert_equal(self.interactions[3]['recipient_ids'], ["B", "B"])
@@ -145,7 +147,22 @@ class InteractionsUtilTest(unittest.TestCase):
                     ).edges()
                 )
             )
-        
+
+    def _get_topic_graph_with_edge_cost(self):
+        g = self._get_topical_graph()
+        return IU.assign_edge_weights(g, scipy.stats.entropy)
+
+    def test_get_rooted_subgraph_within_timespan_with_binarization(self):
+        g = self._get_topic_graph_with_edge_cost()
+        sub_dag = IU.get_rooted_subgraph_within_timespan(
+            g, '1.D', 4
+        )
+        bin_dag = binarize_dag(sub_dag,
+                               IU.VERTEX_REWARD_KEY,
+                               IU.EDGE_COST_KEY,
+                               dummy_node_name_prefix="d_")
+        bin_dag
+
     def test_assign_edge_weight(self):
         g = self._get_topical_graph()
         g = IU.assign_edge_weights(g, scipy.stats.entropy)
@@ -319,6 +336,13 @@ class InteractionsUtilTest(unittest.TestCase):
             assert_true('recipient_ids' in g.node[n])
 
     def test_preprune_edges_by_timespan(self):
+        g = IU.preprune_edges_by_timespan(self.g, 1.0)
+        expected_edges = sorted([
+            ('1.B', '2'), ('1.C', '2'), ('1.D', '2')
+        ])
+        assert_equal(expected_edges, sorted(g.edges()))
+
+    def test_preprune_edges_by_timespan_on_binary_dag(self):
         g = IU.preprune_edges_by_timespan(self.g, 1.0)
         expected_edges = sorted([
             ('1.B', '2'), ('1.C', '2'), ('1.D', '2')

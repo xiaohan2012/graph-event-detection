@@ -186,7 +186,7 @@ class InteractionsUtil(object):
         nodes = g.nodes()
         N = len(nodes)
         for i, n in enumerate(nodes):
-            if i % 100 == 0:
+            if i % 1000 == 0:
                 logger.debug('adding topics: {} / {}'.format(i, N))
             doc = u'{} {}'.format(g.node[n]['subject'], g.node[n]['body'])
             bow = dictionary.doc2bow(cls.tokenize_document(doc))
@@ -207,17 +207,25 @@ class InteractionsUtil(object):
         Return:
         a DAG, sub_g of which all nodes in sub_g passes filter_func
         """
-        sub_g = g.copy()
-        
-        descendants_of_r = set(nx.descendants(g, r)) | {r}
-        
-        nodes_to_be_removed = [n for n in sub_g.nodes()
-                               if (not filter_func(n) or
-                                   n not in descendants_of_r)]
-        sub_g.remove_nodes_from(nodes_to_be_removed)
+        dag = nx.DiGraph()
+        stack = [(r, None)]  # current node and ancestor parent
+        black_node_set = set()
+        white_edge_set = set()
+        while len(stack) > 0:
+            node, parent = stack.pop()
+            if filter_func(node) and (node, parent) not in white_edge_set:
+                white_edge_set.add((node, parent))
 
-        return sub_g
-        
+                dag.add_node(node, g.node[node])
+                if parent is not None:  # not root
+                    dag.add_edge(parent, node, g[parent][node])
+                for child in g.neighbors(node):
+                    if child not in black_node_set:
+                        stack.append((child, node))
+            else:
+                black_node_set.add(node)
+        return dag
+
     @classmethod
     def get_rooted_subgraph_within_timespan(cls, g, r, secs, debug=False):
         """collect the subtrees, st, rooted at r that all nodes in st

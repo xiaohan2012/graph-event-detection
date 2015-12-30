@@ -161,7 +161,7 @@ def run(gen_tree_func,
 
         results.append(tree)
 
-    print('result_pkl_path:', result_pkl_path)
+    logger.info('result_pkl_path: {}'.format(result_pkl_path))
     pickle.dump(results,
                 open(result_pkl_path, 'w'),
                 protocol=pickle.HIGHEST_PROTOCOL)

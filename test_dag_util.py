@@ -32,7 +32,6 @@ def _get_example_dag():
 def test_binarize_dag():
     g = _get_example_dag()
     
-    # It should...
     binary_g = binarize_dag(g,
                             vertex_weight_key=InteractionsUtil.VERTEX_REWARD_KEY,
                             edge_weight_key=InteractionsUtil.EDGE_COST_KEY,
