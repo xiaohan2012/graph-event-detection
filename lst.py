@@ -149,7 +149,7 @@ def round_edge_weights_by_multiplying(G,
                                       edge_weight_decimal_point,
                                       edge_cost_key='c',
                                       fixed_point_func=round):
-    G = G.copy()
+    # G = G.copy()
     multiplier = 10**edge_weight_decimal_point
     for s, t in G.edges():
         G[s][t][edge_cost_key] = int(
@@ -160,7 +160,7 @@ def round_edge_weights_by_multiplying(G,
     U = int(U * multiplier)
     return G, U
 
-
+@profile
 def lst_dag(G, r, U,
             node_reward_key='r',
             edge_cost_key='c',
@@ -180,7 +180,8 @@ def lst_dag(G, r, U,
     """
     # round edge weight to fixed decimal point if necessary
 
-    if edge_weight_decimal_point:
+    if edge_weight_decimal_point is not None:
+        G = G.copy()
         G, U = round_edge_weights_by_multiplying(
             G,
             U,
@@ -188,8 +189,6 @@ def lst_dag(G, r, U,
             edge_cost_key=edge_cost_key,
             fixed_point_func=fixed_point_func
         )
-
-    G = G.copy()
 
     if debug:
         print('U => {}'.format(U))

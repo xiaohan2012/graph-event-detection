@@ -183,9 +183,10 @@ def get_example_6():
 class LstDagTestCase(unittest.TestCase):
 
     def run_case(self, example_data, **lst_kws):
-        g, U, expected_edge_list = example_data
+        original_g, U, expected_edge_list = example_data
         r = 1
         for u, expected in zip(U, expected_edge_list):
+            g = original_g.copy()
             actual = lst_dag(g, r, u, **lst_kws)
             assert_equal(sorted(expected),
                          sorted(actual.edges()))
@@ -203,7 +204,7 @@ class LstDagTestCase(unittest.TestCase):
         self.run_case(get_example_3())
 
     def test_lst_dag_exampl_2_using_floor(self):
-        g, U, _ = get_example_2()
+        original_g, U, _ = get_example_2()
         r = 1
         expected_edge_list = [
             [],
@@ -214,7 +215,7 @@ class LstDagTestCase(unittest.TestCase):
             [(1, 2), (1, 3), (2, 4)]
         ]
         for u, expected in zip(U, expected_edge_list):
-            print(u)
+            g = original_g.copy()
             actual = lst_dag(g, r, u,
                              fixed_point_func=math.floor,
                              edge_weight_decimal_point=2)
@@ -288,14 +289,14 @@ class LstDagGeneralTest(unittest.TestCase):
 
 
 def test_round_edge_weights_by_multiplying():
-    g, U, _ = get_example_4_float()
+    original_g, U, _ = get_example_4_float()
     U = U[0]
     funcs = [round, math.ceil, math.floor]
     for f in funcs:
+        g = original_g.copy()
         new_g, new_U = round_edge_weights_by_multiplying(
             g, U, 6, fixed_point_func=f
         )
         assert_equal(7, new_U)
         for s, t in new_g.edges():
-            assert_equal(1, new_g[s][t]['c'])
-        
+            assert_equal(1, new_g[s][t]['c'])        
