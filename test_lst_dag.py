@@ -92,10 +92,10 @@ def get_example_3():
     # parameters and expected output
     U = [0, 2, 3, 4, 100]
     expected_edges_set = [
-        [(1, 'd_1')],
+        [],
         [(1, 7)],
         [(1, 'd_1'), ('d_1', 3), (3, 9)],
-        [(1, 'd_1'), ('d_1', 3), (3, 9), ('d_1', 2), (2, 'd_2')],
+        [(1, 'd_1'), ('d_1', 3), (3, 9), ('d_1', 2)],
         # (1, 7) removed to make it a tree
         list(set(g.edges()) - set([(1, 7)]))
     ]
@@ -186,6 +186,7 @@ class LstDagTestCase(unittest.TestCase):
         original_g, U, expected_edge_list = example_data
         r = 1
         for u, expected in zip(U, expected_edge_list):
+            print(u)
             g = original_g.copy()
             actual = lst_dag(g, r, u, **lst_kws)
             assert_equal(sorted(expected),
