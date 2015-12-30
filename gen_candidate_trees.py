@@ -25,6 +25,48 @@ logger.setLevel(logging.DEBUG)
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
 
+
+def calc_tree(r, U,
+              gen_tree_func,
+              timespan, g, gen_tree_kws):
+    sub_g = IU.get_rooted_subgraph_within_timespan(
+        g, r, timespan, debug=False
+    )
+
+    if len(sub_g.edges()) == 0:
+        logger.debug("empty rooted sub graph")
+        return None
+
+    if gen_tree_kws.get('dijkstra'):
+        logger.debug('applying dijkstra')
+        sub_g = remove_edges_via_dijkstra(
+            sub_g,
+            source=r,
+            weight=IU.EDGE_COST_KEY
+        )
+
+    logger.debug('binarizing dag...')
+
+    def check_g_attrs(g):
+        logger.debug("checking sender id")
+        for n in g.nodes():
+            if isinstance(n, basestring) and not n.startswith('dummy'):
+                assert 'sender_id' in g.node[n]
+    check_g_attrs(sub_g)
+
+    binary_sub_g = binarize_dag(sub_g,
+                                IU.VERTEX_REWARD_KEY,
+                                IU.EDGE_COST_KEY,
+                                dummy_node_name_prefix="d_")
+    
+    logger.debug('generating tree ')
+
+    tree = gen_tree_func(binary_sub_g, r, U)
+
+    return unbinarize_dag(tree,
+                          edge_weight_key=IU.EDGE_COST_KEY)
+
+
 def run(gen_tree_func,
         interaction_json_path=os.path.join(CURDIR, 'data/enron.json'),
         lda_model_path=os.path.join(CURDIR, 'models/model-4-50.lda'),
@@ -115,43 +157,9 @@ def run(gen_tree_func,
         logger.info('nodes procssed {}'.format(ni))
         logger.debug('getting rooted subgraph within timespan')
 
-        sub_g = IU.get_rooted_subgraph_within_timespan(
-            g, r, timespan, debug=False
-        )
-
-        if len(sub_g.edges()) == 0:
-            logger.debug("empty rooted sub graph")
-            continue
-
-        if gen_tree_kws.get('dijkstra'):
-            logger.debug('applying dijkstra')
-            sub_g = remove_edges_via_dijkstra(
-                sub_g,
-                source=r,
-                weight=IU.EDGE_COST_KEY
-            )
-
-        logger.debug('binarizing dag...')
-
-        def check_g_attrs(g):
-            logger.debug("checking sender id")
-            for n in g.nodes():
-                if isinstance(n, basestring) and not n.startswith('dummy'):
-                    assert 'sender_id' in g.node[n]
-        check_g_attrs(sub_g)
-
-        binary_sub_g = binarize_dag(sub_g,
-                                    IU.VERTEX_REWARD_KEY,
-                                    IU.EDGE_COST_KEY,
-                                    dummy_node_name_prefix="d_")
+        tree = calc_tree(r, U, gen_tree_func, timespan, g, gen_tree_kws)
         
-        logger.debug('generating tree ')
-
-        tree = gen_tree_func(binary_sub_g, r, U)
-
-        tree = unbinarize_dag(tree,
-                              edge_weight_key=IU.EDGE_COST_KEY)
-        if len(tree.edges()) == 0:
+        if tree is None or len(tree.edges()) == 0:
             logger.debug("empty tree")
             continue
 
@@ -222,7 +230,6 @@ if __name__ == '__main__':
                         type=int,
                         default=1,
                         help="How many places to approximate for lst algorithm")
-
 
     args = parser.parse_args()
 
