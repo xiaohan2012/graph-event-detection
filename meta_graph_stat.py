@@ -126,7 +126,7 @@ class MetaGraphStat(object):
     def topics(self, interactions, dictionary, lda, top_k=10):
         id2msg = {}
         for m in interactions:
-            id2msg[m['message_id']] = "{} {}".format(
+            id2msg[m['message_id']] = u"{} {}".format(
                 m['subject'], m['body']
             )
 

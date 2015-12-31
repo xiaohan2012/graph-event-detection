@@ -4,22 +4,11 @@ from tabulate import tabulate
 
 from meta_graph_stat import MetaGraphStat
 from util import load_json_by_line
+from test_util import CURDIR
 
-
-def summary(events, tablefmt):
-    CURDIR = os.path.dirname(os.path.abspath(__file__))
-
-    interactions = load_json_by_line('data/enron.json')
-    people_info = load_json_by_line('data/people.json')
-
-    dictionary = gensim.corpora.dictionary.Dictionary.load(
-        os.path.join(CURDIR, 'models/dictionary.pkl')
-    )
-
-    lda = gensim.models.ldamodel.LdaModel.load(
-        os.path.join(CURDIR, 'models/model-4-50.lda')
-    )
-
+def summary(events,
+            interactions, people_info, dictionary, lda,
+            tablefmt):
     STAT_KWS = {
         'temporal_traffic': False,
         'topics': {

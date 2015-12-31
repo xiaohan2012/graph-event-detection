@@ -65,3 +65,5 @@ html/data
 figures/
 models/
 tmp/
+
+scripts/experiment_cmds.sh

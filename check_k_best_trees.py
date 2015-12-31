@@ -2,6 +2,7 @@ import os
 import cPickle as pickle
 import gensim
 import numpy as np
+import ujson as json
 
 from meta_graph_stat import MetaGraphStat
 from max_cover import argmax_k_coverage
@@ -11,69 +12,49 @@ from event_summary import summary
 import sys
 
 result_path = sys.argv[1]
+interactions_path = sys.argv[2]
+people_path = sys.argv[3]
+dictionary_path = sys.argv[4]
+lda_path = sys.argv[5]
 
-K = 25
+K = 10
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
 
-interactions = load_json_by_line('data/enron.json')
-people_info = load_json_by_line('data/people.json')
+print("loading interactions...")
+try:
+    interactions = json.load(
+        open(os.path.join(CURDIR, interactions_path))
+        )
+except ValueError:
+    interactions = load_json_by_line(
+        os.path.join(CURDIR, interactions_path)
+        )
 
+print("loading people...")
+people_info = load_json_by_line(
+    os.path.join(CURDIR, people_path)
+    )
+
+print("loading dict...")
 dictionary = gensim.corpora.dictionary.Dictionary.load(
-    os.path.join(CURDIR, 'models/dictionary.pkl')
+    os.path.join(CURDIR, dictionary_path)
 )
 
+print("loading lda...")
 lda = gensim.models.ldamodel.LdaModel.load(
-    os.path.join(CURDIR, 'models/model-4-50.lda')
+    os.path.join(CURDIR, lda_path)
 )
 
+print("loading candidates...")
 trees = pickle.load(open(result_path))
 
 nodes_of_trees = [set(t.nodes()) for t in trees]
 
+print("k-max-set running...")
 selected_ids = argmax_k_coverage(nodes_of_trees, K)
 
-STAT_KWS = {
-    'temporal_traffic': {
-        'time_resolution': 'day'
-    },
-    'topics': {
-        'interactions': interactions,
-        'dictionary': dictionary,
-        'lda': lda,
-        'top_k': 10
-    },
-    'email_content': {
-        'interactions': interactions,
-        'top_k': 5
-    },
-    'participants': {
-        'people_info': people_info,
-        'interactions': interactions,
-        'top_k': 5
-    }
-}
-
-
-def get_summary(g):
-    return MetaGraphStat(g, kws=STAT_KWS).summary()
-
-
-# for ind, i in enumerate(selected_ids):
-#     t = trees[i]
-#     print("############ {}".format(ind+1))
-#     print('Tree simmary:\n{}'.format(get_summary(t)))
-
-# mat = np.zeros((K, K))
-
-# # overlapping ratio matrix
-# for a, i in enumerate(selected_ids):
-#     for b, j in enumerate(selected_ids):
-#         s1 = set(trees[i].nodes())
-#         s2 = set(trees[j].nodes())
-#         mat[a][b] = len(s1.intersection(s2)) / float(len(s1))
-
-# print(mat)
-
-
-print summary([trees[id_] for id_ in selected_ids], tablefmt='orgtbl')
+print("Summary:\n\n")
+print summary([trees[id_] for id_ in selected_ids], 
+              interactions, people_info, dictionary, lda,
+              tablefmt='orgtbl')
