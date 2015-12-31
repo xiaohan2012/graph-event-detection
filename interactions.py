@@ -126,7 +126,7 @@ class InteractionsUtil(object):
         """
         Return the meta graph together with temporally sorted interactions
         
-        Decompose interactions if necessary
+        Decompose interactions if requested
         """
         if decompose_interactions:
             logger.info("decomposing and cleaning interactions...")
