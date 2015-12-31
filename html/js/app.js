@@ -1,6 +1,6 @@
 function load_event(data_path, kth){
 	var width = 960,
-	height = 500;
+	height = 1000;
 
 	var EDGE_BROADCAST = 1, EDGE_REPLY = 2, EDGE_RELAY = 3;
 	var palette = d3.scale.ordinal()
@@ -10,8 +10,8 @@ function load_event(data_path, kth){
 	var format_time = d3.time.format("%Y-%m-%d");
 
 	var force = d3.layout.force()
-		.charge(-120)
-		.linkDistance(30)
+		.charge(-150)
+		.linkDistance(500)
 		.size([width, height]);
 
 	var svg = d3.select("body").append("svg")
@@ -24,8 +24,8 @@ function load_event(data_path, kth){
 		.attr("viewBox", "0 -5 10 10")
 		.attr("refX", 15)
 		.attr("refY", -1.5)
-		.attr("markerWidth", 6)
-		.attr("markerHeight", 6)
+		.attr("markerWidth", 3)
+		.attr("markerHeight", 3)
 		.attr("orient", "auto")
 		.append("svg:path")
 		.attr("d", "M0,-5L10,0L0,5");
@@ -77,17 +77,52 @@ function load_event(data_path, kth){
 							return palette(EDGE_RELAY); // relay
 						}
 					})
-					.attr("stroke-width", 1.5)
+					.attr("stroke-width", function(d){
+						if(d['event']){
+							return 4;
+						}else{
+							return 1;
+						}
+					})
+					.attr("opacity", function(d){
+						if(d['event']){
+							return 1;
+						}else{
+							return 0.5;
+						}
+					});
 
+				function mouseover_wrapper(d){					
+					tip.show(d);
+					link.style('stroke-width', function(l) {
+						if (d === l.source)
+							return 2;
+						else
+							return 1;
+					});
+				}
+				function mouseout_wrapper(d){					
+					tip.hide(d);
+					link.style('stroke-width', 1);
+				}
 				var node = svg.selectAll(".node")
 					.data(graph.nodes)
 					.enter().append("circle")
 					.attr("class", "node")
-					.attr("r", 10)
-					.style("fill", palette(0))
-					.call(force.drag)
-					.on('mouseover', tip.show)
-					.on('mouseout', tip.hide)
+					.attr("r", 5)
+				// .style("fill", palette(0))
+					.style("fill", function(d){
+						if(d['event']){
+							return palette(0);
+						}else{
+							return '#eee';
+						}
+					})
+					.call(force.drag)			
+					// .on('mouseover', tip.show)
+					// .on('mouseout', tip.hide)
+					.on('mouseover', mouseover_wrapper)
+					.on('mouseout',  mouseout_wrapper)
 
 
 				force.on("tick", function() {
@@ -102,5 +137,4 @@ function load_event(data_path, kth){
 			});
 		});
 	});
-
 }
