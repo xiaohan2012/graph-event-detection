@@ -289,3 +289,14 @@ Day 2:
 Day 3:
 
 - `filter_dag_given_root` optimized
+- parallelize gen tree, failed
+- run experiment for islam
+
+Day 4:
+
+- viz for original graph + contexted event
+- experiment result for islam, except lst(slow)
+
+Day 5:
+
+- generalize viz and viz-preparation code, different datasets in different dir
