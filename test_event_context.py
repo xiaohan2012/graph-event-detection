@@ -7,9 +7,9 @@ from .test_util import load_meta_graph_necessities
 from .interactions import InteractionsUtil as IU
 
 
-def test_extract_event_context():
+def load_example():
     _, _, interactions = load_meta_graph_necessities()
-
+        
     # some fake interactions
     for i in xrange(100):
         interactions.append({"body": "...",
@@ -28,7 +28,13 @@ def test_extract_event_context():
          (2, {'datetime': datetime.fromtimestamp(989587578)})]
     )
     event_tree.add_edges_from([(0, 1), (1, 2)])
-    
+
+    return interactions, event_tree
+
+
+def test_extract_event_context():
+    interactions, event_tree = load_example()
+
     context_dag = extract_event_context(interactions, event_tree)
 
     assert_true(isinstance(context_dag, nx.DiGraph))

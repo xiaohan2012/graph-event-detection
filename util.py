@@ -26,27 +26,6 @@ def load_peopleid2people_dict(path):
             for p in people}
 
 
-def to_d3_graph(g):
-    """convert networkx format graph to d3 format
-    """
-    data = {'nodes': [], 'edges': []}
-    for n in g.nodes_iter():
-        node = g.node[n]
-        node['name'] = n
-        data['nodes'].append(node)
-
-    name2index = {n: i
-                  for i, n in enumerate(g.nodes_iter())}
-
-    for s, t in g.edges_iter():
-        edge = g[s][t]
-        edge['source'] = name2index[s]
-        edge['target'] = name2index[t]
-        data['edges'].append(edge)
-
-    return data
-
-
 def get_datetime(obj):
     if isinstance(obj, datetime):
         return obj
@@ -87,5 +66,11 @@ def compose(*functions):
         return arg
     return inner
 
+
+def json_dump(obj, path):
+    with codecs.open(path, 'w', 'utf8') as f:
+        f.write(json.dumps(obj))
+
 if __name__ == '__main__':
     main()
+

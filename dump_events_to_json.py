@@ -1,26 +1,18 @@
-import os
-import ujson as json
-import codecs
-
 from events import detect_events_given_path
-from util import to_d3_graph
+
+from util import json_dump
+from viz_util import to_d3_graph
+from experiment_util import get_output_path
 
 
 def run(candidate_tree_path, dirname=None):
-    output_name = os.path.basename(
-        candidate_tree_path).replace('.pkl', '.json')
-    if dirname:
-        output_path = os.path.join(dirname, output_name)
-    else:
-        output_path = os.path.join(os.path.dirname(candidate_tree_path),
-                                   output_name)
-
+    output_path = get_output_path(candidate_tree_path, dirname)
     K = 5
     events = detect_events_given_path(candidate_tree_path, K)
     d3_events = [to_d3_graph(e)
                  for e in events]
-    with codecs.open(output_path, 'w', 'utf8') as f:
-        f.write(json.dumps(d3_events))
+    json_dump(d3_events, output_path)
+
 
 if __name__ == '__main__':
     import sys
