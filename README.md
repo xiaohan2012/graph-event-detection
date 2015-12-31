@@ -300,3 +300,4 @@ Day 4:
 Day 5:
 
 - generalize viz and viz-preparation code, different datasets in different dir
+- Run `./scripts/check_islamic_events.sh tmp/islamic/result-lst--U=5.0--dijkstra=True--timespan=28days----decompose_interactions=False--dist_func=euclidean--preprune_secs=28days.pkl` to find some patterns

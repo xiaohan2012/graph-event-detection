@@ -19,7 +19,7 @@ def summary(events,
         },
         'email_content': {
             'interactions': interactions,
-            'top_k': 5
+            'top_k': 10
         },
         'participants': False
     }
@@ -34,7 +34,8 @@ def summary(events,
                    d['time_span']['start_time'].strftime(date_format),
                    d['time_span']['end_time'].strftime(date_format)
                ),
-               next(s for s in  d['email_content']['subjects(top5)'] if s),  # get first non-empty
+               # next(s for s in  d['email_content']['subjects(top5)'] if s),  # get first non-empty
+               '\n'.join(d['email_content']['subjects(top10)']),
                ' '.join(d['topics']['topic_terms'])
            ]
         table.append(row)
