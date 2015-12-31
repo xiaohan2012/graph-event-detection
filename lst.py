@@ -160,7 +160,7 @@ def round_edge_weights_by_multiplying(G,
     U = int(U * multiplier)
     return G, U
 
-@profile
+# @profile
 def lst_dag(G, r, U,
             node_reward_key='r',
             edge_cost_key='c',

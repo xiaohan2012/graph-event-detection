@@ -5,7 +5,7 @@ import numpy
 import cPickle as pkl
 
 from datetime import timedelta
-from nose.tools import assert_equal, assert_true
+from nose.tools import assert_true
 from subprocess import check_output
 
 from gen_candidate_trees import run

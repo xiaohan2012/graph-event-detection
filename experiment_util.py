@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import networkx as nx
 import cPickle as pkl
@@ -49,6 +50,18 @@ def experiment_signature(**kws):
 
     return '--'.join(["{}={}".format(k, value_str(v))
                       for k, v in sorted(kws.items())])
+
+
+def get_output_path(candidate_tree_path, dirname=None):
+    output_name = os.path.basename(
+        candidate_tree_path).replace('.pkl', '.json')
+    if dirname:
+        output_path = os.path.join(dirname, output_name)
+    else:
+        output_path = os.path.join(os.path.dirname(candidate_tree_path),
+                                   output_name)
+    return output_path
+
 
 if __name__ == '__main__':
     sample_rooted_binary_graphs_within_timespan(
