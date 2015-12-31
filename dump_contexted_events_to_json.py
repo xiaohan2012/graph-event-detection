@@ -31,7 +31,7 @@ def run_with_context(interactions_path, candidate_tree_path, dirname=None):
                 context_dag, [(e, {'event': True})])
         )
     d3_events = [to_d3_graph(e)
-                 for e in events]
+                 for e in contexted_events]
     
     print('writing to {}'.format(output_path))
     json_dump(d3_events, output_path)

@@ -1,8 +1,9 @@
 import os
 import codecs
+import numpy as np
 import ujson as json
 
-from nose.tools import assert_equal, with_setup
+from nose.tools import assert_equal, with_setup, assert_true
 
 from .dump_events_to_json import run
 from .dump_contexted_events_to_json import run_with_context
@@ -29,8 +30,10 @@ def test_dump_events_to_json():
 
 @with_setup(setup_func, teardown_func)
 def test_dump_contexted_events_to_json():
-    output_path = os.path.join(CURDIR,
-                               'test/data/tmp/candidate_trees_decompose=False.json')
+    output_path = os.path.join(
+        CURDIR,
+        'test/data/tmp/candidate_trees_decompose=False.json'
+    )
     run_with_context(
         os.path.join(CURDIR, 'test/data/enron-whole.json'),
         os.path.join(CURDIR, 'test/data/candidate_trees_decompose=False.pkl'),
@@ -38,4 +41,9 @@ def test_dump_contexted_events_to_json():
     )
     with codecs.open(output_path, 'r', 'utf8') as f:
         obj = json.loads(f.read())
+        for t in obj:
+            assert_true(
+                np.any([n.get('event', False)
+                        for n in t['nodes']])
+            )
     assert_equal(5, len(obj))
