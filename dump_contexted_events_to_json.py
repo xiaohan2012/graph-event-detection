@@ -1,3 +1,4 @@
+import os
 import ujson as json
 from events import detect_events_given_path
 from event_context import extract_event_context
@@ -14,6 +15,9 @@ def run_with_context(interactions_path,
                      candidate_tree_path,
                      dirname=None,
                      to_original_graph=False):
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
+
     try:
         interactions = json.load(open(interactions_path))
     except ValueError:
@@ -46,5 +50,20 @@ def run_with_context(interactions_path,
     json_dump(d3_events, output_path)
 
 if __name__ == '__main__':
-    import sys
-    run_with_context(*sys.argv[1:], to_original_graph=True)
+    import argparse
+    parser = argparse.ArgumentParser('Dump contexted events to json')
+    parser.add_argument('--interactions_path',
+                        required=True
+                    )
+    parser.add_argument('--candidate_tree_path',
+                        required=True
+    )
+    parser.add_argument('--dirname')
+    parser.add_argument('--to_original_graph',
+                        action='store_true',
+                        default=False)
+    args = parser.parse_args()
+    run_with_context(args.interactions_path,
+                     args.candidate_tree_path,
+                     args.dirname,
+                     args.to_original_graph)
