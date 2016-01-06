@@ -300,3 +300,17 @@ Day 4:
 Day 5:
 
 - generalize viz and viz-preparation code, different datasets in different dir
+
+# Week 7
+
+Day 1-3:
+
+- Finished task for Day 5 of last week
+
+Findings on timeline viz:
+
+- [timegliderJS](http://www.timeglider.com/widget/index.php?p=api)
+- [timelineJS](https://timeline.knightlab.com/docs/index.html)
+
+
+
