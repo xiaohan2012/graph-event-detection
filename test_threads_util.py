@@ -4,6 +4,7 @@ import pandas as pd
 from nose.tools import assert_equal, assert_true
 from datetime import datetime
 from thread_util import add_recipients,\
+    add_timestamp,\
     KEY_THREAD_ID, KEY_DATETIME, KEY_SENDER_ID, KEY_RECIPIENT_IDS,\
     collect_user_information, \
     add_recipients_to_islamic_dataset
@@ -53,3 +54,17 @@ def test_add_recipients_to_islamic_dataset():
               KEY_SENDER_ID, KEY_RECIPIENT_IDS):
         print(c)
         assert_true(c in df.columns)
+
+
+def test_add_timestamp():
+    df = pd.DataFrame(columns=['dt'],
+                      data={
+                          'dt': map(
+                              datetime.fromtimestamp,
+                              [1284286794, 1284286796,
+                               1284286795, 1284286794]
+                          )
+                      })
+    new_df = add_timestamp(df, dt_field='dt', ts_field="ts")
+    for ts, dt in zip(new_df['ts'], df['dt']):
+        assert_equal(dt, datetime.fromtimestamp(ts))

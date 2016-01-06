@@ -6,7 +6,7 @@ from nose.tools import assert_equal, assert_true
 from .test_util import CURDIR
 from .events import detect_events
 from .event_graph_document import children_documents, longest_path_documents
-from .util import load_msgid2interaction_dict
+from .util import load_id2obj_dict
 from .dag_util import get_roots
 
 
@@ -15,9 +15,11 @@ class EventGraphDocumentTest(unittest.TestCase):
         candidate_events = pkl.load(open(
             os.path.join(CURDIR, 'test/data/cand_trees.pkl')))
         self.g = detect_events(candidate_events, 1)[0]
-        self.mid2interaction = load_msgid2interaction_dict(
+        self.mid2interaction = load_id2obj_dict(
             os.path.join(CURDIR,
-                         'test/data/enron-whole.json'))
+                         'test/data/enron-whole.json'),
+            'message_id'
+        )
 
     def test_children_documents(self):
         roots = get_roots(self.g)

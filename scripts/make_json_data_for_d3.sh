@@ -26,33 +26,42 @@ dataset_name=$1
 pickle_dir=$2
 interactions_path=$3
 output_dir="html/data/${dataset_name}"
+metadata_dir="data/${dataset_name}"
 
-if [ -d $output_dir ]; then
-	echo "rm -rf ${output_dir}"
-	rm -rf ${output_dir}
-fi
+# if [ -d $output_dir ]; then
+# 	echo "rm -rf ${output_dir}"
+# 	rm -rf ${output_dir}
+# fi
 
-for p in $(ls $pickle_dir); do
-	echo "${p}"
-	# contexted events
-	python dump_contexted_events_to_json.py \
-		--interactions_path ${interactions_path} \
-		--candidate_tree_path ${p} \
-		--dirname "${output_dir}/contexted_event/original_graph" \
-		--to_original_graph
-	python dump_contexted_events_to_json.py \
-		--interactions_path ${interactions_path} \
-		--candidate_tree_path ${p} \
-		--dirname "${output_dir}/contexted_event/meta_graph"
+# for p in $(ls ${pickle_dir}/result-*.pkl); do
+# 	echo "${p}"
+# 	# contexted events
+# 	python dump_contexted_events_to_json.py \
+# 		--interactions_path ${interactions_path} \
+# 		--candidate_tree_path ${p} \
+# 		--dirname "${output_dir}/contexted_event/original_graph" \
+# 		--to_original_graph
+# 	python dump_contexted_events_to_json.py \
+# 		--interactions_path ${interactions_path} \
+# 		--candidate_tree_path ${p} \
+# 		--dirname "${output_dir}/contexted_event/meta_graph"
 
-	# just events
-	python dump_events_to_json.py \
-		--candidate_tree_path ${p} \
-		--dirname "${output_dir}/event/original_graph" \
-		--to_original_graph
-	python dump_events_to_json.py \
-		--candidate_tree_path ${p} \
-		--dirname "${output_dir}/event/meta_graph"
-done
+# 	# just events
+# 	python dump_events_to_json.py \
+# 		--candidate_tree_path ${p} \
+# 		--dirname "${output_dir}/event/original_graph" \
+# 		--to_original_graph
+# 	python dump_events_to_json.py \
+# 		--candidate_tree_path ${p} \
+# 		--dirname "${output_dir}/event/meta_graph"
+# done
 
+echo "dumping meta information..."
+python dump_meta_info_to_json.py \
+	--interactions_path ${metadata_dir}/interactions.json\
+	--interactions_output_path ${output_dir}/id2interactions.json\
+	--people_path ${metadata_dir}/people.json\
+	--people_output_path ${output_dir}/id2people.json\
+
+echo "dumping event names..."
 python dump_all_event_json_names.py ${output_dir}/event/meta_graph ${output_dir}/event_names.json

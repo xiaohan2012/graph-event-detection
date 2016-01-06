@@ -1,5 +1,6 @@
 import codecs
 import ujson as json
+import math
 from datetime import datetime
 
 
@@ -14,22 +15,19 @@ def load_json_by_line(path):
     return map(json.loads, load_items_by_line(path))
 
 
-def load_msgid2interaction_dict(path):
-    interactions = load_json_by_line(path)
-    return {i['message_id']: i
+def load_id2obj_dict(path, id_key):
+    try:
+        interactions = json.load(open(path))
+    except ValueError:
+        interactions = load_json_by_line(path)
+    return {i[id_key]: i
             for i in interactions}
-
-
-def load_peopleid2people_dict(path):
-    people = load_json_by_line(path)
-    return {p['id']: p
-            for p in people}
 
 
 def get_datetime(obj):
     if isinstance(obj, datetime):
         return obj
-    elif isinstance(obj, float) or isinstance(obj, int):
+    elif (isinstance(obj, float) or isinstance(obj, int)) and not math.isnan(obj):
         return datetime.fromtimestamp(obj)
     elif isinstance(obj, basestring):
         patterns = ['%Y-%m-%d %X.%f', '%Y-%m-%d %X']
@@ -50,15 +48,6 @@ def get_datetime(obj):
         raise TypeError('Unacceptable type {}, {}'.format(type(obj), obj))
 
 
-def main():
-    import ujson as json
-    with open('html/data/id2interaction.json', 'w') as f:
-        json.dump(load_msgid2interaction_dict('data/enron.json'), f)
-
-    with open('html/data/id2people.json', 'w') as f:
-        json.dump(load_peopleid2people_dict('data/people.json'), f)
-
-
 def compose(*functions):
     def inner(arg):
         for f in functions:
@@ -70,7 +59,3 @@ def compose(*functions):
 def json_dump(obj, path):
     with codecs.open(path, 'w', 'utf8') as f:
         f.write(json.dumps(obj))
-
-if __name__ == '__main__':
-    main()
-

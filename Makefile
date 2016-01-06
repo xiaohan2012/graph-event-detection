@@ -12,3 +12,5 @@ rm_public_html:
 
 html_data:
 	cp -r html/ /cs/home/hxiao/public_html/event_html/
+	# cp -r html/meta_graph_display.html /cs/home/hxiao/public_html/event_html/
+	# cp -r html/js /cs/home/hxiao/public_html/event_html/

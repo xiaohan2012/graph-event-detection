@@ -19,9 +19,12 @@ def run_with_context(interactions_path,
         os.makedirs(dirname)
 
     try:
+        print("interactions_path", interactions_path)
         interactions = json.load(open(interactions_path))
-    except ValueError:
+    except ValueError as e:
+        print(e)
         interactions = load_json_by_line(interactions_path)
+
     interactions = IU.clean_interactions(interactions)
 
     output_path = get_output_path(candidate_tree_path, dirname)
