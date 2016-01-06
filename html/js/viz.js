@@ -46,18 +46,20 @@ function load_event_1(config){
 					.links(graph.edges)
 					.start();
 
+				var call_func_or_just_value = function(obj){
+					return _.isFunction(obj) ?
+						function(d){
+							return obj(d, data_bunch);
+						} : obj;
+				}
+				console.log('config.link.stroke', config.link.stroke);
 				var link = svg.selectAll(".link")
 					.data(graph.edges)
   					.enter().append("line")
 					.attr("class", "link")
 					.attr("marker-end", "url(#triangle)")
-					.attr("stroke", _.isFunction(config.link.stroke) ?
-						  function(d){
-							  config.link.stroke(d, data_bunch);
-						  } :
-						  config.link.stroke
-						 )
-					.attr("stroke-width", config.link.strokeWidth)
+					.attr("stroke", call_func_or_just_value(config.link.stroke))
+					.attr("stroke-width", call_func_or_just_value(config.link.strokeWidth))
 					.attr("opacity", config.link.opacity);
 				
 				var node = svg.selectAll(".node")

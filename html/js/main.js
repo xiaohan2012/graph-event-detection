@@ -86,25 +86,38 @@ $(document).ready(function(){
 						return dict2html(i, ['subject', 'body', 'sender', 'recipients', 'date', 'message_id']);
 					}
 				},
+				node: {
+					fill: 'red',
+					r: 8
+				},
 				link: {
-					strokeWidth: function(d, bunch){
-						if(d['event']){
-							var s = d['source'], t = d['target'];
-							if(s["sender_id"] == t["sender_id"]){
-								return palette(EDGE_BROADCAST); // broadcast
-							}
-							else if(_.intersection(s["recipient_ids"], [t["sender_id"]]) && 
-									_.intersection(t["recipient_ids"], [s["sender_id"]])){
-								return palette(EDGE_REPLY); // reply
-							}
-							else if(_.intersection(s["recipient_ids"], [t["sender_id"]]) && 
-									!_.intersection(t["recipient_ids"], [s["sender_id"]])){
-								return palette(EDGE_RELAY); // relay
-							}
+					stroke: function(d, bunch){
+						// console.log(d);
+						// console.log(s["sender_id"], t["sender_id"], s, t);
+						// if(d['event']){
+						var s = d['source'], t = d['target'];
+						if(s["sender_id"] == t["sender_id"]){
+							console.log("broadcast..")
+							return palette(EDGE_BROADCAST); // broadcast
 						}
-						else{
-							return "gray";
+						else if(_.intersection(s["recipient_ids"], [t["sender_id"]]) && 
+								_.intersection(t["recipient_ids"], [s["sender_id"]])){
+							console.log("reply..")
+							return palette(EDGE_REPLY); // reply
 						}
+						else if(_.intersection(s["recipient_ids"], [t["sender_id"]]) && 
+								!_.intersection(t["recipient_ids"], [s["sender_id"]])){
+							console.log("relay..")
+							return palette(EDGE_RELAY); // relay
+						}else{
+							throw new Exception("impossible!");
+						}
+							
+						// }
+						// else{
+						// 	console.log("nothing..")
+						// 	return "gray";
+						// }
 					}
 				}
 			}
@@ -196,7 +209,7 @@ $(document).ready(function(){
 		if(CLEAR_SVG){
 			$('svg').remove();
 		}
-		// console.log(mc);
+		console.log(mc);
 		// console.log(data_path);
 		load_event_1(get_config(mc));
 	});

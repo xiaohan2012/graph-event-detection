@@ -312,5 +312,11 @@ Findings on timeline viz:
 - [timegliderJS](http://www.timeglider.com/widget/index.php?p=api)
 - [timelineJS](https://timeline.knightlab.com/docs/index.html)
 
+TODO:
+
+- sampling schemes: avoid leaf in meta-graph, give nodes with many links high selection probability
+- link color for meta-graph
+- textual summary of event
+
 
 
