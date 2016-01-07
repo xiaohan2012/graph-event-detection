@@ -167,17 +167,19 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
             CURDIR,
             'test/data/enron-head-100')
 
-    def check(self, distance, method):
+    def check(self, method="random", distance="entropy", sampling_method="uniform"):
         cmd = """python {} \
         --method={} \
         --dist={} \
         --cand_n=1 \
+        --root_sampling={}\
         --res_dir={} --weeks=4 --U=0.5 \
         --lda_path={} --interaction_path={} \
         --corpus_dict_path={} \
         --meta_graph_path_prefix={}""".format(
             self.script_path,
             method, distance,
+            sampling_method,
             self.result_dir,
             self.lda_path,
             self.interaction_json_path,
@@ -192,12 +194,17 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
             "test/data/tmp/result-{}--U=0.5--dijkstra=False--timespan=28days----decompose_interactions=False--dist_func={}--preprune_secs=28days.pkl".format(method, distance)
         )
         assert_true(os.path.exists(output_path))
+        return output
 
-    def test_random_entropy(self):
-        self.check('entropy', 'random')
+    def test_random(self):
+        self.check(method='random')
 
-    def test_variance_entropy(self):
-        self.check('entropy', 'variance')
+    def test_variance(self):
+        self.check(method='variance')
 
+    def test_out_degree_sampling(self):
+        output = self.check(sampling_method='out_degree')
+        assert_true('out_degree' in output)
+        
     def tearDown(self):
         remove_tmp_data('test/data/tmp')

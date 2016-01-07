@@ -7,6 +7,7 @@ import copy
 import logging
 import itertools
 
+from pprint import pprint
 from datetime import timedelta
 from scipy.spatial.distance import euclidean, cosine
 from scipy.stats import entropy
@@ -18,7 +19,9 @@ from dag_util import unbinarize_dag, binarize_dag, remove_edges_via_dijkstra
 from lst import lst_dag, make_variance_cost_func, dp_dag_general
 from interactions import InteractionsUtil as IU
 from meta_graph_stat import MetaGraphStat
-from experiment_util import sample_nodes, experiment_signature
+from experiment_util import sample_nodes, \
+    sample_nodes_by_out_degree,\
+    experiment_signature
 from util import load_json_by_line
 from baselines import greedy_grow, random_grow
 
@@ -100,6 +103,7 @@ def calc_tree(node_i, r, U,
 
 
 def run(gen_tree_func,
+        root_sampling_method,
         interaction_json_path=os.path.join(CURDIR, 'data/enron.json'),
         lda_model_path=os.path.join(CURDIR, 'models/model-4-50.lda'),
         corpus_dict_path=os.path.join(CURDIR, 'models/dictionary.pkl'),
@@ -170,7 +174,7 @@ def run(gen_tree_func,
     if print_summary:
         logger.debug(get_summary(g))
 
-    roots = sample_nodes(g, cand_tree_number)
+    roots = root_sampling_method(g, cand_tree_number)
 
     pool = Pool(4)
     manager = Manager()
@@ -236,6 +240,10 @@ if __name__ == '__main__':
     parser.add_argument('--dist', required=True,
                         choices=('entropy', 'euclidean', 'cosine'),
                         help="Distance function to use")
+    parser.add_argument('--root_sampling', required=True,
+                        choices=('uniform', 'out_degree'),
+                        help="Scheme to sample roots")
+
     parser.add_argument('--dij', action="store_true",
                         default=False,
                         help="Whether to use Dijkstra or not")
@@ -289,12 +297,15 @@ if __name__ == '__main__':
                'greedy': greedy_grow,
                'random': random_grow}
 
-    print('Running: {}'.format(args.method))
-    print('Dist func: {}'.format(args.dist))
-    print('Decompose interactions: {}'.format(args.decompose))
-    print('Dijkstra: {}'.format(args.dij))
+    root_sampling_methods = {
+        'uniform': sample_nodes,
+        'out_degree': sample_nodes_by_out_degree
+    }
+
+    pprint(vars(args))
 
     run(methods[args.method],
+        root_sampling_method=root_sampling_methods[args.root_sampling],
         interaction_json_path=args.interaction_path,
         corpus_dict_path=args.corpus_dict_path,
         meta_graph_pkl_path_prefix=args.meta_graph_path_prefix,
