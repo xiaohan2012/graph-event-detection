@@ -1,9 +1,14 @@
 import unittest
 import math
+import numpy as np
 from nose.tools import assert_equal
 from networkx.classes.digraph import DiGraph
+from scipy.spatial.distance import euclidean
 
-from .lst import lst_dag, lst_dag_general, round_edge_weights_by_multiplying
+from .lst import lst_dag, lst_dag_general, \
+    round_edge_weights_by_multiplying, \
+    make_variance_cost_func,\
+    get_all_nodes
 from .dag_util import binarize_dag
 
 
@@ -180,6 +185,29 @@ def get_example_6():
     return (g, U, expected_edge_set)
 
 
+def get_variance_example_1():
+    g = DiGraph()
+    g.add_edges_from([
+        (0, 1), (0, 2),
+        (2, 3), (3, 4),
+        (2, 5)
+    ])
+    for n in (0, 1, 2, 5):  # topic 1
+        g.node[n]['repr'] = np.array([0, 0])
+    for n in (3, 4):  # topic 2
+        g.node[n]['repr'] = np.array([1, 1])
+    for n in g.nodes_iter():
+        g.node[n]['r'] = 1
+
+    # correct is (0, 1, 2, 5) for cost 0
+    U = [0, 10]
+    expected_edge_set = [
+        set(g.edges()) - {(2, 3), (3, 4)},
+        set(g.edges())
+    ]
+    return (g, U, expected_edge_set)
+    
+    
 class LstDagTestCase(unittest.TestCase):
 
     def run_case(self, example_data, **lst_kws):
@@ -225,23 +253,19 @@ class LstDagTestCase(unittest.TestCase):
 
 class LstDagGeneralTest(unittest.TestCase):
     def setUp(self):
-        def local_cost_func(n, D, g, edge_cost_key,
-                            decimal_point,
+        def local_cost_func(n, D, g,
                             cost_child_tuples):
-            if decimal_point:
-                # TODO: unncessary re-computation
-                multiplier = 10**decimal_point
-            cost_sum = 0
-            for cost, child in cost_child_tuples:
-                cost_sum += cost
-                if decimal_point:
-                    cost_sum += int(round(
-                        g[n][child][edge_cost_key] * multiplier
-                    ))
-                else:
-                    cost_sum += g[n][child][edge_cost_key]
-            return cost_sum
+            return sum(cost for cost, _ in cost_child_tuples) + \
+                sum(g[n][child]['c'] for _, child in cost_child_tuples)
+
+        def local_cost_func_2_places(n, D, g,
+                                     cost_child_tuples):
+            return sum(cost for cost, _ in cost_child_tuples) + \
+                sum(int(round(g[n][child]['c'] * 100))
+                    for _, child in cost_child_tuples)
+            
         self.local_cost_func = local_cost_func
+        self.local_cost_func_2_places = local_cost_func_2_places
 
     def test_lst_dag_local_example_1(self):
         g, U, expected_edges_set = get_example_1()
@@ -255,15 +279,14 @@ class LstDagGeneralTest(unittest.TestCase):
                          )
                      )
 
-    def test_lst_dag_local_example_2(self):
+    def test_lst_dag_local_example_with_fixed_point(self):
         g, U, expected_edges_set = get_example_2()
         for u, edges in zip(U, expected_edges_set):
             assert_equal(sorted(edges),
                          sorted(
                              lst_dag_general(
-                                 g, 1, u,
-                                 self.local_cost_func,
-                                 edge_weight_decimal_point=2,
+                                 g, 1, int(u*100),
+                                 self.local_cost_func_2_places,
                                  debug=True
                              ).edges()
                          )
@@ -300,4 +323,51 @@ def test_round_edge_weights_by_multiplying():
         )
         assert_equal(7, new_U)
         for s, t in new_g.edges():
-            assert_equal(1, new_g[s][t]['c'])        
+            assert_equal(1, new_g[s][t]['c'])
+
+
+def test_variance_based_cost():
+    D = {'u': {}, 'v': {10: {'x'}}, 'w': {12: {'y'}}}
+    G = DiGraph()
+    G.add_edges_from([('u', 'v'),
+                      ('u', 'w'),
+                      ('v', 'x'),
+                      ('w', 'y')])
+    reprs = np.array([[0, 1],
+                      [1, 0],
+                      [0, 1],
+                      [1, 1],
+                      [0, 0]])
+    for r, n in zip(reprs, G.nodes_iter()):
+        G.node[n]['r'] = r
+    n = 'u'
+    children = [(10, 'v'),
+                (12, 'w')]
+
+    actual = get_all_nodes(n, D, children)
+    expected = ['u', 'v', 'w', 'x', 'y']
+    assert_equal(sorted(expected), sorted(actual))
+
+    cost_func = make_variance_cost_func(euclidean, 'r')
+    
+    actual = cost_func(n, D, G,
+                       children)
+    mean_vec = np.mean(reprs, axis=0)
+    expected = np.mean([euclidean(mean_vec, v)
+                        for v in reprs])
+    np.testing.assert_almost_equal(expected, actual)
+
+    # with fixed_point
+    cost_func_fp = make_variance_cost_func(euclidean, 'r', fixed_point=2)
+    actual = cost_func_fp(n, D, G,
+                          children)
+    assert_equal(int(expected*100), actual)
+
+
+def test_variance_lst():
+    g, U, edge_lists = get_variance_example_1()
+    cost_func = make_variance_cost_func(euclidean, 'repr', fixed_point=1)
+    for edges, u in zip(edge_lists, U):
+        t = lst_dag_general(g, 0, u, cost_func,
+                            node_reward_key='r', debug=True)
+        assert_equal(edges, set(t.edges()))

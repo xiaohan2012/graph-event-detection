@@ -314,9 +314,17 @@ Findings on timeline viz:
 
 TODO:
 
-- sampling schemes: avoid leaf in meta-graph, give nodes with many links high selection probability
-- link color for meta-graph
 - textual summary of event
+- scale the node size by message count(original graph)
+
+- variance-based optimization(speed)
+- sampling schemes: avoid leaf in meta-graph, give nodes with many out links high selection probability(cmd option)
+- minimum spanning tree instead of dijkstra(cmd option)
+
+- Bloomberg data(crawl, run)
+- github repo data(crawl, run)
+
+- synthetic data(think)
 
 
-
+- link color for meta-graph
