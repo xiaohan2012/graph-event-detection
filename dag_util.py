@@ -1,5 +1,6 @@
 import networkx as nx
 from networkx.algorithms.shortest_paths.weighted import single_source_dijkstra_path
+from networkx import minimum_spanning_tree
 from interactions import InteractionsUtil
 
 
@@ -78,7 +79,8 @@ def assert_no_cycle(g):
     assert len(list(nx.simple_cycles(g))) == 0, 'g is cyclic'
 
 
-def remove_edges_via_dijkstra(g, source, weight=InteractionsUtil.EDGE_COST_KEY):
+def remove_edges_via_dijkstra(g, source,
+                              weight=InteractionsUtil.EDGE_COST_KEY):
     g = g.copy()
     paths = single_source_dijkstra_path(g,
                                         source=source,

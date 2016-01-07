@@ -103,7 +103,7 @@ def calc_tree(node_i, r, U,
 
 
 def run(gen_tree_func,
-        root_sampling_method,
+        root_sampling_method=sample_nodes,
         interaction_json_path=os.path.join(CURDIR, 'data/enron.json'),
         lda_model_path=os.path.join(CURDIR, 'models/model-4-50.lda'),
         corpus_dict_path=os.path.join(CURDIR, 'models/dictionary.pkl'),

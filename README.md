@@ -316,13 +316,13 @@ TODO:
 
 - variance-based optimization(speed)
 - related code(for example in `gen_cand_trees`) to use variance lst
-
+- minimum spanning tree instead of dijkstra(cmd option): **aborted**, no rooted_mst in networkx available
 
 - textual summary of event
 - scale the node size by message count(original graph)
 
 - sampling schemes: avoid leaf in meta-graph, give nodes with many out links high selection probability(cmd option)
-- minimum spanning tree instead of dijkstra(cmd option)
+
 
 - Bloomberg data(crawl, run)
 - github repo data(crawl, run)
