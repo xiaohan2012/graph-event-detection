@@ -294,7 +294,7 @@ class InteractionsUtil(object):
         g = g.copy()
             
         # remove topics, body, subject to save space
-        fields = ['topics', 'subject', 'body', 'peers', 'doc_bow']
+        fields = ['subject', 'body', 'peers', 'doc_bow']
         for n in g.nodes():
             for f in fields:
                 if f in g.node[n]:

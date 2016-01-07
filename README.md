@@ -314,10 +314,13 @@ Findings on timeline viz:
 
 TODO:
 
+- variance-based optimization(speed)
+- related code(for example in `gen_cand_trees`) to use variance lst
+
+
 - textual summary of event
 - scale the node size by message count(original graph)
 
-- variance-based optimization(speed)
 - sampling schemes: avoid leaf in meta-graph, give nodes with many out links high selection probability(cmd option)
 - minimum spanning tree instead of dijkstra(cmd option)
 

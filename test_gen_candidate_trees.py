@@ -11,7 +11,7 @@ from subprocess import check_output
 from gen_candidate_trees import run
 from scipy.stats import entropy
 
-from .lst import lst_dag
+from .lst import lst_dag, dp_dag_general, make_variance_cost_func
 from .baselines import greedy_grow, random_grow
 from .test_util import remove_tmp_data, CURDIR
 
@@ -22,13 +22,15 @@ class GenCandidateTreeTest(unittest.TestCase):
         numpy.random.seed(1)
     
         self.some_kws_of_run = {
-            'interaction_json_path': os.path.join(CURDIR,
-                                                  'test/data/enron-head-100.json'),
+            'interaction_json_path': os.path.join(
+                CURDIR,
+                'test/data/enron-head-100.json'),
             'lda_model_path': os.path.join(CURDIR, 'test/data/test.lda'),
             'corpus_dict_path': os.path.join(CURDIR,
                                              'test/data/test_dictionary.gsm'),
-            'meta_graph_pkl_path_prefix': os.path.join(CURDIR,
-                                                       'test/data/enron-head-100'),
+            'meta_graph_pkl_path_prefix': os.path.join(
+                CURDIR,
+                'test/data/enron-head-100'),
             'cand_tree_number': 5,
             'meta_graph_kws': {
                 'dist_func': entropy,
@@ -46,10 +48,20 @@ class GenCandidateTreeTest(unittest.TestCase):
             edge_weight_decimal_point=2,
             debug=False
         )
+
+        self.variance_method = lambda g, r, U: dp_dag_general(
+            g, r, int(U*10),  # fixed point 1
+            make_variance_cost_func(entropy, 'topics',
+                                    fixed_point=1,
+                                    debug=True),
+            debug=False
+        )
+
         self.meta_pickle_path_common = "decompose_interactions=False--dist_func=entropy--preprune_secs=28days"
         pkl_path = os.path.join(
             CURDIR,
-            'test/data/enron-head-100--{}.pkl'.format(self.meta_pickle_path_common)
+            'test/data/enron-head-100--{}.pkl'.format(
+                self.meta_pickle_path_common)
         )
         if not os.path.exists(pkl_path):
             print('calc meta graph')
@@ -63,7 +75,9 @@ class GenCandidateTreeTest(unittest.TestCase):
             calculate_graph=True,
             debug=False,
             print_summary=False,
-            result_pkl_path_prefix=os.path.join(CURDIR, 'test/data/tmp/test'),  # can be ignored
+            result_pkl_path_prefix=os.path.join(
+                CURDIR,
+                'test/data/tmp/test'),  # can be ignored
             **self.some_kws_of_run
         )
 
@@ -126,6 +140,9 @@ class GenCandidateTreeTest(unittest.TestCase):
         for t, t_dij in zip(trees, trees_with_dij):
             assert_true(sorted(t.edges()) != sorted(t_dij))
 
+    def test_variance_method(self):
+        self.check('variance', self.variance_method)
+
     def tearDown(self):
         remove_tmp_data('test/data/tmp/*')
 
@@ -137,37 +154,50 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         random.seed(123456)
         numpy.random.seed(123456)
 
-    def test_simple(self):
-        script_path = os.path.join(CURDIR, "gen_candidate_trees.py")
-        result_dir = os.path.join(CURDIR, "test/data/tmp")
-        lda_path = os.path.join(CURDIR, "test/data/test.lda")
-        interaction_json_path = os.path.join(CURDIR,
-                                             'test/data/enron-head-100.json')
-        corpus_dict_path = os.path.join(CURDIR,
-                                        'test/data/test_dictionary.gsm')
-        meta_graph_path_prefix = os.path.join(CURDIR,
-                                              'test/data/enron-head-100')
-        
-        cmd = """python {} --method=random \
-        --dist=entropy --cand_n=1 \
+        self.script_path = os.path.join(CURDIR, "gen_candidate_trees.py")
+        self.result_dir = os.path.join(CURDIR, "test/data/tmp")
+        self.lda_path = os.path.join(CURDIR, "test/data/test.lda")
+        self.interaction_json_path = os.path.join(
+            CURDIR,
+            'test/data/enron-head-100.json')
+        self.corpus_dict_path = os.path.join(
+            CURDIR,
+            'test/data/test_dictionary.gsm')
+        self.meta_graph_path_prefix = os.path.join(
+            CURDIR,
+            'test/data/enron-head-100')
+
+    def check(self, distance, method):
+        cmd = """python {} \
+        --method={} \
+        --dist={} \
+        --cand_n=1 \
         --res_dir={} --weeks=4 --U=0.5 \
         --lda_path={} --interaction_path={} \
         --corpus_dict_path={} \
         --meta_graph_path_prefix={}""".format(
-            script_path,
-            result_dir,
-            lda_path,
-            interaction_json_path,
-            corpus_dict_path,
-            meta_graph_path_prefix
+            self.script_path,
+            method, distance,
+            self.result_dir,
+            self.lda_path,
+            self.interaction_json_path,
+            self.corpus_dict_path,
+            self.meta_graph_path_prefix
         ).split()
         output = check_output(cmd)
-        print(output)
         assert_true("traceback" not in output.lower())
-
-        output_path = os.path.join(CURDIR,
-                                   "test/data/tmp/result-random--U=0.5--dijkstra=False--timespan=28days----decompose_interactions=False--dist_func=entropy--preprune_secs=28days.pkl")
+        print(output)
+        output_path = os.path.join(
+            CURDIR,
+            "test/data/tmp/result-{}--U=0.5--dijkstra=False--timespan=28days----decompose_interactions=False--dist_func={}--preprune_secs=28days.pkl".format(method, distance)
+        )
         assert_true(os.path.exists(output_path))
+
+    def test_random_entropy(self):
+        self.check('entropy', 'random')
+
+    def test_variance_entropy(self):
+        self.check('entropy', 'variance')
 
     def tearDown(self):
         remove_tmp_data('test/data/tmp')

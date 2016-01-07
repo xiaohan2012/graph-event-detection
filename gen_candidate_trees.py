@@ -5,6 +5,7 @@ import networkx as nx
 import ujson as json
 import copy
 import logging
+import itertools
 
 from datetime import timedelta
 from scipy.spatial.distance import euclidean, cosine
@@ -14,7 +15,7 @@ from pathos.multiprocessing import ProcessingPool as Pool
 from multiprocessing import Manager
 
 from dag_util import unbinarize_dag, binarize_dag, remove_edges_via_dijkstra
-from lst import lst_dag
+from lst import lst_dag, make_variance_cost_func, dp_dag_general
 from interactions import InteractionsUtil as IU
 from meta_graph_stat import MetaGraphStat
 from experiment_util import sample_nodes, experiment_signature
@@ -28,6 +29,7 @@ logger.setLevel(logging.DEBUG)
 
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
+
 
 def get_summary(g):
     return MetaGraphStat(
@@ -181,14 +183,25 @@ def run(gen_tree_func,
     #                    print_summary)
     #                   for i, r in enumerate(roots))
     from functools import partial
-    trees = pool.map(partial(calc_tree,
-                             U=U,
-                             gen_tree_func=gen_tree_func,
-                             timespan=timespan,
-                             gen_tree_kws=gen_tree_kws,
-                             shared_dict=shared_dict,
-                             print_summary=print_summary),
-                     xrange(len(roots)), roots)
+    # trees = pool.map(partial(calc_tree,
+    #                          U=U,
+    #                          gen_tree_func=gen_tree_func,
+    #                          timespan=timespan,
+    #                          gen_tree_kws=gen_tree_kws,
+    #                          shared_dict=shared_dict,
+    #                          print_summary=print_summary),
+    #                  xrange(len(roots)), roots)
+    trees = map(lambda (i, r):
+                calc_tree(
+                    i, r,
+                    U=U,
+                    gen_tree_func=gen_tree_func,
+                    timespan=timespan,
+                    gen_tree_kws=gen_tree_kws,
+                    shared_dict=shared_dict,
+                    print_summary=print_summary),
+                itertools.izip(xrange(len(roots)),
+                               roots))
     
     trees = filter(None, trees)  # remove Nones
 
@@ -218,7 +231,7 @@ if __name__ == '__main__':
                         help="Prefix of path of meta graph pickle")
 
     parser.add_argument('--method', required=True,
-                        choices=("lst", "greedy", "random"),
+                        choices=("lst", "greedy", "random", "variance"),
                         help="Method you will use")
     parser.add_argument('--dist', required=True,
                         choices=('entropy', 'euclidean', 'cosine'),
@@ -257,15 +270,25 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    dist_funcs = {'entropy': entropy, 'euclidean': euclidean, 'cosine': cosine}
+    dist_func = dist_funcs[args.dist]
+
     lst = lambda g, r, U: lst_dag(g, r, U,
                                   edge_weight_decimal_point=args.fixed_point,
                                   debug=False)
+    variance_method = lambda g, r, U: dp_dag_general(
+        g, r,
+        int(U*(10**args.fixed_point)),
+        make_variance_cost_func(dist_func, 'topics',
+                                args.fixed_point),
+        debug=False
+    )
 
-    methods = {'lst': lst, 'greedy': greedy_grow, 'random': random_grow}
-    dist_funcs = {'entropy': entropy, 'euclidean': euclidean, 'cosine': cosine}
+    methods = {'lst': lst,
+               'variance': variance_method,
+               'greedy': greedy_grow,
+               'random': random_grow}
 
-    dist_func = dist_funcs[args.dist]
-    
     print('Running: {}'.format(args.method))
     print('Dist func: {}'.format(args.dist))
     print('Decompose interactions: {}'.format(args.decompose))

@@ -292,7 +292,6 @@ class InteractionsUtilTest(unittest.TestCase):
         
         for n in original_g.nodes():
             n = str2id[n]
-            assert_true('topics' not in g.node[n])
             assert_true('subject' not in g.node[n])
             assert_true('body' not in g.node[n])
             assert_true('peer' not in g.node[n])
@@ -326,7 +325,6 @@ class InteractionsUtilTest(unittest.TestCase):
         g = IU.compactize_meta_graph(g, map_nodes=False)
 
         for n in original_g.nodes():
-            assert_true('topics' not in g.node[n])
             assert_true('subject' not in g.node[n])
             assert_true('body' not in g.node[n])
             assert_true('peer' not in g.node[n])

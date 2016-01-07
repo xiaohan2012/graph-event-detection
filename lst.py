@@ -6,10 +6,10 @@ from networkx.classes.digraph import DiGraph
 from networkx.algorithms.dag import topological_sort
 
 
-def lst_dag_general(G, r, U,
-                    cost_func,
-                    node_reward_key='r',
-                    debug=False):
+def dp_dag_general(G, r, U,
+                   cost_func,
+                   node_reward_key='r',
+                   debug=False):
     """
     cost_func(node, D table, graph, [(cost at child , child)])
 
@@ -97,6 +97,7 @@ def lst_dag_general(G, r, U,
             if n == r:  # no need to continue once we processed root
                 break
                 
+    print(U)
     best_cost = max(xrange(U + 1),
                     key=lambda i: A[r][i] if i in A[r] else float('-inf'))
     tree = DiGraph()
@@ -127,19 +128,32 @@ def lst_dag_general(G, r, U,
     return tree
 
 
-def get_all_nodes(n, D, children):
-    return list(
+def get_all_nodes(g, n, D, children, ignore_dummy=True):
+    all_nodes = list(
         itertools.chain(
             *[D[u][i] for i, u in children]
         )
     ) + [n] + [u for i, u in children]
-    
+
+    if ignore_dummy:
+        return filter(
+            lambda n: ('dummy' not in g.node[n] or
+                       not g.node[n]['dummy']),
+            all_nodes
+        )
+    else:
+        return all_nodes
+
 
 def make_variance_cost_func(vect_dist_func, repr_key,
-                            fixed_point=None):
+                            fixed_point=None,
+                            debug=False):
     def variance_based_cost(n, D, G,
                             children):
-        all_nodes = get_all_nodes(n, D, children)
+        all_nodes = get_all_nodes(G, n, D, children, ignore_dummy=True)
+        if debug:
+            for node in all_nodes:
+                assert repr_key in G.node[node], node
         reprs = np.array(
             [G.node[node][repr_key]
              for node in all_nodes]
@@ -149,26 +163,11 @@ def make_variance_cost_func(vect_dist_func, repr_key,
                  for v in reprs]
         ret = np.mean(diffs)
         if fixed_point:
-            print('using fixed_point:', fixed_point)
-            print('ret', ret)
             return int(ret * np.power(10, fixed_point))
         else:
             return ret
             
     return variance_based_cost
-
-
-def lst_dag_variance_based(G, r, U,
-                           node_reward_key='r',
-                           edge_cost_key='c',
-                           edge_weight_decimal_point=None,
-                           debug=False):
-    return lst_dag_general(G, r, U,
-                           variance_based_cost,
-                           node_reward_key,
-                           edge_cost_key,
-                           edge_weight_decimal_point,
-                           debug)
 
 
 def round_edge_weights_by_multiplying(G,
