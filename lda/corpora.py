@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
     logger.info('filtering dict')
     print(dictionary)
-    dictionary.filter_extremes(no_below=2, no_above=0.2)
+    dictionary.filter_extremes(no_below=2)
     print(dictionary)
 
     logger.info('saving dict')

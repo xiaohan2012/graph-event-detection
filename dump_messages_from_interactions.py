@@ -6,7 +6,9 @@ def dump_lines_of_message(interactions_path, output_path):
     obj = json_load(interactions_path)
     with codecs.open(output_path, 'w', 'utf8') as f:
         for r in obj:
-            f.write(u'{} {}\n'.format(r['subject'], r['body']))
+            f.write(u'{} {}\n'.format(
+                r['subject'].replace('\n', ' '),
+                r['body'].replace('\n', ' ')))
 
 if __name__ == '__main__':
     import argparse
