@@ -73,13 +73,6 @@ def calc_tree(node_i, r, U,
 
     logger.debug('binarizing dag...')
 
-    def check_g_attrs(g):
-        logger.debug("checking sender id")
-        for n in g.nodes():
-            if isinstance(n, basestring) and not n.startswith('dummy'):
-                assert 'sender_id' in g.node[n]
-    check_g_attrs(sub_g)
-
     binary_sub_g = binarize_dag(sub_g,
                                 IU.VERTEX_REWARD_KEY,
                                 IU.EDGE_COST_KEY,
