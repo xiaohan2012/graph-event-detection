@@ -39,5 +39,6 @@ def dump2interactions(db, collection_name, output_path):
 
 
 if __name__ == '__main__':
-    main(MongoClient()['bloomberg'],
-         '')
+    dump2interactions(MongoClient()['bloomberg'],
+                      'articles_test',
+                      'data/bloomberg/interactions.json')

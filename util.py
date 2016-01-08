@@ -59,3 +59,8 @@ def compose(*functions):
 def json_dump(obj, path):
     with codecs.open(path, 'w', 'utf8') as f:
         f.write(json.dumps(obj))
+
+
+def json_load(path):
+    with codecs.open(path, 'r', 'utf8') as f:
+        return json.load(f)
