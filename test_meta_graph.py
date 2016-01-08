@@ -109,5 +109,3 @@ def test_meta_graph_undirected_with_preprunining():
         set([(1, 2), (2, 3), (3, 4)]),
         set(g.edges())
     )
-    
-    

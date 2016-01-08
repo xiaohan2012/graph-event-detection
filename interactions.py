@@ -12,7 +12,8 @@ from memory_profiler import profile
 
 from util import load_items_by_line, get_datetime, compose
 
-from meta_graph import convert_to_meta_graph
+from meta_graph import convert_to_meta_graph, \
+    convert_to_meta_graph_undirected
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -38,7 +39,7 @@ class InteractionsUtil(object):
     valid_token_regexp = re.compile('^[a-z]+$')
 
     @classmethod
-    def clean_interactions(self, interactions):
+    def clean_interactions(self, interactions, undirected=False):
         """Some cleaning. Functional
         """
         new_interactions = []
@@ -47,10 +48,15 @@ class InteractionsUtil(object):
                 logger.debug("cleaning: {} / {}".format(row_n, len(interactions)))
 
             i = copy.deepcopy(i)
-            # remove duplicate recipients
-            i['recipient_ids'] = list(set(i['recipient_ids']))
-            
+            if not undirected:
+                # remove duplicate recipients
+                i['recipient_ids'] = list(set(i['recipient_ids']))
+            else:
+                i['participant_ids'] = list(set(i['participant_ids']))
+
             # normalize datetime and timestamp
+            if 'timestamp' in i:
+                i['datetime'] = i['timestamp']
             try:
                 i['datetime'] = get_datetime(i['datetime'])
             except TypeError:
@@ -119,7 +125,23 @@ class InteractionsUtil(object):
         return (interaction_names, sources, targets, time_stamps)
 
     @classmethod
+    def unzip_interactions_undirected(cls, interactions):
+        """
+        undirected case
+        tuple of (interaction_names, participants, time_stamps)
+        """
+        # sorting is important
+        interactions = sorted(interactions, key=lambda r: r['datetime'])
+        
+        interaction_names = [i['message_id'] for i in interactions]
+        particpants = [i['participant_ids'] for i in interactions]
+        time_stamps = [i['timestamp'] for i in interactions]
+
+        return (interaction_names, particpants, time_stamps)
+
+    @classmethod
     def get_meta_graph(cls, interactions,
+                       undirected=False,
                        preprune_secs=None,
                        decompose_interactions=True,
                        remove_singleton=True):
@@ -129,20 +151,33 @@ class InteractionsUtil(object):
         Decompose interactions if requested
         """
         if decompose_interactions:
+            if undirected:
+                raise ValueError('Non-sense to deompose for undirected graph')
+
             logger.info("decomposing and cleaning interactions...")
             interactions = cls.decompose_interactions(
                 cls.clean_interactions(
-                    interactions
+                    interactions,
+                    undirected=undirected
                 )
             )
         else:
             logger.info("cleaning interactions...")
             interactions = cls.clean_interactions(
-                interactions
+                interactions,
+                undirected=undirected
             )
 
-        g = convert_to_meta_graph(*cls.unzip_interactions(interactions),
-                                  preprune_secs=preprune_secs)
+        if not undirected:
+            logger.info('processing **directed** interactions')
+            g = convert_to_meta_graph(*cls.unzip_interactions(interactions),
+                                      preprune_secs=preprune_secs)
+        else:
+            logger.info('processing **undirected** interactions')
+            g = convert_to_meta_graph_undirected(
+                *cls.unzip_interactions_undirected(interactions),
+                preprune_secs=preprune_secs
+            )
         for i in interactions:
             n = i['message_id']
             if decompose_interactions:
@@ -161,8 +196,11 @@ class InteractionsUtil(object):
             if decompose_interactions:
                 g.node[n]['peers'] = i['peers']
 
-            g.node[n]['sender_id'] = i['sender_id']
-            g.node[n]['recipient_ids'] = i['recipient_ids']
+            if undirected:
+                g.node[n]['participant_ids'] = i['participant_ids']
+            else:
+                g.node[n]['sender_id'] = i['sender_id']
+                g.node[n]['recipient_ids'] = i['recipient_ids']
         
         if remove_singleton:
             for n in g.nodes():
@@ -266,13 +304,17 @@ class InteractionsUtil(object):
     def get_topic_meta_graph(cls, interactions,
                              lda_model, dictionary,
                              dist_func,
+                             undirected=False,
                              preprune_secs=None,
                              decompose_interactions=True,
+                             remove_singleton=True,
                              debug=False):
         logger.debug('getting meta graph...')
         mg = cls.get_meta_graph(interactions,
+                                undirected=undirected,
                                 decompose_interactions=decompose_interactions,
-                                preprune_secs=preprune_secs)
+                                preprune_secs=preprune_secs,
+                                remove_singleton=remove_singleton)
 
         logger.debug('adding topics...')
         tmg = cls.add_topics_to_graph(

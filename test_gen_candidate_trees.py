@@ -167,7 +167,8 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
             CURDIR,
             'test/data/enron-head-100')
 
-    def check(self, method="random", distance="entropy", sampling_method="uniform"):
+    def check(self, method="random", distance="entropy",
+              sampling_method="uniform", extra=""):
         cmd = """python {} \
         --method={} \
         --dist={} \
@@ -176,7 +177,8 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         --res_dir={} --weeks=4 --U=0.5 \
         --lda_path={} --interaction_path={} \
         --corpus_dict_path={} \
-        --meta_graph_path_prefix={}""".format(
+        --meta_graph_path_prefix={} \
+        {}""".format(
             self.script_path,
             method, distance,
             sampling_method,
@@ -184,7 +186,8 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
             self.lda_path,
             self.interaction_json_path,
             self.corpus_dict_path,
-            self.meta_graph_path_prefix
+            self.meta_graph_path_prefix,
+            extra
         ).split()
         output = check_output(cmd)
         assert_true("traceback" not in output.lower())

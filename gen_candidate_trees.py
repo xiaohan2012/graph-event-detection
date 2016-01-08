@@ -104,6 +104,7 @@ def calc_tree(node_i, r, U,
 
 def run(gen_tree_func,
         root_sampling_method=sample_nodes,
+        undirected=False,
         interaction_json_path=os.path.join(CURDIR, 'data/enron.json'),
         lda_model_path=os.path.join(CURDIR, 'models/model-4-50.lda'),
         corpus_dict_path=os.path.join(CURDIR, 'models/dictionary.pkl'),
@@ -157,6 +158,7 @@ def run(gen_tree_func,
         g = IU.get_topic_meta_graph(
             interactions,
             lda_model, dictionary,
+            undirected=undirected,
             debug=True,
             **meta_graph_kws
         )
@@ -253,6 +255,9 @@ if __name__ == '__main__':
     parser.add_argument('--decompose', action="store_true",
                         default=False,
                         help="Whether to decompose interactions")
+    parser.add_argument('--undirected', action="store_true",
+                        default=False,
+                        help="If the interactions are undirected or not")
     parser.add_argument('--cand_n',
                         default=500,
                         type=int,
@@ -306,6 +311,7 @@ if __name__ == '__main__':
 
     run(methods[args.method],
         root_sampling_method=root_sampling_methods[args.root_sampling],
+        undirected=args.undirected,
         interaction_json_path=args.interaction_path,
         corpus_dict_path=args.corpus_dict_path,
         meta_graph_pkl_path_prefix=args.meta_graph_path_prefix,

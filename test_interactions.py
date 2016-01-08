@@ -346,3 +346,42 @@ class InteractionsUtilTest(unittest.TestCase):
             ('1.B', '2'), ('1.C', '2'), ('1.D', '2')
         ])
         assert_equal(expected_edges, sorted(g.edges()))
+        
+
+class InteractionsUtilTestUndirected(unittest.TestCase):
+    """undirected case
+    """
+    def setUp(self):
+        self.lda_model = gensim.models.ldamodel.LdaModel.load(
+            os.path.join(CURDIR, 'test/data/undirected/lda_model-50-50.lda')
+        )
+        self.dictionary = gensim.corpora.dictionary.Dictionary.load(
+            os.path.join(CURDIR, 'test/data/undirected/dict.pkl')
+        )
+        self.interactions = json.load(
+            open(os.path.join(CURDIR,
+                              'test/data/undirected/interactions.json')))
+        
+    def test_get_meta_graph_for_undirected_case(self):
+        g = IU.get_meta_graph(
+            self.interactions,
+            undirected=True,
+            decompose_interactions=False,
+            remove_singleton=False
+        )
+        assert_equal(827, g.number_of_nodes())
+        assert_equal(3874, g.number_of_edges())
+
+    def test_get_topical_meta_graph_for_undirected_case(self):
+        # redundant
+        g = IU.get_topic_meta_graph(
+            self.interactions,
+            self.lda_model,
+            self.dictionary,
+            dist_func=scipy.stats.entropy,
+            undirected=True,
+            decompose_interactions=False,
+            remove_singleton=False
+        )
+        assert_equal(827, g.number_of_nodes())
+        assert_equal(3874, g.number_of_edges())
