@@ -312,16 +312,18 @@ Findings on timeline viz:
 - [timegliderJS](http://www.timeglider.com/widget/index.php?p=api)
 - [timelineJS](https://timeline.knightlab.com/docs/index.html)
 
-TODO:
+
+Day 4:
 
 - variance-based optimization(speed)
 - related code(for example in `gen_cand_trees`) to use variance lst
 - minimum spanning tree instead of dijkstra(cmd option): **aborted**, no rooted_mst in networkx available
+- sampling schemes: avoid leaf in meta-graph, give nodes with many out links high selection probability(cmd option)
+
+TODO:
 
 - textual summary of event
 - scale the node size by message count(original graph)
-
-- sampling schemes: avoid leaf in meta-graph, give nodes with many out links high selection probability(cmd option)
 
 
 - Bloomberg data(crawl, run)
@@ -329,5 +331,19 @@ TODO:
 
 - synthetic data(think)
 
+- experiment for variance method
 
-- link color for meta-graph
+# Valid interaction.json
+
+should contain fields:
+
+- message_id
+- subject
+- body
+- timestamp
+- datetime(*optional*)
+- *sender_id*
+- *recipient_ids*
+
+For the last two fields, it can be replaced by `participant_ids`
+
