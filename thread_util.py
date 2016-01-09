@@ -6,8 +6,10 @@ import time
 
 from util import get_datetime
 
+# required field names
 KEY_THREAD_ID = 'thread_id'
 KEY_DATETIME = 'datetime'
+KEY_TIMESTAMP = 'timestamp'
 KEY_SENDER_ID = 'sender_id'
 KEY_RECIPIENT_IDS = 'recipient_ids'
 
@@ -20,12 +22,18 @@ def add_recipients(df):
     Return: pandas.DataFrame
     """
     assert KEY_THREAD_ID in df.columns
-    assert KEY_DATETIME in df.columns
+    assert (KEY_DATETIME in df.columns) or (KEY_TIMESTAMP in df.columns)
     assert KEY_SENDER_ID in df.columns
     all_rows = []
+
     for k, thread in df.groupby([KEY_THREAD_ID]):
         recipients = set()
-        thread = thread.sort_values(KEY_DATETIME)
+
+        try:
+            thread = thread.sort_values(KEY_DATETIME)
+        except KeyError:
+            thread = thread.sort_values(KEY_TIMESTAMP)
+
         for i, r in thread.iterrows():
             if i == 0:
                 if thread.shape[0] > 1:

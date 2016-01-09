@@ -328,6 +328,7 @@ TODO:
 
 - synthetic data
 - github repo data(crawl, preprocessing)
+- check events cmd tool
 - run experiment
   - four datasets
   - four methods
