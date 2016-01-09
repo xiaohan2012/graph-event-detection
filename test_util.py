@@ -72,3 +72,5 @@ def test_get_datetime():
     assert_raises(ValueError, get_datetime, 'bad formatsadfasfd')
 
 
+def make_path(*path):
+    return os.path.join(CURDIR, *path)

@@ -319,19 +319,21 @@ Day 4:
 - related code(for example in `gen_cand_trees`) to use variance lst
 - minimum spanning tree instead of dijkstra(cmd option): **aborted**, no rooted_mst in networkx available
 - sampling schemes: avoid leaf in meta-graph, give nodes with many out links high selection probability(cmd option)
+- Bloomberg data(crawl, preprocessing)
 
 TODO:
 
 - textual summary of event
 - scale the node size by message count(original graph)
 
+- synthetic data
+- github repo data(crawl, preprocessing)
+- run experiment
+  - four datasets
+  - four methods
+  - sampling comparison
+- timeline visualization including participants, topic terms  
 
-- Bloomberg data(crawl, run)
-- github repo data(crawl, run)
-
-- synthetic data(think)
-
-- experiment for variance method
 
 # Valid interaction.json
 
