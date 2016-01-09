@@ -24,8 +24,10 @@ def load_items_by_line(path):
 
 class CorpusEnron(corpora.TextCorpus):
     stoplist = load_items_by_line('lemur-stopwords.txt')
-    valid_token_regexp = re.compile('^[a-z]+$')
+    # valid_token_regexp = re.compile('^[a-z]+$')
+    valid_token_regexp = re.compile('^[a-zA-Z][a-zA-Z0-9]?[_()\-a-zA-Z0-9]+$')
     MIN_WORD_LEN = 2
+
     MAX_WORD_LEN = 15
 
     def get_texts(self):

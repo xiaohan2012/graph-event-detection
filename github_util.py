@@ -59,3 +59,5 @@ def dump2people(input_path, output_path):
 if __name__ == '__main__':
     dump2interactions('data/sklearn/raw.json',
                       'data/sklearn/interactions.json')
+    dump2interactions('data/sklearn/raw.json',
+                      'data/sklearn/people.json')
