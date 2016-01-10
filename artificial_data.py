@@ -4,26 +4,6 @@ import numpy as np
 import itertools
 
 
-
-n_events = 10
-event_size_mu = 20
-event_size_sigma = 20
-
-n_total_participants = 50
-participant_mu = 5
-participant_sigma = 5
-
-min_time = 0
-max_time = 1000
-event_duration_mu = 5
-event_duration_sigma = 3
-
-n_topics = 10
-topic_scaling_factor = 10
-
-n_noisy_interactions = 100
-
-
 def random_topic(n_topics, scaling_factor=0.0001):
     main_topic = np.random.choice(np.arange(n_topics))
     dirich_alpha = np.zeros(n_topics)
@@ -71,6 +51,8 @@ def random_events(n_events, event_size_mu, event_size_sigma,
             end_time = max_time
 
         for j in xrange(event_size):
+            # how to ensure it's a tree?
+            # is a real event necessarily a tree?
             interaction_topic = np.random.dirichlet(event_topic_param)
             sender_id, recipient_id = np.random.permutation(participants)[:2]
             timestamp = np.random.uniform(start_time, end_time)
@@ -131,3 +113,36 @@ def make_articifial_data(
     for i, intr in enumerate(all_interactions):
         intr['id'] = i
     return events, all_interactions
+
+
+def main():
+    import cPickle as pkl
+    import argparse
+    parser = argparse.ArgumentParser('Make sythetic interaction data')
+    parser.add_argument('--n_events', type=int, default=10)
+    parser.add_argument('--event_size_mu', type=int, default=20)
+    parser.add_argument('--event_size_sigma', type=int, default=5)
+
+    parser.add_argument('--n_total_participants', type=int, default=50)
+    parser.add_argument('--participant_mu', type=int, default=5)
+    parser.add_argument('--participant_sigma', type=int, default=3)
+
+    parser.add_argument('--min_time', type=int, default=0)
+    parser.add_argument('--max_time', type=int, default=100)
+    parser.add_argument('--event_duration_mu', type=int, default=5)
+    parser.add_argument('--event_duration_sigma', type=int, default=3)
+
+    parser.add_argument('--n_topics', type=int, default=10)
+    parser.add_argument('--topic_scaling_factor', type=int, default=10)
+
+    parser.add_argument('--n_noisy_interactions', type=int, default=100)
+
+    args = parser.parse_args()
+
+    events, interactions = make_articifial_data(**vars(args))
+    pkl.dump(events, open('data/synthetic/events.json', 'w'))
+    pkl.dump(interactions, open('data/synthetic/interactions.json', 'w'))
+
+
+if __name__ == '__main__':
+    main()

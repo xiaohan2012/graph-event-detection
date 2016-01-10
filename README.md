@@ -30,6 +30,22 @@ Def of word:
 
 - [Enron Crisis Timeline](https://www.ferc.gov/industries/electric/indus-act/wec/chron/chronology.pdf)
 
+# Valid interaction.json
+
+should contain fields:
+
+- message_id
+- subject
+- body
+- timestamp
+- datetime(*optional*)
+- *sender_id*
+- *recipient_ids*
+
+For the last two fields, it can be replaced by `participant_ids`
+
+
+
 
 # Dairy
 
@@ -332,9 +348,6 @@ Day 6:
 
 TODO:
 
-- textual summary of event
-- scale the node size by message count(original graph)
-
 - run on synthetic data and evaluation
 
 - check events cmd tool
@@ -343,19 +356,7 @@ TODO:
   - four methods
   - sampling comparison
 - timeline visualization including participants, topic terms  
+- textual summary of event
+- scale the node size by message count(original graph)
 
-
-# Valid interaction.json
-
-should contain fields:
-
-- message_id
-- subject
-- body
-- timestamp
-- datetime(*optional*)
-- *sender_id*
-- *recipient_ids*
-
-For the last two fields, it can be replaced by `participant_ids`
 
