@@ -346,12 +346,16 @@ Day 6:
 - github preprocessing
 - synthetic data creation
 
-TODO:
+Day 7:
 
-- run on synthetic data and evaluation
+- synthetic data cmd support
+- event evaluation method
+
+TODO:
 
 - check events cmd tool
 - run experiment
+  - synthetic data
   - four datasets
   - four methods
   - sampling comparison
