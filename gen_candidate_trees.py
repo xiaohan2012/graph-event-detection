@@ -150,7 +150,8 @@ def run(gen_tree_func,
         meta_graph_kws['preprune_secs'] = meta_graph_kws['preprune_secs'].total_seconds()
         g = IU.get_topic_meta_graph(
             interactions,
-            lda_model, dictionary,
+            lda_model=lda_model, 
+            dictionary=dictionary,
             undirected=undirected,
             debug=True,
             **meta_graph_kws

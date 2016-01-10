@@ -69,8 +69,8 @@ def test_meta_graph_1():
 def test_convert_to_original_graph():
     lda_model, dictionary, interactions = load_meta_graph_necessities()
     g = IU.get_topic_meta_graph(interactions,
-                                lda_model,
-                                dictionary,
+                                lda_model=lda_model,
+                                dictionary=dictionary,
                                 dist_func=scipy.stats.entropy)
     og = convert_to_original_graph(g)
     expected = [('A', 'B'), ('A', 'C'), ('A', 'D'),

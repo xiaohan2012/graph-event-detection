@@ -73,7 +73,7 @@ class ArtificialDataTest(unittest.TestCase):
         )
         
         for e in events:
-            topic_mean = np.mean([i['topic'] for i in e], axis=0)
+            topic_mean = np.mean([i['topics'] for i in e], axis=0)
             topic_2nd, topic_1st = np.sort(topic_mean)[-2:]
             assert_true((topic_1st / topic_2nd) > 10000)
 
@@ -87,7 +87,7 @@ class ArtificialDataTest(unittest.TestCase):
         )
         assert_equal(self.params['n_noisy_interactions'],
                      len(intrs))
-        topic_mean = np.mean([i['topic'] for i in intrs], axis=0)
+        topic_mean = np.mean([i['topics'] for i in intrs], axis=0)
         self.seems_like_uniform_distribution(topic_mean)
         
         np.testing.assert_almost_equal(
