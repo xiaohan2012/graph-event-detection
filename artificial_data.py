@@ -112,11 +112,13 @@ def make_articifial_data(
     # add interaction id
     for i, intr in enumerate(all_interactions):
         intr['message_id'] = i
+        intr['topics'] = intr['topics'].tolist()
+
     return events, all_interactions
 
 
 def main():
-    import cPickle as pkl
+    import ujson as json
     import argparse
     parser = argparse.ArgumentParser('Make sythetic interaction data')
     parser.add_argument('--n_events', type=int, default=10)
@@ -140,8 +142,8 @@ def main():
     args = parser.parse_args()
 
     events, interactions = make_articifial_data(**vars(args))
-    pkl.dump(events, open('data/synthetic/events.pkl', 'w'))
-    pkl.dump(interactions, open('data/synthetic/interactions.pkl', 'w'))
+    json.dump(events, open('data/synthetic/events.json', 'w'))
+    json.dump(interactions, open('data/synthetic/interactions.json', 'w'))
 
 
 if __name__ == '__main__':

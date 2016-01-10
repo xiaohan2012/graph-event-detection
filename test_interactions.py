@@ -5,12 +5,12 @@ import scipy
 import numpy
 import gensim
 import ujson as json
-import cPickle as pkl
 
-from dag_util import binarize_dag
 from datetime import datetime, timedelta
 from nose.tools import assert_equal, assert_true, assert_almost_equal
+from scipy.spatial.distance import euclidean
 
+from .dag_util import binarize_dag
 from .interactions import InteractionsUtil as IU,\
     clean_decom_unzip, clean_unzip
 
@@ -392,9 +392,9 @@ class InteractionsUtilTestGivenTopics(unittest.TestCase):
     """when topics are given
     """
     def setUp(self):
-        self.interactions = pkl.load(
+        self.interactions = json.load(
             open(os.path.join(CURDIR,
-                              'test/data/given_topics/interactions.pkl')))
+                              'test/data/given_topics/interactions.json')))
         
     def test_get_meta_graph_given_topics(self):
         g = IU.get_meta_graph(
@@ -403,18 +403,19 @@ class InteractionsUtilTestGivenTopics(unittest.TestCase):
             remove_singleton=False,
             given_topics=True,
         )
-        assert_equal(288, g.number_of_nodes())
-        assert_equal(2069, g.number_of_edges())  # smaller
+        assert_equal(297, g.number_of_nodes())
+        assert_equal(2325, g.number_of_edges())  # smaller
 
     def test_get_topical_meta_graph_given_topics(self):
         g = IU.get_topic_meta_graph(
             self.interactions,
-            dist_func=scipy.stats.entropy,
+            dist_func=euclidean,
             decompose_interactions=False,
             remove_singleton=False,
             given_topics=True,
         )
-        assert_equal(288, g.number_of_nodes())
-        assert_equal(2069, g.number_of_edges())
+        assert_equal(297, g.number_of_nodes())
+        assert_equal(2325, g.number_of_edges())
         for s, t in g.edges_iter():
             assert_true('c' in g[s][t])
+            assert_true(g[s][t]['c'] != float('inf'))

@@ -10,6 +10,7 @@ from subprocess import check_output
 
 from gen_candidate_trees import run
 from scipy.stats import entropy
+from scipy.spatial.distance import euclidean
 
 from .lst import lst_dag, dp_dag_general, make_variance_cost_func
 from .baselines import greedy_grow, random_grow
@@ -41,6 +42,30 @@ undirected_params = {
 }
 
 
+lst = lambda g, r, U: lst_dag(
+    g, r, U,
+    edge_weight_decimal_point=2,
+    debug=False
+)
+
+variance_method = lambda g, r, U: dp_dag_general(
+    g, r, int(U*10),  # fixed point 1
+    make_variance_cost_func(entropy, 'topics',
+                            fixed_point=1,
+                            debug=False),
+    debug=False
+)
+
+variance_method_euclidean = lambda g, r, U: dp_dag_general(
+    g, r, int(U*10),  # fixed point 1
+    make_variance_cost_func(euclidean,
+                            'topics',
+                            fixed_point=1,
+                            debug=False),
+    debug=False
+)
+
+
 class GenCandidateTreeTest(unittest.TestCase):
     def setUp(self):
         random.seed(1)
@@ -51,27 +76,14 @@ class GenCandidateTreeTest(unittest.TestCase):
             'meta_graph_kws': {
                 'dist_func': entropy,
                 'decompose_interactions': False,
-                'preprune_secs': timedelta(weeks=4)
+                'preprune_secs': timedelta(weeks=4).total_seconds()
             },
             'gen_tree_kws': {
-                'timespan': timedelta(weeks=4),
+                'timespan': timedelta(weeks=4).total_seconds(),
                 'U': 0.5,
                 'dijkstra': False
             }
         }
-        self.lst = lambda g, r, U: lst_dag(
-            g, r, U,
-            edge_weight_decimal_point=2,
-            debug=False
-        )
-
-        self.variance_method = lambda g, r, U: dp_dag_general(
-            g, r, int(U*10),  # fixed point 1
-            make_variance_cost_func(entropy, 'topics',
-                                    fixed_point=1,
-                                    debug=True),
-            debug=False
-        )
 
         self.meta_pickle_path_common = "decompose_interactions=False--dist_func=entropy--preprune_secs=28days"
         pkl_path = make_path('test/data/enron-head-100--{}.pkl'.format(
@@ -93,7 +105,7 @@ class GenCandidateTreeTest(unittest.TestCase):
             kws.update(directed_params)
 
         run(
-            self.lst,
+            lst,
             calculate_graph=True,
             debug=False,
             print_summary=False,
@@ -143,7 +155,7 @@ class GenCandidateTreeTest(unittest.TestCase):
         return trees
 
     def test_if_sender_and_recipient_information_saved(self):
-        trees = self.check('lst', self.lst)
+        trees = self.check('lst', lst)
         for t in trees:
             for n in t.nodes():
                 assert_true('sender_id' in t.node[n])
@@ -156,22 +168,22 @@ class GenCandidateTreeTest(unittest.TestCase):
         self.check('random', random_grow)
 
     def test_lst_dag(self):
-        self.check('lst', self.lst)
+        self.check('lst', lst)
 
     def test_lst_dag_after_dijkstra(self):
-        trees = self.check('lst', self.lst)
+        trees = self.check('lst', lst)
 
         self.some_kws_of_run['gen_tree_kws']['dijkstra'] = True
-        trees_with_dij = self.check('lst', self.lst)
+        trees_with_dij = self.check('lst', lst)
 
         for t, t_dij in zip(trees, trees_with_dij):
             assert_true(sorted(t.edges()) != sorted(t_dij))
 
     def test_variance_method(self):
-        self.check('variance', self.variance_method)
+        self.check('variance', variance_method)
 
     def test_undirected(self):
-        self.check('variance', self.variance_method,
+        self.check('variance', variance_method,
                    undirected=True)
 
     def tearDown(self):
@@ -240,7 +252,98 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
     def test_undirected(self):
         self.check(sampling_method='out_degree', undirected=True)
 
-        
     def tearDown(self):
         remove_tmp_data('test/data/tmp')
+    
 
+class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
+    def setUp(self):
+        random.seed(1)
+        numpy.random.seed(1)
+
+        self.some_kws_of_run = {
+            'interaction_json_path': make_path('test/data/given_topics/interactions.json'),
+            'cand_tree_number': 5,
+            'meta_graph_pkl_path_prefix': make_path('test/data/given_topics/meta-graph'),
+            'undirected': False,
+            'meta_graph_kws': {
+                'dist_func': euclidean,
+                'decompose_interactions': False,
+                'preprune_secs': 8
+            },
+            'gen_tree_kws': {
+                'timespan': 8,
+                'U': 0.5,
+                'dijkstra': False
+            },
+            'given_topics': True
+        }
+
+        self.meta_pickle_path_common = "decompose_interactions=False--dist_func=euclidean--preprune_secs=8"
+        pkl_path = make_path('test/data/given_topics/result--{}.pkl'.format(
+            self.meta_pickle_path_common)
+        )
+        if not os.path.exists(pkl_path):
+            print('calc meta graph')
+            self._calc_cand_trees_pkl()
+        else:
+            print('no need to calc meta graph')
+
+    def _calc_cand_trees_pkl(self):
+        kws = self.some_kws_of_run.copy()
+
+        run(
+            lst,
+            calculate_graph=True,
+            debug=False,
+            print_summary=False,
+            result_pkl_path_prefix=make_path('test/data/tmp/test'),
+            **kws
+        )
+
+    def check(self, test_name, tree_gen_func, **more_args):
+        # empty trees are ignored
+        # very likely actual tree number should >= 0
+        result_pickle_prefix = make_path("test/data/tmp",
+                                         "result-{}".format(test_name))
+        pickle_path_suffix = 'U=0.5--dijkstra={}--timespan=8----%s' %(
+            self.meta_pickle_path_common
+        )
+        kws = self.some_kws_of_run.copy()
+        
+        if more_args:
+            kws.update(more_args)
+
+        if self.some_kws_of_run['gen_tree_kws'].get('dijkstra'):
+            pickle_path_suffix = pickle_path_suffix.format("True")
+        else:
+            pickle_path_suffix = pickle_path_suffix.format("False")
+
+        pickle_path = "{}--{}.pkl".format(
+            result_pickle_prefix,
+            pickle_path_suffix
+        )
+
+        run(tree_gen_func,
+            calculate_graph=False,
+            print_summary=False,
+            result_pkl_path_prefix=result_pickle_prefix,
+            **kws)
+
+        trees = pkl.load(open(pickle_path))
+
+        assert_true(len(trees) > 0)
+        for t in trees:
+            assert_true(len(t.edges()) > 0)
+        return trees
+
+    # overrides
+    def test_variance_method(self):
+        self.check('variance', variance_method_euclidean)
+
+    # overrides
+    def test_undirected(self):
+        pass
+
+    def tearDown(self):
+        remove_tmp_data('test/data/tmp')

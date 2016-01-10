@@ -191,7 +191,6 @@ class InteractionsUtil(object):
                 g.node[n]['body'] = i['body']
                 g.node[n]['subject'] = i['subject']
             else:
-                print(i)
                 g.node[n]['topics'] = i['topics']
                     
             g.node[n]['datetime'] = i['datetime']

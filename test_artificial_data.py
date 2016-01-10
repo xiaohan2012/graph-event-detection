@@ -117,3 +117,10 @@ class ArtificialDataTest(unittest.TestCase):
         )
         for i in all_interactions:
             assert_true('message_id' in i)
+            # make sure it's jsonable
+            assert_true(isinstance(i['topics'], list))
+
+        for e in events:
+            for i in e:
+                assert_true(isinstance(i['topics'], list))
+            

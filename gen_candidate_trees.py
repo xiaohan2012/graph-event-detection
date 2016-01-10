@@ -116,13 +116,17 @@ def run(gen_tree_func,
         },
         debug=False,
         calculate_graph=False,
+        given_topics=False,
         print_summary=False):
     result_pkl_path = "{}--{}----{}.pkl".format(
         result_pkl_path_prefix,
         experiment_signature(**gen_tree_kws),
         experiment_signature(**meta_graph_kws)
     )
-    timespan = gen_tree_kws['timespan'].total_seconds()
+    if isinstance(gen_tree_kws['timespan'], timedelta):
+        timespan = gen_tree_kws['timespan'].total_seconds()
+    else:
+        timespan = gen_tree_kws['timespan']
     U = gen_tree_kws['U']
         
     try:
@@ -147,13 +151,17 @@ def run(gen_tree_func,
     if calculate_graph:
         logger.info('calculating meta_graph...')
         meta_graph_kws = copy.deepcopy(meta_graph_kws)
-        meta_graph_kws['preprune_secs'] = meta_graph_kws['preprune_secs'].total_seconds()
+        if isinstance(meta_graph_kws['preprune_secs'], timedelta):
+            meta_graph_kws['preprune_secs'] = meta_graph_kws['preprune_secs'].total_seconds()
+        else:
+            meta_graph_kws['preprune_secs'] = meta_graph_kws['preprune_secs']
         g = IU.get_topic_meta_graph(
             interactions,
-            lda_model=lda_model, 
+            lda_model=lda_model,
             dictionary=dictionary,
             undirected=undirected,
             debug=True,
+            given_topics=given_topics,
             **meta_graph_kws
         )
 
@@ -324,5 +332,5 @@ if __name__ == '__main__':
             'dijkstra': args.dij
         },
         cand_tree_number=args.cand_n,
-        calculate_graph=args.calc_mg
+        calculate_graph=args.calc_mg,
     )

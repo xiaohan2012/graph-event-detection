@@ -67,3 +67,4 @@ models/
 tmp/
 
 *dist_func=entropy*.pkl
+*dist_func=euclidean*.pkl
