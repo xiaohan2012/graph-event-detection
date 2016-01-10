@@ -116,4 +116,4 @@ class ArtificialDataTest(unittest.TestCase):
             len(all_interactions)
         )
         for i in all_interactions:
-            assert_true('id' in i)
+            assert_true('message_id' in i)

@@ -36,7 +36,8 @@ class InteractionsUtil(object):
     EDGE_COST_KEY = 'c'
     
     stoplist = load_items_by_line(os.path.join(CURDIR, 'lemur-stopwords.txt'))
-    valid_token_regexp = re.compile('^[a-z]+$')
+    # valid_token_regexp = re.compile('^[a-z]+$')
+    valid_token_regexp = re.compile('^[a-zA-Z][a-zA-Z0-9]?[_()\-a-zA-Z0-9]+$')
 
     @classmethod
     def clean_interactions(self, interactions, undirected=False):
@@ -144,7 +145,8 @@ class InteractionsUtil(object):
                        undirected=False,
                        preprune_secs=None,
                        decompose_interactions=True,
-                       remove_singleton=True):
+                       remove_singleton=True,
+                       given_topics=False):
         """
         Return the meta graph together with temporally sorted interactions
         
@@ -185,8 +187,12 @@ class InteractionsUtil(object):
             else:
                 g.node[n]['message_id'] = i['message_id']
 
-            g.node[n]['body'] = i['body']
-            g.node[n]['subject'] = i['subject']
+            if not given_topics:
+                g.node[n]['body'] = i['body']
+                g.node[n]['subject'] = i['subject']
+            else:
+                print(i)
+                g.node[n]['topics'] = i['topics']
                     
             g.node[n]['datetime'] = i['datetime']
             g.node[n]['timestamp'] = i['timestamp']
@@ -302,27 +308,33 @@ class InteractionsUtil(object):
         
     @classmethod
     def get_topic_meta_graph(cls, interactions,
-                             lda_model, dictionary,
                              dist_func,
+                             lda_model=None, dictionary=None,
                              undirected=False,
                              preprune_secs=None,
                              decompose_interactions=True,
                              remove_singleton=True,
+                             given_topics=False,
                              debug=False):
         logger.debug('getting meta graph...')
         mg = cls.get_meta_graph(interactions,
                                 undirected=undirected,
                                 decompose_interactions=decompose_interactions,
                                 preprune_secs=preprune_secs,
-                                remove_singleton=remove_singleton)
+                                remove_singleton=remove_singleton,
+                                given_topics=given_topics)
 
-        logger.debug('adding topics...')
-        tmg = cls.add_topics_to_graph(
-            mg,
-            lda_model,
-            dictionary,
-            debug
-        )
+        if not given_topics:
+            logger.debug('adding topics...')
+            tmg = cls.add_topics_to_graph(
+                mg,
+                lda_model,
+                dictionary,
+                debug
+            )
+        else:
+            tmg = mg
+            logger.info('topics are given')
 
         logger.debug('assiging _edge weights')
         return cls.assign_edge_weights(tmg,

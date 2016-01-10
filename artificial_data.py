@@ -60,7 +60,7 @@ def random_events(n_events, event_size_mu, event_size_sigma,
                 'sender_id': sender_id,
                 'recipient_ids': [recipient_id],
                 'timestamp': timestamp,
-                'topic': interaction_topic
+                'topics': interaction_topic
             })
 
         events.append(event)
@@ -83,7 +83,7 @@ def random_noisy_interactions(n_noisy_interactions,
             'sender_id': sender_id,
             'recipient_ids': [recipient_id],
             'timestamp': np.random.uniform(min_time, max_time),
-            'topic': topic
+            'topics': topic
         })
     return noisy_interactions
 
@@ -111,7 +111,7 @@ def make_articifial_data(
 
     # add interaction id
     for i, intr in enumerate(all_interactions):
-        intr['id'] = i
+        intr['message_id'] = i
     return events, all_interactions
 
 
@@ -140,8 +140,8 @@ def main():
     args = parser.parse_args()
 
     events, interactions = make_articifial_data(**vars(args))
-    pkl.dump(events, open('data/synthetic/events.json', 'w'))
-    pkl.dump(interactions, open('data/synthetic/interactions.json', 'w'))
+    pkl.dump(events, open('data/synthetic/events.pkl', 'w'))
+    pkl.dump(interactions, open('data/synthetic/interactions.pkl', 'w'))
 
 
 if __name__ == '__main__':

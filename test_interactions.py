@@ -5,6 +5,7 @@ import scipy
 import numpy
 import gensim
 import ujson as json
+import cPickle as pkl
 
 from dag_util import binarize_dag
 from datetime import datetime, timedelta
@@ -236,9 +237,9 @@ class InteractionsUtilTest(unittest.TestCase):
     def test_get_topic_meta_graph(self):
         g = IU.get_topic_meta_graph(
             self.interactions,
+            scipy.stats.entropy,
             self.lda_model,
             self.dictionary,
-            dist_func=scipy.stats.entropy,
             preprune_secs=None)
         
         assert_true(
@@ -253,9 +254,9 @@ class InteractionsUtilTest(unittest.TestCase):
 
     def test_get_topic_meta_graph_without_decomposition(self):
         g = IU.get_topic_meta_graph(self.interactions,
+                                    scipy.stats.entropy,
                                     self.lda_model,
                                     self.dictionary,
-                                    dist_func=scipy.stats.entropy,
                                     decompose_interactions=False,
                                     preprune_secs=None)
         
@@ -269,9 +270,9 @@ class InteractionsUtilTest(unittest.TestCase):
 
     def test_get_topic_meta_graph_with_prepruning(self):
         g = IU.get_topic_meta_graph(self.interactions,
+                                    scipy.stats.entropy,
                                     self.lda_model,
                                     self.dictionary,
-                                    dist_func=scipy.stats.entropy,
                                     preprune_secs=1.0)
         
         assert_almost_equal(
@@ -284,9 +285,9 @@ class InteractionsUtilTest(unittest.TestCase):
     def test_compactize_meta_graph(self):
         # assure node topic vectors are deleted
         g = IU.get_topic_meta_graph(self.interactions,
+                                    scipy.stats.entropy,
                                     self.lda_model,
-                                    self.dictionary,
-                                    dist_func=scipy.stats.entropy)
+                                    self.dictionary)
         original_g = g.copy()
         g, str2id = IU.compactize_meta_graph(g, map_nodes=True)
         
@@ -317,9 +318,9 @@ class InteractionsUtilTest(unittest.TestCase):
                 # assure node topic vectors are deleted
         g = IU.get_topic_meta_graph(
             self.interactions,
+            scipy.stats.entropy,
             self.lda_model,
-            self.dictionary,
-            dist_func=scipy.stats.entropy
+            self.dictionary
         )
         original_g = g.copy()
         g = IU.compactize_meta_graph(g, map_nodes=False)
@@ -376,12 +377,44 @@ class InteractionsUtilTestUndirected(unittest.TestCase):
         # redundant
         g = IU.get_topic_meta_graph(
             self.interactions,
+            scipy.stats.entropy,
             self.lda_model,
             self.dictionary,
-            dist_func=scipy.stats.entropy,
             undirected=True,
             decompose_interactions=False,
             remove_singleton=False
         )
         assert_equal(827, g.number_of_nodes())
         assert_equal(3874, g.number_of_edges())
+
+
+class InteractionsUtilTestGivenTopics(unittest.TestCase):
+    """when topics are given
+    """
+    def setUp(self):
+        self.interactions = pkl.load(
+            open(os.path.join(CURDIR,
+                              'test/data/given_topics/interactions.pkl')))
+        
+    def test_get_meta_graph_given_topics(self):
+        g = IU.get_meta_graph(
+            self.interactions,
+            decompose_interactions=False,
+            remove_singleton=False,
+            given_topics=True,
+        )
+        assert_equal(288, g.number_of_nodes())
+        assert_equal(2069, g.number_of_edges())  # smaller
+
+    def test_get_topical_meta_graph_given_topics(self):
+        g = IU.get_topic_meta_graph(
+            self.interactions,
+            dist_func=scipy.stats.entropy,
+            decompose_interactions=False,
+            remove_singleton=False,
+            given_topics=True,
+        )
+        assert_equal(288, g.number_of_nodes())
+        assert_equal(2069, g.number_of_edges())
+        for s, t in g.edges_iter():
+            assert_true('c' in g[s][t])
