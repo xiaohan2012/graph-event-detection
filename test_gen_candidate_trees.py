@@ -76,10 +76,10 @@ class GenCandidateTreeTest(unittest.TestCase):
             'meta_graph_kws': {
                 'dist_func': entropy,
                 'decompose_interactions': False,
-                'preprune_secs': timedelta(weeks=4).total_seconds()
+                'preprune_secs': timedelta(weeks=4)
             },
             'gen_tree_kws': {
-                'timespan': timedelta(weeks=4).total_seconds(),
+                'timespan': timedelta(weeks=4),
                 'U': 0.5,
                 'dijkstra': False
             }
@@ -200,15 +200,16 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         self.script_path = make_path("gen_candidate_trees.py")
         self.result_dir = make_path("test/data/tmp")
 
-        self.directed_result_output_path_template = "test/data/tmp/result-{}--U=0.5--dijkstra=False--timespan=28days----decompose_interactions=False--dist_func={}--preprune_secs=28days.pkl"
-        self.undirected_result_output_path_template = "test/data/tmp/result-{}--U=0.5--dijkstra=False--timespan=28days----decompose_interactions=False--dist_func={}--preprune_secs=28days.pkl"
+        self.result_output_path_template = "test/data/tmp/result-{}--U=0.5--dijkstra=False--timespan=28days----decompose_interactions=False--dist_func={}--preprune_secs=28days.pkl"
+        self.directed_params = directed_params
+        self.undirected_params = undirected_params
 
     def check(self, method="random", distance="entropy",
               sampling_method="uniform", extra="", undirected=False):
         if undirected:
-            more_params = undirected_params
+            more_params = self.undirected_params
         else:
-            more_params = directed_params
+            more_params = self.directed_params
 
         cmd = """python {} \
         --method={method} \
@@ -232,7 +233,7 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         assert_true("traceback" not in output.lower())
         print(output)
         output_path = make_path(
-            self.directed_result_output_path_template.format(
+            self.result_output_path_template.format(
                 method, distance
             )
         )
@@ -251,6 +252,18 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
 
     def test_undirected(self):
         self.check(sampling_method='out_degree', undirected=True)
+
+    def test_sythetic(self):
+        self.directed_params = {
+            'interaction_json_path': make_path('test/data/given_topics/interactions.json'),
+            'meta_graph_pkl_path_prefix': make_path('test/data/given_topics/meta-graph'),
+            'lda_model_path': None,
+            'corpus_dict_path': None,
+            'undirected': False
+        }
+        self.result_output_path_template = "test/data/tmp/result-{}--U=0.5--dijkstra=False--timespan=8----decompose_interactions=False--dist_func={}--preprune_secs=8.pkl"
+        self.check(sampling_method='out_degree', undirected=False,
+                   extra='--seconds=8 --given_topics')
 
     def tearDown(self):
         remove_tmp_data('test/data/tmp')

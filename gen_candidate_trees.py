@@ -135,12 +135,16 @@ def run(gen_tree_func,
         interactions = load_json_by_line(interaction_json_path)
 
     logger.info('loading lda from {}'.format(lda_model_path))
-    lda_model = gensim.models.ldamodel.LdaModel.load(
-        os.path.join(CURDIR, lda_model_path)
-    )
-    dictionary = gensim.corpora.dictionary.Dictionary.load(
-        os.path.join(CURDIR, corpus_dict_path)
-    )
+    if not given_topics:
+        lda_model = gensim.models.ldamodel.LdaModel.load(
+            os.path.join(CURDIR, lda_model_path)
+        )
+        dictionary = gensim.corpora.dictionary.Dictionary.load(
+            os.path.join(CURDIR, corpus_dict_path)
+        )
+    else:
+        lda_model = None
+        dictionary = None
 
     meta_graph_pkl_path = "{}--{}.pkl".format(
         meta_graph_pkl_path_prefix,
@@ -272,6 +276,13 @@ if __name__ == '__main__':
                         type=int,
                         default=4,
                         help="Time span in terms of weeks")
+    parser.add_argument('--seconds',
+                        type=int,
+                        default=0,
+                        help="Time span in terms of seconds")
+    parser.add_argument('--given_topics',
+                        action='store_true',
+                        help="whether topics are given")
 
     parser.add_argument('--U',
                         type=float,
@@ -309,6 +320,11 @@ if __name__ == '__main__':
         'out_degree': sample_nodes_by_out_degree
     }
 
+    # `seconds` of higher priority
+    timespan = (args.seconds
+                if args.seconds
+                else timedelta(weeks=args.weeks))
+
     pprint(vars(args))
 
     run(methods[args.method],
@@ -324,13 +340,14 @@ if __name__ == '__main__':
         meta_graph_kws={
             'dist_func': dist_func,
             'decompose_interactions': args.decompose,
-            'preprune_secs': timedelta(weeks=args.weeks),
+            'preprune_secs': timespan,
         },
         gen_tree_kws={
-            'timespan': timedelta(weeks=args.weeks),
+            'timespan': timespan,
             'U': args.U,
             'dijkstra': args.dij
         },
         cand_tree_number=args.cand_n,
         calculate_graph=args.calc_mg,
+        given_topics=args.given_topics
     )
