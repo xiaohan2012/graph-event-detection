@@ -1,79 +1,70 @@
-import os
+import ujson as json
 import cPickle as pickle
 import gensim
-import numpy as np
+
+from pprint import pprint
 
 from meta_graph_stat import MetaGraphStat
 from max_cover import argmax_k_coverage
-from util import load_json_by_line
 from event_summary import summary
 
-import sys
 
-result_path = sys.argv[1]
+def main():
+    import argparse
+    parser = argparse.ArgumentParser('check k best trees')
+    parser.add_argument('--cand_trees_path', required=True)
+    parser.add_argument('--interactions_path', required=True)
+    parser.add_argument('--people_path', required=True)
+    parser.add_argument('--corpus_dict_path', required=True)
+    parser.add_argument('--lda_model_path', required=True)
+    parser.add_argument('--people_repr_template', type=str,
+                        default="{id}")
+    parser.add_argument('-k', type=int, default=10)
 
-K = 25
+    args = parser.parse_args()
+    pprint(vars(args))
 
-CURDIR = os.path.dirname(os.path.abspath(__file__))
+    interactions = json.load(open(args.interactions_path))
+    people_info = json.load(open(args.people_path))
 
-interactions = load_json_by_line('data/enron.json')
-people_info = load_json_by_line('data/people.json')
+    dictionary = gensim.corpora.dictionary.Dictionary.load(
+        args.corpus_dict_path
+    )
 
-dictionary = gensim.corpora.dictionary.Dictionary.load(
-    os.path.join(CURDIR, 'models/dictionary.pkl')
-)
+    lda = gensim.models.ldamodel.LdaModel.load(
+        args.lda_model_path
+    )
 
-lda = gensim.models.ldamodel.LdaModel.load(
-    os.path.join(CURDIR, 'models/model-4-50.lda')
-)
+    trees = pickle.load(open(args.cand_trees_path))
 
-trees = pickle.load(open(result_path))
+    nodes_of_trees = [set(t.nodes()) for t in trees]
 
-nodes_of_trees = [set(t.nodes()) for t in trees]
+    selected_ids = argmax_k_coverage(nodes_of_trees, args.k)
 
-selected_ids = argmax_k_coverage(nodes_of_trees, K)
-
-STAT_KWS = {
-    'temporal_traffic': {
-        'time_resolution': 'day'
-    },
-    'topics': {
-        'interactions': interactions,
-        'dictionary': dictionary,
-        'lda': lda,
-        'top_k': 10
-    },
-    'email_content': {
-        'interactions': interactions,
-        'top_k': 5
-    },
-    'participants': {
-        'people_info': people_info,
-        'interactions': interactions,
-        'top_k': 5
+    summary_kws = {
+        'temporal_traffic': False,
+        'topics': {
+            'interactions': interactions,
+            'dictionary': dictionary,
+            'lda': lda,
+            'top_k': 10
+        },
+        'email_content': {
+            'interactions': interactions,
+            'top_k': 5
+        },
+        'participants': {
+            'people_info': people_info,
+            'interactions': interactions,
+            'top_k': 5,
+            'people_repr_template': args.people_repr_template
+        }
     }
-}
+
+    print summary([trees[id_] for id_ in selected_ids],
+                  summary_kws=summary_kws,
+                  tablefmt='orgtbl')
 
 
-def get_summary(g):
-    return MetaGraphStat(g, kws=STAT_KWS).summary()
-
-
-# for ind, i in enumerate(selected_ids):
-#     t = trees[i]
-#     print("############ {}".format(ind+1))
-#     print('Tree simmary:\n{}'.format(get_summary(t)))
-
-# mat = np.zeros((K, K))
-
-# # overlapping ratio matrix
-# for a, i in enumerate(selected_ids):
-#     for b, j in enumerate(selected_ids):
-#         s1 = set(trees[i].nodes())
-#         s2 = set(trees[j].nodes())
-#         mat[a][b] = len(s1.intersection(s2)) / float(len(s1))
-
-# print(mat)
-
-
-print summary([trees[id_] for id_ in selected_ids], tablefmt='orgtbl')
+if __name__ == '__main__':
+    main()

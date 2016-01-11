@@ -363,6 +363,7 @@ TODO:
   - method
   - noise interaction number
   - sampling count
+  - density of the event  
 - check events cmd tool
 - run experiment
   - four datasets

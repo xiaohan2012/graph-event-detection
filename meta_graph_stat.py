@@ -86,6 +86,7 @@ class MetaGraphStat(object):
         id2subject = {}
         for m in interactions:
             id2subject[m['message_id']] = m['subject']
+
         msgs = []
         mids = [self.g.node[n]['message_id']
                 for n in nx.topological_sort(self.g)]
@@ -126,7 +127,7 @@ class MetaGraphStat(object):
     def topics(self, interactions, dictionary, lda, top_k=10):
         id2msg = {}
         for m in interactions:
-            id2msg[m['message_id']] = "{} {}".format(
+            id2msg[m['message_id']] = u"{} {}".format(
                 m['subject'], m['body']
             )
 
@@ -159,8 +160,10 @@ class MetaGraphStat(object):
                 'topic_terms': topic_terms,
                 'topic_divergence': topic_divergence}
 
-    def participants(self, people_info, interactions, top_k=10):
-        peopleid2info = {r['id']: (r['name'], r['email'])
+    def participants(self, people_info, interactions,
+                     people_repr_template="{name} {email}",
+                     top_k=10):
+        peopleid2info = {r['id']: people_repr_template.format(**r)
                          for r in people_info}
 
         mid2sender = {m['message_id']: m['sender_id']
