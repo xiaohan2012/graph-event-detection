@@ -1,4 +1,3 @@
-from sklearn.metrics import precision_recall_fscore_support
 from itertools import chain
 
 
@@ -49,3 +48,13 @@ def evaluate_clustering_result(
     )
     return metric(true_labels, pred_labels)
     
+
+def evaluate_meta_tree_result(
+        true_events, pred_trees, all_entry_ids, metric, true_only=True):
+    true_clusters = [[i['message_id'] for i in e]for e in true_events]
+    pred_clusters = [t.nodes() for t in pred_trees]
+    
+    return evaluate_clustering_result(true_clusters, pred_clusters,
+                                      all_entry_ids,
+                                      metric,
+                                      true_only)

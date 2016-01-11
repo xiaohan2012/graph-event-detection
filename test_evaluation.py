@@ -1,10 +1,12 @@
 import unittest
 import numpy as np
+import networkx as nx
 from nose.tools import assert_equal, assert_almost_equal
 from sklearn import metrics
 from .evaluation import precision_recall_f1, \
     convert_to_cluster_assignment_array, \
-    evaluate_clustering_result
+    evaluate_clustering_result, \
+    evaluate_meta_tree_result
 
 
 class EvaluationTest(unittest.TestCase):
@@ -82,5 +84,27 @@ class EvaluationTest(unittest.TestCase):
                 self.all_entry_ids,
                 metric=metrics.adjusted_mutual_info_score,
                 true_only=False
+            )
+        )
+
+    def test_evaluate_meta_tree_result(self):
+        true_events = [[{'message_id': i} for i in c]
+                       for c in self.true_clusters]
+        pred_trees = []
+        for c in self.pred_clusters:
+            t = nx.DiGraph()
+            for i in c:
+                t.add_node(i)
+            pred_trees.append(t)
+
+        assert_almost_equal(
+            metrics.adjusted_rand_score(
+                [2, 2, 1, 1, 1, 1],
+                [2, 2, 0, 1, 0, 1]
+            ),
+            evaluate_meta_tree_result(
+                true_events,
+                pred_trees, self.all_entry_ids,
+                metric=metrics.adjusted_rand_score, true_only=True
             )
         )

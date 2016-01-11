@@ -122,7 +122,7 @@ def main():
     import argparse
     parser = argparse.ArgumentParser('Make sythetic interaction data')
     parser.add_argument('--n_events', type=int, default=10)
-    parser.add_argument('--event_size_mu', type=int, default=20)
+    parser.add_argument('--event_size_mu', type=int, default=40)
     parser.add_argument('--event_size_sigma', type=int, default=5)
 
     parser.add_argument('--n_total_participants', type=int, default=50)
