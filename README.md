@@ -30,6 +30,22 @@ Def of word:
 
 - [Enron Crisis Timeline](https://www.ferc.gov/industries/electric/indus-act/wec/chron/chronology.pdf)
 
+# Valid interaction.json
+
+should contain fields:
+
+- message_id
+- subject
+- body
+- timestamp
+- datetime(*optional*)
+- *sender_id*
+- *recipient_ids*
+
+For the last two fields, it can be replaced by `participant_ids`
+
+
+
 
 # Dairy
 
@@ -301,3 +317,53 @@ Day 5:
 
 - generalize viz and viz-preparation code, different datasets in different dir
 - Run `./scripts/check_islamic_events.sh tmp/islamic/result-lst--U=5.0--dijkstra=True--timespan=28days----decompose_interactions=False--dist_func=euclidean--preprune_secs=28days.pkl` to find some patterns
+
+
+# Week 7
+
+Day 1-3:
+
+- Finished task for Day 5 of last week
+
+Findings on timeline viz:
+
+- [timegliderJS](http://www.timeglider.com/widget/index.php?p=api)
+- [timelineJS](https://timeline.knightlab.com/docs/index.html)
+
+
+Day 4:
+
+- variance-based optimization(speed)
+- related code(for example in `gen_cand_trees`) to use variance lst
+- minimum spanning tree instead of dijkstra(cmd option): **aborted**, no rooted_mst in networkx available
+- sampling schemes: avoid leaf in meta-graph, give nodes with many out links high selection probability(cmd option)
+
+Day 5:
+
+- Bloomberg data(crawl, preprocessing)
+- github repo data crawl
+
+Day 6:
+
+- github preprocessing
+- synthetic data creation
+
+Day 7:
+
+- synthetic data cmd support
+- event evaluation method
+
+TODO:
+
+- check events cmd tool
+- run experiment
+  - synthetic data
+  - four datasets
+  - four methods
+  - sampling comparison
+- timeline visualization including participants, topic terms  
+- textual summary of event
+- scale the node size by message count(original graph)
+
+
+

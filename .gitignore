@@ -67,4 +67,6 @@ models/
 tmp/
 
 scripts/experiment_cmds.sh
-test/data/enron-head-100--decompose_interactions=False*.pkl
+*dist_func=entropy*.pkl
+*dist_func=euclidean*.pkl
+

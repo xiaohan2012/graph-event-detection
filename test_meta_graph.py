@@ -2,7 +2,9 @@ import string
 import scipy
 from nose.tools import assert_equal
 
-from .meta_graph import convert_to_meta_graph, convert_to_original_graph
+from .meta_graph import convert_to_meta_graph, \
+    convert_to_original_graph, \
+    convert_to_meta_graph_undirected
 from .interactions import InteractionsUtil as IU, \
     clean_decom_unzip, clean_unzip
 
@@ -67,10 +69,43 @@ def test_meta_graph_1():
 def test_convert_to_original_graph():
     lda_model, dictionary, interactions = load_meta_graph_necessities()
     g = IU.get_topic_meta_graph(interactions,
-                                lda_model,
-                                dictionary,
+                                lda_model=lda_model,
+                                dictionary=dictionary,
                                 dist_func=scipy.stats.entropy)
     og = convert_to_original_graph(g)
     expected = [('A', 'B'), ('A', 'C'), ('A', 'D'),
                 ('A', 'F'), ('D', 'E'), ('D', 'F')]
     assert_equal(sorted(expected), sorted(og.edges()))
+
+
+def get_undirected_example():
+    node_names = (1, 2, 3, 4)
+    participants = [
+        ('a', 'b'),
+        ('b', 'c'),
+        ('c', 'd'),
+        ('a', 'c'),
+    ]
+    time_stamps = (1, 2, 3, 4)
+    return node_names, participants, time_stamps
+
+
+def test_meta_graph_undirected():
+    g = convert_to_meta_graph_undirected(
+        *get_undirected_example()
+    )
+    assert_equal(
+        set([(1, 2), (1, 4), (2, 3), (2, 4), (3, 4)]),
+        set(g.edges())
+    )
+
+
+def test_meta_graph_undirected_with_preprunining():
+    g = convert_to_meta_graph_undirected(
+        *get_undirected_example(),
+        preprune_secs=1
+    )
+    assert_equal(
+        set([(1, 2), (2, 3), (3, 4)]),
+        set(g.edges())
+    )

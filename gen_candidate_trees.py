@@ -5,7 +5,9 @@ import networkx as nx
 import ujson as json
 import copy
 import logging
+import itertools
 
+from pprint import pprint
 from datetime import timedelta
 from scipy.spatial.distance import euclidean, cosine
 from scipy.stats import entropy
@@ -14,10 +16,12 @@ from pathos.multiprocessing import ProcessingPool as Pool
 from multiprocessing import Manager
 
 from dag_util import unbinarize_dag, binarize_dag, remove_edges_via_dijkstra
-from lst import lst_dag
+from lst import lst_dag, make_variance_cost_func, dp_dag_general
 from interactions import InteractionsUtil as IU
 from meta_graph_stat import MetaGraphStat
-from experiment_util import sample_nodes, experiment_signature
+from experiment_util import sample_nodes, \
+    sample_nodes_by_out_degree,\
+    experiment_signature
 from util import load_json_by_line
 from baselines import greedy_grow, random_grow
 
@@ -28,6 +32,7 @@ logger.setLevel(logging.DEBUG)
 
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
+
 
 def get_summary(g):
     return MetaGraphStat(
@@ -68,13 +73,6 @@ def calc_tree(node_i, r, U,
 
     logger.debug('binarizing dag...')
 
-    def check_g_attrs(g):
-        logger.debug("checking sender id")
-        for n in g.nodes():
-            if isinstance(n, basestring) and not n.startswith('dummy'):
-                assert 'sender_id' in g.node[n]
-    check_g_attrs(sub_g)
-
     binary_sub_g = binarize_dag(sub_g,
                                 IU.VERTEX_REWARD_KEY,
                                 IU.EDGE_COST_KEY,
@@ -98,6 +96,8 @@ def calc_tree(node_i, r, U,
 
 
 def run(gen_tree_func,
+        root_sampling_method=sample_nodes,
+        undirected=False,
         interaction_json_path=os.path.join(CURDIR, 'data/enron.json'),
         lda_model_path=os.path.join(CURDIR, 'models/model-4-50.lda'),
         corpus_dict_path=os.path.join(CURDIR, 'models/dictionary.pkl'),
@@ -116,13 +116,17 @@ def run(gen_tree_func,
         },
         debug=False,
         calculate_graph=False,
+        given_topics=False,
         print_summary=False):
     result_pkl_path = "{}--{}----{}.pkl".format(
         result_pkl_path_prefix,
         experiment_signature(**gen_tree_kws),
         experiment_signature(**meta_graph_kws)
     )
-    timespan = gen_tree_kws['timespan'].total_seconds()
+    if isinstance(gen_tree_kws['timespan'], timedelta):
+        timespan = gen_tree_kws['timespan'].total_seconds()
+    else:
+        timespan = gen_tree_kws['timespan']
     U = gen_tree_kws['U']
         
     try:
@@ -131,12 +135,16 @@ def run(gen_tree_func,
         interactions = load_json_by_line(interaction_json_path)
 
     logger.info('loading lda from {}'.format(lda_model_path))
-    lda_model = gensim.models.ldamodel.LdaModel.load(
-        os.path.join(CURDIR, lda_model_path)
-    )
-    dictionary = gensim.corpora.dictionary.Dictionary.load(
-        os.path.join(CURDIR, corpus_dict_path)
-    )
+    if not given_topics:
+        lda_model = gensim.models.ldamodel.LdaModel.load(
+            os.path.join(CURDIR, lda_model_path)
+        )
+        dictionary = gensim.corpora.dictionary.Dictionary.load(
+            os.path.join(CURDIR, corpus_dict_path)
+        )
+    else:
+        lda_model = None
+        dictionary = None
 
     meta_graph_pkl_path = "{}--{}.pkl".format(
         meta_graph_pkl_path_prefix,
@@ -147,11 +155,17 @@ def run(gen_tree_func,
     if calculate_graph:
         logger.info('calculating meta_graph...')
         meta_graph_kws = copy.deepcopy(meta_graph_kws)
-        meta_graph_kws['preprune_secs'] = meta_graph_kws['preprune_secs'].total_seconds()
+        if isinstance(meta_graph_kws['preprune_secs'], timedelta):
+            meta_graph_kws['preprune_secs'] = meta_graph_kws['preprune_secs'].total_seconds()
+        else:
+            meta_graph_kws['preprune_secs'] = meta_graph_kws['preprune_secs']
         g = IU.get_topic_meta_graph(
             interactions,
-            lda_model, dictionary,
+            lda_model=lda_model,
+            dictionary=dictionary,
+            undirected=undirected,
             debug=True,
+            given_topics=given_topics,
             **meta_graph_kws
         )
 
@@ -168,7 +182,7 @@ def run(gen_tree_func,
     if print_summary:
         logger.debug(get_summary(g))
 
-    roots = sample_nodes(g, cand_tree_number)
+    roots = root_sampling_method(g, cand_tree_number)
 
     pool = Pool(4)
     manager = Manager()
@@ -181,14 +195,25 @@ def run(gen_tree_func,
     #                    print_summary)
     #                   for i, r in enumerate(roots))
     from functools import partial
-    trees = pool.map(partial(calc_tree,
-                             U=U,
-                             gen_tree_func=gen_tree_func,
-                             timespan=timespan,
-                             gen_tree_kws=gen_tree_kws,
-                             shared_dict=shared_dict,
-                             print_summary=print_summary),
-                     xrange(len(roots)), roots)
+    # trees = pool.map(partial(calc_tree,
+    #                          U=U,
+    #                          gen_tree_func=gen_tree_func,
+    #                          timespan=timespan,
+    #                          gen_tree_kws=gen_tree_kws,
+    #                          shared_dict=shared_dict,
+    #                          print_summary=print_summary),
+    #                  xrange(len(roots)), roots)
+    trees = map(lambda (i, r):
+                calc_tree(
+                    i, r,
+                    U=U,
+                    gen_tree_func=gen_tree_func,
+                    timespan=timespan,
+                    gen_tree_kws=gen_tree_kws,
+                    shared_dict=shared_dict,
+                    print_summary=print_summary),
+                itertools.izip(xrange(len(roots)),
+                               roots))
     
     trees = filter(None, trees)  # remove Nones
 
@@ -218,11 +243,15 @@ if __name__ == '__main__':
                         help="Prefix of path of meta graph pickle")
 
     parser.add_argument('--method', required=True,
-                        choices=("lst", "greedy", "random"),
+                        choices=("lst", "greedy", "random", "variance"),
                         help="Method you will use")
     parser.add_argument('--dist', required=True,
                         choices=('entropy', 'euclidean', 'cosine'),
                         help="Distance function to use")
+    parser.add_argument('--root_sampling', required=True,
+                        choices=('uniform', 'out_degree'),
+                        help="Scheme to sample roots")
+
     parser.add_argument('--dij', action="store_true",
                         default=False,
                         help="Whether to use Dijkstra or not")
@@ -232,6 +261,9 @@ if __name__ == '__main__':
     parser.add_argument('--decompose', action="store_true",
                         default=False,
                         help="Whether to decompose interactions")
+    parser.add_argument('--undirected', action="store_true",
+                        default=False,
+                        help="If the interactions are undirected or not")
     parser.add_argument('--cand_n',
                         default=500,
                         type=int,
@@ -244,6 +276,13 @@ if __name__ == '__main__':
                         type=int,
                         default=4,
                         help="Time span in terms of weeks")
+    parser.add_argument('--seconds',
+                        type=int,
+                        default=0,
+                        help="Time span in terms of seconds")
+    parser.add_argument('--given_topics',
+                        action='store_true',
+                        help="whether topics are given")
 
     parser.add_argument('--U',
                         type=float,
@@ -257,21 +296,40 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    dist_funcs = {'entropy': entropy, 'euclidean': euclidean, 'cosine': cosine}
+    dist_func = dist_funcs[args.dist]
+
     lst = lambda g, r, U: lst_dag(g, r, U,
                                   edge_weight_decimal_point=args.fixed_point,
                                   debug=False)
+    variance_method = lambda g, r, U: dp_dag_general(
+        g, r,
+        int(U*(10**args.fixed_point)),
+        make_variance_cost_func(dist_func, 'topics',
+                                args.fixed_point),
+        debug=False
+    )
 
-    methods = {'lst': lst, 'greedy': greedy_grow, 'random': random_grow}
-    dist_funcs = {'entropy': entropy, 'euclidean': euclidean, 'cosine': cosine}
+    methods = {'lst': lst,
+               'variance': variance_method,
+               'greedy': greedy_grow,
+               'random': random_grow}
 
-    dist_func = dist_funcs[args.dist]
-    
-    print('Running: {}'.format(args.method))
-    print('Dist func: {}'.format(args.dist))
-    print('Decompose interactions: {}'.format(args.decompose))
-    print('Dijkstra: {}'.format(args.dij))
+    root_sampling_methods = {
+        'uniform': sample_nodes,
+        'out_degree': sample_nodes_by_out_degree
+    }
+
+    # `seconds` of higher priority
+    timespan = (args.seconds
+                if args.seconds
+                else timedelta(weeks=args.weeks))
+
+    pprint(vars(args))
 
     run(methods[args.method],
+        root_sampling_method=root_sampling_methods[args.root_sampling],
+        undirected=args.undirected,
         interaction_json_path=args.interaction_path,
         corpus_dict_path=args.corpus_dict_path,
         meta_graph_pkl_path_prefix=args.meta_graph_path_prefix,
@@ -282,13 +340,14 @@ if __name__ == '__main__':
         meta_graph_kws={
             'dist_func': dist_func,
             'decompose_interactions': args.decompose,
-            'preprune_secs': timedelta(weeks=args.weeks),
+            'preprune_secs': timespan,
         },
         gen_tree_kws={
-            'timespan': timedelta(weeks=args.weeks),
+            'timespan': timespan,
             'U': args.U,
             'dijkstra': args.dij
         },
         cand_tree_number=args.cand_n,
-        calculate_graph=args.calc_mg
+        calculate_graph=args.calc_mg,
+        given_topics=args.given_topics
     )

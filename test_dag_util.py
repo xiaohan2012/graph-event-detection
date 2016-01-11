@@ -95,9 +95,9 @@ def test_unbinarize_dag():
                                  edge_match=match_func))
 
 
-class remove_edges_via_dijkstraTest(unittest.TestCase):
+class EdgeRemovalTest(unittest.TestCase):
     def test_remove_edges_via_dijkstra(self):
-        g, _, _  = get_example_6()
+        g, _, _ = get_example_6()
         expected_edges = set(g.edges()) - set([(1, 4)])
         g.add_edges_from([(3, 4, {'c': 1}),
                           (4, 5, {'c': 1})])

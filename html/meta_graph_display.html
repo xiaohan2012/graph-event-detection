@@ -31,15 +31,65 @@ svg{
 
 
 <body>
-   <select id="dataPathSelection">
-   </select>
-   <select id="eventIndexSelection">
-	 <option value="0">1</option>
-	 <option value="1">2</option>
-	 <option value="2">3</option>
-	 <option value="3">4</option>
-	 <option value="4">5</option>
-   </select>
+  <div>
+	<select id="dataset">
+	  <option value="enron">Enron</option>
+	  <option value="islamic">Islamic</option>
+	</select>
+  </div>
+  <div>
+	<select id="dataPathSelection">
+	</select>
+  </div>
+  <div>
+	<select id="eventIndexSelection">
+	  <option value="0">1</option>
+	  <option value="1">2</option>
+	  <option value="2">3</option>
+	  <option value="3">4</option>
+	  <option value="4">5</option>
+	</select>
+  </div>
+  <div>
+	<form id="graphTypeForm">
+	  <label>
+		<input type="radio" name="graph_type" value="original_graph" checked="checked"/>
+		original_graph
+	  </label>
+	  <label>
+		<input type="radio" name="graph_type" value="meta_graph"/>
+		meta_graph
+	  </label>
+	</form>
+  </div>
+  <div>
+	<form id="contextFlagForm">
+	  <label>
+		<input type="radio" name="context_flag" value="event" checked="checked"/>
+		event
+	  </label>
+	  <label>
+		<input type="radio" name="context_flag" value="contexted_event"/>
+		contexted_event
+	  </label>
+	</form>
+  </div>
+  <h3>
+	Visualization parameters:
+  </h3>
+  <div>
+	<label> d3.force.charge(negative integer, the smaller, the more repelling between nodes)
+	  <input id="charge" type="text" />
+	</label>
+  </div>
+  <div>
+	<label> d3.force.linkDistance(integer, the larger the further away between two connected nodes)
+	  <input id="linkDistance" type="text" />
+	</label>
+  </div>
+  <div>
+	<button id="submitButton">Display</button>
+  </div>
 </body>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.12/d3.min.js"></script>
@@ -47,38 +97,5 @@ svg{
 <script src="http://underscorejs.org/underscore-min.js"></script>
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script src="js/util.js"></script>
-<script src="js/app.js"></script>
-
-<script>
- $(document).ready(function(){
-   var CLEAR_SVG = true;
-   d3.json("data/all_results.json", function(error, result_paths) {
-	 _.each(result_paths.sort(), function(p){
-	   var opt = $("<option>");
-	   opt.val(p);
-	   opt.text(p);
-	   $('#dataPathSelection').append(opt);
-	 });
-	 load_event(result_paths[0], 0);
-   });
-
-   $('#dataPathSelection').on('change', function(){
-	 var path = $(this).find(":selected").val();
-	 if(CLEAR_SVG){
-	   $('svg').remove();
-	 }
-	 load_event(path, 0);	 
-   })
-   $('#eventIndexSelection').on('change', function(){	 
-	 var index = parseInt($(this).find(":selected").val());
-	console.log("change to index: ", index);
-	 var path = $('#dataPathSelection').find(":selected").val();
-	 if(CLEAR_SVG){
-	   $('svg').remove();
-	 }
-	 load_event(path, index);
-   });
- })
- 
- 
-</script>
+<script src="js/viz.js"></script>
+<script src="js/main.js"></script>

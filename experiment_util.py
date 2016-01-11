@@ -3,7 +3,7 @@ import numpy as np
 import networkx as nx
 import cPickle as pkl
 from datetime import timedelta
-
+import random
 
 from interactions import InteractionsUtil
 from dag_util import binarize_dag
@@ -13,6 +13,41 @@ def sample_nodes(g, node_sample_size=100):
     nodes = g.nodes()
     return [nodes[i]
             for i in np.random.permutation(len(g.nodes()))[:node_sample_size]]
+
+
+def weighted_choice(choices):
+    """choices: list of (element, weight)
+    """
+    total = sum(w for c, w in choices)
+    r = random.uniform(0, total)
+    upto = 0
+    for c, w in choices:
+        if upto + w >= r:
+            return (c, w)
+        upto += w
+    assert False, "Shouldn't get here"
+
+
+def sample_nodes_by_weight(g, weight_func, node_sample_size=100):
+    choices = set(
+        [(n, weight_func(n))
+         for n in g.nodes_iter() if weight_func(n) > 0]
+    )
+    samples = []
+    if node_sample_size >= len(choices):
+        return g.nodes()
+    else:
+        while len(samples) < node_sample_size:
+            c, w = weighted_choice(choices)
+            samples.append(c)
+            choices.remove((c, w))
+        return samples
+
+
+def sample_nodes_by_out_degree(g, node_sample_size=100):
+    return sample_nodes_by_weight(g,
+                                  weight_func=lambda n: g.out_degree(n),
+                                  node_sample_size=node_sample_size)
 
 
 def sample_rooted_binary_graphs_within_timespan(

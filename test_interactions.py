@@ -6,10 +6,11 @@ import numpy
 import gensim
 import ujson as json
 
-from dag_util import binarize_dag
 from datetime import datetime, timedelta
 from nose.tools import assert_equal, assert_true, assert_almost_equal
+from scipy.spatial.distance import euclidean
 
+from .dag_util import binarize_dag
 from .interactions import InteractionsUtil as IU,\
     clean_decom_unzip, clean_unzip
 
@@ -236,9 +237,9 @@ class InteractionsUtilTest(unittest.TestCase):
     def test_get_topic_meta_graph(self):
         g = IU.get_topic_meta_graph(
             self.interactions,
+            scipy.stats.entropy,
             self.lda_model,
             self.dictionary,
-            dist_func=scipy.stats.entropy,
             preprune_secs=None)
         
         assert_true(
@@ -253,9 +254,9 @@ class InteractionsUtilTest(unittest.TestCase):
 
     def test_get_topic_meta_graph_without_decomposition(self):
         g = IU.get_topic_meta_graph(self.interactions,
+                                    scipy.stats.entropy,
                                     self.lda_model,
                                     self.dictionary,
-                                    dist_func=scipy.stats.entropy,
                                     decompose_interactions=False,
                                     preprune_secs=None)
         
@@ -269,9 +270,9 @@ class InteractionsUtilTest(unittest.TestCase):
 
     def test_get_topic_meta_graph_with_prepruning(self):
         g = IU.get_topic_meta_graph(self.interactions,
+                                    scipy.stats.entropy,
                                     self.lda_model,
                                     self.dictionary,
-                                    dist_func=scipy.stats.entropy,
                                     preprune_secs=1.0)
         
         assert_almost_equal(
@@ -284,15 +285,14 @@ class InteractionsUtilTest(unittest.TestCase):
     def test_compactize_meta_graph(self):
         # assure node topic vectors are deleted
         g = IU.get_topic_meta_graph(self.interactions,
+                                    scipy.stats.entropy,
                                     self.lda_model,
-                                    self.dictionary,
-                                    dist_func=scipy.stats.entropy)
+                                    self.dictionary)
         original_g = g.copy()
         g, str2id = IU.compactize_meta_graph(g, map_nodes=True)
         
         for n in original_g.nodes():
             n = str2id[n]
-            assert_true('topics' not in g.node[n])
             assert_true('subject' not in g.node[n])
             assert_true('body' not in g.node[n])
             assert_true('peer' not in g.node[n])
@@ -318,15 +318,14 @@ class InteractionsUtilTest(unittest.TestCase):
                 # assure node topic vectors are deleted
         g = IU.get_topic_meta_graph(
             self.interactions,
+            scipy.stats.entropy,
             self.lda_model,
-            self.dictionary,
-            dist_func=scipy.stats.entropy
+            self.dictionary
         )
         original_g = g.copy()
         g = IU.compactize_meta_graph(g, map_nodes=False)
 
         for n in original_g.nodes():
-            assert_true('topics' not in g.node[n])
             assert_true('subject' not in g.node[n])
             assert_true('body' not in g.node[n])
             assert_true('peer' not in g.node[n])
@@ -348,3 +347,75 @@ class InteractionsUtilTest(unittest.TestCase):
             ('1.B', '2'), ('1.C', '2'), ('1.D', '2')
         ])
         assert_equal(expected_edges, sorted(g.edges()))
+        
+
+class InteractionsUtilTestUndirected(unittest.TestCase):
+    """undirected case
+    """
+    def setUp(self):
+        self.lda_model = gensim.models.ldamodel.LdaModel.load(
+            os.path.join(CURDIR, 'test/data/undirected/lda_model-50-50.lda')
+        )
+        self.dictionary = gensim.corpora.dictionary.Dictionary.load(
+            os.path.join(CURDIR, 'test/data/undirected/dict.pkl')
+        )
+        self.interactions = json.load(
+            open(os.path.join(CURDIR,
+                              'test/data/undirected/interactions.json')))
+        
+    def test_get_meta_graph_for_undirected_case(self):
+        g = IU.get_meta_graph(
+            self.interactions,
+            undirected=True,
+            decompose_interactions=False,
+            remove_singleton=False
+        )
+        assert_equal(827, g.number_of_nodes())
+        assert_equal(3874, g.number_of_edges())
+
+    def test_get_topical_meta_graph_for_undirected_case(self):
+        # redundant
+        g = IU.get_topic_meta_graph(
+            self.interactions,
+            scipy.stats.entropy,
+            self.lda_model,
+            self.dictionary,
+            undirected=True,
+            decompose_interactions=False,
+            remove_singleton=False
+        )
+        assert_equal(827, g.number_of_nodes())
+        assert_equal(3874, g.number_of_edges())
+
+
+class InteractionsUtilTestGivenTopics(unittest.TestCase):
+    """when topics are given
+    """
+    def setUp(self):
+        self.interactions = json.load(
+            open(os.path.join(CURDIR,
+                              'test/data/given_topics/interactions.json')))
+        
+    def test_get_meta_graph_given_topics(self):
+        g = IU.get_meta_graph(
+            self.interactions,
+            decompose_interactions=False,
+            remove_singleton=False,
+            given_topics=True,
+        )
+        assert_equal(297, g.number_of_nodes())
+        assert_equal(2325, g.number_of_edges())  # smaller
+
+    def test_get_topical_meta_graph_given_topics(self):
+        g = IU.get_topic_meta_graph(
+            self.interactions,
+            dist_func=euclidean,
+            decompose_interactions=False,
+            remove_singleton=False,
+            given_topics=True,
+        )
+        assert_equal(297, g.number_of_nodes())
+        assert_equal(2325, g.number_of_edges())
+        for s, t in g.edges_iter():
+            assert_true('c' in g[s][t])
+            assert_true(g[s][t]['c'] != float('inf'))

@@ -2,7 +2,7 @@ import cPickle as pkl
 
 from collections import Counter
 
-from util import load_msgid2interaction_dict
+from util import load_id2obj_dict
 from dag_util import longest_path, get_roots
 from events import detect_events
 
@@ -40,7 +40,7 @@ def main():
 
     candidate_events = pkl.load(open(pkl_path))
     g = detect_events(candidate_events, 5)[0]
-    mid2interaction = load_msgid2interaction_dict('data/enron.json')
+    mid2interaction = load_id2obj_dict('data/enron.json', 'message_id')
     root = get_roots(g)[0]
     pprint('children documents count: {}'.format(
         count_message_ids(

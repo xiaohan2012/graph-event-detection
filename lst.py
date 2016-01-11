@@ -1,25 +1,20 @@
+import itertools
+import numpy as np
 from collections import defaultdict
 
 from networkx.classes.digraph import DiGraph
 from networkx.algorithms.dag import topological_sort
 
 
-def lst_dag_general(G, r, U,
-                    cost_func,
-                    node_reward_key='r',
-                    edge_cost_key='c',
-                    edge_weight_decimal_point=None,
-                    debug=False):
+def dp_dag_general(G, r, U,
+                   cost_func,
+                   node_reward_key='r',
+                   debug=False):
     """
-    cost_func(node, D table, graph, edge_cost_key, [(cost at child , child)])
+    cost_func(node, D table, graph, [(cost at child , child)])
 
     It should return cost as integer type(fixed point is used when appropriate)
     """
-    if edge_weight_decimal_point:
-        if debug:
-            print("fixed point approximation enabled")
-        U = int(U * (10**edge_weight_decimal_point))
-
     ns = G.nodes()
     if debug:
         print("total #nodes {}".format(len(ns)))
@@ -49,8 +44,7 @@ def lst_dag_general(G, r, U,
             if debug:
                 print('child={}'.format(child))
             for i in A[child]:
-                c = cost_func(n, D, G, edge_cost_key,
-                              edge_weight_decimal_point,
+                c = cost_func(n, D, G,
                               [(i, child)])
                 assert isinstance(c, int)
                 if c <= U:
@@ -62,8 +56,7 @@ def lst_dag_general(G, r, U,
             lchild, rchild = children
 
             for i in A[lchild]:
-                c = cost_func(n, D, G, edge_cost_key,
-                              edge_weight_decimal_point,
+                c = cost_func(n, D, G,
                               [(i, lchild)])
                 assert isinstance(c, int)
                 if debug:
@@ -78,8 +71,7 @@ def lst_dag_general(G, r, U,
                         BP[n][c] = [(lchild, i)]
 
             for i in A[rchild]:
-                c = cost_func(n, D, G, edge_cost_key,
-                              edge_weight_decimal_point,
+                c = cost_func(n, D, G,
                               [(i, rchild)])
                 assert isinstance(c, int)
                 if c <= U:
@@ -90,8 +82,7 @@ def lst_dag_general(G, r, U,
             
             for i in A[lchild]:
                 for j in A[rchild]:
-                    c = cost_func(n, D, G, edge_cost_key,
-                                  edge_weight_decimal_point,
+                    c = cost_func(n, D, G,
                                   [(i, lchild), (j, rchild)])
                     assert isinstance(c, int)
                     lset, rset = D[lchild][i], D[rchild][j]
@@ -106,6 +97,7 @@ def lst_dag_general(G, r, U,
             if n == r:  # no need to continue once we processed root
                 break
                 
+    print(U)
     best_cost = max(xrange(U + 1),
                     key=lambda i: A[r][i] if i in A[r] else float('-inf'))
     tree = DiGraph()
@@ -136,12 +128,46 @@ def lst_dag_general(G, r, U,
     return tree
 
 
-def lst_dag_local(G, r, U,
-                  node_reward_key='r',
-                  edge_cost_key='c',
-                  edge_weight_decimal_point=None,
-                  debug=False):
-    pass
+def get_all_nodes(g, n, D, children, ignore_dummy=True):
+    all_nodes = list(
+        itertools.chain(
+            *[D[u][i] for i, u in children]
+        )
+    ) + [n] + [u for i, u in children]
+
+    if ignore_dummy:
+        return filter(
+            lambda n: ('dummy' not in g.node[n] or
+                       not g.node[n]['dummy']),
+            all_nodes
+        )
+    else:
+        return all_nodes
+
+
+def make_variance_cost_func(vect_dist_func, repr_key,
+                            fixed_point=None,
+                            debug=False):
+    def variance_based_cost(n, D, G,
+                            children):
+        all_nodes = get_all_nodes(G, n, D, children, ignore_dummy=True)
+        if debug:
+            for node in all_nodes:
+                assert repr_key in G.node[node], node
+        reprs = np.array(
+            [G.node[node][repr_key]
+             for node in all_nodes]
+        )
+        mean_topic_vect = np.mean(reprs, axis=0)
+        diffs = [vect_dist_func(mean_topic_vect, v)
+                 for v in reprs]
+        ret = np.mean(diffs)
+        if fixed_point:
+            return int(ret * np.power(10, fixed_point))
+        else:
+            return ret
+            
+    return variance_based_cost
 
 
 def round_edge_weights_by_multiplying(G,
