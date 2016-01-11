@@ -57,7 +57,7 @@ def test_transform_article():
 
 def test_dump2interactions():
     opath = os.path.join(CURDIR, 'test/data/tmp/tmp.json')
-    dump2interactions(MongoClient()['bloomberg'],
+    dump2interactions(MongoClient(serverSelectionTimeoutMS=1)['bloomberg'],
                       'articles_test',
                       opath)
     

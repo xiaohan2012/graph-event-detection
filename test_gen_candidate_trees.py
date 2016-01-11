@@ -230,8 +230,8 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
             **more_params
         ).split()
         output = check_output(cmd)
-        assert_true("traceback" not in output.lower())
         print(output)
+        assert_true("traceback" not in output.lower())
         output_path = make_path(
             self.result_output_path_template.format(
                 method, distance
@@ -263,6 +263,7 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         }
         self.result_output_path_template = "test/data/tmp/result-{}--U=0.5--dijkstra=False--timespan=8----decompose_interactions=False--dist_func={}--preprune_secs=8.pkl"
         self.check(sampling_method='out_degree', undirected=False,
+                   distance='euclidean',
                    extra='--seconds=8 --given_topics')
 
     def tearDown(self):
