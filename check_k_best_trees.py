@@ -1,17 +1,42 @@
-import ujson as json
 import cPickle as pickle
-import gensim
 
 from pprint import pprint
 
-from meta_graph_stat import MetaGraphStat
 from max_cover import argmax_k_coverage
 from event_summary import summary
+from meta_graph_stat import build_default_summary_kws_from_path
+
+
+def k_best_trees(cand_trees, k):
+    nodes_of_trees = [set(t.nodes()) for t in cand_trees]
+
+    selected_ids = argmax_k_coverage(nodes_of_trees, k)
+    
+    return [cand_trees[id_] for id_ in selected_ids]
+
+
+def get_k_best_tree_summary(
+        interactions_path, people_path,
+        corpus_dict_path, lda_model_path,
+        cand_trees_path, k, people_repr_template):
+
+    summary_kws = build_default_summary_kws_from_path(
+        interactions_path, people_path,
+        corpus_dict_path, lda_model_path,
+        people_repr_template
+    )
+
+    trees = k_best_trees(pickle.load(open(cand_trees_path)),
+                         k)
+
+    return summary(trees,
+                   summary_kws=summary_kws,
+                   tablefmt='orgtbl')
 
 
 def main():
     import argparse
-    parser = argparse.ArgumentParser('check k best trees')
+    parser = argparse.ArgumentParser('check k best cand_trees')
     parser.add_argument('--cand_trees_path', required=True)
     parser.add_argument('--interactions_path', required=True)
     parser.add_argument('--people_path', required=True)
@@ -23,48 +48,7 @@ def main():
 
     args = parser.parse_args()
     pprint(vars(args))
-
-    interactions = json.load(open(args.interactions_path))
-    people_info = json.load(open(args.people_path))
-
-    dictionary = gensim.corpora.dictionary.Dictionary.load(
-        args.corpus_dict_path
-    )
-
-    lda = gensim.models.ldamodel.LdaModel.load(
-        args.lda_model_path
-    )
-
-    trees = pickle.load(open(args.cand_trees_path))
-
-    nodes_of_trees = [set(t.nodes()) for t in trees]
-
-    selected_ids = argmax_k_coverage(nodes_of_trees, args.k)
-
-    summary_kws = {
-        'temporal_traffic': False,
-        'topics': {
-            'interactions': interactions,
-            'dictionary': dictionary,
-            'lda': lda,
-            'top_k': 10
-        },
-        'email_content': {
-            'interactions': interactions,
-            'top_k': 5
-        },
-        'participants': {
-            'people_info': people_info,
-            'interactions': interactions,
-            'top_k': 5,
-            'people_repr_template': args.people_repr_template
-        }
-    }
-
-    print summary([trees[id_] for id_ in selected_ids],
-                  summary_kws=summary_kws,
-                  tablefmt='orgtbl')
-
+    print(get_k_best_tree_summary(**vars(args)))
 
 if __name__ == '__main__':
     main()

@@ -352,24 +352,29 @@ Day 7:
 - event evaluation method
 
 
-Day 8:
+# Week 8:
+
+Day 1:
 
 - evaluation tool and some prelimenary result
--
-
+- check events cmd tool
+- timeline example using [vis timeline](http://visjs.org/timeline_examples.html)
+  - observation on islamic data: event with only one participant(how about remove the broadcast edge?)
+  
 TODO:
 
 - synthetic experiment
   - method
   - noise interaction number
   - sampling count
-  - density of the event  
-- check events cmd tool
+  - density of the event
 - run experiment
   - four datasets
   - four methods
   - sampling comparison
-- timeline visualization including participants, topic terms  
+- timeline visualization including participants, topic terms
+  - click the event and timeline zooms into that event
+  - without showing all the messages(macro view)
 - textual summary of event
 - scale the node size by message count(original graph)
 

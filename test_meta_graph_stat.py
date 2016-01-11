@@ -165,20 +165,20 @@ class MetaGraphStatTest(unittest.TestCase):
         actual = self.s.participants(self.people_info, self.interactions,
                                      top_k=5)
         assert_equal(actual['sender_count'],
-                     [(('A', 'A@enron.com'), 5),
-                      (('D', 'D@enron.com'), 2)])
+                     [('A(A@enron.com)', 5),
+                      ('D(D@enron.com)', 2)])
         assert_equal(actual['recipient_count'],
-                     [(('B', 'B@enron.com'), 4),
-                      (('D', 'D@enron.com'), 3),
-                      (('C', 'C@enron.com'), 3),
-                      (('F', 'F@enron.com'), 2),
-                      (('E', 'E@enron.com'), 1)])
+                     [('B(B@enron.com)', 4),
+                      ('D(D@enron.com)', 3),
+                      ('C(C@enron.com)', 3),
+                      ('F(F@enron.com)', 2),
+                      ('E(E@enron.com)', 1)])
         assert_equal(actual['participant_count'],
-                     [(('D', 'D@enron.com'), 5),
-                      (('A', 'A@enron.com'), 5),
-                      (('B', 'B@enron.com'), 4),
-                      (('C', 'C@enron.com'), 3),
-                      (('F', 'F@enron.com'), 2)])
+                     [('D(D@enron.com)', 5),
+                      ('A(A@enron.com)', 5),
+                      ('B(B@enron.com)', 4),
+                      ('C(C@enron.com)', 3),
+                      ('F(F@enron.com)', 2)])
         assert_almost_equal(0.598, actual['sender_entropy'], places=3)
         assert_true('recipient_entropy' in actual)
         assert_true('participant_entropy' in actual)
