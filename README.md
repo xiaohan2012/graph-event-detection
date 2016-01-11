@@ -351,11 +351,20 @@ Day 7:
 - synthetic data cmd support
 - event evaluation method
 
+
+Day 8:
+
+- evaluation tool and some prelimenary result
+-
+
 TODO:
 
+- synthetic experiment
+  - method
+  - noise interaction number
+  - sampling count
 - check events cmd tool
 - run experiment
-  - synthetic data
   - four datasets
   - four methods
   - sampling comparison
