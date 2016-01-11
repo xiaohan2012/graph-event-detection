@@ -4,11 +4,11 @@ import numpy as np
 import itertools
 
 
-def random_topic(n_topics, scaling_factor=0.0001):
+def random_topic(n_topics, topic_noise=0.0001):
     main_topic = np.random.choice(np.arange(n_topics))
     dirich_alpha = np.zeros(n_topics)
     dirich_alpha[main_topic] = 1
-    dirich_alpha += np.random.uniform(0, scaling_factor, n_topics)
+    dirich_alpha += np.random.uniform(0, topic_noise, n_topics)
     dirich_alpha /= dirich_alpha.sum()
     return np.random.dirichlet(dirich_alpha)
 
@@ -16,14 +16,15 @@ def random_topic(n_topics, scaling_factor=0.0001):
 def random_events(n_events, event_size_mu, event_size_sigma,
                   n_total_participants, participant_mu, participant_sigma,
                   min_time, max_time, event_duration_mu, event_duration_sigma,
-                  n_topics, topic_scaling_factor):
+                  n_topics, topic_scaling_factor, topic_noise):
     # add main events
     events = []
     for i in xrange(n_events):
         # randomly select a topic and add some noise to it
         event = []
 
-        event_topic_param = topic_scaling_factor * random_topic(n_topics)
+        event_topic_param = topic_scaling_factor * random_topic(n_topics,
+                                                                topic_noise)
         event_size = 0
         while event_size <= 0:
             event_size = int(round(
@@ -70,11 +71,11 @@ def random_events(n_events, event_size_mu, event_size_sigma,
 def random_noisy_interactions(n_noisy_interactions,
                               min_time, max_time,
                               n_total_participants,
-                              n_topics):
+                              n_topics, topic_noise):
     noisy_interactions = []
     # noisy events
     for i in xrange(n_noisy_interactions):
-        topic = random_topic(n_topics)
+        topic = random_topic(n_topics, topic_noise)
         sender_id, recipient_id = np.random.permutation(
             n_total_participants
         )[:2]
@@ -92,19 +93,19 @@ def make_articifial_data(
         n_events, event_size_mu, event_size_sigma,
         n_total_participants, participant_mu, participant_sigma,
         min_time, max_time, event_duration_mu, event_duration_sigma,
-        n_topics, topic_scaling_factor,
+        n_topics, topic_scaling_factor, topic_noise,
         n_noisy_interactions):
     events = random_events(
         n_events, event_size_mu, event_size_sigma,
         n_total_participants, participant_mu, participant_sigma,
         min_time, max_time, event_duration_mu, event_duration_sigma,
-        n_topics, topic_scaling_factor
+        n_topics, topic_scaling_factor, topic_noise
     )
     noisy_interactions = random_noisy_interactions(
         n_noisy_interactions,
         min_time, max_time,
         n_total_participants,
-        n_topics
+        n_topics, topic_noise
     )
 
     all_interactions = list(itertools.chain(*events)) + noisy_interactions
@@ -135,7 +136,8 @@ def main():
     parser.add_argument('--event_duration_sigma', type=int, default=3)
 
     parser.add_argument('--n_topics', type=int, default=10)
-    parser.add_argument('--topic_scaling_factor', type=int, default=10)
+    parser.add_argument('--topic_scaling_factor', type=int, default=0.5)
+    parser.add_argument('--topic_noise', type=int, default=0.1)
 
     parser.add_argument('--n_noisy_interactions', type=int, default=100)
 

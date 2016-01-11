@@ -25,6 +25,7 @@ class ArtificialDataTest(unittest.TestCase):
             'event_duration_sigma': 0.0001,
             'n_topics': 10,
             'topic_scaling_factor': 1000,
+            'topic_noise': 0.00001,
             'n_noisy_interactions': 10000
         }
 
@@ -32,11 +33,18 @@ class ArtificialDataTest(unittest.TestCase):
         topic_2nd, topic_1st = np.sort(array)[-2:]
         assert_true((topic_1st / topic_2nd) < 10)
 
-    def test_random_topic(self):
-        topic = random_topic(10)
-        np.testing.assert_almost_equal(1, topic.sum())
-        max_2nd, max_1st = np.sort(topic)[-2:]
+    def seems_like_skewed_distribution(self, array):
+        max_2nd, max_1st = np.sort(array)[-2:]
         assert_true((max_1st / max_2nd) > 10000)
+
+    def test_random_topic(self):
+        topic = random_topic(10, 0.00001)
+        np.testing.assert_almost_equal(1, topic.sum())
+        self.seems_like_skewed_distribution(topic)
+
+    def test_uniform_topic(self):
+        topic = random_topic(10, 1)
+        self.seems_like_uniform_distribution(topic)
 
     def test_random_events(self):
         del self.params['n_noisy_interactions']
@@ -83,7 +91,8 @@ class ArtificialDataTest(unittest.TestCase):
             self.params['min_time'],
             self.params['max_time'],
             self.params['n_total_participants'],
-            self.params['n_topics']
+            self.params['n_topics'],
+            self.params['topic_noise']
         )
         assert_equal(self.params['n_noisy_interactions'],
                      len(intrs))
@@ -123,4 +132,3 @@ class ArtificialDataTest(unittest.TestCase):
         for e in events:
             for i in e:
                 assert_true(isinstance(i['topics'], list))
-            
