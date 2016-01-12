@@ -26,7 +26,7 @@ def make_dataframe(path):
         all_messages.append(
             (h['id'],
              i, h['title'],
-             h['body'] + ' ' + make_label_string(h['labels']),
+             (h['body'] or '') + ' ' + make_label_string(h['labels']),
              h['sender'], h['created_at'])
         )
         for t in th['tail']:
