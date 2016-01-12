@@ -98,6 +98,19 @@ def get_output_path(candidate_tree_path, dirname=None):
     return output_path
 
 
+def get_cand_n_number_and_percentage(total, n, percentage):
+    if n == -1:
+        return (total, 1.0)
+    elif n is not None and n > 0:
+        if n >= total:
+            return (total, 1.0)
+        else:
+            return (n, float(n) / total)
+    else:
+        assert isinstance(percentage, float)
+        return (int(total*percentage), percentage)
+
+
 if __name__ == '__main__':
     sample_rooted_binary_graphs_within_timespan(
         meta_graph_pickle_path='data/enron.pkl',

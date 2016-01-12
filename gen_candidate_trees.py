@@ -21,7 +21,8 @@ from interactions import InteractionsUtil as IU
 from meta_graph_stat import MetaGraphStat
 from experiment_util import sample_nodes, \
     sample_nodes_by_out_degree,\
-    experiment_signature
+    experiment_signature,\
+    get_cand_n_number_and_percentage
 from util import load_json_by_line
 from baselines import greedy_grow, random_grow
 
@@ -102,7 +103,8 @@ def run(gen_tree_func,
         lda_model_path=os.path.join(CURDIR, 'models/model-4-50.lda'),
         corpus_dict_path=os.path.join(CURDIR, 'models/dictionary.pkl'),
         meta_graph_pkl_path_prefix=os.path.join(CURDIR, 'data/enron'),
-        cand_tree_number=500,
+        cand_tree_number=None,  # higher priority than percentage
+        cand_tree_percent=0.1,
         result_pkl_path_prefix=os.path.join(CURDIR, 'tmp/results'),
         meta_graph_kws={
             'dist_func': entropy,
@@ -118,11 +120,6 @@ def run(gen_tree_func,
         calculate_graph=False,
         given_topics=False,
         print_summary=False):
-    result_pkl_path = "{}--{}----{}.pkl".format(
-        result_pkl_path_prefix,
-        experiment_signature(**gen_tree_kws),
-        experiment_signature(**meta_graph_kws)
-    )
     if isinstance(gen_tree_kws['timespan'], timedelta):
         timespan = gen_tree_kws['timespan'].total_seconds()
     else:
@@ -154,11 +151,9 @@ def run(gen_tree_func,
 
     if calculate_graph:
         logger.info('calculating meta_graph...')
-        meta_graph_kws = copy.deepcopy(meta_graph_kws)
-        if isinstance(meta_graph_kws['preprune_secs'], timedelta):
-            meta_graph_kws['preprune_secs'] = meta_graph_kws['preprune_secs'].total_seconds()
-        else:
-            meta_graph_kws['preprune_secs'] = meta_graph_kws['preprune_secs']
+        meta_graph_kws_converted = copy.deepcopy(meta_graph_kws)
+        if isinstance(meta_graph_kws_converted['preprune_secs'], timedelta):
+            meta_graph_kws_converted['preprune_secs'] = meta_graph_kws['preprune_secs'].total_seconds()
         g = IU.get_topic_meta_graph(
             interactions,
             lda_model=lda_model,
@@ -166,7 +161,7 @@ def run(gen_tree_func,
             undirected=undirected,
             debug=True,
             given_topics=given_topics,
-            **meta_graph_kws
+            **meta_graph_kws_converted
         )
 
         logger.info('pickling...')
@@ -182,11 +177,18 @@ def run(gen_tree_func,
     if print_summary:
         logger.debug(get_summary(g))
 
-    if cand_tree_number == -1:
-        roots = g.nodes()
-        logger.info('using all nodes as roots: {}'.format(len(roots)))
-    else:
-        roots = root_sampling_method(g, cand_tree_number)
+    print(g.number_of_nodes(),
+          cand_tree_number,
+          cand_tree_percent)
+    cand_tree_number, cand_tree_percent = get_cand_n_number_and_percentage(
+        g.number_of_nodes(),
+        cand_tree_number,
+        cand_tree_percent
+    )
+
+    roots = root_sampling_method(g, cand_tree_number)
+    logger.info('#roots: {}'.format(len(roots)))
+    logger.info('#cand_tree_percent: {}'.format(cand_tree_percent))
 
     manager = Manager()
     shared_dict = manager.dict([('g', g)])
@@ -205,6 +207,12 @@ def run(gen_tree_func,
     
     trees = filter(None, trees)  # remove Nones
 
+    result_pkl_path = "{}--{}----{}----{}.pkl".format(
+        result_pkl_path_prefix,
+        experiment_signature(**gen_tree_kws),
+        experiment_signature(**meta_graph_kws),
+        experiment_signature(cand_tree_percent=cand_tree_percent)
+    )
     logger.info('result_pkl_path: {}'.format(result_pkl_path))
     pickle.dump(trees,
                 open(result_pkl_path, 'w'),
@@ -253,9 +261,14 @@ if __name__ == '__main__':
                         default=False,
                         help="If the interactions are undirected or not")
     parser.add_argument('--cand_n',
-                        default=500,
+                        default=None,
                         type=int,
                         help="Number of candidate trees to generate")
+    parser.add_argument('--cand_n_percent',
+                        type=float,
+                        default=0.1,
+                        help="Percentage of candidate trees to generate in terms of total number of nodes")
+
     parser.add_argument('--res_dir',
                         default='tmp',
                         help="directory to save the results")
@@ -336,6 +349,7 @@ if __name__ == '__main__':
             'dijkstra': args.dij
         },
         cand_tree_number=args.cand_n,
+        cand_tree_percent=args.cand_n_percent,
         calculate_graph=args.calc_mg,
         given_topics=args.given_topics
     )

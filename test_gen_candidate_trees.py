@@ -15,6 +15,7 @@ from scipy.spatial.distance import euclidean
 from .lst import lst_dag, dp_dag_general, make_variance_cost_func
 from .baselines import greedy_grow, random_grow
 from .test_util import remove_tmp_data, make_path, CURDIR
+from .experiment_util import experiment_signature
 
 
 directed_params = {
@@ -72,7 +73,8 @@ class GenCandidateTreeTest(unittest.TestCase):
         numpy.random.seed(1)
 
         self.some_kws_of_run = {
-            'cand_tree_number': 5,
+            'cand_tree_number': None,
+            'cand_tree_percent': 0.1,
             'meta_graph_kws': {
                 'dist_func': entropy,
                 'decompose_interactions': False,
@@ -85,7 +87,11 @@ class GenCandidateTreeTest(unittest.TestCase):
             }
         }
 
-        self.meta_pickle_path_common = "decompose_interactions=False--dist_func=entropy--preprune_secs=28days"
+        self.meta_pickle_path_common = experiment_signature(
+            decompose_interactions=False,
+            dist_func="entropy",
+            preprune_secs="28days"
+        )
         pkl_path = make_path('test/data/enron-head-100--{}.pkl'.format(
             self.meta_pickle_path_common)
         )
@@ -118,8 +124,12 @@ class GenCandidateTreeTest(unittest.TestCase):
         # very likely actual tree number should >= 0
         result_pickle_prefix = make_path("test/data/tmp",
                                          "result-{}".format(test_name))
-        pickle_path_suffix = 'U=0.5--dijkstra={}--timespan=28days----%s' %(
-            self.meta_pickle_path_common
+        pickle_path_suffix = 'U=0.5--dijkstra={}--timespan=28days----{}----{}'.format(
+            self.some_kws_of_run['gen_tree_kws'].get('dijkstra', False),
+            self.meta_pickle_path_common,
+            experiment_signature(
+                cand_tree_percent=self.some_kws_of_run['cand_tree_percent']
+            )
         )
         kws = self.some_kws_of_run.copy()
         
@@ -130,11 +140,6 @@ class GenCandidateTreeTest(unittest.TestCase):
         
         if more_args:
             kws.update(more_args)
-
-        if self.some_kws_of_run['gen_tree_kws'].get('dijkstra'):
-            pickle_path_suffix = pickle_path_suffix.format("True")
-        else:
-            pickle_path_suffix = pickle_path_suffix.format("False")
 
         pickle_path = "{}--{}.pkl".format(
             result_pickle_prefix,
@@ -200,9 +205,30 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         self.script_path = make_path("gen_candidate_trees.py")
         self.result_dir = make_path("test/data/tmp")
 
-        self.result_output_path_template = "test/data/tmp/result-{}--U=0.5--dijkstra=False--timespan=28days----decompose_interactions=False--dist_func={}--preprune_secs=28days.pkl"
         self.directed_params = directed_params
         self.undirected_params = undirected_params
+
+        self.update_result_path_template()
+
+    def update_result_path_template(self,
+                                    timespan=timedelta(days=28),
+                                    cand_tree_percent=0.01):
+        self.result_output_path_template = "test/data/tmp/result-{}--{}----{}----{}.pkl".format(
+            '{}',
+            experiment_signature(
+                U=0.5,
+                dijkstra=False,
+                timespan=timespan
+            ),
+            experiment_signature(
+                decompose_interactions=False,
+                dist_func='{}',
+                preprune_secs=timespan
+            ),
+            experiment_signature(
+                cand_tree_percent=cand_tree_percent
+            )
+        )
 
     def check(self, method="random", distance="entropy",
               sampling_method="uniform", extra="", undirected=False):
@@ -214,7 +240,7 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         cmd = """python {} \
         --method={method} \
         --dist={distance_func} \
-        --cand_n=1 \
+        --cand_n_percent=0.01 \
         --root_sampling={sampling_method}\
         --res_dir={result_dir} --weeks=4 --U=0.5 \
         --lda_path={lda_model_path} --interaction_path={interaction_json_path} \
@@ -249,7 +275,7 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
     def test_out_degree_sampling(self):
         output = self.check(sampling_method='out_degree')
         assert_true('out_degree' in output)
-
+        
     def test_undirected(self):
         self.check(sampling_method='out_degree', undirected=True)
 
@@ -261,10 +287,15 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
             'corpus_dict_path': None,
             'undirected': False
         }
-        self.result_output_path_template = "test/data/tmp/result-{}--U=0.5--dijkstra=False--timespan=8----decompose_interactions=False--dist_func={}--preprune_secs=8.pkl"
+        self.update_result_path_template(timespan=8)
+
         self.check(sampling_method='out_degree', undirected=False,
                    distance='euclidean',
                    extra='--seconds=8 --given_topics')
+
+    def test_cand_n(self):
+        self.update_result_path_template(cand_tree_percent=0.0972222222222)
+        self.check(extra='--cand_n 7')
 
     def tearDown(self):
         remove_tmp_data('test/data/tmp')
@@ -277,7 +308,7 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
 
         self.some_kws_of_run = {
             'interaction_json_path': make_path('test/data/given_topics/interactions.json'),
-            'cand_tree_number': 5,
+            'cand_tree_percent': 0.1,
             'meta_graph_pkl_path_prefix': make_path('test/data/given_topics/meta-graph'),
             'undirected': False,
             'meta_graph_kws': {
@@ -293,7 +324,11 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
             'given_topics': True
         }
 
-        self.meta_pickle_path_common = "decompose_interactions=False--dist_func=euclidean--preprune_secs=8"
+        self.meta_pickle_path_common = experiment_signature(
+            decompose_interactions=False,
+            dist_func='euclidean',
+            preprune_secs=8
+        )
         pkl_path = make_path('test/data/given_topics/result--{}.pkl'.format(
             self.meta_pickle_path_common)
         )
@@ -305,7 +340,6 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
 
     def _calc_cand_trees_pkl(self):
         kws = self.some_kws_of_run.copy()
-
         run(
             lst,
             calculate_graph=True,
@@ -320,18 +354,18 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
         # very likely actual tree number should >= 0
         result_pickle_prefix = make_path("test/data/tmp",
                                          "result-{}".format(test_name))
-        pickle_path_suffix = 'U=0.5--dijkstra={}--timespan=8----%s' %(
-            self.meta_pickle_path_common
+
+        pickle_path_suffix = 'U=0.5--dijkstra={}--timespan=8----{}----{}'.format(
+            self.some_kws_of_run['gen_tree_kws'].get('dijkstra', False),
+            self.meta_pickle_path_common,
+            experiment_signature(
+                cand_tree_percent=self.some_kws_of_run['cand_tree_percent']
+            )
         )
         kws = self.some_kws_of_run.copy()
         
         if more_args:
             kws.update(more_args)
-
-        if self.some_kws_of_run['gen_tree_kws'].get('dijkstra'):
-            pickle_path_suffix = pickle_path_suffix.format("True")
-        else:
-            pickle_path_suffix = pickle_path_suffix.format("False")
 
         pickle_path = "{}--{}.pkl".format(
             result_pickle_prefix,
