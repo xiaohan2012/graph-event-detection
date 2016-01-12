@@ -182,27 +182,15 @@ def run(gen_tree_func,
     if print_summary:
         logger.debug(get_summary(g))
 
-    roots = root_sampling_method(g, cand_tree_number)
+    if cand_tree_number == -1:
+        roots = g.nodes()
+        logger.info('using all nodes as roots: {}'.format(len(roots)))
+    else:
+        roots = root_sampling_method(g, cand_tree_number)
 
-    pool = Pool(4)
     manager = Manager()
     shared_dict = manager.dict([('g', g)])
     
-    # params_of_task = ((i, r, U,
-    #                    gen_tree_func,
-    #                    timespan, gen_tree_kws,
-    #                    shared_dict,
-    #                    print_summary)
-    #                   for i, r in enumerate(roots))
-    from functools import partial
-    # trees = pool.map(partial(calc_tree,
-    #                          U=U,
-    #                          gen_tree_func=gen_tree_func,
-    #                          timespan=timespan,
-    #                          gen_tree_kws=gen_tree_kws,
-    #                          shared_dict=shared_dict,
-    #                          print_summary=print_summary),
-    #                  xrange(len(roots)), roots)
     trees = map(lambda (i, r):
                 calc_tree(
                     i, r,

@@ -97,7 +97,6 @@ def dp_dag_general(G, r, U,
             if n == r:  # no need to continue once we processed root
                 break
                 
-    print(U)
     best_cost = max(xrange(U + 1),
                     key=lambda i: A[r][i] if i in A[r] else float('-inf'))
     tree = DiGraph()
