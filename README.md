@@ -367,7 +367,7 @@ Day 2:
   - added link type frequency
   - added event timespan
   - micro and macro view
-- 
+- hint on U tool using pecentile
 
 TODO:
 

@@ -57,7 +57,6 @@ def test_dump():
         ),
         "{id}"
     )
-    summary_kws['edge_costs'] = False
     summaries = [MetaGraphStat(t, summary_kws).summary_dict()
                  for t in trees]
 
@@ -118,9 +117,5 @@ def test_dump():
             assert_equal(eg[k], ag[k])
         for k in ('terms', ):
             assert_equal(len(eg[k]), len(ag[k]))
-        # assert_equal(len(eg['participants']), len(ag['participants']))
-        # assert_equal(eg['link_type_freq'], ag['link_type_freq'])
-        # assert_equal(eg['start'], ag['start'])
-        # assert_equal(eg['end'], ag['end'])
-        # assert_equal(eg['days'], ag['days'])
+
 

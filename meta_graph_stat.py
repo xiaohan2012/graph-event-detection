@@ -249,7 +249,7 @@ def build_default_summary_kws(interactions, people_info,
                               dictionary, lda, people_repr_template):
     interactions = IU.clean_interactions(interactions)
     summary_kws = {
-        'temporal_traffic': False,
+        'time_span': {},
         'topics': {
             'interactions': interactions,
             'dictionary': dictionary,
