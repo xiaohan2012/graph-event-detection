@@ -203,7 +203,7 @@ def get_variance_example_1():
         g.node[n]['r'] = 1
 
     # correct is (0, 1, 2, 5) for cost 0
-    U = [0, 10]
+    U = [0, 42]
     expected_edge_set = [
         set(g.edges()) - {(2, 3), (3, 4)},
         set(g.edges())
@@ -359,8 +359,8 @@ def test_variance_based_cost():
     actual = cost_func(n, D, G,
                        children)
     mean_vec = np.mean(reprs, axis=0)
-    expected = np.mean([euclidean(mean_vec, v)
-                        for v in reprs])
+    expected = np.sum([euclidean(mean_vec, v)
+                       for v in reprs])
     np.testing.assert_almost_equal(expected, actual)
 
     # with fixed_point

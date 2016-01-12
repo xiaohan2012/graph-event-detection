@@ -161,12 +161,12 @@ def make_variance_cost_func(vect_dist_func, repr_key,
         mean_topic_vect = np.mean(reprs, axis=0)
         diffs = [vect_dist_func(mean_topic_vect, v)
                  for v in reprs]
-        ret = np.mean(diffs)
+        ret = np.sum(diffs)
         if fixed_point:
             return int(ret * np.power(10, fixed_point))
         else:
             return ret
-            
+    
     return variance_based_cost
 
 
