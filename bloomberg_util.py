@@ -35,10 +35,11 @@ def dump2interactions(db, collection_name, output_path):
             valid_articles.append(
                 transform_article(a)
             )
+    print('# valid articles: ', len(valid_articles))
     json_dump(valid_articles, output_path)
 
 
 if __name__ == '__main__':
     dump2interactions(MongoClient()['bloomberg'],
-                      'articles_test',
+                      'articles',
                       'data/bloomberg/interactions.json')

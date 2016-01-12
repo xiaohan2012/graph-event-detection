@@ -70,3 +70,4 @@ scripts/experiment_cmds.sh
 *dist_func=entropy*.pkl
 *dist_func=euclidean*.pkl
 
+*.lprof
