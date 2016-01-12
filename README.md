@@ -370,7 +370,8 @@ Day 2:
   - added event timespan
   - micro and macro view
 - hint on U tool using pecentile
-- islamic/sklearn/bloomberg lda run
+- enron/islamic/sklearn/bloomberg lda run
+- islamic/sklearn/bloomberg metagraph generation
 - synthetic experiment run on
   - U
   - sampling fraction and method
