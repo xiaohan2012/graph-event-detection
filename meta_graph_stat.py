@@ -236,13 +236,10 @@ class MetaGraphStat(object):
         return dict(counter)
 
     def summary_dict(self):
-        return {m: getattr(self, m)(**self.kws.get(m, {}))
-                for m in dir(self)
-                if (not m.startswith('_') and
-                    not m.startswith('summary') and
-                    callable(getattr(self, m)) and
-                    self.kws.get(m) is not False  # if False, disable
-                )}
+        return {m: getattr(self, m)(**self.kws[m])
+                for m in self.kws.keys()
+                if callable(getattr(self, m))
+        }
 
     def summary(self):
         return pformat(self.summary_dict())

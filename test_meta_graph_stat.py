@@ -207,7 +207,6 @@ class MetaGraphStatTest(unittest.TestCase):
     def test_disable_method(self):
         s = MetaGraphStat(self.g,
                           kws={
-                              'temporal_traffic': False,
                               'topics': {
                                   'interactions': self.interactions,
                                   'dictionary': self.dictionary,
@@ -217,8 +216,6 @@ class MetaGraphStatTest(unittest.TestCase):
                               'email_content': {
                                   'interactions': self.interactions
                               },
-                              'participants': False,
-                              'link_type_freq': False
                           })
 
         summary = s.summary()
