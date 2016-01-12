@@ -43,6 +43,7 @@
 - `df.to_json(orient="records)"`
 - `df.equals`
 - `df.values` to get data array
+- filter rows by condition: `df[df.map(func) > 0]`
 
 ## JavaScript
 
