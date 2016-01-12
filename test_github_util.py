@@ -31,7 +31,7 @@ def test_dump2interactions():
                       output_path)
 
     interactions = json_load(output_path)
-    assert_equal(10487, len(interactions))
+    assert_equal(9592, len(interactions))
     for i in interactions:
         assert_true('recipient_ids' in i)
 
