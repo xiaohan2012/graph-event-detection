@@ -7,11 +7,12 @@ if [ -z $1 ]; then
 	exit -1
 fi
 
+extra=$2
 
 python gen_candidate_trees.py \
 	--method=lst \
 	--root_sampling=uniform \
-	--seconds=8 \
+	--weeks=2 \
 	--U=0.5 \
 	--dist=euclidean \
 	--cand_n=0 \
@@ -20,5 +21,5 @@ python gen_candidate_trees.py \
 	--corpus_dict_path=data/${dataset}/dict.pkl \
 	--interaction_path=data/${dataset}/interactions.json \
 	--meta_graph_path_prefix=tmp/${dataset}/meta-graph \
-	--calc_mg
+	--calc_mg ${extra}
 
