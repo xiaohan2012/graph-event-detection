@@ -56,3 +56,6 @@
 
 - [PyGithub](https://github.com/PyGithub/PyGithub)
 - [Github API: issues](https://developer.github.com/v3/issues/)
+
+## Git
+- [undo merge](http://stackoverflow.com/questions/2389361/undo-a-git-merge)
