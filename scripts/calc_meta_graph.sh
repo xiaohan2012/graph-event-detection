@@ -16,7 +16,7 @@ python gen_candidate_trees.py \
 	--dist=euclidean \
 	--cand_n=0 \
 	--res_dir=tmp/${dataset}/ \
-	--lda_path=data/${dataset}/model-*.lda \
+	--lda_path=$(ls data/${dataset}/model-*.lda) \
 	--corpus_dict_path=data/${dataset}/dict.pkl \
 	--interaction_path=data/${dataset}/interactions.json \
 	--meta_graph_path_prefix=tmp/${dataset}/meta-graph \
