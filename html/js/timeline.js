@@ -1,5 +1,5 @@
-$(document).ready(function(){
-    d3.json("data/islamic/timeline.json",
+function showMicro(json_url){
+    d3.json(json_url,
 			function(error, data) {
 				console.log(data);
 				var items = new vis.DataSet(data['items']);
@@ -28,9 +28,43 @@ $(document).ready(function(){
 					start: data['start'],
 					end: data['end'],
 					editable: false,
-					type: 'point'
+					type: 'point',
+					orientation: 'top',
 				};
 
 				var timeline = new vis.Timeline(container, items, groups, options);
 			});
-})
+}
+
+function showMacro(json_url){
+    d3.json(json_url,
+			function(error, data) {
+				console.log(data);
+				var items = new vis.DataSet(
+					_.map(data['groups'], function(g){
+						g['content'] = g['terms'].join(' ');
+						g['group'] = g['id'];
+						return g;
+					})
+				);
+
+				_.each(data['groups'], function(g){
+					g['content'] = '<h3>time</h3>' + g['start'] + ' - ' + g['end'] + '(' + g['days'] + ' days)';
+					g['content'] += '<h3>link type frequency</h3>' + dict2html(g['link_type_freq']);
+					g['content'] = '';
+				});
+				var groups = new vis.DataSet(data['groups']);
+
+				var container = document.getElementById('visualization');
+				var options = {
+					start: data['start'],
+					end: data['end'],
+					editable: false,
+					type: 'point',
+					orientation: 'top',
+					stack: false
+				};
+
+				var timeline = new vis.Timeline(container, items, groups, options);
+			});
+}

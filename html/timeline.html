@@ -10,6 +10,15 @@
 
 
 <body>
+  Display type: 
+  <label>
+	<input type="radio" name="display_type"  value="macro"/>
+	Macro
+  </label>
+  <label>
+  <input type="radio" name="display_type" value="micro"/>
+	Micro
+  </label>
   <div id="visualization"></div>
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.12/d3.min.js"></script>
@@ -17,3 +26,20 @@
 <script src="http://underscorejs.org/underscore-min.js"></script>
 <script src="./js/util.js"></script>
 <script src="./js/timeline.js"></script>
+<script>
+ $(document).ready(function(){
+   $("input[name=display_type]:radio").change(function(){
+	 $('#visualization').children().remove();
+
+	 var json_url = "data/islamic/timeline.json";
+	 if($(this).val() == "micro"){
+	   showMicro(json_url);
+	 }
+	 else{
+	   showMacro(json_url);
+	 }
+   });
+   // $("input[name=display_type][value=micro]").attr('checked', 'checked').change();
+ });
+
+</script>

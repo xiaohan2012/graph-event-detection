@@ -361,6 +361,13 @@ Day 1:
 - timeline example using [vis timeline](http://visjs.org/timeline_examples.html)
   - observation on islamic data: event with only one participant(how about remove the broadcast edge?)
 
+Day 2:
+
+- timeline vis
+  - added link type frequency
+  - added event timespan
+  - micro and macro view
+- 
 
 TODO:
 
@@ -373,9 +380,6 @@ TODO:
   - four datasets
   - four methods
   - sampling comparison
-- timeline visualization including participants, topic terms
-  - click the event and timeline zooms into that event
-  - without showing all the messages(macro view)
 - textual summary of event
 - scale the node size by message count(original graph)
 
