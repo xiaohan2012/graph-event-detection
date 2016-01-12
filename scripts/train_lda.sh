@@ -23,7 +23,7 @@ fi
 echo 'training model'
 time python lda/lda.py --n_topics 50 \
 	--n_iters 50 \
-	--lda_update_every 1 \
+	--lda_update_every 2 \
 	--lda_chunksize 1000 \
 	--id2token data/${dataset}/id2token.pkl \
 	--mm_path data/${dataset}/content.mm \
