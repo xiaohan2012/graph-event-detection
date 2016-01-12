@@ -5,7 +5,9 @@ from thread_util import KEY_THREAD_ID, \
     KEY_SENDER_ID, \
     KEY_RECIPIENT_IDS, \
     add_recipients, \
-    collect_user_information
+    collect_user_information, \
+    drop_thread_with_no_comments, \
+    fillna_subject_and_body
 
 
 def make_label_string(labels):
@@ -43,6 +45,15 @@ def dump2interactions(input_path, output_path):
     df = make_dataframe(input_path)
 
     df = add_recipients(df)
+
+    print('before drop empty thread: ', df.shape)
+    df = drop_thread_with_no_comments(df)
+    print('after drop empty thread: ', df.shape)
+
+    print('fillna subject/body before: ', df['body'].dropna().shape)
+    df = fillna_subject_and_body(df)
+    print('fillna subject/body after: ', df['body'].dropna().shape)
+
     df.to_json(output_path, orient="records")
 
 
@@ -59,5 +70,11 @@ def dump2people(input_path, output_path):
 if __name__ == '__main__':
     dump2interactions('data/sklearn/raw.json',
                       'data/sklearn/interactions.json')
-    dump2interactions('data/sklearn/raw.json',
-                      'data/sklearn/people.json')
+    dump2people('data/sklearn/raw.json',
+                'data/sklearn/people.json')
+
+
+
+
+
+

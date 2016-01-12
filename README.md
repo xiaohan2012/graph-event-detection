@@ -370,6 +370,7 @@ Day 2:
   - added event timespan
   - micro and macro view
 - hint on U tool using pecentile
+- islamic lda run
 
 TODO:
 
