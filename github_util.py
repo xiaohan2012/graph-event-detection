@@ -36,7 +36,7 @@ def make_dataframe(path):
                  t['sender'], t['created_at'])
             )
     return pd.DataFrame(all_messages,
-                        columns=['id',
+                        columns=['message_id',
                                  KEY_THREAD_ID, 'subject', 'body',
                                  KEY_SENDER_ID, KEY_TIMESTAMP])
         
@@ -72,9 +72,3 @@ if __name__ == '__main__':
                       'data/sklearn/interactions.json')
     dump2people('data/sklearn/raw.json',
                 'data/sklearn/people.json')
-
-
-
-
-
-
