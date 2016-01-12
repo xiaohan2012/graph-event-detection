@@ -353,15 +353,35 @@ Day 7:
 - synthetic data cmd support
 - event evaluation method
 
+
+# Week 8:
+
+Day 1:
+
+- evaluation tool and some prelimenary result
+- check events cmd tool
+- timeline example using [vis timeline](http://visjs.org/timeline_examples.html)
+  - observation on islamic data: event with only one participant(how about remove the broadcast edge?)
+
+Day 2:
+
+- timeline vis
+  - added link type frequency
+  - added event timespan
+  - micro and macro view
+- hint on U tool using pecentile
+
 TODO:
 
-- check events cmd tool
+- synthetic experiment
+  - method
+  - noise interaction number
+  - sampling count
+  - density of the event
 - run experiment
-  - synthetic data
   - four datasets
   - four methods
   - sampling comparison
-- timeline visualization including participants, topic terms  
 - textual summary of event
 - scale the node size by message count(original graph)
 

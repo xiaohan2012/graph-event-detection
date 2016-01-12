@@ -14,3 +14,10 @@ function dict2html(d, fields){
 	}
 	return html;
 }
+
+function list2html(items){
+	var list = _.map(items, function(i){
+		return '<li>' + i + '</li>';
+	})
+	return '<ul>' + list.join('') + '</ul>';
+}

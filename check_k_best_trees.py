@@ -1,60 +1,53 @@
-import os
 import cPickle as pickle
-import gensim
-import numpy as np
-import ujson as json
+from pprint import pprint
 
-from meta_graph_stat import MetaGraphStat
 from max_cover import argmax_k_coverage
-from util import load_json_by_line
 from event_summary import summary
+from meta_graph_stat import build_default_summary_kws_from_path
 
-import sys
 
-result_path = sys.argv[1]
-interactions_path = sys.argv[2]
-people_path = sys.argv[3]
-dictionary_path = sys.argv[4]
-lda_path = sys.argv[5]
+def k_best_trees(cand_trees, k):
+    nodes_of_trees = [set(t.nodes()) for t in cand_trees]
 
-K = 10
+    selected_ids = argmax_k_coverage(nodes_of_trees, k)
+    
+    return [cand_trees[id_] for id_ in selected_ids]
 
-CURDIR = os.path.dirname(os.path.abspath(__file__))
 
-print("loading interactions...")
-try:
-    interactions = json.load(
-        open(os.path.join(CURDIR, interactions_path))
-        )
-except ValueError:
-    interactions = load_json_by_line(
-        os.path.join(CURDIR, interactions_path)
-        )
+def get_k_best_tree_summary(
+        interactions_path, people_path,
+        corpus_dict_path, lda_model_path,
+        cand_trees_path, k, people_repr_template):
 
-print("loading people...")
-people_info = load_json_by_line(
-    os.path.join(CURDIR, people_path)
+    summary_kws = build_default_summary_kws_from_path(
+        interactions_path, people_path,
+        corpus_dict_path, lda_model_path,
+        people_repr_template
     )
 
-print("loading dict...")
-dictionary = gensim.corpora.dictionary.Dictionary.load(
-    os.path.join(CURDIR, dictionary_path)
-)
+    trees = k_best_trees(pickle.load(open(cand_trees_path)),
+                         k)
 
-print("loading lda...")
-lda = gensim.models.ldamodel.LdaModel.load(
-    os.path.join(CURDIR, lda_path)
-)
+    return summary(trees,
+                   summary_kws=summary_kws,
+                   tablefmt='orgtbl')
 
-print("loading candidates...")
-trees = pickle.load(open(result_path))
 
-nodes_of_trees = [set(t.nodes()) for t in trees]
+def main():
+    import argparse
+    parser = argparse.ArgumentParser('check k best cand_trees')
+    parser.add_argument('--cand_trees_path', required=True)
+    parser.add_argument('--interactions_path', required=True)
+    parser.add_argument('--people_path', required=True)
+    parser.add_argument('--corpus_dict_path', required=True)
+    parser.add_argument('--lda_model_path', required=True)
+    parser.add_argument('--people_repr_template', type=str,
+                        default="{id}")
+    parser.add_argument('-k', type=int, default=10)
 
-print("k-max-set running...")
-selected_ids = argmax_k_coverage(nodes_of_trees, K)
+    args = parser.parse_args()
+    pprint(vars(args))
+    print(get_k_best_tree_summary(**vars(args)))
 
-print("Summary:\n\n")
-print summary([trees[id_] for id_ in selected_ids], 
-              interactions, people_info, dictionary, lda,
-              tablefmt='orgtbl')
+if __name__ == '__main__':
+    main()

@@ -1,6 +1,6 @@
 #! /bin/bash
 methods=(variance lst greedy random)
-sampling_methods=(uniform out_degree)
+sampling_methods=(uniform)
 
 for method in "${methods[@]}"; do
 	for sampling_method in "${sampling_methods[@]}"; do
@@ -15,6 +15,6 @@ for method in "${methods[@]}"; do
 			--corpus_dict_path=None \
 			--interaction_path=data/synthetic/interactions.json \
 			--meta_graph_path_prefix=tmp/synthetic/meta-graph \
-			--given_topics
+		        --given_topics
 	done
 done

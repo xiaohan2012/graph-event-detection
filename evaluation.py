@@ -1,4 +1,5 @@
 from itertools import chain
+from sklearn import metrics
 
 
 def precision_recall_f1(true_clusters, pred_clusters):
@@ -49,12 +50,84 @@ def evaluate_clustering_result(
     return metric(true_labels, pred_labels)
     
 
+def events2clusters(events):
+    return [[i['message_id'] for i in e]for e in events]
+
+
+def trees2clusters(trees):
+    return [t.nodes() for t in trees]
+
+
 def evaluate_meta_tree_result(
-        true_events, pred_trees, all_entry_ids, metric, true_only=True):
-    true_clusters = [[i['message_id'] for i in e]for e in true_events]
-    pred_clusters = [t.nodes() for t in pred_trees]
+        true_events, pred_trees, all_entry_ids, methods):
+    true_clusters = events2clusters(true_events)
+    pred_clusters = trees2clusters(pred_trees)
     
-    return evaluate_clustering_result(true_clusters, pred_clusters,
-                                      all_entry_ids,
-                                      metric,
-                                      true_only)
+    scores = {}
+
+    for m in methods:
+        for true_only in (True, False):
+            name = m.__name__
+            if not true_only:
+                name += "(all)"
+            scores[name] = evaluate_clustering_result(
+                true_clusters, pred_clusters,
+                all_entry_ids,
+                m,
+                true_only)
+    p, r, f1 = precision_recall_f1(true_clusters, pred_clusters)
+
+    scores['precision'] = p
+    scores['recall'] = r
+    scores['f1'] = f1
+
+    return scores
+
+
+def main():
+    import os
+    import cPickle as pkl
+    import pandas as pd
+    from util import json_load
+    from max_cover import argmax_k_coverage
+    from tabulate import tabulate
+    import argparse
+    
+    parser = argparse.ArgumentParser('Evaluate the events')
+    parser.add_argument('-c', '--cand_trees_path', required=True, nargs='+')
+    parser.add_argument('--interactions_path', required=True)
+    parser.add_argument('--events_path', required=True)
+    args = parser.parse_args()
+
+    interactions = json_load(args.interactions_path)
+    true_events = json_load(args.events_path)
+    methods = [metrics.adjusted_rand_score,
+               metrics.adjusted_mutual_info_score,
+               metrics.homogeneity_score,
+               metrics.completeness_score,
+               metrics.v_measure_score]
+
+    K = 10
+    indexes = []
+    scores = []
+    for p in args.cand_trees_path:
+        cand_trees = pkl.load(open(p))
+        nodes_of_trees = [set(t.nodes()) for t in cand_trees]
+        selected_ids = argmax_k_coverage(nodes_of_trees, K)
+        pred_trees = [cand_trees[i] for i in selected_ids]
+
+        indexes.append(os.path.basename(p))
+        scores.append(evaluate_meta_tree_result(
+            true_events,
+            pred_trees,
+            [i['message_id'] for i in interactions],
+            methods
+        ))
+    df = pd.DataFrame(scores, index=indexes,
+                      columns=[m.__name__ for m in methods] +
+                      [m.__name__ + "(all)" for m in methods] +
+                      ['precision', 'recall', 'f1'])
+    df.to_csv('tmp/evaluation.csv')
+
+if __name__ == '__main__':
+    main()

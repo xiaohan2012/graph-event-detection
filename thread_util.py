@@ -67,6 +67,16 @@ def add_recipients_to_islamic_dataset(path):
     return add_recipients(t)
 
 
+def fillna_subject_and_body(df):
+    df['subject'].fillna('', inplace=True)
+    df['body'].fillna('', inplace=True)
+    return df
+
+
+def drop_thread_with_no_comments(df):
+    return df[df['recipient_ids'].map(len) > 0]
+
+
 def add_timestamp(df, dt_field, ts_field):
     df = df.dropna(subset=[dt_field])
     df[ts_field] = map(lambda dt: time.mktime(
@@ -92,8 +102,16 @@ def main():
 
     df = add_recipients_to_islamic_dataset(input_path)
     df = add_timestamp(df, dt_field="datetime", ts_field="timestamp")
-    df.to_json(output_json_path, orient="records")
 
+    print('before drop empty thread: ', df.shape)
+    df = drop_thread_with_no_comments(df)
+    print('after drop empty thread: ', df.shape)
+
+    print('fillna subject/body before: ', df['body'].dropna().shape)
+    df = fillna_subject_and_body(df)
+    print('fillna subject/body after: ', df['body'].dropna().shape)
+
+    df.to_json(output_json_path, orient="records")
     user_info = collect_user_information(df,
                                          id_field='sender_id',
                                          other_fields=['sender_name'])

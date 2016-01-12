@@ -1,6 +1,7 @@
 import codecs
 import ujson as json
 import math
+import gensim
 from datetime import datetime
 
 
@@ -64,3 +65,17 @@ def json_dump(obj, path):
 def json_load(path):
     with codecs.open(path, 'r', 'utf8') as f:
         return json.load(f)
+
+
+def load_summary_related_data(interactions_path, people_path,
+                              corpus_dict_path, lda_model_path):
+    interactions = json.load(open(interactions_path))
+    people_info = json.load(open(people_path))
+
+    dictionary = gensim.corpora.dictionary.Dictionary.load(
+        corpus_dict_path
+    )
+    lda = gensim.models.ldamodel.LdaModel.load(
+        lda_model_path
+    )
+    return interactions, people_info, dictionary, lda

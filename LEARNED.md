@@ -29,6 +29,7 @@
 - multiprocessing
   - allows shared object event custom object
   - can only pickle top level functions, classmethods not good, alternative, `pathos` 
+- [nose assert_equal.__self__.maxDiff=None](http://stackoverflow.com/questions/14493670/how-to-set-self-maxdiff-in-nose-to-get-full-diff-output)
 
 ## Pandas
 
@@ -41,6 +42,8 @@
 - `df.rename(columns={'old': 'new', ...}, inplace=True)`
 - `df.to_json(orient="records)"`
 - `df.equals`
+- `df.values` to get data array
+- filter rows by condition: `df[df.map(func) > 0]`
 
 ## JavaScript
 

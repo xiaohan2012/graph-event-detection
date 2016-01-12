@@ -97,14 +97,25 @@ class EvaluationTest(unittest.TestCase):
                 t.add_node(i)
             pred_trees.append(t)
 
+        scores = evaluate_meta_tree_result(
+            true_events,
+            pred_trees, self.all_entry_ids,
+            methods=[metrics.adjusted_rand_score]
+        )
         assert_almost_equal(
             metrics.adjusted_rand_score(
                 [2, 2, 1, 1, 1, 1],
                 [2, 2, 0, 1, 0, 1]
             ),
-            evaluate_meta_tree_result(
-                true_events,
-                pred_trees, self.all_entry_ids,
-                metric=metrics.adjusted_rand_score, true_only=True
-            )
+            scores['adjusted_rand_score']
         )
+        assert_almost_equal(
+            metrics.adjusted_rand_score(
+                [2, 2, 0, 0, 1, 1, 1, 1, 0, 0],
+                [2, 2, 0, 0, 0, 1, 0, 1, 1, 0]
+            ),
+            scores['adjusted_rand_score(all)']
+        )
+        assert_almost_equal(0.8, scores['precision'])
+        assert_almost_equal(2 / 3., scores['recall'])
+        assert_almost_equal(8 / 11., scores['f1'])

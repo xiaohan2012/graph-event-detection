@@ -35,8 +35,8 @@ class MetaGraphStatTest(unittest.TestCase):
         )
 
         self.g = IU.get_meta_graph(self.interactions,
-                                   remove_singleton=True)
-
+                                   remove_singleton=True,
+                                   decompose_interactions=False)
         # some pseudo cost
         for s, t in self.g.edges():
             self.g[s][t]['c'] = 1
@@ -58,6 +58,9 @@ class MetaGraphStatTest(unittest.TestCase):
                                    'participants': {
                                        'people_info': self.people_info,
                                        'interactions': self.interactions
+                                   },
+                                   'link_type_freq': {
+                                       'interactions': self.interactions
                                    }
                                })
 
@@ -70,23 +73,14 @@ class MetaGraphStatTest(unittest.TestCase):
         assert_equal(expected, self.s.time_span())
         
     def test_basic_structure_stats(self):
-        expected = {
-            '#nodes': 7,
-            '#singleton': 0,
-            '#edges': 10,
-            'in_degree': {
-                'min': 0,
-                'max': 4,
-                'average': 1.4285714285714286,
-                'median': 1.0
-            },
-            'out_degree': {
-                'min': 0,
-                'max': 4,
-                'average': 1.4285714285714286,
-                'median': 1.0,
-            },
-            'roots': sorted(['1.B', '1.C', '1.D'])
+        print(self.s.basic_structure_stats())
+        expected = {'#nodes': 5, '#edges': 6,
+                    '#singleton': 0,
+                    'in_degree': {'max': 2, 'average': 1.2,
+                                  'median': 1.0, 'min': 0},
+                    'roots': [1],
+                    'out_degree': {'max': 4, 'average': 1.2,
+                                   'median': 1.0, 'min': 0}
         }
         assert_equal(expected,
                      self.s.basic_structure_stats())
@@ -103,7 +97,7 @@ class MetaGraphStatTest(unittest.TestCase):
     def test_temporal_traffic(self):
         expected = {
             'email_count_hist': [
-                ((2001, 5, 11, 16, 26, 16), 3),
+                ((2001, 5, 11, 16, 26, 16), 1),
                 ((2001, 5, 11, 16, 26, 17), 1),
                 ((2001, 5, 11, 16, 26, 18), 1),
                 ((2001, 5, 11, 16, 26, 19), 1),
@@ -115,7 +109,7 @@ class MetaGraphStatTest(unittest.TestCase):
     def test_temporal_traffic_using_hour(self):
         expected = {
             'email_count_hist': [
-                ((2001, 5, 11, 16), 7)
+                ((2001, 5, 11, 16), 5)
             ]}
         assert_equal(expected,
                      self.s.temporal_traffic(time_resolution='hour'))
@@ -134,7 +128,8 @@ class MetaGraphStatTest(unittest.TestCase):
         assert_true('utilities' in
                     actual['topic_terms'])
 
-        assert_almost_equal(0.105, actual['topic_divergence'], places=3)
+        assert_almost_equal(0.13595509551708365,
+                            actual['topic_divergence'], places=3)
         
     def test__topic_divergence(self):
         id2msg = {}
@@ -147,7 +142,7 @@ class MetaGraphStatTest(unittest.TestCase):
         actual = self.s._topic_divergence(msg_ids, id2msg,
                                           self.dictionary,
                                           self.lda_model)
-        assert_almost_equal(0.106, actual, places=3)
+        assert_almost_equal(0.13603548510270022, actual, places=3)
         
     def test_email_content(self):
         actual = self.s.email_content(self.interactions, 1, unique=False)
@@ -165,24 +160,40 @@ class MetaGraphStatTest(unittest.TestCase):
         actual = self.s.participants(self.people_info, self.interactions,
                                      top_k=5)
         assert_equal(actual['sender_count'],
-                     [(('A', 'A@enron.com'), 5),
-                      (('D', 'D@enron.com'), 2)])
+                     [('A(A@enron.com)', 3),
+                      ('D(D@enron.com)', 2)])
+        print(actual['recipient_count'])
+        print(actual['participant_count'])
         assert_equal(actual['recipient_count'],
-                     [(('B', 'B@enron.com'), 4),
-                      (('D', 'D@enron.com'), 3),
-                      (('C', 'C@enron.com'), 3),
-                      (('F', 'F@enron.com'), 2),
-                      (('E', 'E@enron.com'), 1)])
+                     [('F(F@enron.com)', 2),
+                      ('B(B@enron.com)', 2),
+                      ('E(E@enron.com)', 1),
+                      ('D(D@enron.com)', 1),
+                      ('C(C@enron.com)', 1)])
         assert_equal(actual['participant_count'],
-                     [(('D', 'D@enron.com'), 5),
-                      (('A', 'A@enron.com'), 5),
-                      (('B', 'B@enron.com'), 4),
-                      (('C', 'C@enron.com'), 3),
-                      (('F', 'F@enron.com'), 2)])
-        assert_almost_equal(0.598, actual['sender_entropy'], places=3)
+                     [('D(D@enron.com)', 3),
+                      ('A(A@enron.com)', 3),
+                      ('F(F@enron.com)', 2),
+                      ('B(B@enron.com)', 2),
+                      ('E(E@enron.com)', 1)])
+        assert_almost_equal(0.67301166700925652,
+                            actual['sender_entropy'], places=3)
         assert_true('recipient_entropy' in actual)
         assert_true('participant_entropy' in actual)
 
+    def test_link_type_freq(self):
+        actual = self.s.link_type_freq(
+            self.interactions
+        )
+        assert_equal(
+            {
+                'relay': 2,
+                'reply': 0,
+                'broadcast': 4
+            },
+            actual
+        )
+    
     def test_summary(self):
         s = self.s.summary()
         assert_true(isinstance(s, basestring))
@@ -191,11 +202,11 @@ class MetaGraphStatTest(unittest.TestCase):
         assert_true('topic_terms' in s)
         assert_true('subjects(top' in s)
         assert_true('participant_count' in s)
+        assert_true('link_type_freq' in s)
         
     def test_disable_method(self):
         s = MetaGraphStat(self.g,
                           kws={
-                              'temporal_traffic': False,
                               'topics': {
                                   'interactions': self.interactions,
                                   'dictionary': self.dictionary,
@@ -205,7 +216,6 @@ class MetaGraphStatTest(unittest.TestCase):
                               'email_content': {
                                   'interactions': self.interactions
                               },
-                              'participants': False
                           })
 
         summary = s.summary()
@@ -215,3 +225,4 @@ class MetaGraphStatTest(unittest.TestCase):
         assert_true('topic_terms' in summary)
         assert_true('subjects(top' in summary)
         assert_true('participant_count' not in summary)
+        assert_true('link_type_freq' not in summary)

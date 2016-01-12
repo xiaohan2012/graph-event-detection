@@ -4,7 +4,8 @@ import networkx as nx
 from pprint import pformat
 from collections import Counter
 
-from interactions import InteractionsUtil
+from interactions import InteractionsUtil as IU
+from util import load_summary_related_data
 
 
 class MetaGraphStat(object):
@@ -26,8 +27,7 @@ class MetaGraphStat(object):
                     'end_time': None}
         else:
             ds = [self.g.node[i]['datetime']
-                  for i in self.g.nodes()
-                  if 'datetime' in self.g.node[i]]
+                  for i in self.g.nodes()]
             return {'start_time': min(ds),
                     'end_time': max(ds)}
             
@@ -86,6 +86,7 @@ class MetaGraphStat(object):
         id2subject = {}
         for m in interactions:
             id2subject[m['message_id']] = m['subject']
+
         msgs = []
         mids = [self.g.node[n]['message_id']
                 for n in nx.topological_sort(self.g)]
@@ -109,7 +110,7 @@ class MetaGraphStat(object):
         raw_topics = [
             lda.get_document_topics(
                 dictionary.doc2bow(
-                    InteractionsUtil.tokenize_document(id2msg[id_])
+                    IU.tokenize_document(id2msg[id_])
                 ),
                 minimum_probability=0
             )
@@ -134,7 +135,7 @@ class MetaGraphStat(object):
         message_ids = [self.g.node[n]['message_id']
                        for n in self.g.nodes()]
         concated_msg = ' '.join([id2msg[mid] for mid in message_ids])
-        bow = dictionary.doc2bow(InteractionsUtil.tokenize_document(concated_msg))
+        bow = dictionary.doc2bow(IU.tokenize_document(concated_msg))
         topic_dist = lda.get_document_topics(
             bow,
             minimum_probability=0
@@ -159,8 +160,10 @@ class MetaGraphStat(object):
                 'topic_terms': topic_terms,
                 'topic_divergence': topic_divergence}
 
-    def participants(self, people_info, interactions, top_k=10):
-        peopleid2info = {r['id']: (r['name'], r['email'])
+    def participants(self, people_info, interactions,
+                     people_repr_template="{name}({email})",
+                     top_k=10):
+        peopleid2info = {r['id']: people_repr_template.format(**r)
                          for r in people_info}
 
         mid2sender = {m['message_id']: m['sender_id']
@@ -208,15 +211,76 @@ class MetaGraphStat(object):
         
         return result
 
+    def link_type_freq(self, interactions):
+        id2i = {}
+        for m in interactions:
+            id2i[m['message_id']] = m
+
+        counter = Counter()
+        for k in ('broadcast', 'reply', 'relay'):
+            counter[k] = 0
+        for s, t in self.g.edges_iter():
+            src_sender_id, src_recipient_ids = id2i[s]['sender_id'],\
+                                               set(id2i[s]['recipient_ids'])
+            tar_sender_id, tar_recipient_ids = id2i[t]['sender_id'],\
+                                               set(id2i[t]['recipient_ids'])
+            if src_sender_id == tar_sender_id:
+                counter['broadcast'] += 1
+            elif tar_sender_id in src_recipient_ids:
+                if src_sender_id in tar_recipient_ids:
+                    counter['reply'] += 1
+                else:
+                    counter['relay'] += 1
+            else:
+                raise ValueError('Invalid lin type')
+        return dict(counter)
+
     def summary_dict(self):
-        return {m: getattr(self, m)(**self.kws.get(m, {}))
-                for m in dir(self)
-                if (not m.startswith('_') and
-                    not m.startswith('summary') and
-                    callable(getattr(self, m)) and
-                    self.kws.get(m) is not False  # if False, disable
-                )}
+        return {m: getattr(self, m)(**self.kws[m])
+                for m in self.kws.keys()
+                if callable(getattr(self, m))
+        }
 
     def summary(self):
         return pformat(self.summary_dict())
-        
+
+
+def build_default_summary_kws(interactions, people_info,
+                              dictionary, lda, people_repr_template):
+    interactions = IU.clean_interactions(interactions)
+    summary_kws = {
+        'time_span': {},
+        'topics': {
+            'interactions': interactions,
+            'dictionary': dictionary,
+            'lda': lda,
+            'top_k': 10
+        },
+        'email_content': {
+            'interactions': interactions,
+            'top_k': 5
+        },
+        'participants': {
+            'people_info': people_info,
+            'interactions': interactions,
+            'top_k': 5,
+            'people_repr_template': people_repr_template
+        },
+        'link_type_freq': {
+            'interactions': interactions
+        }
+    }
+    return summary_kws
+
+
+def build_default_summary_kws_from_path(
+        interactions_path, people_path,
+        corpus_dict_path, lda_model_path, people_repr_template):
+    return build_default_summary_kws(
+        *load_summary_related_data(
+            interactions_path, people_path,
+            corpus_dict_path, lda_model_path
+        ),
+        people_repr_template=people_repr_template
+    )
+    

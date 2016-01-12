@@ -1,33 +1,13 @@
-import os
-import gensim
 from tabulate import tabulate
 
 from meta_graph_stat import MetaGraphStat
-from util import load_json_by_line
-from test_util import CURDIR
 
-def summary(events,
-            interactions, people_info, dictionary, lda,
-            tablefmt):
-    STAT_KWS = {
-        'temporal_traffic': False,
-        'topics': {
-            'interactions': interactions,
-            'dictionary': dictionary,
-            'lda': lda,
-            'top_k': 10
-        },
-        'email_content': {
-            'interactions': interactions,
-            'top_k': 10
-        },
-        'participants': False
-    }
+def summary(events, tablefmt, summary_kws):
     date_format = '%Y-%m-%d'
     
     table = []
     for i, e in enumerate(events):
-        d = MetaGraphStat(e, STAT_KWS).summary_dict()
+        d = MetaGraphStat(e, summary_kws).summary_dict()
         row = ["**#{},**".format(i+1),
                d['basic_structure_stats']['#nodes'],
                "{} {}".format(
