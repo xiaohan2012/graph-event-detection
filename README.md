@@ -360,7 +360,8 @@ Day 1:
 - check events cmd tool
 - timeline example using [vis timeline](http://visjs.org/timeline_examples.html)
   - observation on islamic data: event with only one participant(how about remove the broadcast edge?)
-  
+
+
 TODO:
 
 - synthetic experiment

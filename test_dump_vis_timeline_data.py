@@ -83,23 +83,30 @@ def test_dump():
              'start': '2014-01-17', 'end': '2014-01-30',
              'type': 'background', 'group': 2}
         ],
-            'groups': [
-                {
-                    'id': 1,
-                    'terms': list(summaries[0]['topics']['topic_terms']),
-                    'participants': dict(
-                        summaries[0]['participants']['sender_count']
-                    )
-                },
-                {
-                    'id': 2,
-                    'terms': summaries[1]['topics']['topic_terms'],
-                    'participants': dict(
-                        summaries[1]['participants']['sender_count']
-                    )
-                }
-            ],
-            'start': '2014-01-17',
+        'groups': [
+            {
+                'id': 1,
+                'terms': list(summaries[0]['topics']['topic_terms']),
+                'participants': dict(
+                    summaries[0]['participants']['sender_count']
+                ),
+                'start': '2014-01-18',
+                'end': '2014-01-30',
+                'days': 12,
+                'link_type_freq': {'broadcast': 0, 'reply': 1, 'relay': 0}
+            },
+            {
+                'id': 2,
+                'terms': summaries[1]['topics']['topic_terms'],
+                'participants': dict(
+                    summaries[1]['participants']['sender_count']
+                ),
+                'start': '2014-01-17', 'end': '2014-01-30',
+                'days': 13,
+                'link_type_freq': {'broadcast': 1, 'relay': 0, 'reply': 1}
+            }
+        ],
+        'start': '2014-01-17',
         'end': '2014-01-30',
     }
     # wierd just because terms are not the same...
@@ -107,7 +114,13 @@ def test_dump():
     assert_equal(expected['start'], actual['start'])
     assert_equal(expected['end'], actual['end'])
     for eg, ag in zip(expected['groups'], actual['groups']):
-        assert_equal(eg['id'], ag['id'])
-        assert_equal(len(eg['terms']), len(ag['terms']))
-        assert_equal(len(eg['participants']), len(ag['participants']))
+        for k in set(eg.keys()) - {'terms'}:
+            assert_equal(eg[k], ag[k])
+        for k in ('terms', ):
+            assert_equal(len(eg[k]), len(ag[k]))
+        # assert_equal(len(eg['participants']), len(ag['participants']))
+        # assert_equal(eg['link_type_freq'], ag['link_type_freq'])
+        # assert_equal(eg['start'], ag['start'])
+        # assert_equal(eg['end'], ag['end'])
+        # assert_equal(eg['days'], ag['days'])
 

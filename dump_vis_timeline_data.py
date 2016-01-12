@@ -53,6 +53,10 @@ def run(cand_trees, k, summary_kws):
                 'id': group_id,
                 'terms': summ['topics']['topic_terms'],
                 'participants': dict(summ['participants']['sender_count']),
+                'start': format_time(summ['time_span']['start_time']),
+                'end': format_time(summ['time_span']['end_time']),
+                'days': (summ['time_span']['end_time'] - summ['time_span']['start_time']).days,
+                'link_type_freq': summ['link_type_freq']
             }
         )
         start_times.append(summ['time_span']['start_time'])

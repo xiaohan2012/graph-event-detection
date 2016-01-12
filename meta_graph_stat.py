@@ -211,6 +211,30 @@ class MetaGraphStat(object):
         
         return result
 
+    def link_type_freq(self, interactions):
+        id2i = {}
+        for m in interactions:
+            id2i[m['message_id']] = m
+
+        counter = Counter()
+        for k in ('broadcast', 'reply', 'relay'):
+            counter[k] = 0
+        for s, t in self.g.edges_iter():
+            src_sender_id, src_recipient_ids = id2i[s]['sender_id'],\
+                                               set(id2i[s]['recipient_ids'])
+            tar_sender_id, tar_recipient_ids = id2i[t]['sender_id'],\
+                                               set(id2i[t]['recipient_ids'])
+            if src_sender_id == tar_sender_id:
+                counter['broadcast'] += 1
+            elif tar_sender_id in src_recipient_ids:
+                if src_sender_id in tar_recipient_ids:
+                    counter['reply'] += 1
+                else:
+                    counter['relay'] += 1
+            else:
+                raise ValueError('Invalid lin type')
+        return dict(counter)
+
     def summary_dict(self):
         return {m: getattr(self, m)(**self.kws.get(m, {}))
                 for m in dir(self)
@@ -244,6 +268,9 @@ def build_default_summary_kws(interactions, people_info,
             'interactions': interactions,
             'top_k': 5,
             'people_repr_template': people_repr_template
+        },
+        'link_type_freq': {
+            'interactions': interactions
         }
     }
     return summary_kws

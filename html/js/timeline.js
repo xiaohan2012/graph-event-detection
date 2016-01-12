@@ -18,6 +18,8 @@ $(document).ready(function(){
 							return o[0] + '('+ o[1] + ')';
 						})
 					);
+					g['content'] += '<h3>time</h3>' + g['start'] + ' - ' + g['end'] + '(' + g['days'] + ' days)';
+					g['content'] += '<h3>link type frequency</h3>' + dict2html(g['link_type_freq']);
 				});
 				var groups = new vis.DataSet(data['groups']);
 
