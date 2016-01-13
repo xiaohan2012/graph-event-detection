@@ -15,12 +15,13 @@ if [ "$1" == "data" ]; then
 	done
 fi
 
-if [ "$1" == "run" ]; then
+if [ "$1" == "gen" ]; then
 	for fraction in "${fractions[@]}"; do
 		echo "fraction: ${fraction}"
 		result_prefix=tmp/synthetic/result/result--fraction=${fraction}--
-		if [ ! -d ${result_prefix} ]; then
-			mkdir -p ${result_prefix}
+		result_dir=$(dirname result_prefix)
+		if [ ! -d ${result_dir} ]; then
+			mkdir -p ${result_dir}
 		fi
 
 		python gen_candidate_trees.py \
@@ -34,7 +35,7 @@ if [ "$1" == "run" ]; then
 			--lda_path=None \
 			--corpus_dict_path=None \
 			--interaction_path=tmp/synthetic/noise_fraction/data/interactions--n_noisy_interactions_fraction=${fraction}.json \
-			--meta_graph_path_prefix=${result_prefix}/meta-graph \
+			--meta_graph_path_prefix=${result_dir}/meta-graph \
 		    --given_topics \
 			--calc_mg
 	done
