@@ -14,7 +14,7 @@ from .experiment_util import sample_rooted_binary_graphs_within_timespan,\
     experiment_signature,\
     sample_nodes_by_weight,\
     sample_nodes_by_out_degree,\
-    get_cand_n_number_and_percentage
+    get_number_and_percentage
 
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
@@ -96,17 +96,17 @@ def test_get_cand_n_number_and_percetnge():
     total = 100
     assert_equal(
         (10, 0.1),
-        get_cand_n_number_and_percentage(total, 10, 0.2)
+        get_number_and_percentage(total, 10, 0.2)
     )
     assert_equal(
         (20, 0.2),
-        get_cand_n_number_and_percentage(total, None, 0.2)
+        get_number_and_percentage(total, None, 0.2)
     )
     assert_equal(
         (100, 1.0),
-        get_cand_n_number_and_percentage(total, -1, 0.2)
+        get_number_and_percentage(total, -1, 0.2)
     )
     assert_equal(
         (100, 1.0),
-        get_cand_n_number_and_percentage(total, 101, 0.2)
+        get_number_and_percentage(total, 101, 0.2)
     )

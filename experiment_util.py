@@ -98,7 +98,7 @@ def get_output_path(candidate_tree_path, dirname=None):
     return output_path
 
 
-def get_cand_n_number_and_percentage(total, n, percentage):
+def get_number_and_percentage(total, n, percentage):
     if n == -1:
         return (total, 1.0)
     elif n is not None and n > 0:

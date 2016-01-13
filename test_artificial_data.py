@@ -132,3 +132,28 @@ class ArtificialDataTest(unittest.TestCase):
         for e in events:
             for i in e:
                 assert_true(isinstance(i['topics'], list))
+
+    def test_make_articifial_data_with_small_noise_percentage(self):
+        fraction = 0.1
+        self.params['n_noisy_interactions'] = None
+        self.params['n_noisy_interactions_fraction'] = fraction
+        events, all_interactions = make_articifial_data(**self.params)
+        n_event_interactions = sum([1 for e in events for _ in e])
+        total = len(all_interactions)
+        assert_equal(
+            int(n_event_interactions * fraction),
+            total - n_event_interactions
+        )
+
+    def test_make_articifial_data_with_large_noise_percentage(self):
+        fraction = 1.1
+        self.params['n_noisy_interactions'] = None
+        self.params['n_noisy_interactions_fraction'] = fraction
+        events, all_interactions = make_articifial_data(**self.params)
+        n_event_interactions = sum([1 for e in events for _ in e])
+        total = len(all_interactions)
+        assert_equal(
+            int(n_event_interactions * fraction),
+            total - n_event_interactions
+        )
+        

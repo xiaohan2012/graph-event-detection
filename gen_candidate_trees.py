@@ -22,7 +22,7 @@ from meta_graph_stat import MetaGraphStat
 from experiment_util import sample_nodes, \
     sample_nodes_by_out_degree,\
     experiment_signature,\
-    get_cand_n_number_and_percentage
+    get_number_and_percentage
 from util import load_json_by_line
 from baselines import greedy_grow, random_grow
 
@@ -180,7 +180,7 @@ def run(gen_tree_func,
     print(g.number_of_nodes(),
           cand_tree_number,
           cand_tree_percent)
-    cand_tree_number, cand_tree_percent = get_cand_n_number_and_percentage(
+    cand_tree_number, cand_tree_percent = get_number_and_percentage(
         g.number_of_nodes(),
         cand_tree_number,
         cand_tree_percent

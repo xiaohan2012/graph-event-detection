@@ -2,6 +2,8 @@
 
 import numpy as np
 import itertools
+from experiment_util import get_number_and_percentage, \
+    experiment_signature
 
 
 def random_topic(n_topics, topic_noise=0.0001):
@@ -94,12 +96,16 @@ def make_articifial_data(
         n_total_participants, participant_mu, participant_sigma,
         min_time, max_time, event_duration_mu, event_duration_sigma,
         n_topics, topic_scaling_factor, topic_noise,
-        n_noisy_interactions):
+        n_noisy_interactions, n_noisy_interactions_fraction):
     events = random_events(
         n_events, event_size_mu, event_size_sigma,
         n_total_participants, participant_mu, participant_sigma,
         min_time, max_time, event_duration_mu, event_duration_sigma,
         n_topics, topic_scaling_factor, topic_noise
+    )
+    (n_noisy_interactions, _) = get_number_and_percentage(
+        sum([1 for e in events for _ in e]),
+        n_noisy_interactions, n_noisy_interactions_fraction
     )
     noisy_interactions = random_noisy_interactions(
         n_noisy_interactions,
@@ -121,6 +127,8 @@ def make_articifial_data(
 def main():
     import ujson as json
     import argparse
+    from pprint import pprint
+
     parser = argparse.ArgumentParser('Make sythetic interaction data')
     parser.add_argument('--n_events', type=int, default=10)
     parser.add_argument('--event_size_mu', type=int, default=40)
@@ -139,13 +147,27 @@ def main():
     parser.add_argument('--topic_scaling_factor', type=int, default=0.5)
     parser.add_argument('--topic_noise', type=int, default=0.1)
 
-    parser.add_argument('--n_noisy_interactions', type=int, default=100)
+    parser.add_argument('--n_noisy_interactions', type=int, default=None)
+    parser.add_argument('--n_noisy_interactions_fraction',
+                        type=float, default=0.1)
+    parser.add_argument('--output_dir', type=str, default='data/synthetic')
 
     args = parser.parse_args()
+    pprint(vars(args))
 
-    events, interactions = make_articifial_data(**vars(args))
-    json.dump(events, open('data/synthetic/events.json', 'w'))
-    json.dump(interactions, open('data/synthetic/interactions.json', 'w'))
+    output_dir = args.output_dir
+    args_dict = vars(args)
+    del args_dict['output_dir']
+
+    events, interactions = make_articifial_data(**args_dict)
+    sig = experiment_signature(
+        n_noisy_interactions_fraction=args.n_noisy_interactions_fraction,
+    )
+    json.dump(events,
+              open('{}/events--{}.json'.format(output_dir, sig), 'w'))
+    json.dump(interactions,
+              open('{}/interactions--{}.json'.format(output_dir, sig),
+                   'w'))
 
 
 if __name__ == '__main__':
