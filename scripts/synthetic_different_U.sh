@@ -21,19 +21,19 @@ fi
 if [ $1 == 'gen' ]; then
     methods=("lst --dij" "variance" "lst" "greedy" "random")
     for U in "${Us[@]}"; do
-	for method in "${methods[@]}"; do
-	    python gen_candidate_trees.py \
-		--method=${method} \
-		--root_sampling=uniform \
-		--seconds=8 --U=${U} \
-		--dist=euclidean \
-		--cand_n=-1 \
-		--res_dir=tmp/synthetic/U/ \
-		--lda_path=None \
-		--corpus_dict_path=None \
-		--interaction_path=data/synthetic/interactions.json \
-		--meta_graph_path_prefix=tmp/synthetic/U/meta-graph \
-		--given_topics
-	done
+		for method in "${methods[@]}"; do
+			python gen_candidate_trees.py \
+				--method=${method} \
+				--root_sampling=uniform \
+				--seconds=8 --U=${U} \
+				--dist=euclidean \
+				--cand_n=-1 \
+				--res_dir=tmp/synthetic/U/ \
+				--lda_path=None \
+				--corpus_dict_path=None \
+				--interaction_path=data/synthetic/interactions.json \
+				--meta_graph_path_prefix=tmp/synthetic/U/meta-graph \
+				--given_topics
+		done
     done
 fi
