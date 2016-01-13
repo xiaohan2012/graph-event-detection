@@ -29,3 +29,10 @@ def argmax_k_coverage(sets, k):
         selected_set_indices.append(max_set_index)
         covered |= sets[max_set_index]
     return selected_set_indices
+
+
+def k_best_trees(cand_trees, K):
+    nodes_of_trees = [set(t.nodes()) for t in cand_trees]
+    selected_ids = argmax_k_coverage(nodes_of_trees, K)
+    pred_trees = [cand_trees[i] for i in selected_ids]
+    return pred_trees
