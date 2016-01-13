@@ -333,7 +333,6 @@ Day 3:
   - figures
 - check dblp data
 
-
 TODO:
 
 - synthetic experiment

@@ -10,7 +10,7 @@ if [ "$1" == "mg" ]; then
 		--seconds=8 --U=${U} \
 		--dist=euclidean \
 		--cand_n_percent 0 \
-		--res_dir=tmp/synthetic/sampling/ \
+		--result_prefix=tmp/synthetic/sampling/result- \
 		--lda_path=None \
 		--corpus_dict_path=None \
 		--interaction_path=data/synthetic/interactions.json \
@@ -31,7 +31,7 @@ if [ "$1" == "gen" ]; then
 				--seconds=8 --U=${U} \
 				--dist=euclidean \
 				--cand_n_percent ${percent} \
-				--res_dir=tmp/synthetic/sampling/ \
+				--result_prefix=tmp/synthetic/sampling/result- \
 				--lda_path=None \
 				--corpus_dict_path=None \
 				--interaction_path=data/synthetic/interactions.json \

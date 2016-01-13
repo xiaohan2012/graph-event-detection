@@ -11,7 +11,7 @@ if [ $1 == 'mg' ]; then
 			--dist=euclidean \
 			--cand_n=0 \
 			--cand_n_percent=0 \
-			--res_dir=tmp/synthetic \
+			--result_prefix=tmp/synthetic/result- \
 			--lda_path=None \
 			--corpus_dict_path=None \
 			--interaction_path=data/synthetic/interactions.json \
@@ -34,7 +34,7 @@ if [ $1 == 'gen' ]; then
 			--U=${U} \
 			--dist=euclidean \
 			--cand_n_percent=${percent} \
-			--res_dir=tmp/synthetic/preprune_seconds/ \
+			--result_prefix=tmp/synthetic/preprune_seconds/result- \
 			--lda_path=None \
 			--corpus_dict_path=None \
 			--interaction_path=data/synthetic/interactions.json \
