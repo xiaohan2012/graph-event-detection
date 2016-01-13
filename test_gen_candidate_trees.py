@@ -84,7 +84,8 @@ class GenCandidateTreeTest(unittest.TestCase):
                 'timespan': timedelta(weeks=4),
                 'U': 0.5,
                 'dijkstra': False
-            }
+            },
+            'root_sampling_method': 'out_degree'
         }
 
         self.meta_pickle_path_common = experiment_signature(
@@ -128,7 +129,8 @@ class GenCandidateTreeTest(unittest.TestCase):
             self.some_kws_of_run['gen_tree_kws'].get('dijkstra', False),
             self.meta_pickle_path_common,
             experiment_signature(
-                cand_tree_percent=self.some_kws_of_run['cand_tree_percent']
+                cand_tree_percent=self.some_kws_of_run['cand_tree_percent'],
+                root_sampling=self.some_kws_of_run['root_sampling_method']
             )
         )
         kws = self.some_kws_of_run.copy()
@@ -212,7 +214,8 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
 
     def update_result_path_template(self,
                                     timespan=timedelta(days=28),
-                                    cand_tree_percent=0.01):
+                                    cand_tree_percent=0.01,
+                                    sampling_method='uniform'):
         self.result_output_path_template = "test/data/tmp/result-{}--{}----{}----{}.pkl".format(
             '{}',
             experiment_signature(
@@ -226,7 +229,8 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
                 preprune_secs=timespan
             ),
             experiment_signature(
-                cand_tree_percent=cand_tree_percent
+                cand_tree_percent=cand_tree_percent,
+                root_sampling=sampling_method
             )
         )
 
@@ -273,13 +277,15 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         self.check(method='variance')
 
     def test_out_degree_sampling(self):
+        self.update_result_path_template(sampling_method='out_degree')
         output = self.check(sampling_method='out_degree')
         assert_true('out_degree' in output)
         
     def test_undirected(self):
+        self.update_result_path_template(sampling_method='out_degree')
         self.check(sampling_method='out_degree', undirected=True)
 
-    def test_sythetic(self):
+    def test_synthetic(self):
         self.directed_params = {
             'interaction_json_path': make_path('test/data/given_topics/interactions.json'),
             'meta_graph_pkl_path_prefix': make_path('test/data/given_topics/meta-graph'),
@@ -287,7 +293,8 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
             'corpus_dict_path': None,
             'undirected': False
         }
-        self.update_result_path_template(timespan=8)
+        self.update_result_path_template(timespan=8,
+                                         sampling_method='out_degree')
 
         self.check(sampling_method='out_degree', undirected=False,
                    distance='euclidean',
@@ -350,8 +357,6 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
         )
 
     def check(self, test_name, tree_gen_func, **more_args):
-        # empty trees are ignored
-        # very likely actual tree number should >= 0
         result_pickle_prefix = make_path("test/data/tmp",
                                          "result-{}".format(test_name))
 
@@ -359,7 +364,8 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
             self.some_kws_of_run['gen_tree_kws'].get('dijkstra', False),
             self.meta_pickle_path_common,
             experiment_signature(
-                cand_tree_percent=self.some_kws_of_run['cand_tree_percent']
+                cand_tree_percent=self.some_kws_of_run['cand_tree_percent'],
+                root_sampling='out_degree',
             )
         )
         kws = self.some_kws_of_run.copy()
@@ -376,6 +382,7 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
             calculate_graph=False,
             print_summary=False,
             result_pkl_path_prefix=result_pickle_prefix,
+            root_sampling_method='out_degree',
             **kws)
 
         trees = pkl.load(open(pickle_path))
@@ -395,3 +402,4 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
 
     def tearDown(self):
         remove_tmp_data('test/data/tmp')
+        pass

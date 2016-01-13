@@ -97,7 +97,7 @@ def calc_tree(node_i, r, U,
 
 
 def run(gen_tree_func,
-        root_sampling_method=sample_nodes,
+        root_sampling_method='uniform',
         undirected=False,
         interaction_json_path=os.path.join(CURDIR, 'data/enron.json'),
         lda_model_path=os.path.join(CURDIR, 'models/model-4-50.lda'),
@@ -186,7 +186,12 @@ def run(gen_tree_func,
         cand_tree_percent
     )
 
-    roots = root_sampling_method(g, cand_tree_number)
+    root_sampling_methods = {
+        'uniform': sample_nodes,
+        'out_degree': sample_nodes_by_out_degree
+    }
+    
+    roots = root_sampling_methods[root_sampling_method](g, cand_tree_number)
     logger.info('#roots: {}'.format(len(roots)))
     logger.info('#cand_tree_percent: {}'.format(cand_tree_percent))
 
@@ -211,7 +216,10 @@ def run(gen_tree_func,
         result_pkl_path_prefix,
         experiment_signature(**gen_tree_kws),
         experiment_signature(**meta_graph_kws),
-        experiment_signature(cand_tree_percent=cand_tree_percent)
+        experiment_signature(
+            cand_tree_percent=cand_tree_percent,
+            root_sampling=root_sampling_method
+        )
     )
     logger.info('result_pkl_path: {}'.format(result_pkl_path))
     pickle.dump(trees,
@@ -316,11 +324,6 @@ if __name__ == '__main__':
                'greedy': greedy_grow,
                'random': random_grow}
 
-    root_sampling_methods = {
-        'uniform': sample_nodes,
-        'out_degree': sample_nodes_by_out_degree
-    }
-
     # `seconds` of higher priority
     timespan = (args.seconds
                 if args.seconds
@@ -329,7 +332,7 @@ if __name__ == '__main__':
     pprint(vars(args))
 
     run(methods[args.method],
-        root_sampling_method=root_sampling_methods[args.root_sampling],
+        root_sampling_method=args.root_sampling,
         undirected=args.undirected,
         interaction_json_path=args.interaction_path,
         corpus_dict_path=args.corpus_dict_path,
