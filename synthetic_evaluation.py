@@ -17,7 +17,7 @@ from max_cover import k_best_trees
 from evaluation import evaluate_meta_tree_result
 
 
-def group_paths(paths, keyfunc):
+def group_paths(paths, keyfunc, sort_keyfunc=None):
     """
     key: lambda
     
@@ -30,12 +30,13 @@ def group_paths(paths, keyfunc):
     exp_params = sorted(exp_params, key=key)  # sort them
     for k, g in itertools.groupby(
             exp_params, key):
-        sub_paths = [p for p, _ in g]
-        if isinstance(sub_paths[0], list):
-            sub_paths = list(
-                itertools.chain(*sub_paths)
-            )
-        ret.append((k, sorted(sub_paths)))
+        if sort_keyfunc is None:
+            sorted_g = sorted(list(g))
+        else:
+            sorted_g = sorted(list(g),
+                              key=lambda (p, param):
+                              sort_keyfunc(param))
+        ret.append((k, [p for p, _ in sorted_g]))
     return ret
 
 
@@ -44,20 +45,22 @@ def get_values_by_key(paths, key, map_func):
             for p in paths]
 
 
-def evaluate_U(paths, interactions_path, events_path, metrics,
-               x_axis_name='U', x_axis_type=float,
-               group_key=lambda p: (p['args'][0], p['dijkstra']),
-               group_key_name=(lambda m, dij:
-                               ("{}-dij".format(m)
-                                if dij == 'True' else m)),
-               K=10):
+def evaluate_general(
+        paths, interactions_path, events_path, metrics,
+        x_axis_name, x_axis_type,
+        group_key, group_key_name_func,
+        K=10):
     interactions = json_load(interactions_path)
     all_entry_ids = [i['message_id'] for i in interactions]
     true_events = json_load(events_path)
     
     groups = group_paths(paths, group_key)
-    us = get_values_by_key(groups[0][1], x_axis_name, x_axis_type)
-    methods = [k for k, _ in groups]
+    xs = sorted(
+        get_values_by_key(groups[0][1],
+                          x_axis_name,
+                          x_axis_type)
+    )
+    group_keys = [k for k, _ in groups]
     metric_names = evaluate_meta_tree_result(
         true_events,
         k_best_trees(
@@ -66,7 +69,7 @@ def evaluate_U(paths, interactions_path, events_path, metrics,
         all_entry_ids,
         metrics
     ).keys()  # extra computing
-
+    print('xs', xs)
     # 3d array: (method, U, metric)
     data3d = np.array([
         [evaluate_meta_tree_result(
@@ -81,13 +84,38 @@ def evaluate_U(paths, interactions_path, events_path, metrics,
     data3d = np.swapaxes(data3d, 0, 1)
     data3d = np.swapaxes(data3d, 0, 2)
 
-    methods = [group_key_name(m, dij)
-               for m, dij in methods]
+    group_keys = [group_key_name_func(k)
+                  for k in group_keys]
     ret = {}
     for metric, matrix in itertools.izip(metric_names, data3d):
-        ret[metric] = pd.DataFrame(matrix, columns=us, index=methods)
+        ret[metric] = pd.DataFrame(matrix, columns=xs, index=group_keys)
 
     return ret
+
+
+def evaluate_U(paths, interactions_path, events_path, metrics,
+               K=10):
+    return evaluate_general(
+        paths, interactions_path, events_path, metrics,
+        x_axis_name='U', x_axis_type=float,
+        group_key=lambda p: (p['args'][0], p['dijkstra']),
+        group_key_name_func=(lambda (m, dij):
+                             ("{}-dij".format(m)
+                              if dij == 'True' else m)),
+        K=K
+    )
+
+
+def evaluate_preprune_seconds(paths, interactions_path,
+                              events_path, metrics,
+                              K=10):
+    return evaluate_general(
+        paths, interactions_path, events_path, metrics,
+        x_axis_name='preprune_secs', x_axis_type=int,
+        group_key=lambda p: 'greedy',
+        group_key_name_func=lambda k: k,
+        K=10
+    )
 
 
 def plot_evalution_result(result, output_dir, file_prefix=''):
@@ -104,19 +132,24 @@ def plot_evalution_result(result, output_dir, file_prefix=''):
             plt.hold(True)
         plt.xlabel('U')
         plt.ylabel('method')
-        plt.xlim([0, 1])
+        plt.ylim([0, 1])
         plt.legend(df.index.tolist(), loc='upper left')
 
         fig.savefig(
             os.path.join(output_dir,
-                         '{}-{}.png'.format(file_prefix, metric)
+                         '{}{}.png'.format(file_prefix, metric)
                      )
         )
 
 
-def main():
-    result = evaluate_U(
-        paths=glob('tmp/synthetic/U/result-*.pkl'),
+def main(exp_name):
+    exp_func = {
+        'preprune_seconds': evaluate_preprune_seconds,
+        'U': evaluate_U
+    }
+    func = exp_func[exp_name]
+    result = func(
+        paths=glob('tmp/synthetic/{}/result-*.pkl'.format(exp_name)),
         interactions_path='data/synthetic/interactions.json',
         events_path='data/synthetic/events.json',
         metrics=[metrics.adjusted_rand_score,
@@ -127,8 +160,9 @@ def main():
         K=10)
     plot_evalution_result(
         result,
-        output_dir='/cs/home/hxiao/public_html/figures/synthetic/U',
-        file_prefix='U-'
+        output_dir='/cs/home/hxiao/public_html/figures/synthetic/{}'.format(
+            exp_name
+        )
     )
 if __name__ == '__main__':
-    main()
+    main('preprune_seconds')

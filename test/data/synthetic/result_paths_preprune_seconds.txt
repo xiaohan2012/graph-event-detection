@@ -1,0 +1,15 @@
+result-greedy--U=0.5--dijkstra=False--timespan=10----decompose_interactions=False--dist_func=euclidean--preprune_secs=10----cand_tree_percent=0.2.pkl
+result-greedy--U=0.5--dijkstra=False--timespan=12----decompose_interactions=False--dist_func=euclidean--preprune_secs=12----cand_tree_percent=0.2.pkl
+result-greedy--U=0.5--dijkstra=False--timespan=14----decompose_interactions=False--dist_func=euclidean--preprune_secs=14----cand_tree_percent=0.2.pkl
+result-greedy--U=0.5--dijkstra=False--timespan=16----decompose_interactions=False--dist_func=euclidean--preprune_secs=16----cand_tree_percent=0.2.pkl
+result-greedy--U=0.5--dijkstra=False--timespan=18----decompose_interactions=False--dist_func=euclidean--preprune_secs=18----cand_tree_percent=0.2.pkl
+result-greedy--U=0.5--dijkstra=False--timespan=20----decompose_interactions=False--dist_func=euclidean--preprune_secs=20----cand_tree_percent=0.2.pkl
+result-greedy--U=0.5--dijkstra=False--timespan=22----decompose_interactions=False--dist_func=euclidean--preprune_secs=22----cand_tree_percent=0.2.pkl
+result-greedy--U=0.5--dijkstra=False--timespan=24----decompose_interactions=False--dist_func=euclidean--preprune_secs=24----cand_tree_percent=0.2.pkl
+result-greedy--U=0.5--dijkstra=False--timespan=26----decompose_interactions=False--dist_func=euclidean--preprune_secs=26----cand_tree_percent=0.2.pkl
+result-greedy--U=0.5--dijkstra=False--timespan=2----decompose_interactions=False--dist_func=euclidean--preprune_secs=2----cand_tree_percent=0.2.pkl
+result-greedy--U=0.5--dijkstra=False--timespan=30----decompose_interactions=False--dist_func=euclidean--preprune_secs=30----cand_tree_percent=0.2.pkl
+result-greedy--U=0.5--dijkstra=False--timespan=4----decompose_interactions=False--dist_func=euclidean--preprune_secs=4----cand_tree_percent=0.2.pkl
+result-greedy--U=0.5--dijkstra=False--timespan=6----decompose_interactions=False--dist_func=euclidean--preprune_secs=6----cand_tree_percent=0.2.pkl
+result-greedy--U=0.5--dijkstra=False--timespan=8----decompose_interactions=False--dist_func=euclidean--preprune_secs=8----cand_tree_percent=0.2.pkl
+result-greedy--U=0.5--dijkstra=False--timespan=28----decompose_interactions=False--dist_func=euclidean--preprune_secs=28----cand_tree_percent=0.2.pkl

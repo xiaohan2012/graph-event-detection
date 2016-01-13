@@ -12,6 +12,7 @@ from .test_util import make_path
 from .util import load_items_by_line, json_load
 from .max_cover import k_best_trees
 from .evaluation import evaluate_meta_tree_result
+from .experiment_util import parse_result_path
 
 
 class SyntheticEvaluationTest(unittest.TestCase):
@@ -20,6 +21,14 @@ class SyntheticEvaluationTest(unittest.TestCase):
             make_path,
             load_items_by_line(
                 make_path("test/data/synthetic/result_paths_U.txt")
+            )
+        )
+        self.paths_preprune_seconds = map(
+            make_path,
+            load_items_by_line(
+                make_path(
+                    "test/data/synthetic/result_paths_preprune_seconds.txt"
+                )
             )
         )
         self.filter_paths = (lambda paths, pattern:
@@ -41,8 +50,6 @@ class SyntheticEvaluationTest(unittest.TestCase):
             (('variance', 'False'), sorted(
                 self.filter_paths(self.paths_U, 'variance'))),
         ]
-        print(len(self.filter_paths(self.filter_paths(self.paths_U, 'lst'),
-                                    'dijkstra=False')))
         assert_equal(
             sorted(groups),
             group_paths(
@@ -51,6 +58,20 @@ class SyntheticEvaluationTest(unittest.TestCase):
             )
         )
         
+    def test_group_paths_with_sort_key(self):
+        actual = group_paths(
+            self.paths_preprune_seconds,
+            keyfunc=lambda p: 'nothing',
+            sort_keyfunc=lambda param: int(param['preprune_secs'])
+        )
+        assert_equal(1, len(actual))
+        assert_equal('nothing', actual[0][0])
+        np.testing.assert_almost_equal(
+            np.linspace(2, 30, num=15),
+            [int(parse_result_path(p)['preprune_secs'])
+             for p in actual[0][1]]
+        )
+
     def test_evaluate_U(self):
         interactions_path = make_path(
             'test/data/synthetic/interactions.json'
