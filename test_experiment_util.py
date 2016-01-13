@@ -14,7 +14,8 @@ from .experiment_util import sample_rooted_binary_graphs_within_timespan,\
     experiment_signature,\
     sample_nodes_by_weight,\
     sample_nodes_by_out_degree,\
-    get_number_and_percentage
+    get_number_and_percentage, \
+    parse_result_path
 
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
@@ -110,3 +111,20 @@ def test_get_cand_n_number_and_percetnge():
         (100, 1.0),
         get_number_and_percentage(total, 101, 0.2)
     )
+
+
+def test_parse_result_path():
+    path = "/a/b/result-greedy--U=0.3--dijkstra=False--timespan=8----decompose_interactions=False--dist_func=euclidean--preprune_secs=8.pkl"
+    assert_equal(
+        {
+            'U': '0.3',
+            'dijkstra': 'False',
+            'timespan': '8',
+            'decompose_interactions': 'False',
+            'dist_func': 'euclidean',
+            'preprune_secs': '8',
+            'args': ['greedy']
+        },
+        parse_result_path(path)
+    )
+    

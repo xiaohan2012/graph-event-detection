@@ -1,4 +1,5 @@
 import os
+import re
 import numpy as np
 import networkx as nx
 import cPickle as pkl
@@ -109,6 +110,19 @@ def get_number_and_percentage(total, n, percentage):
     else:
         assert isinstance(percentage, float)
         return (int(total*percentage), percentage)
+
+
+def parse_result_path(path):
+    ret = {'args': []}
+    path = os.path.splitext(os.path.basename(path))[0]
+    path = path.replace('result-', '')
+    for sub in re.split(r'[-]{2,4}', path):
+        if '=' in sub:
+            k, v = sub.split('=')
+            ret[k] = v
+        else:
+            ret['args'].append(sub)
+    return ret
 
 
 if __name__ == '__main__':

@@ -89,8 +89,7 @@ def main():
     import cPickle as pkl
     import pandas as pd
     from util import json_load
-    from max_cover import argmax_k_coverage
-    from tabulate import tabulate
+    from max_cover import k_best_trees
     import argparse
     
     parser = argparse.ArgumentParser('Evaluate the events')
@@ -112,9 +111,7 @@ def main():
     scores = []
     for p in args.cand_trees_path:
         cand_trees = pkl.load(open(p))
-        nodes_of_trees = [set(t.nodes()) for t in cand_trees]
-        selected_ids = argmax_k_coverage(nodes_of_trees, K)
-        pred_trees = [cand_trees[i] for i in selected_ids]
+        pred_trees = k_best_trees(cand_trees, K)
 
         indexes.append(os.path.basename(p))
         scores.append(evaluate_meta_tree_result(

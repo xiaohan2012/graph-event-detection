@@ -30,6 +30,8 @@
   - allows shared object event custom object
   - can only pickle top level functions, classmethods not good, alternative, `pathos` 
 - [nose assert_equal.__self__.maxDiff=None](http://stackoverflow.com/questions/14493670/how-to-set-self-maxdiff-in-nose-to-get-full-diff-output)
+- `os.path.splitext` to get extension and name without extension
+- sort the array before using `itertools.groupby`. [ref](http://stackoverflow.com/questions/14354819/same-key-multiple-times-for-groupby)
 
 ## Pandas
 
