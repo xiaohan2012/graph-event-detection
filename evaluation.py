@@ -1,3 +1,4 @@
+import sys
 from itertools import chain
 from sklearn import metrics
 
@@ -6,8 +7,12 @@ def precision_recall_f1(true_clusters, pred_clusters):
     true_entries = set(chain(*true_clusters))
     pred_entries = set(chain(*pred_clusters))
     intersect = true_entries.intersection(pred_entries)
-    p, r, = float(len(intersect)) / len(pred_entries), \
-            float(len(intersect)) / len(true_entries)
+    if len(pred_entries) == 0:
+        sys.stderr.write("len(pred_entries) is 0")
+        p = 0
+    else:
+        p = float(len(intersect)) / len(pred_entries)
+    r = float(len(intersect)) / len(true_entries)
     f1 = 2 * p * r / (p + r)
     return p, r, f1
 

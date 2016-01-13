@@ -69,7 +69,7 @@ def evaluate_general(
         all_entry_ids,
         metrics
     ).keys()  # extra computing
-    print('xs', xs)
+
     # 3d array: (method, U, metric)
     data3d = np.array([
         [evaluate_meta_tree_result(
@@ -118,6 +118,18 @@ def evaluate_preprune_seconds(paths, interactions_path,
     )
 
 
+def evaluate_sampling(paths, interactions_path,
+                      events_path, metrics,
+                      K=10):
+    return evaluate_general(
+        paths, interactions_path, events_path, metrics,
+        x_axis_name='cand_tree_percent', x_axis_type=float,
+        group_key=lambda p: p['root_sampling'],
+        group_key_name_func=lambda k: k,
+        K=10
+    )
+
+
 def plot_evalution_result(result, output_dir, file_prefix=''):
     """
     result: similar to 3d matrix (metric, method, U)
@@ -128,7 +140,7 @@ def plot_evalution_result(result, output_dir, file_prefix=''):
         xs = df.columns.tolist()
         for r, series in df.iterrows():
             ys = series.tolist()
-            plt.plot(xs, ys)
+            plt.plot(xs, ys, '*-')
             plt.hold(True)
         plt.xlabel('U')
         plt.ylabel('method')
@@ -145,7 +157,8 @@ def plot_evalution_result(result, output_dir, file_prefix=''):
 def main(exp_name):
     exp_func = {
         'preprune_seconds': evaluate_preprune_seconds,
-        'U': evaluate_U
+        'U': evaluate_U,
+        'sampling': evaluate_sampling
     }
     func = exp_func[exp_name]
     result = func(
@@ -165,4 +178,5 @@ def main(exp_name):
         )
     )
 if __name__ == '__main__':
-    main('preprune_seconds')
+    # main('preprune_seconds')
+    main('sampling')
