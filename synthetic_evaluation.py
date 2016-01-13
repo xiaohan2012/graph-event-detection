@@ -185,53 +185,11 @@ def plot_evalution_result(result, output_dir, file_prefix=''):
                      )
         )
 
-
-def evaluate_general_varying_interactions(
-        result_paths, interactions_paths, events_paths, metrics,
-        x_axis_name, x_axis_type,
-        group_key, group_key_name_func, sort_keyfunc=None,
-        K=10):
-    all_entry_ids = [i['message_id']
-                     for i in json_load(interactions_path)]
-    true_events = json_load(events_path)
-    
-    groups = group_paths(zip(result_paths, interactions_paths, events_paths),
-                         lambda (p, ip, ep):group_key, sort_keyfunc)
-    xs = get_values_by_key(groups[0][1],
-                           x_axis_name,
-                           x_axis_type)
-
-    group_keys = [k for k, _ in groups]
-    metric_names = evaluate_meta_tree_result(
-        true_events,
-        k_best_trees(
-            pkl.load(open(groups[0][1][0])), K
-        ),
-        all_entry_ids,
-        metrics
-    ).keys()  # extra computing
-
-    # 3d array: (method, U, metric)
-    data3d = np.array([
-        [evaluate_meta_tree_result(
-            true_events,
-            k_best_trees(pkl.load(open(p)), K),
-            all_entry_ids,
-            metrics).values()
-         for p in sub_paths]
-        for key, sub_paths in groups])
-
-    # change axis to to (metric, method, U)
-    data3d = np.swapaxes(data3d, 0, 1)
-    data3d = np.swapaxes(data3d, 0, 2)
-
-    group_keys = [group_key_name_func(k)
-                  for k in group_keys]
-    ret = {}
-    for metric, matrix in itertools.izip(metric_names, data3d):
-        ret[metric] = pd.DataFrame(matrix, columns=xs, index=group_keys)
-
-    return ret
+metrics = [metrics.adjusted_rand_score,
+           metrics.adjusted_mutual_info_score,
+           metrics.homogeneity_score,
+           metrics.completeness_score,
+           metrics.v_measure_score]
 
 
 def main(exp_name):
@@ -245,17 +203,35 @@ def main(exp_name):
         result_paths=glob('tmp/synthetic/{}/result-*.pkl'.format(exp_name)),
         interactions_path='data/synthetic/interactions.json',
         events_path='data/synthetic/events.json',
-        metrics=[metrics.adjusted_rand_score,
-                 metrics.adjusted_mutual_info_score,
-                 metrics.homogeneity_score,
-                 metrics.completeness_score,
-                 metrics.v_measure_score],
+        metrics=metrics,
         K=10)
     plot_evalution_result(
         result,
         output_dir='/cs/home/hxiao/public_html/figures/synthetic/{}'.format(
             exp_name
         )
+    )
+
+
+def main_varying_interactions():
+    result_paths = glob('tmp/synthetic/result/fraction-*/result-*.pkl')
+    interactions_paths = glob(
+        'tmp/synthetic/noise_fraction/data/interactions*.json'
+    )
+    events_paths = glob(
+        'tmp/synthetic/noise_fraction/data/events*.json'
+    )
+    assert len(result_paths) == len(interactions_paths) == len(events_paths)
+    
+    evaluate_general(
+        result_paths,
+        interactions_paths,
+        events_paths, metrics,
+        x_axis_name='', x_axis_type=float,
+        group_key='',
+        group_key_name_func='',
+        sort_keyfunc=lambda k: k['fraction'],
+        K=10
     )
 if __name__ == '__main__':
     main('preprune_seconds')

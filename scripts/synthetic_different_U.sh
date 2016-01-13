@@ -9,7 +9,7 @@ if [ $1 == 'mg' ]; then
 		--U=0 \
 		--dist=euclidean \
 		--cand_n=-1 \
-		--res_dir=tmp/synthetic \
+		--result_prefix=tmp/synthetic/result- \
 		--lda_path=None \
 		--corpus_dict_path=None \
 		--interaction_path=data/synthetic/interactions.json \
@@ -28,7 +28,7 @@ if [ $1 == 'gen' ]; then
 				--seconds=8 --U=${U} \
 				--dist=euclidean \
 				--cand_n=-1 \
-				--res_dir=tmp/synthetic/U/ \
+				--result_prefix=tmp/synthetic/U/result- \
 				--lda_path=None \
 				--corpus_dict_path=None \
 				--interaction_path=data/synthetic/interactions.json \

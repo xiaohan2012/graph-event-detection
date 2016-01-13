@@ -277,9 +277,9 @@ if __name__ == '__main__':
                         default=0.1,
                         help="Percentage of candidate trees to generate in terms of total number of nodes")
 
-    parser.add_argument('--res_dir',
-                        default='tmp',
-                        help="directory to save the results")
+    parser.add_argument('--result_prefix',
+                        default='tmp/result-',
+                        help="Prefix of result path")
 
     parser.add_argument('--weeks',
                         type=int,
@@ -338,8 +338,8 @@ if __name__ == '__main__':
         corpus_dict_path=args.corpus_dict_path,
         meta_graph_pkl_path_prefix=args.meta_graph_path_prefix,
         lda_model_path=args.lda_path,
-        result_pkl_path_prefix='{}/result-{}'.format(
-            args.res_dir, args.method
+        result_pkl_path_prefix='{}{}'.format(
+            args.result_prefix, args.method
         ),
         meta_graph_kws={
             'dist_func': dist_func,

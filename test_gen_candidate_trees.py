@@ -205,7 +205,7 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         numpy.random.seed(123456)
 
         self.script_path = make_path("gen_candidate_trees.py")
-        self.result_dir = make_path("test/data/tmp")
+        self.result_dir = make_path("test/data/tmp/result-")
 
         self.directed_params = directed_params
         self.undirected_params = undirected_params
@@ -246,7 +246,7 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         --dist={distance_func} \
         --cand_n_percent=0.01 \
         --root_sampling={sampling_method}\
-        --res_dir={result_dir} --weeks=4 --U=0.5 \
+        --result_prefix={result_dir} --weeks=4 --U=0.5 \
         --lda_path={lda_model_path} --interaction_path={interaction_json_path} \
         --corpus_dict_path={corpus_dict_path} \
         --meta_graph_path_prefix={meta_graph_pkl_path_prefix} \

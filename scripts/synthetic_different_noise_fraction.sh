@@ -18,9 +18,9 @@ fi
 if [ "$1" == "run" ]; then
 	for fraction in "${fractions[@]}"; do
 		echo "fraction: ${fraction}"
-		res_dir=tmp/synthetic/result/fraction-${fraction}
-		if [ ! -d ${res_dir} ]; then
-			mkdir -p ${res_dir}
+		result_prefix=tmp/synthetic/result/result--fraction=${fraction}--
+		if [ ! -d ${result_prefix} ]; then
+			mkdir -p ${result_prefix}
 		fi
 
 		python gen_candidate_trees.py \
@@ -30,11 +30,11 @@ if [ "$1" == "run" ]; then
 			--U=${U} \
 			--dist=euclidean \
 			--cand_n_percent ${percent} \
-			--res_dir=${res_dir} \
+			--result_prefix=${result_prefix} \
 			--lda_path=None \
 			--corpus_dict_path=None \
 			--interaction_path=tmp/synthetic/noise_fraction/data/interactions--n_noisy_interactions_fraction=${fraction}.json \
-			--meta_graph_path_prefix=${res_dir}/meta-graph \
+			--meta_graph_path_prefix=${result_prefix}/meta-graph \
 		    --given_topics \
 			--calc_mg
 	done
