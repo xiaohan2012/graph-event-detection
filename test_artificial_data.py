@@ -26,7 +26,8 @@ class ArtificialDataTest(unittest.TestCase):
             'n_topics': 10,
             'topic_scaling_factor': 1000,
             'topic_noise': 0.00001,
-            'n_noisy_interactions': 10000
+            'n_noisy_interactions': 10000,
+            'n_noisy_interactions_fraction': 0.1
         }
 
     def seems_like_uniform_distribution(self, array):
@@ -48,6 +49,7 @@ class ArtificialDataTest(unittest.TestCase):
 
     def test_random_events(self):
         del self.params['n_noisy_interactions']
+        del self.params['n_noisy_interactions_fraction']
         events = random_events(**self.params)
         assert_equal(self.params['n_events'], len(events))
 
@@ -156,4 +158,3 @@ class ArtificialDataTest(unittest.TestCase):
             int(n_event_interactions * fraction),
             total - n_event_interactions
         )
-        
