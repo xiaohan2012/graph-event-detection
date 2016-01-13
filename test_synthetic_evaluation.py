@@ -78,7 +78,7 @@ class SyntheticEvaluationTest(unittest.TestCase):
         )
         events_path = make_path('test/data/synthetic/events.json')
         actual = evaluate_U(
-            self.paths_U,
+            result_paths=self.paths_U,
             interactions_path=interactions_path,
             events_path=events_path,
             metrics=[metrics.adjusted_rand_score],
