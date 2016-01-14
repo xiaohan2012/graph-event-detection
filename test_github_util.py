@@ -43,7 +43,7 @@ class GithubUtilTest(unittest.TestCase):
                           output_path)
 
         interactions = json_load(output_path)
-        assert_equal(9592, len(interactions))
+        assert_equal(9358, len(interactions))
         for i in interactions:
             assert_true('recipient_ids' in i)
 
