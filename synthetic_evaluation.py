@@ -11,7 +11,7 @@ import numpy as np
 from collections import defaultdict
 from glob import glob
 from sklearn import metrics
-
+from nose.tools import assert_equal
 from util import json_load
 from experiment_util import parse_result_path
 from max_cover import k_best_trees
@@ -162,7 +162,9 @@ def evaluate_sampling(result_paths, interactions_path,
     )
 
 
-def plot_evalution_result(result, output_dir, file_prefix=''):
+def plot_evalution_result(result, output_dir,
+                          xlabel='U',
+                          file_prefix=''):
     """
     result: similar to 3d matrix (metric, method, U)
     """
@@ -174,9 +176,9 @@ def plot_evalution_result(result, output_dir, file_prefix=''):
             ys = series.tolist()
             plt.plot(xs, ys, '*-')
             plt.hold(True)
-        plt.xlabel('U')
-        plt.ylabel('method')
-        plt.ylim([0, 1])
+        plt.xlabel(xlabel)
+        plt.ylabel(metric)
+        # plt.ylim([0, 1])
         plt.legend(df.index.tolist(), loc='upper left')
 
         fig.savefig(
@@ -198,6 +200,11 @@ def main(exp_name):
         'U': evaluate_U,
         'sampling': evaluate_sampling
     }
+    labels = {
+        'preprune_seconds': 'preprune_seconds',
+        'U': 'U',
+        'sampling': 'sampling_fraction'
+    }
     func = exp_func[exp_name]
     result = func(
         result_paths=glob('tmp/synthetic/{}/result-*.pkl'.format(exp_name)),
@@ -207,6 +214,7 @@ def main(exp_name):
         K=10)
     plot_evalution_result(
         result,
+        xlabel=labels[exp_name],
         output_dir='/cs/home/hxiao/public_html/figures/synthetic/{}'.format(
             exp_name
         )
@@ -214,26 +222,36 @@ def main(exp_name):
 
 
 def main_varying_interactions():
-    result_paths = glob('tmp/synthetic/result/fraction-*/result-*.pkl')
+    result_paths = glob('tmp/synthetic/noise_fraction/result/result-*.pkl')
     interactions_paths = glob(
         'tmp/synthetic/noise_fraction/data/interactions*.json'
     )
     events_paths = glob(
         'tmp/synthetic/noise_fraction/data/events*.json'
     )
-    assert len(result_paths) == len(interactions_paths) == len(events_paths)
-    
-    evaluate_general(
+
+    assert_equal(len(result_paths),
+                 len(interactions_paths))
+    assert_equal(len(interactions_paths),
+                 len(events_paths))
+
+    result = evaluate_general(
         result_paths,
         interactions_paths,
         events_paths, metrics,
-        x_axis_name='', x_axis_type=float,
-        group_key='',
-        group_key_name_func='',
-        sort_keyfunc=lambda k: k['fraction'],
+        x_axis_name='fraction', x_axis_type=float,
+        group_key=lambda k: 'greedy',
+        group_key_name_func=lambda k: k,
+        sort_keyfunc=lambda k: float(k['fraction']),
         K=10
+    )
+    plot_evalution_result(
+        result,
+        xlabel='noise fraction',
+        output_dir='/cs/home/hxiao/public_html/figures/synthetic/noise_fraction'
     )
 if __name__ == '__main__':
     main('preprune_seconds')
     main('sampling')
     main('U')
+    main_varying_interactions()

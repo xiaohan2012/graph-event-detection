@@ -128,3 +128,8 @@ def test_parse_result_path():
         parse_result_path(path)
     )
     
+
+def test_parse_result_path_1():
+    path = 'result--fraction=0.2--greedy--U=0.5--dijkstra=False--timespan=8----decompose_interactions=False--dist_func=euclidean--preprune_secs=8----cand_tree_percent=0.5--root_sampling=out_degree.pkl'
+    assert_equal('0.2',
+                 parse_result_path(path)['fraction'])
