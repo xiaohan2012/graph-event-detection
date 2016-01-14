@@ -115,7 +115,7 @@ def get_number_and_percentage(total, n, percentage):
 def parse_result_path(path):
     ret = {'args': []}
     path = os.path.splitext(os.path.basename(path))[0]
-    path = path.replace('result-', '')
+    path = re.sub(r'result[-]{1,2}', '', path)
     for sub in re.split(r'[-]{2,4}', path):
         if '=' in sub:
             k, v = sub.split('=')

@@ -323,23 +323,26 @@ Day 2:
 - islamic/sklearn/bloomberg metagraph generation
 - synthetic experiment run on
   - U
-  - sampling fraction and method
+  - sampling
 
 Day 3:
 
 - synthetic experiment run on
   - noise interaction number
   - preprune timespan
-  - figures
+  - evaluation and figures(except noise interaction number)
+
+Day 4:
+
+- evaluation on noise interaction number
+- run experiment
+  - four datasets
+  - four methods
 - check dblp data
 
 TODO:
 
-- synthetic experiment
-  - method
-  - noise interaction number
-  - sampling count
-  - density of the event
+
 - run experiment
   - four datasets
   - four methods
