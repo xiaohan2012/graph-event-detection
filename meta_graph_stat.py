@@ -1,5 +1,6 @@
 import scipy
 import numpy as np
+import itertools
 import networkx as nx
 from pprint import pformat
 from collections import Counter
@@ -162,78 +163,91 @@ class MetaGraphStat(object):
 
     def participants(self, people_info, interactions,
                      people_repr_template="{name}({email})",
+                     undirected=False,
                      top_k=10):
         peopleid2info = {r['id']: people_repr_template.format(**r)
                          for r in people_info}
-
-        mid2sender = {m['message_id']: m['sender_id']
-                      for m in interactions}
-        mid2recipients = {m['message_id']: m['recipient_ids']
-                          for m in interactions}
-        
-        def populate_user_info(counter):
-            data = dict(map(lambda (people_id, count):
-                            (peopleid2info[people_id], count),
-                            counter.items()))
-            return Counter(data)
-
+        id2interaction = {i['message_id']: i
+                          for i in interactions}
         result = {}
-        result['sender_count'] = Counter(
-            [mid2sender[self.g.node[n]['message_id']]
-             for n in self.g.nodes()]
-        )
+        if not undirected:
+            def populate_user_info(counter):
+                data = dict(map(lambda (people_id, count):
+                                (peopleid2info[people_id], count),
+                                counter.items()))
+                return Counter(data)
 
-        result['sender_count'] = populate_user_info(result['sender_count'])
+            result['sender_count'] = Counter(
+                [id2interaction[self.g.node[n]['message_id']]['sender_id']
+                 for n in self.g.nodes()]
+            )
 
-        result['recipient_count'] = Counter([
-            r
-            for n in self.g.nodes()
-            for r in mid2recipients[self.g.node[n]['message_id']]
-        ])
-        result['recipient_count'] = populate_user_info(
-            result['recipient_count']
-        )
-        
-        result['participant_count'] = (result['sender_count'] +
-                                       result['recipient_count'])
+            result['sender_count'] = populate_user_info(result['sender_count'])
 
-        result['sender_entropy'] = scipy.stats.entropy(
-            result['sender_count'].values())
-        result['recipient_entropy'] = scipy.stats.entropy(
-            result['recipient_count'].values())
-        result['participant_entropy'] = scipy.stats.entropy(
-            result['participant_count'].values())
-        
-        for key in ('sender_count', 'recipient_count', 'participant_count'):
-            result[key] = sorted(result[key].items(),
-                                 key=lambda (info, c): (c, info),
-                                 reverse=True)[:top_k]
-        
-        return result
+            result['recipient_count'] = Counter([
+                r
+                for n in self.g.nodes()
+                for r in \
+                id2interaction[self.g.node[n]['message_id']]['recipient_ids']
+            ])
+            result['recipient_count'] = populate_user_info(
+                result['recipient_count']
+            )
+            
+            result['participant_count'] = (result['sender_count'] +
+                                           result['recipient_count'])
 
-    def link_type_freq(self, interactions):
-        id2i = {}
-        for m in interactions:
-            id2i[m['message_id']] = m
+            result['sender_entropy'] = scipy.stats.entropy(
+                result['sender_count'].values())
+            result['recipient_entropy'] = scipy.stats.entropy(
+                result['recipient_count'].values())
+            result['participant_entropy'] = scipy.stats.entropy(
+                result['participant_count'].values())
+            
+            for key in ('sender_count', 'recipient_count',
+                        'participant_count'):
+                result[key] = sorted(result[key].items(),
+                                     key=lambda (info, c): (c, info),
+                                     reverse=True)[:top_k]
+            
+        else:
+            cnt = Counter(
+                itertools.chain(
+                    *[id2interaction[self.g.node[n]['message_id']]['participant_ids']
+                      for n in self.g.nodes_iter()
+                  ]
+                ))
+            result['participant_count'] = sorted(cnt.items(),
+                                                 key=lambda (_, c): (c, _),
+                                                 reverse=True)[:top_k]
+            return result
 
-        counter = Counter()
-        for k in ('broadcast', 'reply', 'relay'):
-            counter[k] = 0
-        for s, t in self.g.edges_iter():
-            src_sender_id, src_recipient_ids = id2i[s]['sender_id'],\
-                                               set(id2i[s]['recipient_ids'])
-            tar_sender_id, tar_recipient_ids = id2i[t]['sender_id'],\
-                                               set(id2i[t]['recipient_ids'])
-            if src_sender_id == tar_sender_id:
-                counter['broadcast'] += 1
-            elif tar_sender_id in src_recipient_ids:
-                if src_sender_id in tar_recipient_ids:
-                    counter['reply'] += 1
+    def link_type_freq(self, interactions, undirected=False):
+        if not undirected:
+            id2i = {}
+            for m in interactions:
+                id2i[m['message_id']] = m
+
+            counter = Counter()
+            for k in ('broadcast', 'reply', 'relay'):
+                counter[k] = 0
+            for s, t in self.g.edges_iter():
+                src_sender_id, src_recipient_ids = id2i[s]['sender_id'],\
+                                                   set(id2i[s]['recipient_ids'])
+                tar_sender_id, tar_recipient_ids = id2i[t]['sender_id'],\
+                                                   set(id2i[t]['recipient_ids'])
+                if src_sender_id == tar_sender_id:
+                    counter['broadcast'] += 1
+                elif tar_sender_id in src_recipient_ids:
+                    if src_sender_id in tar_recipient_ids:
+                        counter['reply'] += 1
+                    else:
+                        counter['relay'] += 1
                 else:
-                    counter['relay'] += 1
-            else:
-                raise ValueError('Invalid lin type')
-        return dict(counter)
+                    raise ValueError('Invalid lin type')
+            return dict(counter)
+        else:
+            return 'not available for undirected graph'
 
     def summary_dict(self):
         return {m: getattr(self, m)(**self.kws[m])
@@ -246,9 +260,12 @@ class MetaGraphStat(object):
 
 
 def build_default_summary_kws(interactions, people_info,
-                              dictionary, lda, people_repr_template):
-    interactions = IU.clean_interactions(interactions)
+                              dictionary, lda, people_repr_template,
+                              undirected=False):
+    interactions = IU.clean_interactions(interactions,
+                                         undirected=undirected)
     summary_kws = {
+        'basic_structure_stats': {},
         'time_span': {},
         'topics': {
             'interactions': interactions,
@@ -264,10 +281,12 @@ def build_default_summary_kws(interactions, people_info,
             'people_info': people_info,
             'interactions': interactions,
             'top_k': 5,
-            'people_repr_template': people_repr_template
+            'people_repr_template': people_repr_template,
+            'undirected': undirected
         },
         'link_type_freq': {
-            'interactions': interactions
+            'interactions': interactions,
+            'undirected': undirected
         }
     }
     return summary_kws
@@ -275,12 +294,14 @@ def build_default_summary_kws(interactions, people_info,
 
 def build_default_summary_kws_from_path(
         interactions_path, people_path,
-        corpus_dict_path, lda_model_path, people_repr_template):
+        corpus_dict_path, lda_model_path, people_repr_template,
+        **kwargs):
     return build_default_summary_kws(
         *load_summary_related_data(
             interactions_path, people_path,
             corpus_dict_path, lda_model_path
         ),
-        people_repr_template=people_repr_template
+        people_repr_template=people_repr_template,
+        **kwargs
     )
     

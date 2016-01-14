@@ -1,6 +1,7 @@
 #! /bin/bash
 dataset=$1
 result_path=$2
+extra=$3
 
 if [ -z $1 ]; then
 	echo "'dataset' required as \$1"
@@ -17,6 +18,7 @@ python check_k_best_trees.py \
     --interactions_path data/${dataset}/interactions.json \
     --people_path data/${dataset}/people.json \
     --corpus_dict_path data/${dataset}/dict.pkl \
-    --lda_model_path  $(ls data/${dataset}/model-*.lda) \ \
+    --lda_model_path  $(ls data/${dataset}/model-*.lda) \
     --people_repr_template "{id}" \
-    -k 10
+    -k 10 \
+	${extra}

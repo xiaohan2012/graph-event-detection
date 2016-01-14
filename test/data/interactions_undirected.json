@@ -1,0 +1,6 @@
+[
+	{"body":"b1","participant_ids":["B","C","A"],"datetime":989587576,"message_id":1,"subject":"s1"},
+	{"body":"...","participant_ids":["A", "D"],"datetime":989587577,"message_id":2,"subject":"..."},
+	{"body":"...","participant_ids":["B", "C"],"datetime":989587578,"message_id":3,"subject":""},
+	{"body":"...","participant_ids":["A", "C"],"datetime":989587579,"message_id":4,"subject":""}
+]

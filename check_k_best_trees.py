@@ -17,12 +17,13 @@ def k_best_trees(cand_trees, k):
 def get_k_best_tree_summary(
         interactions_path, people_path,
         corpus_dict_path, lda_model_path,
-        cand_trees_path, k, people_repr_template):
+        cand_trees_path, k, people_repr_template,
+        undirected=False):
 
     summary_kws = build_default_summary_kws_from_path(
         interactions_path, people_path,
         corpus_dict_path, lda_model_path,
-        people_repr_template
+        people_repr_template, undirected=undirected
     )
 
     trees = k_best_trees(pickle.load(open(cand_trees_path)),
@@ -44,6 +45,7 @@ def main():
     parser.add_argument('--people_repr_template', type=str,
                         default="{id}")
     parser.add_argument('-k', type=int, default=10)
+    parser.add_argument('--undirected', default=False, action="store_true")
 
     args = parser.parse_args()
     pprint(vars(args))

@@ -6,40 +6,54 @@ import numpy as np
 from datetime import datetime
 
 from nose.tools import assert_equal, assert_true, assert_almost_equal
-from .util import load_json_by_line
+from .util import load_json_by_line, json_load
 from .interactions import InteractionsUtil as IU
 from .meta_graph_stat import MetaGraphStat
-
-CURDIR = os.path.dirname(os.path.abspath(__file__))
+from .test_util import make_path
 
 
 class MetaGraphStatTest(unittest.TestCase):
     def setUp(self):
         np.random.seed(123456)
         self.lda_model = gensim.models.ldamodel.LdaModel.load(
-            os.path.join(CURDIR,
-                         'test/data/test.lda')
+            make_path('test/data/test.lda')
         )
         self.dictionary = gensim.corpora.dictionary.Dictionary.load(
-            os.path.join(CURDIR,
-                         'test/data/test_dictionary.gsm')
+            make_path('test/data/test_dictionary.gsm')
         )
         self.interactions = IU.clean_interactions(
-            json.load(
-                open(os.path.join(CURDIR, 'test/data/enron_test.json'))
+            json_load(
+                make_path('test/data/enron_test.json')
             )
         )
 
         self.people_info = load_json_by_line(
-            os.path.join(CURDIR, 'test/data/people.json')
+            make_path('test/data/people.json')
         )
 
+        self.interactions_undirected = IU.clean_interactions(
+            json_load(make_path(
+                'test/data/interactions_undirected.json'
+            )),
+            undirected=True
+        )
+        self.people_info_undirected = json_load(
+            make_path('test/data/people_undirected.json')
+        )
+        self.g_undirected = IU.get_meta_graph(
+            self.interactions_undirected,
+            remove_singleton=True,
+            decompose_interactions=False,
+            undirected=True
+        )
         self.g = IU.get_meta_graph(self.interactions,
                                    remove_singleton=True,
                                    decompose_interactions=False)
         # some pseudo cost
         for s, t in self.g.edges():
             self.g[s][t]['c'] = 1
+
+        self.s_undirected = MetaGraphStat(self.g_undirected, {})
 
         self.s = MetaGraphStat(self.g,
                                kws={
@@ -181,6 +195,19 @@ class MetaGraphStatTest(unittest.TestCase):
         assert_true('recipient_entropy' in actual)
         assert_true('participant_entropy' in actual)
 
+    def test_participants_undirected(self):
+        actual = self.s_undirected.participants(
+            self.people_info_undirected,
+            self.interactions_undirected,
+            people_repr_template='{id}',
+            undirected=True,
+            top_k=3
+        )
+        assert_equal(
+            [("C", 3), ("A", 3), ("B", 2)],
+            actual['participant_count']
+        )
+
     def test_link_type_freq(self):
         actual = self.s.link_type_freq(
             self.interactions
@@ -194,6 +221,14 @@ class MetaGraphStatTest(unittest.TestCase):
             actual
         )
     
+    def test_link_type_freq_undirected(self):
+        assert_true(
+            'not available' in self.s_undirected.link_type_freq(
+                self.interactions_undirected,
+                undirected=True
+            )
+        )
+
     def test_summary(self):
         s = self.s.summary()
         assert_true(isinstance(s, basestring))
