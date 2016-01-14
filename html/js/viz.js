@@ -15,8 +15,8 @@ function load_event_1(config){
 		.attr("viewBox", "0 -5 10 10")
 		.attr("refX", 15)
 		.attr("refY", -1.5)
-		.attr("markerWidth", 3)
-		.attr("markerHeight", 3)
+		.attr("markerWidth", 8)
+		.attr("markerHeight", 8)
 		.attr("orient", "auto")
 		.append("svg:path")
 		.attr("d", "M0,-5L10,0L0,5");

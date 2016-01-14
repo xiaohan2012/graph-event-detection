@@ -338,13 +338,15 @@ Day 4:
 - run experiment
   - four datasets
   - four methods
-  - vis for four datasets
-- check dblp data
+- check dblp data(no document found)
+- timeline vis for all datasets in one html page
 
 - U too small for bloomberg
 - add title for thread-like data.
+  - why events in islamic data have titles while github does not?
 - system generated text(build, etc) for github
-  - user coverall should be removed
+  - user *coverall* should be removed
+- all red for contexted events in bloomberg  
 
 - 4 mins to run *enron* experiment(without lst and variance)
 - 80 mins for *sklearn* greedy, U=5.0, timespan=14days, cand\_tree\_percent=0.1, root\_sampling=out\_degree
