@@ -334,7 +334,7 @@ Day 3:
 
 Day 4:
 
-- evaluation on noise interaction number
+- evaluation on noise interaction number(fixed sampling fraction)
 - run experiment
   - four datasets
   - four methods
@@ -342,6 +342,9 @@ Day 4:
 
 TODO:
 
+- noise fraction experiment
+  - done: fixed sampling **fraction**
+  - todo: fixed sampling **count**
 
 - run experiment
   - four datasets
