@@ -172,6 +172,7 @@ class MetaGraphStatTest(unittest.TestCase):
     def test_participants(self):
         # Note: we are operating on decomposed interactions
         actual = self.s.participants(self.people_info, self.interactions,
+                                     undirected=False,
                                      top_k=5)
         assert_equal(actual['sender_count'],
                      [('A(A@enron.com)', 3),

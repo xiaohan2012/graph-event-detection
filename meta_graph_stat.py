@@ -220,7 +220,7 @@ class MetaGraphStat(object):
             result['participant_count'] = sorted(cnt.items(),
                                                  key=lambda (_, c): (c, _),
                                                  reverse=True)[:top_k]
-            return result
+        return result
 
     def link_type_freq(self, interactions, undirected=False):
         if not undirected:
