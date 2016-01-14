@@ -340,6 +340,9 @@ Day 4:
   - four methods
 - check dblp data
 
+
+- 4 mins to run enron experiment(without lst and variance)
+
 TODO:
 
 - noise fraction experiment
