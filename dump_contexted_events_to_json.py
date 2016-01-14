@@ -1,4 +1,5 @@
 import os
+import sys
 import ujson as json
 from events import detect_events_given_path
 from event_context import extract_event_context
@@ -14,18 +15,19 @@ from experiment_util import get_output_path
 def run_with_context(interactions_path,
                      candidate_tree_path,
                      dirname=None,
-                     to_original_graph=False):
+                     to_original_graph=False,
+                     undirected=False):
     if not os.path.exists(dirname):
         os.makedirs(dirname)
 
     try:
-        print("interactions_path", interactions_path)
         interactions = json.load(open(interactions_path))
     except ValueError as e:
         print(e)
         interactions = load_json_by_line(interactions_path)
 
-    interactions = IU.clean_interactions(interactions)
+    interactions = IU.clean_interactions(interactions,
+                                         undirected=undirected)
 
     output_path = get_output_path(candidate_tree_path, dirname)
 
@@ -35,7 +37,8 @@ def run_with_context(interactions_path,
     contexted_events = []
     for e in events:
         context_dag = extract_event_context(
-            interactions, e
+            interactions, e,
+            undirected=undirected
         )
 
         if to_original_graph:
@@ -65,8 +68,18 @@ if __name__ == '__main__':
     parser.add_argument('--to_original_graph',
                         action='store_true',
                         default=False)
+    parser.add_argument('--undirected',
+                        action='store_true',
+                        default=False)
+
     args = parser.parse_args()
+
+    if args.to_original_graph and args.undirected:
+        print('ERROR: to_original_graph not allowed for undirected')
+        sys.exit(-1)
+
     run_with_context(args.interactions_path,
                      args.candidate_tree_path,
                      args.dirname,
-                     args.to_original_graph)
+                     args.to_original_graph,
+                     undirected=args.undirected)

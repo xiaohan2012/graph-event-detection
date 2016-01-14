@@ -56,6 +56,9 @@ $(document).ready(function(){
 			},
 			sklearn: {
 				people_repr: get_people_id_func
+			},
+			bloomberg: {
+				people_repr: get_people_id_func
 			}
 		}
 		var dataset_setting = dataset_config[mc.dataset];
@@ -78,16 +81,29 @@ $(document).ready(function(){
 						var i = bunch.id2interactions[d['message_id']];
 						i['date'] = format_time(new Date(i['timestamp']*1000));
 						// console.log("sender_id:", i['sender_id']);
-						i['sender'] = dataset_setting.people_repr(
-							bunch.id2people[i['sender_id']]
-						);
-						i['recipients'] = _.map(i['recipient_ids'], function(k){
-							return dataset_setting.people_repr(
-								bunch.id2people[k]
+						// undirected case
+						if(bunch.id2people[i['sender_id']] == undefined){
+							i['participants'] = _.map(i['participant_ids'], function(k){
+								return dataset_setting.people_repr(
+									bunch.id2people[k]
+								);
+							}).join("    ");
+							return dict2html(i, ['subject', 'body', 'participants', 'date', 'message_id']);
+						}
+						else{
+							i['sender'] = dataset_setting.people_repr(
+								bunch.id2people[i['sender_id']]
 							);
-						}).join("    ");
+							i['recipients'] = _.map(i['recipient_ids'], function(k){
+								return dataset_setting.people_repr(
+									bunch.id2people[k]
+								);
+							}).join("    ");
+							return dict2html(i, ['subject', 'body', 'sender', 'recipients', 'date', 'message_id']);
+						}
+						
 						// console.log('iteraction:', i);
-						return dict2html(i, ['subject', 'body', 'sender', 'recipients', 'date', 'message_id']);
+						
 					}
 				},
 				node: {

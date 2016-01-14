@@ -1,4 +1,5 @@
 import os
+import sys
 
 from events import detect_events_given_path
 from meta_graph import convert_to_original_graph
@@ -26,7 +27,6 @@ def run(candidate_tree_path,
 
     d3_events = [to_d3_graph(e)
                  for e in events]
-    print(d3_events)
     json_dump(d3_events, output_path)
 
 
@@ -41,7 +41,16 @@ if __name__ == '__main__':
     parser.add_argument('--to_original_graph',
                         action='store_true',
                         default=False)
+    parser.add_argument('--undirected',
+                        action='store_true',
+                        default=False)
+    
     args = parser.parse_args()
+
+    if args.to_original_graph and args.undirected:
+        print('ERROR: to_original_graph not allowed for undirected')
+        sys.exit(-1)
+
     run(args.candidate_tree_path,
         args.dirname,
         args.to_original_graph)

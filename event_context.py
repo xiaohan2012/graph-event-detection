@@ -3,7 +3,7 @@ from meta_graph_stat import MetaGraphStat
 from interactions import InteractionsUtil as IU
 
 
-def extract_event_context(interactions, event_tree):
+def extract_event_context(interactions, event_tree, undirected=False):
     span = MetaGraphStat(event_tree).time_span()
     start = span['start_time']
     end = span['end_time']
@@ -17,5 +17,6 @@ def extract_event_context(interactions, event_tree):
             filtered_interactions.append(i)
     context_dag = IU.get_meta_graph(filtered_interactions,
                                     decompose_interactions=False,
-                                    remove_singleton=True)
+                                    remove_singleton=True,
+                                    undirected=undirected)
     return context_dag
