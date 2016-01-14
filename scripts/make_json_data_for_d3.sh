@@ -24,8 +24,8 @@ dataset=$1
 pickle_dir=$2
 extra=$3
 
-output_dir="html/data/${dataset}"
-metadata_dir="data/${dataset}"
+output_dir="/cs/home/hxiao/public_html/event_html/data/${dataset}"
+metadata_dir="/cs/home/hxiao/public_html/event_html/data/${dataset}"
 
 if [ -d $output_dir ]; then
 	echo "rm -rf ${output_dir}"p

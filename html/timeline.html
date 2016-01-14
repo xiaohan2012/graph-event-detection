@@ -10,6 +10,21 @@
 
 
 <body>
+  <div>
+	Dataset:
+	<select id="dataset">
+	  <option value="enron">Enron</option>
+	  <option value="islamic">Islamic forum</option>
+	  <option value="sklearn">Sklearn(Github repository)</option>
+	  <option value="bloomberg">Bloomberg(undirected, news)</option>
+	</select>
+  </div>
+  <div>
+	Data path(produced by experiment with different parameters):
+	<select id="dataPathSelection">
+	</select>
+  </div>
+
   Display type: 
   <label>
 	<input type="radio" name="display_type"  value="macro"/>
@@ -30,8 +45,8 @@
  $(document).ready(function(){
    $("input[name=display_type]:radio").change(function(){
 	 $('#visualization').children().remove();
-
-	 var json_url = "data/islamic/timeline.json";
+	 var config = get_data_config();
+	 var json_url = get_timeline_data_url(config);
 	 if($(this).val() == "micro"){
 	   showMicro(json_url);
 	 }
@@ -39,6 +54,7 @@
 	   showMacro(json_url);
 	 }
    });
+   init_dataset_and_paths_widget('timeline_names.json')
    // $("input[name=display_type][value=micro]").attr('checked', 'checked').change();
  });
 

@@ -54,6 +54,11 @@
 - d3 time format: `d3.time.format("%Y-%m-%d")`
 
 
+## Bash
+
+- get file name `${variable%.*}`
+- get extension `${filename##*.}`
+
 ## Github issues
 
 - [PyGithub](https://github.com/PyGithub/PyGithub)

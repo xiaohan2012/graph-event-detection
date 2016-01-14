@@ -194,35 +194,8 @@ $(document).ready(function(){
 	};
 
 	var CLEAR_SVG = true;
-
-	$('#dataset').on('change', function(){
-		d3.json("data/" + $(this).val() + "/event_names.json",
-				function(error, result_paths) {
-					$('#dataPathSelection').children().remove();
-					_.each(result_paths.sort(), function(p, index){
-						var opt;
-						if(index == 0){
-							opt = $("<option selected='selected'>");
-						}
-						else{
-							opt = $("<option>");
-						}
-						opt.val(p);
-						opt.text(p);
-						$('#dataPathSelection').append(opt);
-					});
-				});
-	});
+	init_dataset_and_paths_widget("event_names.json")
 	
-	$('#dataset')
-		.add('#graphTypeForm')
-		.add('#contextFlagForm')
-		.add('#dataPathSelection')
-		.add('#eventIndexSelection')
-		.on("change",
-			function(){
-				
-			});
 	$('#submitButton').on('click', function(){
 		var mc = get_meta_config();
 		var data_path = get_graph_data_url(mc);

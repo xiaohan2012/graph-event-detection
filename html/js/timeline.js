@@ -1,3 +1,14 @@
+function get_timeline_data_url(config){
+	return "data/"+ config.dataset + "/timeline/" + config.base_name;
+}
+
+function get_data_config(){
+	return {
+		'dataset': $('#dataset').find(":selected").val(),
+		'base_name': $('#dataPathSelection').find(":selected").val(),
+	}
+}
+
 function showMicro(json_url){
     d3.json(json_url,
 			function(error, data) {
