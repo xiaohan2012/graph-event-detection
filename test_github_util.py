@@ -25,6 +25,10 @@ class GithubUtilTest(unittest.TestCase):
             "Document multilabel y support for all splitters in model_selection module",
             self.df.iloc[0]['subject']
         )
+        assert_equal(
+            "RE: Document multilabel y support for all splitters in model_selection module",
+            self.df.iloc[1]['subject']
+        )
         assert_true(' '.join(["L(Documentation)", "L(Easy)",
                               "L(Need Contributor)"])
                     in self.df.iloc[0]['body'])
@@ -64,3 +68,4 @@ class GithubUtilTest(unittest.TestCase):
             0,
             df[df['sender_id'] == 'coveralls'].shape[0]
         )
+        

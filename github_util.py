@@ -32,7 +32,8 @@ def make_dataframe(path):
         for t in th['tail']:
             all_messages.append(
                 (t['id'], i,
-                 '', t['body'],
+                 'RE: ' + h['title'],
+                 t['body'],
                  t['sender'], t['created_at'])
             )
     return pd.DataFrame(all_messages,
