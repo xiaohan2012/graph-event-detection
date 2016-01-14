@@ -41,6 +41,12 @@ def make_dataframe(path):
                                  KEY_SENDER_ID, KEY_TIMESTAMP])
         
 
+def remove_messages_post_by_certain_users(df, users):
+    for u in users:
+        df = df[df['sender_id'] != u]
+    return df
+
+
 def dump2interactions(input_path, output_path):
     df = make_dataframe(input_path)
 
@@ -53,6 +59,10 @@ def dump2interactions(input_path, output_path):
     print('fillna subject/body before: ', df['body'].dropna().shape)
     df = fillna_subject_and_body(df)
     print('fillna subject/body after: ', df['body'].dropna().shape)
+
+    print('before remove coverall:', df.shape)
+    df = remove_messages_post_by_certain_users(df, ['coveralls'])
+    print('after remove coverall:', df.shape)
 
     df.to_json(output_path, orient="records")
 
