@@ -27,7 +27,7 @@ def transform_article(a):
     }
 
 
-def dump2interactions(db, collection_name, output_path):
+def articles_articles(db, collection_name):
     valid_articles = []
     for a in db[collection_name].find():
         # filter out articles with single company tag
@@ -35,11 +35,27 @@ def dump2interactions(db, collection_name, output_path):
             valid_articles.append(
                 transform_article(a)
             )
-    print('# valid articles: ', len(valid_articles))
-    json_dump(valid_articles, output_path)
+    return valid_articles
+
+
+def dump2interactions(db, collection_name, output_path):
+    articles = articles_articles(db, collection_name)
+    print('# valid articles: ', len(articles))
+    json_dump(articles, output_path)
+    return articles
+
+
+def collect_people_info(articles):
+    participant_ids = set(
+        itertools.chain(*[a['participant_ids'] for a in articles])
+        )
+    return [{'id': p} for p in participant_ids]
 
 
 if __name__ == '__main__':
-    dump2interactions(MongoClient()['bloomberg'],
-                      'articles',
-                      'data/bloomberg/interactions.json')
+    articles = dump2interactions(MongoClient()['bloomberg'],
+                                 'articles',
+                                 'data/bloomberg/interactions.json')
+
+    json_dump(collect_people_info(articles),
+              'data/bloomberg/people.json')
