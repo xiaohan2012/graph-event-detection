@@ -178,7 +178,7 @@ def plot_evalution_result(result, output_dir,
             plt.hold(True)
         plt.xlabel(xlabel)
         plt.ylabel(metric)
-        plt.ylim([0, 1])
+        # plt.ylim([0, 1])
         plt.legend(df.index.tolist(), loc='upper left')
 
         fig.savefig(
@@ -200,6 +200,11 @@ def main(exp_name):
         'U': evaluate_U,
         'sampling': evaluate_sampling
     }
+    labels = {
+        'preprune_seconds': 'preprune_seconds',
+        'U': 'U',
+        'sampling': 'sampling_fraction'
+    }
     func = exp_func[exp_name]
     result = func(
         result_paths=glob('tmp/synthetic/{}/result-*.pkl'.format(exp_name)),
@@ -209,6 +214,7 @@ def main(exp_name):
         K=10)
     plot_evalution_result(
         result,
+        xlabel=labels[exp_name],
         output_dir='/cs/home/hxiao/public_html/figures/synthetic/{}'.format(
             exp_name
         )
@@ -245,7 +251,7 @@ def main_varying_interactions():
         output_dir='/cs/home/hxiao/public_html/figures/synthetic/noise_fraction'
     )
 if __name__ == '__main__':
-    # main('preprune_seconds')
-    # main('sampling')
-    # main('U')
+    main('preprune_seconds')
+    main('sampling')
+    main('U')
     main_varying_interactions()
