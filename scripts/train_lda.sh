@@ -3,7 +3,7 @@
 dataset=$1
 
 if [ -z $1 ]; then
-	echo "`dataset` required as \$1"
+	echo "'dataset' required as \$1"
 	exit -1
 fi
 
