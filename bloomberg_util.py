@@ -1,5 +1,6 @@
 from pymongo import MongoClient
-from util import json_dump
+import itertools
+from util import json_dump, json_load
 
 TAG_PREFIX = 'topics/companies/'
 
@@ -49,13 +50,14 @@ def collect_people_info(articles):
     participant_ids = set(
         itertools.chain(*[a['participant_ids'] for a in articles])
         )
+    print('# unique participants: ', len(participant_ids))
     return [{'id': p} for p in participant_ids]
 
 
 if __name__ == '__main__':
-    articles = dump2interactions(MongoClient()['bloomberg'],
-                                 'articles',
-                                 'data/bloomberg/interactions.json')
-
+    # articles = dump2interactions(MongoClient()['bloomberg'],
+    #                              'articles',
+    #                              'data/bloomberg/interactions.json')
+    articles = json_load('data/bloomberg/interactions.json')
     json_dump(collect_people_info(articles),
               'data/bloomberg/people.json')
