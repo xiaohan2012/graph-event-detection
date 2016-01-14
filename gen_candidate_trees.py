@@ -177,9 +177,6 @@ def run(gen_tree_func,
     if print_summary:
         logger.debug(get_summary(g))
 
-    print(g.number_of_nodes(),
-          cand_tree_number,
-          cand_tree_percent)
     cand_tree_number, cand_tree_percent = get_number_and_percentage(
         g.number_of_nodes(),
         cand_tree_number,
@@ -191,12 +188,12 @@ def run(gen_tree_func,
         'out_degree': sample_nodes_by_out_degree
     }
     
+    logger.info('sampling root nodes...')
     roots = root_sampling_methods[root_sampling_method](g, cand_tree_number)
     logger.info('#roots: {}'.format(len(roots)))
     logger.info('#cand_tree_percent: {}'.format(cand_tree_percent))
-
-    manager = Manager()
-    shared_dict = manager.dict([('g', g)])
+    
+    shared_dict = {'g': g}
     
     trees = map(lambda (i, r):
                 calc_tree(
