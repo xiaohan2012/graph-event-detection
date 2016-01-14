@@ -343,9 +343,9 @@ Day 4:
 TODO:
 
 - noise fraction experiment
-  - done: fixed sampling **fraction**
   - todo: fixed sampling **count**
-
+- computation time comparison
+- how to choose U using percentile?
 - run experiment
   - four datasets
   - four methods
