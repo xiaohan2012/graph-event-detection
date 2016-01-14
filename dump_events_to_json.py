@@ -26,6 +26,7 @@ def run(candidate_tree_path,
 
     d3_events = [to_d3_graph(e)
                  for e in events]
+    print(d3_events)
     json_dump(d3_events, output_path)
 
 
@@ -33,9 +34,10 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser('Dump events to json')
     parser.add_argument('--candidate_tree_path',
+                        '-p',
                         required=True
     )
-    parser.add_argument('--dirname')
+    parser.add_argument('--dirname', '-d', required=True)
     parser.add_argument('--to_original_graph',
                         action='store_true',
                         default=False)

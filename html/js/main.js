@@ -42,6 +42,9 @@ $(document).ready(function(){
 				force: {charge: -200, linkDistance: 200}
 			}
 		};
+		var get_people_id_func = function(info) {
+			return info['id'];
+		}
 		var dataset_config = {
 			enron: {
 				people_repr: function(info){
@@ -49,9 +52,10 @@ $(document).ready(function(){
 				}
 			},
 			islamic: {
-				people_repr: function(info){
-					return info['id'];
-				}
+				people_repr: get_people_id_func
+			},
+			sklearn: {
+				people_repr: get_people_id_func
 			}
 		}
 		var dataset_setting = dataset_config[mc.dataset];
@@ -82,7 +86,7 @@ $(document).ready(function(){
 								bunch.id2people[k]
 							);
 						}).join("    ");
-						console.log('iteraction:', i);
+						// console.log('iteraction:', i);
 						return dict2html(i, ['subject', 'body', 'sender', 'recipients', 'date', 'message_id']);
 					}
 				},

@@ -5,6 +5,8 @@ def to_d3_graph(g):
     data = {'nodes': [], 'edges': []}
     for n in g.nodes_iter():
         node = g.node[n]
+        if 'topics' in node:
+            del node['topics']
         node['name'] = n
         data['nodes'].append(node)
 
