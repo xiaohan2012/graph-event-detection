@@ -295,13 +295,13 @@ def build_default_summary_kws(interactions, people_info,
 def build_default_summary_kws_from_path(
         interactions_path, people_path,
         corpus_dict_path, lda_model_path, people_repr_template,
-        **kwargs):
+        undirected=False):
     return build_default_summary_kws(
         *load_summary_related_data(
             interactions_path, people_path,
             corpus_dict_path, lda_model_path
         ),
         people_repr_template=people_repr_template,
-        **kwargs
+        undirected=undirected
     )
     

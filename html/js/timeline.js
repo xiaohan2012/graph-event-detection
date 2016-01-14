@@ -19,7 +19,15 @@ function showMicro(json_url){
 						})
 					);
 					g['content'] += '<h3>time</h3>' + g['start'] + ' - ' + g['end'] + '(' + g['days'] + ' days)';
-					g['content'] += '<h3>link type frequency</h3>' + dict2html(g['link_type_freq']);
+					var link_type_freq_str = '';
+					console.log(g['link_type_freq']);
+					if(is_string(g['link_type_freq'])){
+						link_type_freq_str = g['link_type_freq'];
+					}
+					else{
+						link_type_freq_str = dict2html(g['link_type_freq']);
+					}
+					g['content'] += '<h3>link type frequency</h3>' + link_type_freq_str;
 				});
 				var groups = new vis.DataSet(data['groups']);
 

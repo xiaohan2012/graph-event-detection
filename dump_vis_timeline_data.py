@@ -8,7 +8,7 @@ def format_time(dt):
     return datetime.strftime(dt, '%Y-%m-%d')
 
 
-def run(cand_trees, k, summary_kws):
+def run(cand_trees, k, summary_kws, undirected):
     interactions = summary_kws['topics']['interactions']
     mid2i = {
         i['message_id']: i
@@ -29,9 +29,6 @@ def run(cand_trees, k, summary_kws):
             counter += 1
             items.append({
                 'id': counter,
-                # 'id': ('{}.{}'.format(i, added_id_count[i])
-                #        if i in added_id_count
-                #        else i),
                 'content': mid2i[i]['subject'],
                 'start': format_time(mid2i[i]['datetime']),
                 'group': group_id
@@ -52,7 +49,9 @@ def run(cand_trees, k, summary_kws):
             {
                 'id': group_id,
                 'terms': summ['topics']['topic_terms'],
-                'participants': dict(summ['participants']['sender_count']),
+                'participants': (dict(summ['participants']['participant_count'])
+                                 if undirected else
+                                 dict(summ['participants']['sender_count'])),
                 'start': format_time(summ['time_span']['start_time']),
                 'end': format_time(summ['time_span']['end_time']),
                 'days': (summ['time_span']['end_time'] - summ['time_span']['start_time']).days,
@@ -85,6 +84,7 @@ def main():
     parser.add_argument('--people_repr_template', type=str,
                         default="{id}")
     parser.add_argument('-k', type=int, default=10)
+    parser.add_argument('--undirected', default=False, action="store_true")
 
     args = parser.parse_args()
     
@@ -93,11 +93,14 @@ def main():
         args.people_path,
         args.corpus_dict_path,
         args.lda_model_path,
-        args.people_repr_template)
+        args.people_repr_template,
+        undirected=args.undirected
+    )
     
     data = run(pkl.load(open(args.cand_trees_path)),
                args.k,
-               summary_kws)
+               summary_kws,
+               args.undirected)
     json_dump(data, args.output_path)
     
 

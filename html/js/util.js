@@ -21,3 +21,7 @@ function list2html(items){
 	})
 	return '<ul>' + list.join('') + '</ul>';
 }
+
+function is_string(o){
+	return (typeof o === 'string');
+}
