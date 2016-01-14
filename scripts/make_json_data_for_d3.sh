@@ -35,20 +35,20 @@ fi
 for p in $(ls ${pickle_dir}/result-*.pkl); do
 	echo "${p}"
 	# contexted events
-	echo 'dumping contexted event to original graph'
-	python dump_contexted_events_to_json.py \
-		--interactions_path "data/${dataset}/interactions.json" \
-		--candidate_tree_path ${p} \
-		--dirname "${output_dir}/contexted_event/original_graph" \
-		--to_original_graph \
-		${extra}
+	# echo 'dumping contexted event to original graph'
+	# python dump_contexted_events_to_json.py \
+	# 	--interactions_path "data/${dataset}/interactions.json" \
+	# 	--candidate_tree_path ${p} \
+	# 	--dirname "${output_dir}/contexted_event/original_graph" \
+	# 	--to_original_graph \
+	# 	${extra}
 
-	echo 'dumping contexted event to meta graph'
-	python dump_contexted_events_to_json.py \
-		--interactions_path "data/${dataset}/interactions.json" \
-		--candidate_tree_path ${p} \
-		--dirname "${output_dir}/contexted_event/meta_graph" \
-		${extra}
+	# echo 'dumping contexted event to meta graph'
+	# python dump_contexted_events_to_json.py \
+	# 	--interactions_path "data/${dataset}/interactions.json" \
+	# 	--candidate_tree_path ${p} \
+	# 	--dirname "${output_dir}/contexted_event/meta_graph" \
+	# 	${extra}
 
 	# just events
 	echo 'dumping event to original graph'

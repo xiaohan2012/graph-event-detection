@@ -336,16 +336,14 @@ Day 4:
 
 - evaluation on noise interaction number(fixed sampling fraction)
 - run experiment
-  - four datasets
-  - four methods
+  - bloomberg, enron multiple parameter combinations
+  - islam and sklearn only one parameter set
 - check dblp data(no document found)
 - timeline vis for all datasets in one html page
 - add "RE: " style title for github data.
 - system generated text(build, etc) for github
   - user *coverall* should be removed
   
-- U too small for bloomberg
-
 - all red for contexted events in bloomberg  
 
 - 4 mins to run *enron* experiment(without lst and variance)
