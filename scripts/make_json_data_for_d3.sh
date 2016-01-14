@@ -27,9 +27,8 @@ extra=$3
 output_dir="/cs/home/hxiao/public_html/event_html/data/${dataset}"
 metadata_dir="/cs/home/hxiao/public_html/event_html/data/${dataset}"
 
-if [ -d $output_dir ]; then
-	echo "rm -rf ${output_dir}"p
-	rm -rf ${output_dir}
+if [ ! -d $output_dir ]; then
+	mkdir -p ${output_dir}
 fi
 
 for p in $(ls ${pickle_dir}/result-*.pkl); do

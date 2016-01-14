@@ -23,14 +23,15 @@ for p in $(ls ${pickle_dir}/result-*.pkl); do
 	output_name=$(basename ${p})
 	output_name="${output_name%.*}.json"
 
-	# python dump_vis_timeline_data.py \
-	# 	--cand_trees_path ${p} \
-	# 	--interactions_path data/${dataset}/interactions.json \
-	# 	--people_path data/${dataset}/people.json \
-	# 	--corpus_dict_path  data/${dataset}/dict.pkl \
-	# 	--lda_model_path $(ls data/${dataset}/model-*.lda) \
-	# 	--output_path "${output_dir}/${output_name}/timeline" \
-	# 	${extra}
+	python dump_vis_timeline_data.py \
+		--cand_trees_path ${p} \
+		--interactions_path data/${dataset}/interactions.json \
+		--people_path data/${dataset}/people.json \
+		--corpus_dict_path  data/${dataset}/dict.pkl \
+		--lda_model_path $(ls data/${dataset}/model-*.lda) \
+		--output_path "${output_dir}/timeline/${output_name}" \
+		${extra}
+	echo "Writing to '${output_dir}/timeline/${output_name}'"
 done
 
 echo "dumping timeline names..."

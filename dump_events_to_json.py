@@ -10,6 +10,7 @@ from experiment_util import get_output_path
 
 
 def run(candidate_tree_path,
+        k,
         dirname=None,
         to_original_graph=False):
 
@@ -18,8 +19,7 @@ def run(candidate_tree_path,
 
     output_path = get_output_path(candidate_tree_path, dirname)
 
-    K = 5
-    events = detect_events_given_path(candidate_tree_path, K)
+    events = detect_events_given_path(candidate_tree_path, k)
 
     if to_original_graph:
         events = map(convert_to_original_graph,
@@ -38,6 +38,7 @@ if __name__ == '__main__':
                         required=True
     )
     parser.add_argument('--dirname', '-d', required=True)
+    parser.add_argument('-k', type=int, default=10)
     parser.add_argument('--to_original_graph',
                         action='store_true',
                         default=False)
@@ -52,5 +53,6 @@ if __name__ == '__main__':
         sys.exit(-1)
 
     run(args.candidate_tree_path,
+        args.k,
         args.dirname,
         args.to_original_graph)

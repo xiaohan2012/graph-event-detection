@@ -76,9 +76,11 @@ $(document).ready(function(){
 				}
 			},
 			'meta_graph': {
+				force: {charge: -1500, linkDistance: 200},
 				tip: {
 					html: function(d, bunch){
 						var i = bunch.id2interactions[d['message_id']];
+						console.log('iteraction:', i);
 						i['date'] = format_time(new Date(i['timestamp']*1000));
 						// console.log("sender_id:", i['sender_id']);
 						// undirected case
@@ -100,15 +102,16 @@ $(document).ready(function(){
 								);
 							}).join("    ");
 							return dict2html(i, ['subject', 'body', 'sender', 'recipients', 'date', 'message_id']);
-						}
-						
-						// console.log('iteraction:', i);
-						
+						}						
 					}
 				},
 				node: {
 					fill: 'red',
-					r: 8
+					r: 8,
+					label: function(d, bunch){						
+						var i = bunch['id2interactions'][d['message_id']]
+						return i.subject;
+					}
 				},
 				link: {
 					stroke: function(d, bunch){
@@ -175,13 +178,17 @@ $(document).ready(function(){
 							return '#bbb';
 						}
 					},
+					label: function(d, bunch){
+						return '';
+					}
 				}
 			},
-			graph_type_config[mc.graph_type],
 			context_flag_config[mc.context_flag],
+			graph_type_config[mc.graph_type],
 			mc,
 			url_dict
 		);
+		console.log('ret["force"]:', ret['force']);
 		var charge_from_input = parseInt($("#charge").val());
 		if(charge_from_input){
 			ret.force.charge = charge_from_input;

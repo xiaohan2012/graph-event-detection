@@ -1,4 +1,5 @@
 function load_event_1(config){
+	console.log('config.force:', config.force);
 	var force = d3.layout.force()
 		.charge(config.force.charge)
 		.linkDistance(config.force.linkDistance)
@@ -38,6 +39,7 @@ function load_event_1(config){
 				svg.call(tip);
 
 				var graph = graphs[config.event_index];
+				console.log(config.event_index + ' / ' + graphs.length);
 
 				if (error) throw error;
 
@@ -62,9 +64,17 @@ function load_event_1(config){
 					.attr("stroke-width", call_func_or_just_value(config.link.strokeWidth))
 					.attr("opacity", config.link.opacity);
 				
-				var node = svg.selectAll(".node")
+				var gnodes = svg.selectAll('g.gnode')
 					.data(graph.nodes)
-					.enter().append("circle")
+					.enter()
+					.append('g')
+					.classed('gnode', true);
+				
+
+				// var node = svg.selectAll(".node")
+				// 	.data(graph.nodes)
+				// 	.enter()
+				var node = gnodes.append("circle")
 					.attr("class", "node")
 					.attr("r", config.node.r)
 					.style("fill", config.node.fill)
@@ -72,6 +82,10 @@ function load_event_1(config){
 					.on('mouseover', tip.show)
 					.on('mouseout',  tip.hide)
 
+				var labels = gnodes.append("text")
+					.text(function(d){
+						return config.node.label(d, data_bunch);
+					});
 
 				force.on("tick", function() {
 					link.attr("x1", function(d) { return d.source.x; })
@@ -79,8 +93,11 @@ function load_event_1(config){
 						.attr("x2", function(d) { return d.target.x; })
 						.attr("y2", function(d) { return d.target.y; });
 
-					node.attr("cx", function(d) { return d.x; })
-						.attr("cy", function(d) { return d.y; });
+					// gnode.attr("cx", function(d) { return d.x; })
+					// 	.attr("cy", function(d) { return d.y; });
+					  gnodes.attr("transform", function(d) { 
+						  return 'translate(' + [d.x, d.y] + ')'; 
+					  }); 
 				});
 			});
 		});
@@ -88,6 +105,8 @@ function load_event_1(config){
 }
 
 
+
+// ######## DEPRECATED ########
 function load_event(data_path, kth){
 	var width = 960,
 	height = 1000;
