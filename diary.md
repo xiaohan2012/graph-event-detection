@@ -343,12 +343,15 @@ Day 4:
 - add "RE: " style title for github data.
 - system generated text(build, etc) for github
   - user *coverall* should be removed
-  
-- all red for contexted events in bloomberg  
+- rerun sklearn data
+- organized viz and data prep for viz
+
+Some time stat:
 
 - 4 mins to run *enron* experiment(without lst and variance)
 - 80 mins for *sklearn* greedy, U=5.0, timespan=14days, cand\_tree\_percent=0.1, root\_sampling=out\_degree
 - 71 mins for *islamic*  greedy, U=5.0,timespan=14days, cand\_tree\_percent=0.1, root\_sampling=out\_degree
+
 
 TODO:
 
@@ -356,7 +359,4 @@ TODO:
   - todo: fixed sampling **count**
 - computation time comparison
 - how to choose U using percentile?
-- run experiment
-  - four datasets
-  - four methods
 - scale the node size by message count(original graph)
