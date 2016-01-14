@@ -340,12 +340,12 @@ Day 4:
   - four methods
 - check dblp data(no document found)
 - timeline vis for all datasets in one html page
-
-- U too small for bloomberg
-- add title for thread-like data.
-  - why events in islamic data have titles while github does not?
+- add "RE: " style title for github data.
 - system generated text(build, etc) for github
   - user *coverall* should be removed
+  
+- U too small for bloomberg
+
 - all red for contexted events in bloomberg  
 
 - 4 mins to run *enron* experiment(without lst and variance)
