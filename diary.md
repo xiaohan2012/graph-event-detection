@@ -341,7 +341,9 @@ Day 4:
 - check dblp data
 
 
-- 4 mins to run enron experiment(without lst and variance)
+- 4 mins to run *enron* experiment(without lst and variance)
+- 80 mins for *sklearn* greedy, U=5.0, timespan=14days, cand\_tree\_percent=0.1, root\_sampling=out\_degree
+- 71 mins for *islamic*  greedy, U=5.0,timespan=14days, cand\_tree\_percent=0.1, root\_sampling=out\_degree
 
 TODO:
 
