@@ -31,7 +31,7 @@
    $("input[name=display_type]:radio").change(function(){
 	 $('#visualization').children().remove();
 
-	 var json_url = "data/bloomberg/timeline.json";
+	 var json_url = "data/islamic/timeline.json";
 	 if($(this).val() == "micro"){
 	   showMicro(json_url);
 	 }

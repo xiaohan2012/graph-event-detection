@@ -178,48 +178,57 @@ class MetaGraphStat(object):
                 return Counter(data)
 
             result['sender_count'] = Counter(
-                [id2interaction[self.g.node[n]['message_id']]['sender_id']
+                [peopleid2info[
+                    id2interaction[self.g.node[n]['message_id']]['sender_id']]
                  for n in self.g.nodes()]
             )
 
-            result['sender_count'] = populate_user_info(result['sender_count'])
+            # result['sender_count'] = populate_user_info(result['sender_count'])
 
-            result['recipient_count'] = Counter([
-                r
-                for n in self.g.nodes()
-                for r in \
-                id2interaction[self.g.node[n]['message_id']]['recipient_ids']
-            ])
-            result['recipient_count'] = populate_user_info(
-                result['recipient_count']
-            )
+            # result['recipient_count'] = Counter([
+            #     r
+            #     for n in self.g.nodes()
+            #     for r in \
+            #     id2interaction[self.g.node[n]['message_id']]['recipient_ids']
+            # ])
+            # result['recipient_count'] = populate_user_info(
+            #     result['recipient_count']
+            # )
             
-            result['participant_count'] = (result['sender_count'] +
-                                           result['recipient_count'])
+            # result['participant_count'] = (result['sender_count'] +
+            #                                result['recipient_count'])
+            result['participant_count'] = result['sender_count']
 
-            result['sender_entropy'] = scipy.stats.entropy(
-                result['sender_count'].values())
-            result['recipient_entropy'] = scipy.stats.entropy(
-                result['recipient_count'].values())
+            # result['sender_entropy'] = scipy.stats.entropy(
+            #     result['sender_count'].values())
+            # result['recipient_entropy'] = scipy.stats.entropy(
+            #     result['recipient_count'].values())
             result['participant_entropy'] = scipy.stats.entropy(
                 result['participant_count'].values())
             
-            for key in ('sender_count', 'recipient_count',
-                        'participant_count'):
-                result[key] = sorted(result[key].items(),
-                                     key=lambda (info, c): (c, info),
-                                     reverse=True)[:top_k]
+            # for key in ('sender_count', 'recipient_count',
+            #             'participant_count'):
+            #     result[key] = sorted(result[key].items(),
+            #                          key=lambda (info, c): (c, info),
+            #                          reverse=True)[:top_k]
             
         else:
             cnt = Counter(
                 itertools.chain(
-                    *[id2interaction[self.g.node[n]['message_id']]['participant_ids']
-                      for n in self.g.nodes_iter()
+                    *[
+                        map(
+                            lambda k: peopleid2info[k],
+                            id2interaction[self.g.node[n]['message_id']]['participant_ids']
+                        )
+                        for n in self.g.nodes_iter()
                   ]
                 ))
-            result['participant_count'] = sorted(cnt.items(),
-                                                 key=lambda (_, c): (c, _),
-                                                 reverse=True)[:top_k]
+            result['participant_count'] = cnt
+
+        result['participant_count'] = sorted(
+            result['participant_count'].items(),
+            key=lambda (_, c): (c, _),
+            reverse=True)[:top_k]
         return result
 
     def link_type_freq(self, interactions, undirected=False):

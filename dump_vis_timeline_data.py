@@ -49,9 +49,9 @@ def run(cand_trees, k, summary_kws, undirected):
             {
                 'id': group_id,
                 'terms': summ['topics']['topic_terms'],
-                'participants': (dict(summ['participants']['participant_count'])
-                                 if undirected else
-                                 dict(summ['participants']['sender_count'])),
+                'participants': dict(
+                    summ['participants']['participant_count']
+                ),
                 'start': format_time(summ['time_span']['start_time']),
                 'end': format_time(summ['time_span']['end_time']),
                 'days': (summ['time_span']['end_time'] - summ['time_span']['start_time']).days,
