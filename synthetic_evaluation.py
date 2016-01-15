@@ -243,7 +243,7 @@ def main_varying_interactions():
         group_key=lambda k: 'greedy',
         group_key_name_func=lambda k: k,
         sort_keyfunc=lambda k: float(k['fraction']),
-        K=10
+        K=5
     )
     plot_evalution_result(
         result,
@@ -251,7 +251,7 @@ def main_varying_interactions():
         output_dir='/cs/home/hxiao/public_html/figures/synthetic/noise_fraction'
     )
 if __name__ == '__main__':
-    main('preprune_seconds')
-    main('sampling')
+    # main('preprune_seconds')
+    # main('sampling')
     main('U')
-    main_varying_interactions()
+    # main_varying_interactions()
