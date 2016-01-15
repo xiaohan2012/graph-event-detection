@@ -147,12 +147,9 @@ $(document).ready(function(){
 						}else{
 							throw new Exception("impossible!");
 						}
-							
-						// }
-						// else{
-						// 	console.log("nothing..")
-						// 	return "gray";
-						// }
+					},
+					label: function(d, bunch){
+						return d['c'].toFixed(3);
 					}
 				}
 			}
@@ -172,6 +169,7 @@ $(document).ready(function(){
 					stroke: "gray",
 					strokeWidth: 1.5,
 					opacity: 1,
+					label: ''
 				},
 				node: {
 					r: function(d){

@@ -28,6 +28,7 @@ function load_event_1(config){
 				'id2interactions': id2interactions,
 				'id2people': id2people
 			};
+
 			d3.json(config.graph_data_url, function(error, graphs) {
 				var tip = d3.tip()
 					.attr('class', 'd3-tip')
@@ -55,15 +56,33 @@ function load_event_1(config){
 						} : obj;
 				}
 				console.log('config.link.stroke', config.link.stroke);
-				var link = svg.selectAll(".link")
+				var glinks = svg.selectAll('g.glink')
 					.data(graph.edges)
-  					.enter().append("line")
+					.enter()
+					.append('g')
+					.classed('glink', true);
+				
+				var link = glinks.append("line")
 					.attr("class", "link")
 					.attr("marker-end", "url(#triangle)")
 					.attr("stroke", call_func_or_just_value(config.link.stroke))
 					.attr("stroke-width", call_func_or_just_value(config.link.strokeWidth))
 					.attr("opacity", config.link.opacity);
 				
+				var costs = _.map(graph.edges, function(e){
+					return e['c'];
+				});
+				var link_weight = d3.scale.quantize()
+					.domain([d3.min(costs), d3.max(costs)])
+					.range([100, 200, 300, 400, 500, 600, 700, 800, 900]);
+
+				var link_labels = glinks.append("text")
+					.text(call_func_or_just_value(config.link.label))
+					.attr('font-size', 10)
+					.attr('font-weight', function(d){
+						return link_weight(d['c']);
+					})
+
 				var gnodes = svg.selectAll('g.gnode')
 					.data(graph.nodes)
 					.enter()
@@ -71,18 +90,15 @@ function load_event_1(config){
 					.classed('gnode', true);
 				
 
-				// var node = svg.selectAll(".node")
-				// 	.data(graph.nodes)
-				// 	.enter()
 				var node = gnodes.append("circle")
 					.attr("class", "node")
-					.attr("r", config.node.r)
+					.attr("r", call_func_or_just_value(config.node.r))
 					.style("fill", config.node.fill)
 					.call(force.drag)
 					.on('mouseover', tip.show)
 					.on('mouseout',  tip.hide)
 
-				var labels = gnodes.append("text")
+				var node_labels = gnodes.append("text")
 					.text(function(d){
 						return config.node.label(d, data_bunch);
 					})
@@ -97,9 +113,16 @@ function load_event_1(config){
 
 					// gnode.attr("cx", function(d) { return d.x; })
 					// 	.attr("cy", function(d) { return d.y; });
-					  gnodes.attr("transform", function(d) { 
-						  return 'translate(' + [d.x, d.y] + ')'; 
-					  }); 
+					gnodes.attr("transform", function(d) { 
+						return 'translate(' + [d.x, d.y] + ')'; 
+					}); 
+
+					link_labels.attr("transform", function(d) { 
+						var x = (d.source.x + d.target.x) / 2;
+						var y = (d.source.y + d.target.y) / 2;
+						return 'translate(' + [x, y] + ')';
+					});
+
 				});
 			});
 		});
