@@ -65,6 +65,7 @@ $(document).ready(function(){
 		
 		var graph_type_config = {
 			'original_graph': {
+				force: {charge: -500, linkDistance: 100},
 				tip: {
 					html: function(d, bunch){
 						// console.log('tip fired in original_graph..');
@@ -72,6 +73,11 @@ $(document).ready(function(){
 						// console.log(d['name']);
 						// console.log(dict2html(bunch.id2people[d['name']]));
 						return dict2html(bunch.id2people[d['name']]);
+					}
+				},
+				node: {
+					label: function(d, bunch){					
+						return d.name;
 					}
 				}
 			},
