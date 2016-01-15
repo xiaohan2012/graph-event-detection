@@ -58,10 +58,18 @@ $(document).ready(function(){
 				people_repr: get_people_id_func
 			},
 			bloomberg: {
-				people_repr: get_people_id_func
+				people_repr: get_people_id_func,
 			}
 		}
-		var dataset_setting = dataset_config[mc.dataset];
+		var dataset_setting = $.extend(
+			{
+				node_label: function(d, bunch){						
+					var i = bunch['id2interactions'][d['message_id']]
+					return i.subject;
+				}
+			},
+			dataset_config[mc.dataset]
+		);
 		
 		var graph_type_config = {
 			'original_graph': {
@@ -115,10 +123,7 @@ $(document).ready(function(){
 				node: {
 					fill: 'red',
 					r: 8,
-					label: function(d, bunch){						
-						var i = bunch['id2interactions'][d['message_id']]
-						return i.subject;
-					}
+					label: dataset_setting.node_label
 				},
 				link: {
 					stroke: function(d, bunch){
