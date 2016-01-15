@@ -85,7 +85,9 @@ function load_event_1(config){
 				var labels = gnodes.append("text")
 					.text(function(d){
 						return config.node.label(d, data_bunch);
-					});
+					})
+					.attr('font-size', 10)
+					.attr('font-weight', 'bold');
 
 				force.on("tick", function() {
 					link.attr("x1", function(d) { return d.source.x; })

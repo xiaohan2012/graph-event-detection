@@ -76,7 +76,8 @@ $(document).ready(function(){
 				}
 			},
 			'meta_graph': {
-				force: {charge: -1500, linkDistance: 200},
+				svg: {width: 1280, height: 1500},
+				force: {charge: -1000, linkDistance: 150},
 				tip: {
 					html: function(d, bunch){
 						var i = bunch.id2interactions[d['message_id']];

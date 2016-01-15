@@ -346,6 +346,11 @@ Day 4:
 - rerun sklearn data
 - organized viz and data prep for viz
 
+Day 5:
+
+- finished experiment vis
+- `landscape-bot` to be removed for github
+
 Some time stat:
 
 - 4 mins to run *enron* experiment(without lst and variance)
