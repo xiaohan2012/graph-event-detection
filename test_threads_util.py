@@ -12,7 +12,7 @@ from thread_util import add_recipients,\
 from test_util import CURDIR
 
 
-def add_recipient_test_example_data(sender_ids):
+def _add_recipient_test_example_data(sender_ids):
     df = pd.DataFrame(columns=[KEY_THREAD_ID, KEY_DATETIME, KEY_SENDER_ID,
                                'other_field'],
                       data={
@@ -29,7 +29,7 @@ def add_recipient_test_example_data(sender_ids):
 
 
 def test_add_recipients():
-    data = add_recipient_test_example_data(
+    data = _add_recipient_test_example_data(
         sender_ids=['a', 'a', 'b', 'c']
     )
     actual = add_recipients(data)
@@ -39,7 +39,7 @@ def test_add_recipients():
 
 
 def test_add_recipients_as_thread_author():
-    data = add_recipient_test_example_data(
+    data = _add_recipient_test_example_data(
         sender_ids=['a', 'c', 'b', 'c']
     )
     actual = add_recipients_as_thread_author(data)

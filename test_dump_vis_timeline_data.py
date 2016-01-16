@@ -62,7 +62,7 @@ def test_dump():
 
     assert_equal.__self__.maxDiff = None
 
-    actual = run(trees, k, summary_kws)
+    actual = run(trees, k, summary_kws, False)
     expected = {
         'items': [
             {'id': 1, 'content': 'item 1',
