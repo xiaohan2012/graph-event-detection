@@ -4,6 +4,7 @@ import pandas as pd
 from nose.tools import assert_equal, assert_true
 from datetime import datetime
 from thread_util import add_recipients,\
+    add_recipients_as_thread_author, \
     add_timestamp,\
     KEY_THREAD_ID, KEY_DATETIME, KEY_SENDER_ID, KEY_RECIPIENT_IDS,\
     collect_user_information, \
@@ -11,21 +12,38 @@ from thread_util import add_recipients,\
 from test_util import CURDIR
 
 
+def add_recipient_test_example_data(sender_ids):
+    df = pd.DataFrame(columns=[KEY_THREAD_ID, KEY_DATETIME, KEY_SENDER_ID,
+                               'other_field'],
+                      data={
+                          KEY_THREAD_ID: [1, 1, 1, 2],
+                          KEY_DATETIME: map(
+                              datetime.fromtimestamp,
+                              [1284286794, 1284286796,
+                               1284286795, 1284286794]
+                          ),
+                          KEY_SENDER_ID: sender_ids,
+                          'other_field': ['', '', '', '']
+                      })
+    return df
+
+
 def test_add_recipients():
-    data = pd.DataFrame(columns=[KEY_THREAD_ID, KEY_DATETIME, KEY_SENDER_ID,
-                                 'other_field'],
-                        data={
-                            KEY_THREAD_ID: [1, 1, 1, 2],
-                            KEY_DATETIME: map(
-                                datetime.fromtimestamp,
-                                [1284286794, 1284286796,
-                                 1284286795, 1284286794]
-                            ),
-                            KEY_SENDER_ID: ['a', 'a', 'b', 'c'],
-                            'other_field': ['', '', '', '']
-                        })
+    data = add_recipient_test_example_data(
+        sender_ids=['a', 'a', 'b', 'c']
+    )
     actual = add_recipients(data)
     expected = [['b'], ['a'], ['a', 'b'], []]
+    assert_equal(expected, actual[KEY_RECIPIENT_IDS].tolist())
+    assert_true('other_field' in actual.columns)
+
+
+def test_add_recipients_as_thread_author():
+    data = add_recipient_test_example_data(
+        sender_ids=['a', 'c', 'b', 'c']
+    )
+    actual = add_recipients_as_thread_author(data)
+    expected = [[], ['a'], ['a'], []]
     assert_equal(expected, actual[KEY_RECIPIENT_IDS].tolist())
     assert_true('other_field' in actual.columns)
 

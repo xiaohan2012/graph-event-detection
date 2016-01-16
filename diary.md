@@ -358,6 +358,13 @@ Some time stat:
 - 71 mins for *islamic*  greedy, U=5.0,timespan=14days, cand\_tree\_percent=0.1, root\_sampling=out\_degree
 
 
+Day 6:
+
+- new way to construct metagraph for thread
+- construct heterogeneous interaction graph(HIG)
+- PageRank on HIG to get interaction weight
+- updated greedy algorithm
+
 TODO:
 
 - noise fraction experiment

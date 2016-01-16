@@ -20,6 +20,8 @@ def add_recipients(df):
     as another column
 
     Return: pandas.DataFrame
+
+    Note: recipients are accumulated on the senders as the thread goes
     """
     assert KEY_THREAD_ID in df.columns
     assert (KEY_DATETIME in df.columns) or (KEY_TIMESTAMP in df.columns)
@@ -34,7 +36,7 @@ def add_recipients(df):
         except KeyError:
             thread = thread.sort_values(KEY_TIMESTAMP)
 
-        for i, r in thread.iterrows():
+        for i, r in thread.iterrows():            
             if i == 0:
                 if thread.shape[0] > 1:
                     rs = [thread.iloc[1][KEY_SENDER_ID]]
@@ -46,6 +48,38 @@ def add_recipients(df):
             all_rows.append(new_row)
 
             recipients.add(r[KEY_SENDER_ID])
+
+    return pd.DataFrame(all_rows,
+                        columns=df.columns.tolist() + [KEY_RECIPIENT_IDS])
+
+
+def add_recipients_as_thread_author(df):
+    """
+    Add recipients information on each thread
+    as another column
+
+    Return: pandas.DataFrame
+
+    Note: recipient is the thread author
+    """
+    assert KEY_THREAD_ID in df.columns
+    assert (KEY_DATETIME in df.columns) or (KEY_TIMESTAMP in df.columns)
+    assert KEY_SENDER_ID in df.columns
+    all_rows = []
+
+    for k, thread in df.groupby([KEY_THREAD_ID]):
+        try:
+            thread = thread.sort_values(KEY_DATETIME)
+        except KeyError:
+            thread = thread.sort_values(KEY_TIMESTAMP)
+
+        for i, (_, r) in enumerate(thread.iterrows()):
+            if i == 0:
+                recipients = []
+            else:
+                recipients = [thread.iloc[0][KEY_SENDER_ID]]
+            new_row = r.tolist() + [recipients]
+            all_rows.append(new_row)
 
     return pd.DataFrame(all_rows,
                         columns=df.columns.tolist() + [KEY_RECIPIENT_IDS])
