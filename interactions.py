@@ -11,7 +11,7 @@ import networkx as nx
 from memory_profiler import profile
 
 from util import load_items_by_line, get_datetime, compose
-
+from hig import construct_hig_from_interactions
 from meta_graph import convert_to_meta_graph, \
     convert_to_meta_graph_undirected
 
@@ -146,7 +146,8 @@ class InteractionsUtil(object):
                        preprune_secs=None,
                        decompose_interactions=True,
                        remove_singleton=True,
-                       given_topics=False):
+                       given_topics=False,
+                       apply_pagerank=False):
         """
         Return the meta graph together with temporally sorted interactions
         
@@ -211,6 +212,11 @@ class InteractionsUtil(object):
             for n in g.nodes():
                 if g.degree(n) == 0:
                     g.remove_node(n)
+
+        # override reward scores
+        if apply_pagerank:
+            g = cls.add_rewards_to_nodes_using_pagerank(g, interactions)
+            
         return g
 
     @classmethod
@@ -243,6 +249,22 @@ class InteractionsUtil(object):
             
         return g
 
+    @classmethod
+    def add_rewards_to_nodes(cls, g, reward_func, debug=False):
+        for n in g.nodes_iter():
+            g.node[n][cls.VERTEX_REWARD_KEY] = reward_func(n)
+        return g
+
+    @classmethod
+    def add_rewards_to_nodes_using_pagerank(cls,
+                                            g, interactions,
+                                            pagerank_func=nx.pagerank,
+                                            debug=False, **pr_kwargs):
+        hig = construct_hig_from_interactions(interactions)
+        pr = nx.pagerank(hig, **pr_kwargs)
+        reward_func = lambda n: pr.get(n, 0.0)
+        return cls.add_rewards_to_nodes(g, reward_func)
+        
     @classmethod
     def filter_dag_given_root(cls, g, r, filter_func, debug=False):
         """filter nodes given root and some filter function
@@ -314,6 +336,7 @@ class InteractionsUtil(object):
                              decompose_interactions=True,
                              remove_singleton=True,
                              given_topics=False,
+                             apply_pagerank=False,
                              debug=False):
         logger.debug('getting meta graph...')
         mg = cls.get_meta_graph(interactions,
@@ -321,7 +344,8 @@ class InteractionsUtil(object):
                                 decompose_interactions=decompose_interactions,
                                 preprune_secs=preprune_secs,
                                 remove_singleton=remove_singleton,
-                                given_topics=given_topics)
+                                given_topics=given_topics,
+                                apply_pagerank=apply_pagerank)
 
         if not given_topics:
             logger.debug('adding topics...')

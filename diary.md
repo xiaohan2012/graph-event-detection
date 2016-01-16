@@ -364,6 +364,7 @@ Day 6:
 - construct heterogeneous interaction graph(HIG)
 - PageRank on HIG to get interaction weight
 - updated greedy algorithm
+- sew all the things together are do the experiment
 
 TODO:
 

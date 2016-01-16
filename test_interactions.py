@@ -28,7 +28,6 @@ class InteractionsUtilTest(unittest.TestCase):
         self.interactions = json.load(
             open(os.path.join(CURDIR,
                               'test/data/enron_test.json')))
-        
         self.g = IU.get_meta_graph(
             self.interactions,
             decompose_interactions=True
@@ -57,6 +56,13 @@ class InteractionsUtilTest(unittest.TestCase):
         for n in g.nodes():
             assert_true(isinstance(g.node[n]['datetime'], datetime))
             assert_true(isinstance(g.node[n]['timestamp'], float))
+
+    def test_get_meta_graph_with_pagerank(self):
+        new_mg = IU.get_meta_graph(self.interactions,
+                                   decompose_interactions=False,
+                                   apply_pagerank=True)
+        assert_true(new_mg.node[1]['r'] != 1)
+        assert_true(new_mg.node[1]['r'] < new_mg.node[5]['r'])
             
     def test_get_meta_graph(self):
         assert_equal(sorted([('1.B', '2'), ('1.C', '2'), ('1.D', '2'),
@@ -88,8 +94,8 @@ class InteractionsUtilTest(unittest.TestCase):
         
     def _get_topical_graph(self):
         return IU.add_topics_to_graph(self.g,
-                                                    self.lda_model,
-                                                    self.dictionary)
+                                      self.lda_model,
+                                      self.dictionary)
 
     def test_add_topics(self):
         g = self._get_topical_graph()
@@ -282,6 +288,18 @@ class InteractionsUtilTest(unittest.TestCase):
         assert_equal(sorted([('1.B', '2'), ('1.C', '2'), ('1.D', '2')]),
                      sorted(g.edges()))
 
+    def test_get_topic_meta_graph_with_pagerank(self):
+        new_mg = IU.get_topic_meta_graph(
+            self.interactions,
+            scipy.stats.entropy,
+            self.lda_model,
+            self.dictionary,
+            preprune_secs=None,
+            apply_pagerank=True,
+            decompose_interactions=False)
+        assert_true(new_mg.node[1]['r'] != 1)
+        assert_true(new_mg.node[1]['r'] < new_mg.node[5]['r'])
+
     def test_compactize_meta_graph(self):
         # assure node topic vectors are deleted
         g = IU.get_topic_meta_graph(self.interactions,
@@ -347,6 +365,23 @@ class InteractionsUtilTest(unittest.TestCase):
             ('1.B', '2'), ('1.C', '2'), ('1.D', '2')
         ])
         assert_equal(expected_edges, sorted(g.edges()))
+
+    def test_add_rewards_to_nodes(self):
+        new_g = IU.add_rewards_to_nodes(self.g,
+                                        reward_func=lambda n: 0.1,
+                                        debug=False)
+        for n in new_g.nodes_iter():
+            assert_equal(0.1, new_g.node[n]['r'])
+        
+    def test_add_rewards_to_nodes_using_pagerank(self):
+        cleaned_interactions = IU.clean_interactions(self.interactions)
+        mg = IU.get_meta_graph(cleaned_interactions,
+                               decompose_interactions=False)
+        new_mg = IU.add_rewards_to_nodes_using_pagerank(
+            mg,
+            cleaned_interactions
+        )
+        assert_true(new_mg.node[1]['r'] < new_mg.node[5]['r'])
         
 
 class InteractionsUtilTestUndirected(unittest.TestCase):
@@ -418,4 +453,4 @@ class InteractionsUtilTestGivenTopics(unittest.TestCase):
         assert_equal(2325, g.number_of_edges())
         for s, t in g.edges_iter():
             assert_true('c' in g[s][t])
-            assert_true(g[s][t]['c'] != float('inf'))
+            assert_true(g[s][t]['c'] != float('inf'))            
