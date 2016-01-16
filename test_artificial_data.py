@@ -87,6 +87,7 @@ class ArtificialDataTest(unittest.TestCase):
             topic_2nd, topic_1st = np.sort(topic_mean)[-2:]
             assert_true((topic_1st / topic_2nd) > 10000)
 
+
     def test_random_noisy_interactions(self):
         intrs = random_noisy_interactions(
             self.params['n_noisy_interactions'],
@@ -134,6 +135,9 @@ class ArtificialDataTest(unittest.TestCase):
         for e in events:
             for i in e:
                 assert_true(isinstance(i['topics'], list))
+
+        for i in all_interactions:
+            assert_true(i['sender_id'].startswith('u-'))
 
     def test_make_articifial_data_with_small_noise_percentage(self):
         fraction = 0.1

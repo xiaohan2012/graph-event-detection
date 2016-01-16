@@ -12,9 +12,6 @@ from datetime import timedelta
 from scipy.spatial.distance import euclidean, cosine
 from scipy.stats import entropy
 
-from pathos.multiprocessing import ProcessingPool as Pool
-from multiprocessing import Manager
-
 from dag_util import unbinarize_dag, binarize_dag, remove_edges_via_dijkstra
 from lst import lst_dag, make_variance_cost_func, dp_dag_general
 from interactions import InteractionsUtil as IU
@@ -109,7 +106,8 @@ def run(gen_tree_func,
         meta_graph_kws={
             'dist_func': entropy,
             'decompose_interactions': True,
-            'preprune_secs': timedelta(weeks=4)
+            'preprune_secs': timedelta(weeks=4),
+            'apply_pagarank': False
         },
         gen_tree_kws={
             'timespan': timedelta(weeks=4),
@@ -299,6 +297,9 @@ if __name__ == '__main__':
                         type=int,
                         default=1,
                         help="How many places to approximate for lst algorithm")
+    parser.add_argument('--apply_pagerank',
+                        action='store_true',
+                        help="Whether use pagerank to assign node weights or not")
 
     args = parser.parse_args()
 
@@ -342,6 +343,7 @@ if __name__ == '__main__':
             'dist_func': dist_func,
             'decompose_interactions': args.decompose,
             'preprune_secs': timespan,
+            'apply_pagerank': args.apply_pagerank
         },
         gen_tree_kws={
             'timespan': timespan,

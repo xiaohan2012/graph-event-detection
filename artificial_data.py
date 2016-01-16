@@ -58,6 +58,8 @@ def random_events(n_events, event_size_mu, event_size_sigma,
             # is a real event necessarily a tree?
             interaction_topic = np.random.dirichlet(event_topic_param)
             sender_id, recipient_id = np.random.permutation(participants)[:2]
+            sender_id, recipient_id = 'u-{}'.format(sender_id), \
+                                      'u-{}'.format(recipient_id)
             timestamp = np.random.uniform(start_time, end_time)
             event.append({
                 'sender_id': sender_id,
@@ -82,6 +84,9 @@ def random_noisy_interactions(n_noisy_interactions,
             n_total_participants
         )[:2]
         
+        sender_id, recipient_id = 'u-{}'.format(sender_id), \
+                                  'u-{}'.format(recipient_id)
+
         noisy_interactions.append({
             'sender_id': sender_id,
             'recipient_ids': [recipient_id],

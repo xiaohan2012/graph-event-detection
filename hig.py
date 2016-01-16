@@ -19,7 +19,9 @@ def construct_hig_from_interactions(interactions,
     message_ids = set([i['message_id'] for i in interactions])
     
     if user_ids.intersection(message_ids):
-        raise ValueError('user_ids shouldn\'t intersect with message_ids')
+        print('user_ids:', user_ids)
+        print('message_ids:', message_ids)
+        raise ValueError('user_ids shouldn\'t intersect with message_ids.')
 
     g = nx.DiGraph()
     

@@ -14,7 +14,7 @@ from scipy.spatial.distance import euclidean
 
 from .lst import lst_dag, dp_dag_general, make_variance_cost_func
 from .baselines import greedy_grow, random_grow
-from .test_util import remove_tmp_data, make_path, CURDIR
+from .test_util import remove_tmp_data, make_path
 from .experiment_util import experiment_signature
 
 
@@ -67,22 +67,26 @@ variance_method_euclidean = lambda g, r, U: dp_dag_general(
 )
 
 
-class GenCandidateTreeTest(unittest.TestCase):
-    def setUp(self):
-        random.seed(1)
-        numpy.random.seed(1)
-
+class CalcMGMixin(object):
+    def update_metagraph_and_produce_if_needed(
+            self,
+            dist_func=entropy,
+            preprune_secs=timedelta(weeks=4),
+            U=0.5,
+            apply_pagerank=False
+    ):
         self.some_kws_of_run = {
             'cand_tree_number': None,
             'cand_tree_percent': 0.1,
             'meta_graph_kws': {
-                'dist_func': entropy,
+                'dist_func': dist_func,
                 'decompose_interactions': False,
-                'preprune_secs': timedelta(weeks=4)
+                'preprune_secs': preprune_secs,
+                'apply_pagerank': apply_pagerank
             },
             'gen_tree_kws': {
-                'timespan': timedelta(weeks=4),
-                'U': 0.5,
+                'timespan': preprune_secs,
+                'U': U,
                 'dijkstra': False
             },
             'root_sampling_method': 'out_degree'
@@ -90,8 +94,9 @@ class GenCandidateTreeTest(unittest.TestCase):
 
         self.meta_pickle_path_common = experiment_signature(
             decompose_interactions=False,
-            dist_func="entropy",
-            preprune_secs="28days"
+            dist_func=dist_func,
+            preprune_secs=preprune_secs,
+            apply_pagerank=apply_pagerank
         )
         pkl_path = make_path('test/data/enron-head-100--{}.pkl'.format(
             self.meta_pickle_path_common)
@@ -119,6 +124,13 @@ class GenCandidateTreeTest(unittest.TestCase):
             result_pkl_path_prefix=make_path('test/data/tmp/test'),  # can be ignored
             **kws
         )
+
+
+class GenCandidateTreeTest(unittest.TestCase, CalcMGMixin):
+    def setUp(self):
+        random.seed(1)
+        numpy.random.seed(1)
+        self.update_metagraph_and_produce_if_needed()
 
     def check(self, test_name, tree_gen_func, undirected=False, **more_args):
         # empty trees are ignored
@@ -171,6 +183,12 @@ class GenCandidateTreeTest(unittest.TestCase):
     def test_greedy_grow(self):
         self.check('greedy', greedy_grow)
 
+    def test_greedy_grow_with_pagerank(self):
+        self.update_metagraph_and_produce_if_needed(apply_pagerank=True)
+        trees = self.check('greedy', greedy_grow)
+        for n in trees[0].nodes_iter():
+            assert_true(trees[0].node[n]['r'] < 1)
+
     def test_random_grow(self):
         self.check('random', random_grow)
 
@@ -215,7 +233,8 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
     def update_result_path_template(self,
                                     timespan=timedelta(days=28),
                                     cand_tree_percent=0.01,
-                                    sampling_method='uniform'):
+                                    sampling_method='uniform',
+                                    apply_pagerank=False):
         self.result_output_path_template = "test/data/tmp/result-{}--{}----{}----{}.pkl".format(
             '{}',
             experiment_signature(
@@ -226,7 +245,8 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
             experiment_signature(
                 decompose_interactions=False,
                 dist_func='{}',
-                preprune_secs=timespan
+                preprune_secs=timespan,
+                apply_pagerank=apply_pagerank
             ),
             experiment_signature(
                 cand_tree_percent=cand_tree_percent,
@@ -246,8 +266,10 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         --dist={distance_func} \
         --cand_n_percent=0.01 \
         --root_sampling={sampling_method}\
-        --result_prefix={result_dir} --weeks=4 --U=0.5 \
-        --lda_path={lda_model_path} --interaction_path={interaction_json_path} \
+        --result_prefix={result_dir} \
+        --weeks=4 --U=0.5 \
+        --lda_path={lda_model_path} \
+        --interaction_path={interaction_json_path} \
         --corpus_dict_path={corpus_dict_path} \
         --meta_graph_path_prefix={meta_graph_pkl_path_prefix} \
         {extra}""".format(
@@ -261,13 +283,17 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         ).split()
         output = check_output(cmd)
         print(output)
+
         assert_true("traceback" not in output.lower())
+
         output_path = make_path(
             self.result_output_path_template.format(
                 method, distance
             )
         )
+
         assert_true(os.path.exists(output_path))
+
         return output
 
     def test_random(self):
@@ -287,41 +313,53 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
 
     def test_synthetic(self):
         self.directed_params = {
-            'interaction_json_path': make_path('test/data/given_topics/interactions.json'),
+            'interaction_json_path': make_path(
+                'test/data/given_topics/interactions--n_noisy_interactions_fraction=0.1.json'
+            ),
             'meta_graph_pkl_path_prefix': make_path('test/data/given_topics/meta-graph'),
             'lda_model_path': None,
             'corpus_dict_path': None,
             'undirected': False
         }
         self.update_result_path_template(timespan=8,
-                                         sampling_method='out_degree')
+                                         sampling_method='out_degree',
+                                         apply_pagerank=True)
 
         self.check(sampling_method='out_degree', undirected=False,
                    distance='euclidean',
-                   extra='--seconds=8 --given_topics')
+                   extra='--seconds=8 --given_topics --apply_pagerank')
 
     def test_cand_n(self):
         self.update_result_path_template(cand_tree_percent=0.0972222222222)
         self.check(extra='--cand_n 7')
+
+    def test_apply_pagerank(self):
+        self.update_result_path_template(apply_pagerank=True)
+        self.check(extra='--apply_pagerank')
 
     def tearDown(self):
         remove_tmp_data('test/data/tmp')
     
 
 class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
+    """sharing some test with GenCandidateTreeTest
+    """
     def setUp(self):
         random.seed(1)
         numpy.random.seed(1)
 
         self.some_kws_of_run = {
-            'interaction_json_path': make_path('test/data/given_topics/interactions.json'),
+            'interaction_json_path': make_path(
+                'test/data/given_topics/interactions--n_noisy_interactions_fraction=0.1.json'
+            ),
             'cand_tree_percent': 0.1,
             'meta_graph_pkl_path_prefix': make_path('test/data/given_topics/meta-graph'),
             'undirected': False,
             'meta_graph_kws': {
                 'dist_func': euclidean,
                 'decompose_interactions': False,
-                'preprune_secs': 8
+                'preprune_secs': 8,
+                'apply_pagerank': True
             },
             'gen_tree_kws': {
                 'timespan': 8,
@@ -334,10 +372,12 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
         self.meta_pickle_path_common = experiment_signature(
             decompose_interactions=False,
             dist_func='euclidean',
-            preprune_secs=8
+            preprune_secs=8,
+            apply_pagerank=True,
         )
-        pkl_path = make_path('test/data/given_topics/result--{}.pkl'.format(
-            self.meta_pickle_path_common)
+        pkl_path = '{}--{}.pkl'.format(
+            self.some_kws_of_run['meta_graph_pkl_path_prefix'],
+            self.meta_pickle_path_common
         )
         if not os.path.exists(pkl_path):
             print('calc meta graph')
@@ -378,11 +418,11 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
             pickle_path_suffix
         )
 
+        kws['root_sampling_method'] = 'out_degree'
         run(tree_gen_func,
             calculate_graph=False,
             print_summary=False,
             result_pkl_path_prefix=result_pickle_prefix,
-            root_sampling_method='out_degree',
             **kws)
 
         trees = pkl.load(open(pickle_path))
@@ -396,10 +436,15 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
     def test_variance_method(self):
         self.check('variance', variance_method_euclidean)
 
-    # overrides
     def test_undirected(self):
+        # this example is directed,
+        # so not applicable
+        pass
+    
+    def test_greedy_grow_with_pagerank(self):
+        # as the metagraph path is changed in it
+        # so not applicable
         pass
 
     def tearDown(self):
         remove_tmp_data('test/data/tmp')
-        pass
