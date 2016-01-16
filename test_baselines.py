@@ -5,6 +5,7 @@ from nose.tools import assert_equal, assert_true
 
 from .baselines import (grow_tree_general,
                         greedy_choice_by_cost,
+                        greedy_choice_by_discounted_reward,
                         random_choice,
                         new_frontier)
 
@@ -61,8 +62,25 @@ class Example2():
         return U, edges
 
 
+class Example3():
+    @classmethod
+    def get_graph(cls):
+        g = Example1.get_graph()
+        g.node[3]['r'] = 3
+        g.node[4]['r'] = 4
+        g[4][6]['c'] = 0
+        return g
+
+    @classmethod
+    def get_data_of_greedy_tree(self):
+        U = [5]
+        edges = [
+            [(1, 3), (1, 4), (4, 6)]
+        ]
+        return U, edges
+
+
 class GrowingTreeTest(unittest.TestCase):
-    
     def test_new_frontier(self):
         g = Example1.get_graph()
         g.add_edge(2, 3)  # some modification
@@ -81,12 +99,12 @@ class GrowingTreeTest(unittest.TestCase):
             nodes.append(n)
             assert_equal(sorted(edges), sorted(frontier))
 
-    def greedy_approach_template(self, data_class):
+    def greedy_approach_template(self, data_class, choice_func):
         g = data_class.get_graph()
         U, expected_edge_list = data_class.get_data_of_greedy_tree()
         
         for u, expected_edges in zip(U, expected_edge_list):
-            actual = grow_tree_general(g, 1, u, greedy_choice_by_cost)
+            actual = grow_tree_general(g, 1, u, choice_func)
             assert_equal(sorted(expected_edges),
                          sorted(actual.edges()))
             for n in actual.nodes():
@@ -99,10 +117,20 @@ class GrowingTreeTest(unittest.TestCase):
             assert_equal(1, len(roots))
 
     def test_greedy_grow_tree_1(self):
-        self.greedy_approach_template(Example1)
-
+        self.greedy_approach_template(Example1,
+                                      greedy_choice_by_cost)
+        self.greedy_approach_template(Example1,
+                                      greedy_choice_by_discounted_reward)
+        
     def test_greedy_grow_tree_2(self):
-        self.greedy_approach_template(Example2)
+        self.greedy_approach_template(Example2,
+                                      greedy_choice_by_cost)
+        self.greedy_approach_template(Example2,
+                                      greedy_choice_by_discounted_reward)
+
+    def test_greedy_grow_tree_3(self):
+        self.greedy_approach_template(Example3,
+                                      greedy_choice_by_discounted_reward)
 
     def test_random_grow_tree_1(self):
         g = Example1.get_graph()

@@ -21,7 +21,7 @@ from experiment_util import sample_nodes, \
     experiment_signature,\
     get_number_and_percentage
 from util import load_json_by_line
-from baselines import greedy_grow, random_grow
+from baselines import random_grow, greedy_grow_by_discounted_reward
 
 logging.basicConfig(format="%(asctime)s;%(levelname)s;%(message)s",
                     datefmt="%Y-%m-%d %H:%M:%S")
@@ -319,7 +319,7 @@ if __name__ == '__main__':
 
     methods = {'lst': lst,
                'variance': variance_method,
-               'greedy': greedy_grow,
+               'greedy': greedy_grow_by_discounted_reward,
                'random': random_grow}
 
     # `seconds` of higher priority

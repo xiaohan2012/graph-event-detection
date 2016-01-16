@@ -20,16 +20,33 @@ def new_frontier(new_node, selected_nodes, g, current_frontier):
     return list(frontier)
 
 
-def greedy_choice_by_cost(g, edges, edge_cost_key='c'):
+def greedy_choice_by_cost(g, edges,
+                          edge_cost_key,
+                          node_reward_key):
     return min(edges,
                key=lambda e: g[e[0]][e[1]][edge_cost_key])
 
 
-def random_choice(g, edges, edge_cost_key='c'):
+def greedy_choice_by_discounted_reward(
+        g, edges,
+        edge_cost_key, node_reward_key):
+    return max(edges,
+               key=lambda e:
+               (
+                   float(g.node[e[1]][node_reward_key]) /
+                   g[e[0]][e[1]][edge_cost_key]
+                   if g[e[0]][e[1]][edge_cost_key] > 0
+                   else float('inf'))
+    )
+
+
+def random_choice(g, edges, edge_cost_key, node_reward_key):
     return random.choice(edges)
 
 
-def grow_tree_general(g, r, U, choose_edge, edge_cost_key='c'):
+def grow_tree_general(g, r, U, choose_edge,
+                      edge_cost_key='c',
+                      node_reward_key='r'):
     """grows a tree by randomly selecting edges
     """
     t = nx.DiGraph()
@@ -38,7 +55,9 @@ def grow_tree_general(g, r, U, choose_edge, edge_cost_key='c'):
     last_added_edge = None
 
     while cost_sum <= U and len(frontier) > 0:
-        e = choose_edge(g, frontier)
+        e = choose_edge(g, frontier,
+                        edge_cost_key,
+                        node_reward_key)
         u, v = e
         t.add_edge(*e)
         frontier = new_frontier(v, t.nodes(), g, frontier)
@@ -58,3 +77,9 @@ greedy_grow = lambda g, r, U: grow_tree_general(g, r, U,
                                                 greedy_choice_by_cost)
 random_grow = lambda g, r, U: grow_tree_general(g, r, U,
                                                 random_choice)
+
+
+def greedy_grow_by_discounted_reward(g, r, U):
+    return grow_tree_general(
+        g, r, U,
+        greedy_choice_by_discounted_reward)

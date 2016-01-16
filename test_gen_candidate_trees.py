@@ -13,7 +13,8 @@ from scipy.stats import entropy
 from scipy.spatial.distance import euclidean
 
 from .lst import lst_dag, dp_dag_general, make_variance_cost_func
-from .baselines import greedy_grow, random_grow
+from .baselines import greedy_grow_by_discounted_reward as greedy_grow, \
+    random_grow
 from .test_util import remove_tmp_data, make_path
 from .experiment_util import experiment_signature
 
