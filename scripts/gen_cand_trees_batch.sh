@@ -12,9 +12,11 @@ extra=$2
 
 
 methods=("greedy" "random" "lst --dij")
-Us=(1 2 5)
 weeks=(2)
-cand_n_percents=(0.1 0.2 0.3 0.4)
+# Us=(1 2 5)
+# cand_n_percents=(0.1 0.2 0.3 0.4)
+Us=(5)
+cand_n_percents=(0.1 0.2)
 
 
 for cand_n_percent in "${cand_n_percents[@]}"

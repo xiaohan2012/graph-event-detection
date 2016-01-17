@@ -365,7 +365,15 @@ Day 6:
 - PageRank on HIG to get interaction weight
 - updated greedy algorithm
 - sew all the things together
-- do the experiment
+
+Day 7:
+
+- tune the performance of variance-based method
+- experiment: 
+  - islamic, sklearn with new interaction construction method and pagerank
+  - synthetic data more noise
+
+
 
 TODO:
 
