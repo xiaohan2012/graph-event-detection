@@ -215,6 +215,7 @@ class InteractionsUtil(object):
 
         # override reward scores
         if apply_pagerank:
+            logger.info('Appling pagerank to get node rewark')
             g = cls.add_rewards_to_nodes_using_pagerank(g, interactions)
             
         return g
