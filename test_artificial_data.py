@@ -1,10 +1,13 @@
+import unittest
 import random
 import numpy as np
 import itertools
+
 from collections import Counter
-import unittest
 from nose.tools import assert_equal, assert_true
-from .artificial_data import random_topic, random_events, \
+
+from interactions import InteractionsUtil as IU
+from artificial_data import random_topic, random_events, \
     random_noisy_interactions, make_articifial_data
 
 
@@ -13,11 +16,11 @@ class ArtificialDataTest(unittest.TestCase):
         np.random.seed(123456)
         random.seed(123456)
         self.params = {
-            'n_events': 100,
-            'event_size_mu': 2000,
+            'n_events': 5,
+            'event_size_mu': 500,
             'event_size_sigma': 0.00001,
             'n_total_participants': 20,
-            'participant_mu': 10,
+            'participant_mu': 5,
             'participant_sigma': 1,
             'min_time': 0,
             'max_time': 100,
@@ -26,7 +29,7 @@ class ArtificialDataTest(unittest.TestCase):
             'n_topics': 10,
             'topic_scaling_factor': 1000,
             'topic_noise': 0.00001,
-            'n_noisy_interactions': 10000,
+            'n_noisy_interactions': 1000,
             'n_noisy_interactions_fraction': 0.1
         }
 
@@ -77,7 +80,7 @@ class ArtificialDataTest(unittest.TestCase):
              for e in events]
         )
         np.testing.assert_almost_equal(
-            10,
+            5,
             mean_n_participants,
             decimal=0
         )
@@ -86,7 +89,6 @@ class ArtificialDataTest(unittest.TestCase):
             topic_mean = np.mean([i['topics'] for i in e], axis=0)
             topic_2nd, topic_1st = np.sort(topic_mean)[-2:]
             assert_true((topic_1st / topic_2nd) > 10000)
-
 
     def test_random_noisy_interactions(self):
         intrs = random_noisy_interactions(
@@ -103,7 +105,7 @@ class ArtificialDataTest(unittest.TestCase):
         self.seems_like_uniform_distribution(topic_mean)
         
         np.testing.assert_almost_equal(
-            50,
+            49,
             np.mean([i['timestamp'] for i in intrs]),
             decimal=0
         )
@@ -133,6 +135,11 @@ class ArtificialDataTest(unittest.TestCase):
             assert_true(isinstance(i['topics'], list))
 
         for e in events:
+            assert_equal(len(e),
+                         IU.get_meta_graph(
+                             e, decompose_interactions=False,
+                             remove_singleton=True,
+                             given_topics=True).number_of_nodes())
             for i in e:
                 assert_true(isinstance(i['topics'], list))
 

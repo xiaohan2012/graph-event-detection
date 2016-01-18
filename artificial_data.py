@@ -2,6 +2,7 @@
 
 import numpy as np
 import itertools
+from interactions import InteractionsUtil as IU
 from experiment_util import get_number_and_percentage, \
     experiment_signature
 
@@ -13,6 +14,28 @@ def random_topic(n_topics, topic_noise=0.0001):
     dirich_alpha += np.random.uniform(0, topic_noise, n_topics)
     dirich_alpha /= dirich_alpha.sum()
     return np.random.dirichlet(dirich_alpha)
+
+
+def gen_event(event_size, participants,
+              start_time, end_time,
+              event_topic_param):
+    event = []
+    for j in xrange(event_size):
+        # how to ensure it's a tree?
+        # is a real event necessarily a tree?
+        interaction_topic = np.random.dirichlet(event_topic_param)
+        sender_id, recipient_id = np.random.permutation(participants)[:2]
+        sender_id, recipient_id = 'u-{}'.format(sender_id), \
+                                  'u-{}'.format(recipient_id)
+        timestamp = np.random.uniform(start_time, end_time)
+        event.append({
+            'message_id': j,  # will be changed later
+            'sender_id': sender_id,
+            'recipient_ids': [recipient_id],
+            'timestamp': timestamp,
+            'topics': interaction_topic
+        })
+    return event
 
 
 def random_events(n_events, event_size_mu, event_size_sigma,
@@ -53,22 +76,28 @@ def random_events(n_events, event_size_mu, event_size_sigma,
         if end_time > max_time:
             end_time = max_time
 
-        for j in xrange(event_size):
-            # how to ensure it's a tree?
-            # is a real event necessarily a tree?
-            interaction_topic = np.random.dirichlet(event_topic_param)
-            sender_id, recipient_id = np.random.permutation(participants)[:2]
-            sender_id, recipient_id = 'u-{}'.format(sender_id), \
-                                      'u-{}'.format(recipient_id)
-            timestamp = np.random.uniform(start_time, end_time)
-            event.append({
-                'sender_id': sender_id,
-                'recipient_ids': [recipient_id],
-                'timestamp': timestamp,
-                'topics': interaction_topic
-            })
+        event = gen_event(event_size, participants, start_time, end_time,
+                          event_topic_param)
 
+        while True:
+            event = gen_event(event_size, participants, start_time, end_time,
+                              event_topic_param)
+            n_interactions_in_mg = IU.get_meta_graph(
+                event,
+                decompose_interactions=False,
+                remove_singleton=True,
+                given_topics=True).number_of_nodes()
+
+            if n_interactions_in_mg == len(event):
+                break
+            else:
+                print(
+                    'regenrating the event as it\'s not a valid meta graph. {} < {}'.format(
+                        n_interactions_in_mg,
+                        len(event)
+                    ))
         events.append(event)
+
     return events
 
 
@@ -108,6 +137,7 @@ def make_articifial_data(
         min_time, max_time, event_duration_mu, event_duration_sigma,
         n_topics, topic_scaling_factor, topic_noise
     )
+
     (n_noisy_interactions, _) = get_number_and_percentage(
         sum([1 for e in events for _ in e]),
         n_noisy_interactions, n_noisy_interactions_fraction
