@@ -11,12 +11,13 @@ fi
 extra=$2
 
 
-methods=("greedy" "random" "lst --dij")
+# methods=("greedy" "random" "lst --dij")
+methods=("variance --dij")
 weeks=(2)
-# Us=(1 2 5)
-# cand_n_percents=(0.1 0.2 0.3 0.4)
-Us=(5)
-cand_n_percents=(0.1 0.2)
+Us=(1 2 5)
+cand_n_percents=(0.1 0.2 0.3 0.4)
+# Us=(5)
+# cand_n_percents=(0.1 0.2)
 
 
 for cand_n_percent in "${cand_n_percents[@]}"

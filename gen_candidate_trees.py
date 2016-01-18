@@ -175,6 +175,7 @@ def run(gen_tree_func,
     if print_summary:
         logger.debug(get_summary(g))
 
+    assert g.number_of_nodes() > 0, 'empty graph!'
     cand_tree_number, cand_tree_percent = get_number_and_percentage(
         g.number_of_nodes(),
         cand_tree_number,
@@ -189,7 +190,7 @@ def run(gen_tree_func,
     logger.info('sampling root nodes...')
     roots = root_sampling_methods[root_sampling_method](g, cand_tree_number)
     logger.info('#roots: {}'.format(len(roots)))
-    logger.info('#cand_tree_percent: {}'.format(cand_tree_percent))
+    logger.info('#cand_tree_percent: {}'.format(len(roots) / float(g.number_of_nodes())))
     
     shared_dict = {'g': g}
     
