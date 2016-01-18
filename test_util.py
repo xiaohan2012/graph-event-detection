@@ -57,8 +57,14 @@ def remove_tmp_data(directory):
         os.remove(f)
 
 
+
+def make_path(*path):
+    return os.path.join(CURDIR, *path)
+
+
 def test_get_datetime():
     data = [994832962,
+            966810600000L,
             '2004-04-28 00:00:00.000',
             '2004-04-28 00:00:00',
             datetime.fromtimestamp(994832962)]
@@ -70,7 +76,3 @@ def test_get_datetime():
 
     assert_raises(TypeError, get_datetime, dict())
     assert_raises(ValueError, get_datetime, 'bad formatsadfasfd')
-
-
-def make_path(*path):
-    return os.path.join(CURDIR, *path)

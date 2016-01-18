@@ -30,6 +30,8 @@ def get_datetime(obj):
         return obj
     elif (isinstance(obj, float) or isinstance(obj, int)) and not math.isnan(obj):
         return datetime.fromtimestamp(obj)
+    elif isinstance(obj, long):
+        return datetime.fromtimestamp(obj / 1000)
     elif isinstance(obj, basestring):
         patterns = ['%Y-%m-%d %X.%f', '%Y-%m-%d %X']
         ok = False
