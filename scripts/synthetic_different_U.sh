@@ -1,5 +1,5 @@
 #! /bin/bash
-Us=(0.5 1.0 1.5 2.0 2.5 3.0 3.5 4.0 4.5 5.0 5.5 6.0 6.5 7.0 7.5 8.0 8.5 9.0 9.5 10.0)
+Us=(1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0)
 
 interaction_path=$2
 
@@ -27,7 +27,7 @@ if [ $1 == 'mg' ]; then
 fi
 
 if [ $1 == 'gen' ]; then
-    methods=("lst --dij" "greedy" "random")  # "variance" "variance --dij"  "lst"
+    methods=("lst --dij" "greedy" "random" "variance --dij")  # "variance" "lst"
     for U in "${Us[@]}"; do
 		for method in "${methods[@]}"; do
 		         python gen_candidate_trees.py \
