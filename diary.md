@@ -379,7 +379,8 @@ Day 1:
 
 - variance cost function speed up
   - variance on enron
-- 
+- ensure artificial event has meta-graph that contain all the event interactions  
+- synthetic U run(including variance based)
 
 TODO:
 
