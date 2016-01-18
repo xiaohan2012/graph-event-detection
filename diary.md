@@ -373,7 +373,13 @@ Day 7:
   - islamic, sklearn with new interaction construction method and pagerank
   - synthetic data more noise
 
+# Week 9
 
+Day 1:
+
+- variance cost function speed up
+  - variance on enron
+- 
 
 TODO:
 
