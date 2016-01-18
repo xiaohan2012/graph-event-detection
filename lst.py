@@ -1,4 +1,5 @@
 import itertools
+import scipy
 import numpy as np
 from collections import defaultdict
 
@@ -147,22 +148,36 @@ def get_all_nodes(g, n, D, children, ignore_dummy=True):
 def make_variance_cost_func(vect_dist_func, repr_key,
                             fixed_point=None,
                             debug=False):
+    if fixed_point:
+        multiplier = np.power(10, fixed_point)
+    metric_name = vect_dist_func.__name__
+
     def variance_based_cost(n, D, G,
                             children):
         all_nodes = get_all_nodes(G, n, D, children, ignore_dummy=True)
+
+        if len(all_nodes) == 0:
+            return 0
+
         if debug:
             for node in all_nodes:
                 assert repr_key in G.node[node], node
+
         reprs = np.array(
             [G.node[node][repr_key]
              for node in all_nodes]
-        )
-        mean_topic_vect = np.mean(reprs, axis=0)
-        diffs = [vect_dist_func(mean_topic_vect, v)
-                 for v in reprs]
+            )
+        # print(all_nodes)
+        assert len(reprs.shape) == 2, "{} {}".format(reprs, all_nodes)
+        diffs = scipy.spatial.distance.cdist(
+            reprs,
+            np.mean(reprs, axis=0)[None, :],
+            metric=metric_name
+            ).ravel()
+
         ret = np.sum(diffs)
         if fixed_point:
-            return int(ret * np.power(10, fixed_point))
+            return int(ret * multiplier)
         else:
             return ret
     
@@ -185,7 +200,6 @@ def round_edge_weights_by_multiplying(G,
     U = int(U * multiplier)
     return G, U
 
-# @profile
 def lst_dag(G, r, U,
             node_reward_key='r',
             edge_cost_key='c',

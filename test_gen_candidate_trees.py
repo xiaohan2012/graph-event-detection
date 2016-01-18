@@ -52,14 +52,6 @@ lst = lambda g, r, U: lst_dag(
 
 variance_method = lambda g, r, U: dp_dag_general(
     g, r, int(U*10),  # fixed point 1
-    make_variance_cost_func(entropy, 'topics',
-                            fixed_point=1,
-                            debug=False),
-    debug=False
-)
-
-variance_method_euclidean = lambda g, r, U: dp_dag_general(
-    g, r, int(U*10),  # fixed point 1
     make_variance_cost_func(euclidean,
                             'topics',
                             fixed_point=1,
@@ -435,7 +427,7 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
 
     # overrides
     def test_variance_method(self):
-        self.check('variance', variance_method_euclidean)
+        self.check('variance', variance_method)
 
     def test_undirected(self):
         # this example is directed,

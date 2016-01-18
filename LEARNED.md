@@ -33,7 +33,7 @@
 - `os.path.splitext` to get extension and name without extension
 - sort the array before using `itertools.groupby`. [ref](http://stackoverflow.com/questions/14354819/same-key-multiple-times-for-groupby)
 
-## Pandas
+## Pandas & Scipy & Numpy
 
 - [Pandas read_csv skip bad lines](http://stackoverflow.com/questions/18039057/python-pandas-error-tokenizing-data): pass `error_bad_lines=False`
 - [nth group](http://stackoverflow.com/questions/20087713/pandas-dataframe-groupby-and-get-nth-row)
@@ -46,6 +46,7 @@
 - `df.equals`
 - `df.values` to get data array
 - filter rows by condition: `df[df.map(func) > 0]`
+- `scipy.spatial.distance.cdist` get distance matrix
 
 ## JavaScript
 

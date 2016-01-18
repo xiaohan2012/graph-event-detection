@@ -30,7 +30,7 @@ if [ $1 == 'gen' ]; then
     methods=("lst --dij" "greedy" "random")  # "variance" "variance --dij"  "lst"
     for U in "${Us[@]}"; do
 		for method in "${methods[@]}"; do
-			python gen_candidate_trees.py \
+		         python gen_candidate_trees.py \
 				--method=${method} \
 				--root_sampling=out_degree \
 				--seconds=8 --U=${U} \
