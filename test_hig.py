@@ -23,10 +23,11 @@ class HIGTest(unittest.TestCase):
         a, b, c, d, e, f = ('A', 'B', 'C', 'D', 'E', 'F')
         assert_equal(
             sorted(
-                range(1, 6) +
-                [a, b, c, d, e, f]
+                range(1, 7) +
+                [a, b, c, d, e, f, 'XXX']
             ),
             sorted(hig.nodes()))
+        print hig.edges()
         assert_equal(
             sorted(
                 [(a, 1), (1, b), (1, c), (1, d),
@@ -34,6 +35,7 @@ class HIGTest(unittest.TestCase):
                  (d, 3), (3, e),
                  (a, 4), (4, b),
                  (d, 5), (5, f),
+                 (6, u'XXX'), (u'XXX', 6)
              ]),
             sorted(hig.edges())
         )
