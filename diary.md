@@ -382,6 +382,13 @@ Day 1:
 - ensure artificial event has meta-graph that contain all the event interactions  
 - synthetic U run(including variance based)
 
+Day 2:
+
+- synthetic U run result(with more noise and complete trees)
+  - variance-dij better than variance along
+  - greedy is still the best
+  - precision down and recall up is more expected than the previous experiment(with few noise)
+  
 TODO:
 
 - noise fraction experiment
