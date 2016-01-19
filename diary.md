@@ -388,7 +388,20 @@ Day 2:
   - variance-dij better than variance along
   - greedy is still the best
   - precision down and recall up is more expected than the previous experiment(with few noise)
-  
+
+Day 3:
+
+- crawling tweets: tried to finalize it
+- cleared misconception on pagerank and run enron data
+- printed the result for new synthetic experiment data
+
+Plan:
+
+- PCST algorithm
+- experiment on twitter data
+- check if similarity measure or document representation is good
+
+
 TODO:
 
 - noise fraction experiment
