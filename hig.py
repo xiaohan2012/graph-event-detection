@@ -31,20 +31,4 @@ def construct_hig_from_interactions(interactions,
         for recipient in i['recipient_ids']:
             g.add_edge(mid, recipient)
     
-    if take_largest_component:
-        # remove nodes
-        # that are disconnected from the largest connected component
-        subgraphs = nx.connected_component_subgraphs(g.to_undirected())
-        disconnected_subgraphs = sorted(
-            subgraphs,
-            key=lambda sub_g: len(sub_g),
-            reverse=True
-        )[1:]
-        nodes_to_remove = itertools.chain(
-            *[sub_g.nodes() for sub_g in disconnected_subgraphs]
-        )
-        g.remove_nodes_from(nodes_to_remove)
-        assert len(
-            list(nx.connected_component_subgraphs(g.to_undirected()))
-        ) == 1
     return g

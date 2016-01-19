@@ -47,8 +47,11 @@ class HIGTest(unittest.TestCase):
                       self.interactions)
 
     def test_pagerank_on_hig(self):
-        pr = nx.pagerank(construct_hig_from_interactions(
-            self.interactions
-        ))
+        pr = nx.pagerank(
+            construct_hig_from_interactions(self.interactions)
+        )
         assert_true(pr['A'] < pr['F'])
+        assert_true(pr['A'] < pr['B'])
+        assert_true(pr['A'] < pr['C'])
+        assert_true(pr['A'] < pr['D'])
         
