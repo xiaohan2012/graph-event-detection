@@ -65,7 +65,7 @@ $(document).ready(function(){
 			{
 				node_label: function(d, bunch){						
 					var i = bunch['id2interactions'][d['message_id']]
-					return i.subject;
+					return '(' + d['r'] * (Math.pow(10, 4)) + ')' + i.subject;
 				}
 			},
 			dataset_config[mc.dataset]
