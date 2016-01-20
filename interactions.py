@@ -9,6 +9,8 @@ import numpy as np
 import networkx as nx
 
 from memory_profiler import profile
+from scipy.sparse import csr_matrix
+from sklearn.feature_extraction.text import TfidfTransformer
 
 from util import load_items_by_line, get_datetime, compose
 from hig import construct_hig_from_interactions
@@ -233,9 +235,8 @@ class InteractionsUtil(object):
     def add_topics_to_graph(cls, g, lda_model, dictionary, debug=False):
         """
         """
-        nodes = g.nodes()
-        N = len(nodes)
-        for i, n in enumerate(nodes):
+        N = g.number_of_nodes()
+        for i, n in enumerate(g.nodes_iter()):
             if i % 1000 == 0:
                 logger.debug('adding topics: {} / {}'.format(i, N))
             doc = u'{} {}'.format(g.node[n]['subject'], g.node[n]['body'])
@@ -249,6 +250,47 @@ class InteractionsUtil(object):
             g.node[n]['doc_bow'] = bow
             
         return g
+
+    @classmethod
+    def build_bow_matrix(cls, g, dictionary):
+        logger.debug('Building BoW matrix...')
+        N = g.number_of_nodes()
+        row_ind = []
+        col_ind = []
+        data = []
+        n2i = {n: i
+               for i, n in enumerate(g.nodes_iter())}
+        for i, n in enumerate(g.nodes_iter()):
+            if i % 1000 == 0:
+                logger.debug('adding BoW: {} / {}'.format(i, N))
+            doc = u'{} {}'.format(g.node[n]['subject'], g.node[n]['body'])
+            for word_id, cnt in dictionary.doc2bow(
+                    cls.tokenize_document(doc)):
+                row_ind.append(i)
+                col_ind.append(word_id)
+                data.append(cnt)
+        return (n2i,
+                csr_matrix(
+                    (
+                        data,
+                        (row_ind, col_ind)
+                    ),
+                    shape=(N, len(dictionary.keys())))
+            )
+
+    @classmethod
+    def add_bow_to_graph(cls, g, dictionary, debug=False):
+        node2row, bow_mat = cls.build_bow_matrix(g, dictionary)
+        
+        tfidf = TfidfTransformer()
+        tfidf_mat = tfidf.fit_transform(bow_mat)
+        
+        # build matrix
+        N = g.number_of_nodes()
+        for i, n in enumerate(g.nodes_iter()):
+            if i % 1000 == 0:
+                logger.debug('adding BoW: {} / {}'.format(i, N))
+            g.node[n]['bow'] = tfidf_mat[node2row[n], :]
 
     @classmethod
     def add_rewards_to_nodes(cls, g, reward_func, debug=False):

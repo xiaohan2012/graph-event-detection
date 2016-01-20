@@ -9,6 +9,7 @@ import ujson as json
 from datetime import datetime, timedelta
 from nose.tools import assert_equal, assert_true, assert_almost_equal
 from scipy.spatial.distance import euclidean
+from scipy.sparse import issparse
 
 from .dag_util import binarize_dag
 from .interactions import InteractionsUtil as IU,\
@@ -31,6 +32,11 @@ class InteractionsUtilTest(unittest.TestCase):
         self.g = IU.get_meta_graph(
             self.interactions,
             decompose_interactions=True
+        )
+
+        self.g_undecom = IU.get_meta_graph(
+            self.interactions,
+            decompose_interactions=False
         )
 
     def test_clean_interactions(self):
@@ -105,6 +111,30 @@ class InteractionsUtilTest(unittest.TestCase):
 
             # certain fields are deleted and certain fields are added
             assert_true('doc_bow' in g.node[n])
+
+    def test_build_bow_matrix(self):
+        n2i, mat = IU.build_bow_matrix(self.g_undecom, self.dictionary)
+        self.assertEqual(0,
+                         n2i[next(self.g_undecom.nodes_iter())])
+        self.assertEqual(
+            (self.g_undecom.number_of_nodes(), len(self.dictionary.keys())),
+            mat.shape
+        )
+
+    def test_add_bow_to_graph(self):
+        IU.add_bow_to_graph(self.g_undecom, self.dictionary)
+        g = self.g_undecom
+        for n in g.nodes_iter():
+            assert_true(issparse(g.node[n]['bow']))
+
+            doc = u'{} {}'.format(g.node[n]['subject'], g.node[n]['body'])
+            bow = self.dictionary.doc2bow(IU.tokenize_document(doc))
+
+            for id_, cnt in bow:
+                # word feature values are positive
+                assert_true(g.node[n]['bow'][0, id_] > 0)
+                # tfidf takes effect
+                assert_true(g.node[n]['bow'][0, id_] != cnt)
 
     def test_filter_nodes_given_root(self):
         r = '1.D'
