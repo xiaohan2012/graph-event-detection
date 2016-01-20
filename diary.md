@@ -400,7 +400,12 @@ Plan:
 - PCST algorithm
 - experiment on twitter data
 - check if similarity measure or document representation is good
-
+- adding search functionality?
+  - "I want to know events that about query XXX"
+- enron preprocessing
+  - remove original message
+  - lda change topic number
+- BOW representation  
 
 TODO:
 
