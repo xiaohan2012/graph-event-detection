@@ -291,6 +291,7 @@ class InteractionsUtil(object):
             if i % 1000 == 0:
                 logger.debug('adding BoW: {} / {}'.format(i, N))
             g.node[n]['bow'] = tfidf_mat[node2row[n], :]
+        return g
 
     @classmethod
     def add_rewards_to_nodes(cls, g, reward_func):
@@ -378,14 +379,25 @@ class InteractionsUtil(object):
                     array2 = np.array(g.node[t][f].todense()).ravel()
                 else:
                     array2 = g.node[t][f]
-                dists_mat[i, j] = dist_func(
-                    array1,
-                    array2
-                )
+
+                # at least one is all-zero
+                if not array1.any() or not array2.any():
+                    dists_mat[i, j] = 1
+                else:
+                    dists_mat[i, j] = dist_func(
+                        array1,
+                        array2
+                    )
+
+                    assert not np.isinf(dists_mat[i, j])
+
         weight_mat = np.matrix([fields_weight]).T
         dist_mat = np.matrix(dists_mat) * weight_mat
         for i, (s, t) in enumerate(g.edges_iter()):
             g[s][t][cls.EDGE_COST_KEY] = dist_mat[i, 0]
+            assert not np.isinf(g[s][t][cls.EDGE_COST_KEY]), \
+                (g.node[s]['bow'].nonzero(),
+                 g.node[t]['bow'].nonzero())
         
         return g
         
@@ -398,7 +410,8 @@ class InteractionsUtil(object):
                              decompose_interactions=True,
                              remove_singleton=True,
                              given_topics=False,
-                             apply_pagerank=False):
+                             apply_pagerank=False,
+                             distance_weights={'topics': 1}):
         logger.debug('getting meta graph...')
         mg = cls.get_meta_graph(interactions,
                                 undirected=undirected,
@@ -409,19 +422,32 @@ class InteractionsUtil(object):
                                 apply_pagerank=apply_pagerank)
 
         if not given_topics:
-            logger.debug('adding topics...')
-            tmg = cls.add_topics_to_graph(
-                mg,
-                lda_model,
-                dictionary
-            )
+            for k in distance_weights:
+                assert k in ('bow', 'topics')
+
+            if 'topics' in distance_weights and distance_weights['topics'] > 0:
+                logger.debug('adding topics...')
+                mg = cls.add_topics_to_graph(
+                    mg,
+                    lda_model,
+                    dictionary
+                )
+            if 'bow' in distance_weights and distance_weights['bow'] > 0:
+                logger.debug('adding bow...')
+                mg = cls.add_bow_to_graph(
+                    mg,
+                    dictionary
+                )
         else:
-            tmg = mg
             logger.info('topics are given')
+            for n in mg.nodes_iter():
+                mg.node[n]['topics'] = np.array(mg.node[n]['topics'])
 
         logger.debug('assiging edge weights')
-        return cls.assign_edge_weights(tmg,
-                                       dist_func)
+        return cls.assign_edge_weights(mg,
+                                       dist_func,
+                                       distance_weights
+                                   )
 
     @classmethod
     def compactize_meta_graph(cls, g, map_nodes=True):

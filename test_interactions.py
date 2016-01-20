@@ -226,13 +226,7 @@ class InteractionsUtilTest(unittest.TestCase):
             fields_with_weights={'topics': 0.2, 'bow': 0.8}
         )
         
-        for s, t in g.edges():
-            numpy.testing.assert_array_almost_equal(
-                g[s][t][IU.EDGE_COST_KEY],
-                0.2 * cosine(g.node[s]['topics'], g.node[t]['topics']) +
-                0.8 * cosine(numpy.array(g.node[s]['bow'].todense()).ravel(),
-                             numpy.array(g.node[t]['bow'].todense()).ravel())
-            )
+        self.check_weighted_dist(g)
 
     def test_decompose_interactions(self):
         d_interactions = IU.decompose_interactions(
@@ -305,6 +299,43 @@ class InteractionsUtilTest(unittest.TestCase):
                              ('1.D', '3'), ('2', '4'), ('1.D', '5'),
                              ('3', '5')]),
                      sorted(g.edges()))
+
+    def check_weighted_dist(self, g):
+        for s, t in g.edges():
+            self.assertFalse(
+                numpy.isnan(g[s][t][IU.EDGE_COST_KEY])
+            )
+            self.assertFalse(
+                numpy.isinf(g[s][t][IU.EDGE_COST_KEY])
+            )
+            
+            a1 = numpy.array(g.node[s]['bow'].todense()).ravel()
+            a2 = numpy.array(g.node[t]['bow'].todense()).ravel()
+            if not a1.any() or not a2.any():
+                d = 1
+            else:
+                d = cosine(a1, a2)
+
+            numpy.testing.assert_array_almost_equal(
+                g[s][t][IU.EDGE_COST_KEY],
+                0.2 * cosine(g.node[s]['topics'], g.node[t]['topics']) +
+                0.8 * d
+            )
+
+    def test_get_topic_meta_graph_multiple_reprs(self):
+        g = IU.get_topic_meta_graph(
+            self.interactions,
+            cosine,
+            self.lda_model,
+            self.dictionary,
+            preprune_secs=None,
+            distance_weights={
+                'topics': 0.2,
+                'bow': 0.8
+            }
+        )
+
+        self.check_weighted_dist(g)
 
     def test_get_topic_meta_graph_without_decomposition(self):
         g = IU.get_topic_meta_graph(self.interactions,
