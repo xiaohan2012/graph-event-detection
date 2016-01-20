@@ -409,6 +409,7 @@ Plan:
 - sklearn and islamic data: new interaction graph considering mentions
 - BOW representation
   - combining with topic model better?
+  - does not apply to variance-based method
 
 TODO:
 

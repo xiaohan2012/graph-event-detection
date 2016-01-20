@@ -9,8 +9,7 @@ from nose.tools import assert_true
 from subprocess import check_output
 
 from gen_candidate_trees import run
-from scipy.stats import entropy
-from scipy.spatial.distance import euclidean
+from scipy.spatial.distance import cosine
 
 from .lst import lst_dag, dp_dag_general, make_variance_cost_func
 from .baselines import greedy_grow_by_discounted_reward as greedy_grow, \
@@ -52,22 +51,27 @@ lst = lambda g, r, U: lst_dag(
 
 variance_method = lambda g, r, U: dp_dag_general(
     g, r, int(U*10),  # fixed point 1
-    make_variance_cost_func(euclidean,
+    make_variance_cost_func(cosine,
                             'topics',
                             fixed_point=1,
                             debug=False),
     debug=False
 )
 
+distance_weights_1 = {'topics': 1.0}
+distance_weights_2 = {'topics': 0.2, 'bow': 0.8}
+
 
 class CalcMGMixin(object):
     def update_metagraph_and_produce_if_needed(
             self,
-            dist_func=entropy,
+            dist_func=cosine,
             preprune_secs=timedelta(weeks=4),
-            U=0.5,
-            apply_pagerank=False
+            U=2.0,
+            apply_pagerank=False,
+            distance_weights=distance_weights_2
     ):
+
         self.some_kws_of_run = {
             'cand_tree_number': None,
             'cand_tree_percent': 0.1,
@@ -75,7 +79,8 @@ class CalcMGMixin(object):
                 'dist_func': dist_func,
                 'decompose_interactions': False,
                 'preprune_secs': preprune_secs,
-                'apply_pagerank': apply_pagerank
+                'apply_pagerank': apply_pagerank,
+                'distance_weights': distance_weights
             },
             'gen_tree_kws': {
                 'timespan': preprune_secs,
@@ -89,7 +94,8 @@ class CalcMGMixin(object):
             decompose_interactions=False,
             dist_func=dist_func,
             preprune_secs=preprune_secs,
-            apply_pagerank=apply_pagerank
+            apply_pagerank=apply_pagerank,
+            distance_weights=distance_weights
         )
         pkl_path = make_path('test/data/enron-head-100--{}.pkl'.format(
             self.meta_pickle_path_common)
@@ -112,7 +118,6 @@ class CalcMGMixin(object):
         run(
             lst,
             calculate_graph=True,
-            debug=False,
             print_summary=False,
             result_pkl_path_prefix=make_path('test/data/tmp/test'),  # can be ignored
             **kws
@@ -130,7 +135,7 @@ class GenCandidateTreeTest(unittest.TestCase, CalcMGMixin):
         # very likely actual tree number should >= 0
         result_pickle_prefix = make_path("test/data/tmp",
                                          "result-{}".format(test_name))
-        pickle_path_suffix = 'U=0.5--dijkstra={}--timespan=28days----{}----{}'.format(
+        pickle_path_suffix = 'U=2.0--dijkstra={}--timespan=28days----{}----{}'.format(
             self.some_kws_of_run['gen_tree_kws'].get('dijkstra', False),
             self.meta_pickle_path_common,
             experiment_signature(
@@ -227,19 +232,21 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
                                     timespan=timedelta(days=28),
                                     cand_tree_percent=0.01,
                                     sampling_method='uniform',
-                                    apply_pagerank=False):
+                                    apply_pagerank=False,
+                                    distance_weights=distance_weights_2):
         self.result_output_path_template = "test/data/tmp/result-{}--{}----{}----{}.pkl".format(
-            '{}',
+            '%s',
             experiment_signature(
-                U=0.5,
+                U=2.0,
                 dijkstra=False,
                 timespan=timespan
             ),
             experiment_signature(
                 decompose_interactions=False,
-                dist_func='{}',
+                dist_func='%s',
                 preprune_secs=timespan,
-                apply_pagerank=apply_pagerank
+                apply_pagerank=apply_pagerank,
+                distance_weights=distance_weights
             ),
             experiment_signature(
                 cand_tree_percent=cand_tree_percent,
@@ -247,8 +254,9 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
             )
         )
 
-    def check(self, method="random", distance="entropy",
-              sampling_method="uniform", extra="", undirected=False):
+    def check(self, method="random", distance="cosine",
+              sampling_method="uniform", extra="", undirected=False,
+              distance_weights=distance_weights_2):
         if undirected:
             more_params = self.undirected_params
         else:
@@ -260,11 +268,13 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         --cand_n_percent=0.01 \
         --root_sampling={sampling_method}\
         --result_prefix={result_dir} \
-        --weeks=4 --U=0.5 \
+        --weeks=4 --U=2.0 \
         --lda_path={lda_model_path} \
         --interaction_path={interaction_json_path} \
         --corpus_dict_path={corpus_dict_path} \
         --meta_graph_path_prefix={meta_graph_pkl_path_prefix} \
+        --weight_for_topics {weight_for_topics} \
+        --weight_for_bow {weight_for_bow} \
         {extra}""".format(
             self.script_path,
             method=method,
@@ -272,6 +282,8 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
             sampling_method=sampling_method,
             result_dir=self.result_dir,
             extra=extra,
+            weight_for_topics=distance_weights.get('topics', 0),
+            weight_for_bow=distance_weights.get('bow', 0),
             **more_params
         ).split()
         output = check_output(cmd)
@@ -280,11 +292,11 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         assert_true("traceback" not in output.lower())
 
         output_path = make_path(
-            self.result_output_path_template.format(
+            self.result_output_path_template % (
                 method, distance
             )
         )
-
+        print('output_path:', output_path)
         assert_true(os.path.exists(output_path))
 
         return output
@@ -304,23 +316,29 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         self.update_result_path_template(sampling_method='out_degree')
         self.check(sampling_method='out_degree', undirected=True)
 
-    def test_synthetic(self):
+    def test_given_topics(self):
         self.directed_params = {
             'interaction_json_path': make_path(
-                'test/data/given_topics/interactions--n_noisy_interactions_fraction=0.1.json'
+                'test/data/given_topics/'
+                'interactions--n_noisy_interactions_fraction=0.1.json'
             ),
-            'meta_graph_pkl_path_prefix': make_path('test/data/given_topics/meta-graph'),
+            'meta_graph_pkl_path_prefix': make_path(
+                'test/data/given_topics/meta-graph'
+            ),
             'lda_model_path': None,
             'corpus_dict_path': None,
-            'undirected': False
+            'undirected': False,
         }
         self.update_result_path_template(timespan=8,
                                          sampling_method='out_degree',
-                                         apply_pagerank=True)
+                                         apply_pagerank=True,
+                                         distance_weights=distance_weights_1
+                                     )
 
         self.check(sampling_method='out_degree', undirected=False,
-                   distance='euclidean',
-                   extra='--seconds=8 --given_topics --apply_pagerank')
+                   distance='cosine',
+                   extra='--seconds=8 --given_topics --apply_pagerank',
+                   distance_weights={'topics': 1.0})
 
     def test_cand_n(self):
         self.update_result_path_template(cand_tree_percent=0.0972222222222)
@@ -341,6 +359,7 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
         random.seed(1)
         numpy.random.seed(1)
 
+        distance_weights = distance_weights_1
         self.some_kws_of_run = {
             'interaction_json_path': make_path(
                 'test/data/given_topics/interactions--n_noisy_interactions_fraction=0.1.json'
@@ -349,14 +368,15 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
             'meta_graph_pkl_path_prefix': make_path('test/data/given_topics/meta-graph'),
             'undirected': False,
             'meta_graph_kws': {
-                'dist_func': euclidean,
+                'dist_func': cosine,
                 'decompose_interactions': False,
                 'preprune_secs': 8,
-                'apply_pagerank': True
+                'apply_pagerank': True,
+                'distance_weights': distance_weights
             },
             'gen_tree_kws': {
                 'timespan': 8,
-                'U': 0.5,
+                'U': 2.0,
                 'dijkstra': False
             },
             'given_topics': True
@@ -364,9 +384,10 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
 
         self.meta_pickle_path_common = experiment_signature(
             decompose_interactions=False,
-            dist_func='euclidean',
+            dist_func='cosine',
             preprune_secs=8,
             apply_pagerank=True,
+            distance_weights=distance_weights
         )
         pkl_path = '{}--{}.pkl'.format(
             self.some_kws_of_run['meta_graph_pkl_path_prefix'],
@@ -383,7 +404,6 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
         run(
             lst,
             calculate_graph=True,
-            debug=False,
             print_summary=False,
             result_pkl_path_prefix=make_path('test/data/tmp/test'),
             **kws
@@ -393,7 +413,7 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
         result_pickle_prefix = make_path("test/data/tmp",
                                          "result-{}".format(test_name))
 
-        pickle_path_suffix = 'U=0.5--dijkstra={}--timespan=8----{}----{}'.format(
+        pickle_path_suffix = 'U=2.0--dijkstra={}--timespan=8----{}----{}'.format(
             self.some_kws_of_run['gen_tree_kws'].get('dijkstra', False),
             self.meta_pickle_path_common,
             experiment_signature(

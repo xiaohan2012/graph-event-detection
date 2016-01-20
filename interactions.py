@@ -9,6 +9,8 @@ import numpy as np
 import networkx as nx
 
 from memory_profiler import profile
+from scipy.sparse import csr_matrix, issparse
+from sklearn.feature_extraction.text import TfidfTransformer
 
 from util import load_items_by_line, get_datetime, compose
 from hig import construct_hig_from_interactions
@@ -230,12 +232,11 @@ class InteractionsUtil(object):
         ]
 
     @classmethod
-    def add_topics_to_graph(cls, g, lda_model, dictionary, debug=False):
+    def add_topics_to_graph(cls, g, lda_model, dictionary):
         """
         """
-        nodes = g.nodes()
-        N = len(nodes)
-        for i, n in enumerate(nodes):
+        N = g.number_of_nodes()
+        for i, n in enumerate(g.nodes_iter()):
             if i % 1000 == 0:
                 logger.debug('adding topics: {} / {}'.format(i, N))
             doc = u'{} {}'.format(g.node[n]['subject'], g.node[n]['body'])
@@ -251,7 +252,49 @@ class InteractionsUtil(object):
         return g
 
     @classmethod
-    def add_rewards_to_nodes(cls, g, reward_func, debug=False):
+    def build_bow_matrix(cls, g, dictionary):
+        logger.debug('Building BoW matrix...')
+        N = g.number_of_nodes()
+        row_ind = []
+        col_ind = []
+        data = []
+        n2i = {n: i
+               for i, n in enumerate(g.nodes_iter())}
+        for i, n in enumerate(g.nodes_iter()):
+            if i % 1000 == 0:
+                logger.debug('adding BoW: {} / {}'.format(i, N))
+            doc = u'{} {}'.format(g.node[n]['subject'], g.node[n]['body'])
+            for word_id, cnt in dictionary.doc2bow(
+                    cls.tokenize_document(doc)):
+                row_ind.append(i)
+                col_ind.append(word_id)
+                data.append(cnt)
+        return (n2i,
+                csr_matrix(
+                    (
+                        data,
+                        (row_ind, col_ind)
+                    ),
+                    shape=(N, len(dictionary.keys())))
+            )
+
+    @classmethod
+    def add_bow_to_graph(cls, g, dictionary):
+        node2row, bow_mat = cls.build_bow_matrix(g, dictionary)
+        
+        tfidf = TfidfTransformer()
+        tfidf_mat = tfidf.fit_transform(bow_mat)
+        
+        # build matrix
+        N = g.number_of_nodes()
+        for i, n in enumerate(g.nodes_iter()):
+            if i % 1000 == 0:
+                logger.debug('adding BoW: {} / {}'.format(i, N))
+            g.node[n]['bow'] = tfidf_mat[node2row[n], :]
+        return g
+
+    @classmethod
+    def add_rewards_to_nodes(cls, g, reward_func):
         for n in g.nodes_iter():
             g.node[n][cls.VERTEX_REWARD_KEY] = reward_func(n)
         return g
@@ -260,14 +303,14 @@ class InteractionsUtil(object):
     def add_rewards_to_nodes_using_pagerank(cls,
                                             g, interactions,
                                             pagerank_func=nx.pagerank,
-                                            debug=False, **pr_kwargs):
+                                            **pr_kwargs):
         hig = construct_hig_from_interactions(interactions)
         pr = nx.pagerank(hig, **pr_kwargs)
         reward_func = lambda n: pr.get(n, 0.0)
         return cls.add_rewards_to_nodes(g, reward_func)
         
     @classmethod
-    def filter_dag_given_root(cls, g, r, filter_func, debug=False):
+    def filter_dag_given_root(cls, g, r, filter_func):
         """filter nodes given root and some filter function
 
         Return:
@@ -300,31 +343,61 @@ class InteractionsUtil(object):
         return dag
 
     @classmethod
-    def get_rooted_subgraph_within_timespan(cls, g, r, secs, debug=False):
+    def get_rooted_subgraph_within_timespan(cls, g, r, secs):
         """collect the subtrees, st, rooted at r that all nodes in st
         are within a timeframe of length secs start from r['datetime']
         """
         return cls.filter_dag_given_root(
             g, r,
             lambda n:
-            (g.node[n]['timestamp'] - g.node[r]['timestamp'] <= secs),
-            debug
+            (g.node[n]['timestamp'] - g.node[r]['timestamp'] <= secs)
         )
         
     @classmethod
-    def assign_edge_weights(cls, g, dist_func, debug=False):
+    def assign_edge_weights(cls, g,
+                            dist_func,
+                            fields_with_weights={'topics': 1}):
         """
         TODO: can be parallelized
         """
-        edges = g.edges()
-        N = len(edges)
-        for i, (s, t) in enumerate(edges):
+        N = g.number_of_edges()
+        dists_mat = np.zeros((N, len(fields_with_weights)))
+        
+        fields, fields_weight = fields_with_weights.keys(), \
+                                fields_with_weights.values()
+        for i, (s, t) in enumerate(g.edges_iter()):
             if i % 10000 == 0:
                 logger.debug('adding edge cost: {}/{}'.format(i, N))
-            if cls.EDGE_COST_KEY not in g[s][t]:
-                g[s][t][cls.EDGE_COST_KEY] = dist_func(
-                    g.node[s]['topics'],
-                    g.node[t]['topics'])
+
+            for j, f in enumerate(fields):
+                if issparse(g.node[s][f]):
+                    array1 = np.array(g.node[s][f].todense()).ravel()
+                else:
+                    array1 = g.node[s][f]
+
+                if issparse(g.node[t][f]):
+                    array2 = np.array(g.node[t][f].todense()).ravel()
+                else:
+                    array2 = g.node[t][f]
+
+                # at least one is all-zero
+                if not array1.any() or not array2.any():
+                    dists_mat[i, j] = 1
+                else:
+                    dists_mat[i, j] = dist_func(
+                        array1,
+                        array2
+                    )
+
+                    assert not np.isinf(dists_mat[i, j])
+
+        weight_mat = np.matrix([fields_weight]).T
+        dist_mat = np.matrix(dists_mat) * weight_mat
+        for i, (s, t) in enumerate(g.edges_iter()):
+            g[s][t][cls.EDGE_COST_KEY] = dist_mat[i, 0]
+            assert not np.isinf(g[s][t][cls.EDGE_COST_KEY]), \
+                (g.node[s]['bow'].nonzero(),
+                 g.node[t]['bow'].nonzero())
         
         return g
         
@@ -338,7 +411,7 @@ class InteractionsUtil(object):
                              remove_singleton=True,
                              given_topics=False,
                              apply_pagerank=False,
-                             debug=False):
+                             distance_weights={'topics': 1}):
         logger.debug('getting meta graph...')
         mg = cls.get_meta_graph(interactions,
                                 undirected=undirected,
@@ -349,21 +422,32 @@ class InteractionsUtil(object):
                                 apply_pagerank=apply_pagerank)
 
         if not given_topics:
-            logger.debug('adding topics...')
-            tmg = cls.add_topics_to_graph(
-                mg,
-                lda_model,
-                dictionary,
-                debug
-            )
-        else:
-            tmg = mg
-            logger.info('topics are given')
+            for k in distance_weights:
+                assert k in ('bow', 'topics')
 
-        logger.debug('assiging _edge weights')
-        return cls.assign_edge_weights(tmg,
+            if 'topics' in distance_weights and distance_weights['topics'] > 0:
+                logger.debug('adding topics...')
+                mg = cls.add_topics_to_graph(
+                    mg,
+                    lda_model,
+                    dictionary
+                )
+            if 'bow' in distance_weights and distance_weights['bow'] > 0:
+                logger.debug('adding bow...')
+                mg = cls.add_bow_to_graph(
+                    mg,
+                    dictionary
+                )
+        else:
+            logger.info('topics are given')
+            for n in mg.nodes_iter():
+                mg.node[n]['topics'] = np.array(mg.node[n]['topics'])
+
+        logger.debug('assiging edge weights')
+        return cls.assign_edge_weights(mg,
                                        dist_func,
-                                       debug)
+                                       distance_weights
+                                   )
 
     @classmethod
     def compactize_meta_graph(cls, g, map_nodes=True):

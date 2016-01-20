@@ -8,7 +8,8 @@ import ujson as json
 
 from datetime import datetime, timedelta
 from nose.tools import assert_equal, assert_true, assert_almost_equal
-from scipy.spatial.distance import euclidean
+from scipy.spatial.distance import euclidean, cosine
+from scipy.sparse import issparse
 
 from .dag_util import binarize_dag
 from .interactions import InteractionsUtil as IU,\
@@ -31,6 +32,11 @@ class InteractionsUtilTest(unittest.TestCase):
         self.g = IU.get_meta_graph(
             self.interactions,
             decompose_interactions=True
+        )
+
+        self.g_undecom = IU.get_meta_graph(
+            self.interactions,
+            decompose_interactions=False
         )
 
     def test_clean_interactions(self):
@@ -106,6 +112,30 @@ class InteractionsUtilTest(unittest.TestCase):
             # certain fields are deleted and certain fields are added
             assert_true('doc_bow' in g.node[n])
 
+    def test_build_bow_matrix(self):
+        n2i, mat = IU.build_bow_matrix(self.g_undecom, self.dictionary)
+        self.assertEqual(0,
+                         n2i[next(self.g_undecom.nodes_iter())])
+        self.assertEqual(
+            (self.g_undecom.number_of_nodes(), len(self.dictionary.keys())),
+            mat.shape
+        )
+
+    def test_add_bow_to_graph(self):
+        IU.add_bow_to_graph(self.g_undecom, self.dictionary)
+        g = self.g_undecom
+        for n in g.nodes_iter():
+            assert_true(issparse(g.node[n]['bow']))
+
+            doc = u'{} {}'.format(g.node[n]['subject'], g.node[n]['body'])
+            bow = self.dictionary.doc2bow(IU.tokenize_document(doc))
+
+            for id_, cnt in bow:
+                # word feature values are positive
+                assert_true(g.node[n]['bow'][0, id_] > 0)
+                # tfidf takes effect
+                assert_true(g.node[n]['bow'][0, id_] != cnt)
+
     def test_filter_nodes_given_root(self):
         r = '1.D'
         max_time_diffs = range(5)  # 0 ... 4 secs
@@ -170,7 +200,7 @@ class InteractionsUtilTest(unittest.TestCase):
                                dummy_node_name_prefix="d_")
         bin_dag
 
-    def test_assign_edge_weight(self):
+    def test_assign_edge_weight_single_field(self):
         g = self._get_topical_graph()
         g = IU.assign_edge_weights(g, scipy.stats.entropy)
         
@@ -186,6 +216,17 @@ class InteractionsUtilTest(unittest.TestCase):
         # the rest are almost equal to each other
         numpy.testing.assert_almost_equal(g['1.D']['4'][IU.EDGE_COST_KEY],
                                           g['2']['4'][IU.EDGE_COST_KEY])
+
+    def test_assign_edge_weight_two_fields(self):
+        g = self._get_topical_graph()
+        IU.add_bow_to_graph(g, self.dictionary)
+        g = IU.assign_edge_weights(
+            g,
+            cosine,
+            fields_with_weights={'topics': 0.2, 'bow': 0.8}
+        )
+        
+        self.check_weighted_dist(g)
 
     def test_decompose_interactions(self):
         d_interactions = IU.decompose_interactions(
@@ -204,7 +245,8 @@ class InteractionsUtilTest(unittest.TestCase):
                               i["sender_id"] == "A",
                               d_interactions)
         assert_equal(2, len(decomposed_1))  # originally, we have an A->B
-        assert_equal(decomposed_1[1]['message_id'], '4')  # check if name is convered to string
+        # check if name is convered to string
+        assert_equal(decomposed_1[1]['message_id'], '4')
         assert_equal(decomposed_1[0]['message_id'], '1.B')
         assert_equal(decomposed_1[0]['original_message_id'], 1)
         
@@ -257,6 +299,43 @@ class InteractionsUtilTest(unittest.TestCase):
                              ('1.D', '3'), ('2', '4'), ('1.D', '5'),
                              ('3', '5')]),
                      sorted(g.edges()))
+
+    def check_weighted_dist(self, g):
+        for s, t in g.edges():
+            self.assertFalse(
+                numpy.isnan(g[s][t][IU.EDGE_COST_KEY])
+            )
+            self.assertFalse(
+                numpy.isinf(g[s][t][IU.EDGE_COST_KEY])
+            )
+            
+            a1 = numpy.array(g.node[s]['bow'].todense()).ravel()
+            a2 = numpy.array(g.node[t]['bow'].todense()).ravel()
+            if not a1.any() or not a2.any():
+                d = 1
+            else:
+                d = cosine(a1, a2)
+
+            numpy.testing.assert_array_almost_equal(
+                g[s][t][IU.EDGE_COST_KEY],
+                0.2 * cosine(g.node[s]['topics'], g.node[t]['topics']) +
+                0.8 * d
+            )
+
+    def test_get_topic_meta_graph_multiple_reprs(self):
+        g = IU.get_topic_meta_graph(
+            self.interactions,
+            cosine,
+            self.lda_model,
+            self.dictionary,
+            preprune_secs=None,
+            distance_weights={
+                'topics': 0.2,
+                'bow': 0.8
+            }
+        )
+
+        self.check_weighted_dist(g)
 
     def test_get_topic_meta_graph_without_decomposition(self):
         g = IU.get_topic_meta_graph(self.interactions,
@@ -368,8 +447,7 @@ class InteractionsUtilTest(unittest.TestCase):
 
     def test_add_rewards_to_nodes(self):
         new_g = IU.add_rewards_to_nodes(self.g,
-                                        reward_func=lambda n: 0.1,
-                                        debug=False)
+                                        reward_func=lambda n: 0.1)
         for n in new_g.nodes_iter():
             assert_equal(0.1, new_g.node[n]['r'])
         
@@ -453,4 +531,4 @@ class InteractionsUtilTestGivenTopics(unittest.TestCase):
         assert_equal(2325, g.number_of_edges())
         for s, t in g.edges_iter():
             assert_true('c' in g[s][t])
-            assert_true(g[s][t]['c'] != float('inf'))            
+            assert_true(g[s][t]['c'] != float('inf'))

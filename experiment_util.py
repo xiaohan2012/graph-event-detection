@@ -1,5 +1,6 @@
 import os
 import re
+import ujson as json
 import numpy as np
 import networkx as nx
 import cPickle as pkl
@@ -62,7 +63,7 @@ def sample_rooted_binary_graphs_within_timespan(
     for i, r in enumerate(roots):
         print('done:', i)
         sub_g = InteractionsUtil.get_rooted_subgraph_within_timespan(
-            g, r, timespan, debug=False
+            g, r, timespan
         )
         binary_sub_g = binarize_dag(sub_g,
                                     InteractionsUtil.VERTEX_REWARD_KEY,
@@ -81,6 +82,8 @@ def experiment_signature(**kws):
             return v.__name__
         elif isinstance(v, timedelta):
             return '{}days'.format(v.days)
+        elif isinstance(v, dict):
+            return json.dumps(v)
         else:
             return str(v)
 

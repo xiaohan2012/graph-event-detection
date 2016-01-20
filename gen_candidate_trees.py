@@ -52,7 +52,7 @@ def calc_tree(node_i, r, U,
     # g is shared in memory
     g = shared_dict['g']
     sub_g = IU.get_rooted_subgraph_within_timespan(
-        g, r, timespan, debug=False
+        g, r, timespan
     )
     logger.info('nodes procssed {}'.format(node_i))
     logger.debug('getting rooted subgraph within timespan')
@@ -104,17 +104,18 @@ def run(gen_tree_func,
         cand_tree_percent=0.1,
         result_pkl_path_prefix=os.path.join(CURDIR, 'tmp/results'),
         meta_graph_kws={
-            'dist_func': entropy,
+            'dist_func': cosine,
             'decompose_interactions': True,
             'preprune_secs': timedelta(weeks=4),
-            'apply_pagarank': False
+            'apply_pagarank': False,
+            'distance_weights': {'topics': 0.2,
+                                 'bow': 0.8},
         },
         gen_tree_kws={
             'timespan': timedelta(weeks=4),
             'U': 0.5,
             'dijkstra': False
         },
-        debug=False,
         calculate_graph=False,
         given_topics=False,
         print_summary=False):
@@ -149,17 +150,18 @@ def run(gen_tree_func,
 
     if calculate_graph:
         logger.info('calculating meta_graph...')
-        meta_graph_kws_converted = copy.deepcopy(meta_graph_kws)
-        if isinstance(meta_graph_kws_converted['preprune_secs'], timedelta):
-            meta_graph_kws_converted['preprune_secs'] = meta_graph_kws['preprune_secs'].total_seconds()
+        meta_graph_kws_copied = copy.deepcopy(meta_graph_kws)
+
+        if isinstance(meta_graph_kws_copied['preprune_secs'], timedelta):
+            meta_graph_kws_copied['preprune_secs'] = meta_graph_kws['preprune_secs'].total_seconds()
+
         g = IU.get_topic_meta_graph(
             interactions,
             lda_model=lda_model,
             dictionary=dictionary,
             undirected=undirected,
-            debug=True,
             given_topics=given_topics,
-            **meta_graph_kws_converted
+            **meta_graph_kws_copied
         )
 
         logger.info('pickling...')
@@ -246,7 +248,7 @@ if __name__ == '__main__':
                         choices=("lst", "greedy", "random", "variance"),
                         help="Method you will use")
     parser.add_argument('--dist', required=True,
-                        choices=('entropy', 'euclidean', 'cosine'),
+                        choices=('euclidean', 'cosine'),
                         help="Distance function to use")
     parser.add_argument('--root_sampling', required=True,
                         choices=('uniform', 'out_degree'),
@@ -301,10 +303,16 @@ if __name__ == '__main__':
     parser.add_argument('--apply_pagerank',
                         action='store_true',
                         help="Whether use pagerank to assign node weights or not")
+    parser.add_argument('--weight_for_topics',
+                        type=float,
+                        default=0.2)
+    parser.add_argument('--weight_for_bow',
+                        type=float,
+                        default=0.8)
 
     args = parser.parse_args()
 
-    dist_funcs = {'entropy': entropy, 'euclidean': euclidean, 'cosine': cosine}
+    dist_funcs = {'euclidean': euclidean, 'cosine': cosine}
     dist_func = dist_funcs[args.dist]
 
     lst = lambda g, r, U: lst_dag(g, r, U,
@@ -330,6 +338,12 @@ if __name__ == '__main__':
 
     pprint(vars(args))
 
+    distance_weights = {}
+    if args.weight_for_topics > 0:
+        distance_weights['topics'] = args.weight_for_topics
+    if args.weight_for_bow > 0:
+        distance_weights['bow'] = args.weight_for_bow
+
     run(methods[args.method],
         root_sampling_method=args.root_sampling,
         undirected=args.undirected,
@@ -344,7 +358,8 @@ if __name__ == '__main__':
             'dist_func': dist_func,
             'decompose_interactions': args.decompose,
             'preprune_secs': timespan,
-            'apply_pagerank': args.apply_pagerank
+            'apply_pagerank': args.apply_pagerank,
+            'distance_weights': distance_weights
         },
         gen_tree_kws={
             'timespan': timespan,
