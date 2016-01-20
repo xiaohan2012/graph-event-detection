@@ -8,7 +8,7 @@ import ujson as json
 
 from datetime import datetime, timedelta
 from nose.tools import assert_equal, assert_true, assert_almost_equal
-from scipy.spatial.distance import euclidean
+from scipy.spatial.distance import euclidean, cosine
 from scipy.sparse import issparse
 
 from .dag_util import binarize_dag
@@ -200,7 +200,7 @@ class InteractionsUtilTest(unittest.TestCase):
                                dummy_node_name_prefix="d_")
         bin_dag
 
-    def test_assign_edge_weight(self):
+    def test_assign_edge_weight_single_field(self):
         g = self._get_topical_graph()
         g = IU.assign_edge_weights(g, scipy.stats.entropy)
         
@@ -216,6 +216,23 @@ class InteractionsUtilTest(unittest.TestCase):
         # the rest are almost equal to each other
         numpy.testing.assert_almost_equal(g['1.D']['4'][IU.EDGE_COST_KEY],
                                           g['2']['4'][IU.EDGE_COST_KEY])
+
+    def test_assign_edge_weight_two_fields(self):
+        g = self._get_topical_graph()
+        IU.add_bow_to_graph(g, self.dictionary)
+        g = IU.assign_edge_weights(
+            g,
+            cosine,
+            fields_with_weights={'topics': 0.2, 'bow': 0.8}
+        )
+        
+        for s, t in g.edges():
+            numpy.testing.assert_array_almost_equal(
+                g[s][t][IU.EDGE_COST_KEY],
+                0.2 * cosine(g.node[s]['topics'], g.node[t]['topics']) +
+                0.8 * cosine(numpy.array(g.node[s]['bow'].todense()).ravel(),
+                             numpy.array(g.node[t]['bow'].todense()).ravel())
+            )
 
     def test_decompose_interactions(self):
         d_interactions = IU.decompose_interactions(
@@ -234,7 +251,8 @@ class InteractionsUtilTest(unittest.TestCase):
                               i["sender_id"] == "A",
                               d_interactions)
         assert_equal(2, len(decomposed_1))  # originally, we have an A->B
-        assert_equal(decomposed_1[1]['message_id'], '4')  # check if name is convered to string
+        # check if name is convered to string
+        assert_equal(decomposed_1[1]['message_id'], '4')
         assert_equal(decomposed_1[0]['message_id'], '1.B')
         assert_equal(decomposed_1[0]['original_message_id'], 1)
         
@@ -398,8 +416,7 @@ class InteractionsUtilTest(unittest.TestCase):
 
     def test_add_rewards_to_nodes(self):
         new_g = IU.add_rewards_to_nodes(self.g,
-                                        reward_func=lambda n: 0.1,
-                                        debug=False)
+                                        reward_func=lambda n: 0.1)
         for n in new_g.nodes_iter():
             assert_equal(0.1, new_g.node[n]['r'])
         
@@ -483,4 +500,4 @@ class InteractionsUtilTestGivenTopics(unittest.TestCase):
         assert_equal(2325, g.number_of_edges())
         for s, t in g.edges_iter():
             assert_true('c' in g[s][t])
-            assert_true(g[s][t]['c'] != float('inf'))            
+            assert_true(g[s][t]['c'] != float('inf'))
