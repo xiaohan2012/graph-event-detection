@@ -1,4 +1,5 @@
 import pandas as pd
+import re
 from pandas import DataFrame
 from datetime import datetime
 from util import load_json_by_line, json_load, json_dump
@@ -13,28 +14,39 @@ def clean_interaction_data(input_path, output_path):
         )
     df.to_json(output_path, orient="records")
 
-def convert_interaction_user_id_to_string(input_path, output_path):
-    df = pd.read_json(input_path)
+
+def convert_interaction_user_id_to_string(df):
     df['sender_id'] = df['sender_id'].map(str)
     df['recipient_ids'] = df['recipient_ids'].map(
         lambda ids: map(str, ids)
         )
-    df.to_json(output_path, orient="records")
+    return df
 
-def convert_people_user_id_to_string(input_path, output_path):
-    df = pd.read_json(input_path)
+
+def convert_people_user_id_to_string(df):
     df['id'] = df['id'].map(str)
-    df.to_json(output_path, orient="records")
+    return df
+
+reg_exps = [re.compile(r'-{2,}\s*' + s)
+            for s in ('original message',
+                      'forwarded')]
+
+
+def truncate_message(text):
+    text_lower = text.lower()
+    for reg in reg_exps:
+        for m in reg.finditer(text_lower):
+            return text[:m.start()]
+    return text
+
+
+def process_message_body(df):
+    df['body'] = df['body'].map(truncate_message)
+    return df
+
 
 if __name__ == '__main__':
-    clean_interaction_data('data/enron/interactions.json',
-                           'data/enron/interactions.json')
-    convert_interaction_user_id_to_string(
-        'data/enron/interactions.json',
-        'data/enron/interactions.json'
-        )
-    
-    convert_people_user_id_to_string(
-        'data/enron/people.json',
-        'data/enron/people.json'
-        )
+    df = pd.read_json('data/enron/interactions.json')
+    df = process_message_body(df)
+    df.to_json('data/enron/interactions.json',
+               orient="records")

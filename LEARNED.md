@@ -42,7 +42,7 @@
 - [ith row in DataFrame](http://stackoverflow.com/questions/25254016/pandas-get-first-row-value-of-a-given-column): `DataFrame.iloc[i]`
 - add column: `df.columns.tolist() + [something]`
 - `df.rename(columns={'old': 'new', ...}, inplace=True)`
-- `df.to_json(orient="records)"`
+- `df.to_json(orient="records")`
 - `df.equals`
 - `df.values` to get data array
 - filter rows by condition: `df[df.map(func) > 0]`

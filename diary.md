@@ -402,10 +402,13 @@ Plan:
 - check if similarity measure or document representation is good
 - adding search functionality?
   - "I want to know events that about query XXX"
+  
 - enron preprocessing
   - remove original message
   - lda change topic number
-- BOW representation  
+- sklearn and islamic data: new interaction graph considering mentions
+- BOW representation
+  - combining with topic model better?
 
 TODO:
 
