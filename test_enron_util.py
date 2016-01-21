@@ -43,3 +43,10 @@ class TruncateMessageTest(unittest.TestCase):
             'when we merged in 1997. ',
             '---------------------- Forwarded by Steven'
         )
+
+    def test_truncate_message_6(self):
+        self.run_template(
+            'Best, Jeff ',
+            '********************************************************************** Financial  California'
+        )
+        

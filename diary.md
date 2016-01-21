@@ -415,7 +415,10 @@ Plan:
 - adding search functionality?
   - "I want to know events that about query XXX"
   
+Enron:
 
+- remove "=20"
+- empty body nodes
 
 
 TODO:

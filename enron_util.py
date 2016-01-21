@@ -29,7 +29,11 @@ def convert_people_user_id_to_string(df):
 
 reg_exps = [re.compile(r'-{2,}\s*' + s)
             for s in ('original message',
-                      'forwarded')]
+                      'forwarded')
+            ]
+reg_exps.append(
+    re.compile('*************************'.replace('*', '\\*'))
+    )
 
 
 def truncate_message(text):
@@ -42,11 +46,13 @@ def truncate_message(text):
 
 def process_message_body(df):
     df['body'] = df['body'].map(truncate_message)
+    df['body'] = df['body'].map(lambda b: b.replace('=20', ''))
     return df
 
 
 if __name__ == '__main__':
     df = pd.read_json('data/enron/interactions.json')
     df = process_message_body(df)
+    df = df[df['body'].map(len) > 10]  # filter short body
     df.to_json('data/enron/interactions.json',
                orient="records")

@@ -25,11 +25,7 @@ different_weights = [
 
 for weights in different_weights:
     meta_graph_kws = {
-        'dist_func': cosine,
-        'decompose_interactions': True,
-        'preprune_secs': timedelta(weeks=4).total_seconds(),
-        'apply_pagerank': False,
-        'distance_weights': weights,
+        'distance_weights': weights,       
     }
 
     g = IU.get_topic_meta_graph(
@@ -38,21 +34,35 @@ for weights in different_weights:
         dictionary=dictionary,
         undirected=False,
         given_topics=False,
+        decompose_interactions=False,
+        dist_func=cosine,
+        preprune_secs=timedelta(weeks=4).total_seconds(),
+        apply_pagerank=False,
         **meta_graph_kws
     )
     
-    print('weights:', weights)
+    print('weights: {}\n'.format(weights))
 
-    out_degrees = nx.out_degree(g.nodes())
-    node = max(out_degrees,
-               key=lambda k: out_degrees[k])
-    print('Node:\nSubject: {}\nBody: {}'.format(
-        g.node[node]['subject'],
-        g.node[node]['body']
-    ))
-    top_k_nodes = sorted(g.neighbors(), key=lambda nb: g[node][nb]['c'])[:5]
-    for n in top_k_nodes:
-        print('Most similar neighbor:\nSubject: {}\nBody: {}'.format(
-            g.node[n]['subject'],
-            g.node[n]['body']
-        ))
+    out_degrees = g.out_degree(g.nodes())
+    sorted_nodes = sorted(out_degrees,
+                         key=lambda k: out_degrees[k],
+                         reverse=True)
+    print('\n'.join(map(lambda n: g.node[n]['subject'], sorted_nodes)[:10]))
+
+    node = sorted_nodes[5]
+    
+    def print_message(node):
+        print('Sender: {}\nTime: {}\nSubject: {}\nBody: {}\n'.format(
+                g.node[node]['sender_id'],
+                g.node[node]['datetime'],
+                g.node[node]['subject'],
+                g.node[node]['body'][:1000]
+                )
+              )
+    print('Node')
+    print_message(node)
+    top_k_nodes = sorted(g.neighbors(node), key=lambda nb: g[node][nb]['c'])[:5]
+    for i, n in enumerate(top_k_nodes):
+        print('{}:'.format(i))
+        print_message(n)
+    print('*' * 100)
