@@ -10,7 +10,6 @@ import itertools
 from pprint import pprint
 from datetime import timedelta
 from scipy.spatial.distance import euclidean, cosine
-from scipy.stats import entropy
 
 from dag_util import unbinarize_dag, binarize_dag, remove_edges_via_dijkstra
 from lst import lst_dag, make_variance_cost_func, dp_dag_general
