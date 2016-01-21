@@ -68,3 +68,4 @@
 ## Git
 - [undo merge](http://stackoverflow.com/questions/2389361/undo-a-git-merge): `git reset --hard sha`
 - [use better branch](http://stackoverflow.com/questions/2763006/change-the-current-branch-to-master-in-git)
+- [object file is empty](http://stackoverflow.com/questions/11706215/how-to-fix-git-error-object-file-is-empty)
