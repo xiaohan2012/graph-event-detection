@@ -27,6 +27,7 @@ class HIGTest(unittest.TestCase):
                 [a, b, c, d, e, f, 'XXX']
             ),
             sorted(hig.nodes()))
+        print hig.edges()
         assert_equal(
             sorted(
                 [(a, 1), (1, b), (1, c), (1, d),
