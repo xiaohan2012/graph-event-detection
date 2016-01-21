@@ -50,3 +50,8 @@ class TruncateMessageTest(unittest.TestCase):
             '********************************************************************** Financial  California'
         )
         
+
+'JAMES@ENRON COMMUNICATIONS 07/05/2001 01:09 PM'
+'gloves off.         James D Steffes 07/06/2001 10:04 PM To:	Jeffrey T Hodge/Enron@EnronXGate, Robert'
+
+'"wgramm" <wgramm@osf1.gmu.edu> on 07/17/2001 03:23:19 PM Please respond to <wgramm@osf1.gmu.edu>  To:	"Jerry Ellig" <jellig@gmu.edu>, "Steve Kean" <skean'
