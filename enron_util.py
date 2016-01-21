@@ -35,6 +35,17 @@ reg_exps.append(
     re.compile('*************************'.replace('*', '\\*'))
     )
 
+email = '[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+'
+datetime = '\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}(:\d{2})?\s*[aApP][mM]'
+reg_exps.append(
+    re.compile('<?{}>?.*{}'.format(email,
+                               datetime))
+)
+reg_exps.append(
+    re.compile('{}.*[Tt][Oo].*<?{}>?'.format(datetime,
+                                         email))
+)
+
 
 def truncate_message(text):
     text_lower = text.lower()
