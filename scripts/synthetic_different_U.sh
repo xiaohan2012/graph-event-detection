@@ -14,7 +14,7 @@ if [ $1 == 'mg' ]; then
 		--root_sampling=uniform \
 		--seconds=8 \
 		--U=0 \
-		--dist=euclidean \
+		--dist=cosine \
 		--cand_n=0 \
 	        --cand_n_percent=0 \
 		--result_prefix=tmp/synthetic/result- \
@@ -34,7 +34,7 @@ if [ $1 == 'gen' ]; then
 				--method=${method} \
 				--root_sampling=out_degree \
 				--seconds=8 --U=${U} \
-				--dist=euclidean \
+				--dist=cosine \
 				--cand_n_percent=0.1 \
 				--result_prefix=tmp/synthetic/U/result- \
 				--lda_path=None \

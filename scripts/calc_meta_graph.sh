@@ -14,7 +14,7 @@ python gen_candidate_trees.py \
 	--root_sampling=uniform \
 	--weeks=2 \
 	--U=0.5 \
-	--dist=euclidean \
+	--dist=cosine \
 	--cand_n=0 \
         --cand_n_percent=0 \
 	--result_prefix=tmp/${dataset}/result- \

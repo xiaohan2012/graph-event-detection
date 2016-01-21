@@ -8,7 +8,7 @@ if [ "$1" == "mg" ]; then
 		--method=${method} \
 		--root_sampling=uniform \
 		--seconds=8 --U=${U} \
-		--dist=euclidean \
+		--dist=cosine \
 		--cand_n_percent 0 \
 		--result_prefix=tmp/synthetic/sampling/result- \
 		--lda_path=None \
@@ -29,7 +29,7 @@ if [ "$1" == "gen" ]; then
 				--method=${method} \
 				--root_sampling=${sampling} \
 				--seconds=8 --U=${U} \
-				--dist=euclidean \
+				--dist=cosine \
 				--cand_n_percent ${percent} \
 				--result_prefix=tmp/synthetic/sampling/result- \
 				--lda_path=None \

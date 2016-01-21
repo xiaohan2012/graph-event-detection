@@ -25,7 +25,7 @@ time python gen_candidate_trees.py \
 	--method=greedy \
 	--root_sampling=out_degree \
 	--weeks=2 \
-	--dist=euclidean \
+	--dist=cosine \
 	--result_prefix=tmp/${dataset}/result- \
 	--lda_path=$(ls data/${dataset}/model-*.lda) \
 	--corpus_dict_path=data/${dataset}/dict.pkl \

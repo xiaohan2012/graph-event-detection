@@ -29,7 +29,7 @@ if [ "$1" == "gen" ]; then
 			--root_sampling=out_degree \
 			--seconds=${seconds} \
 			--U=${U} \
-			--dist=euclidean \
+			--dist=cosine \
 			--cand_n_percent ${percent} \
 			--result_prefix=${result_prefix} \
 			--lda_path=None \

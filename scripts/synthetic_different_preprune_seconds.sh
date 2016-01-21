@@ -8,7 +8,7 @@ if [ $1 == 'mg' ]; then
 			--root_sampling=uniform \
 			--seconds=${ts} \
 			--U=0 \
-			--dist=euclidean \
+			--dist=cosine \
 			--cand_n=0 \
 			--cand_n_percent=0 \
 			--result_prefix=tmp/synthetic/result- \
@@ -32,7 +32,7 @@ if [ $1 == 'gen' ]; then
 			--root_sampling=${sampling} \
 			--seconds=${ts} \
 			--U=${U} \
-			--dist=euclidean \
+			--dist=cosine \
 			--cand_n_percent=${percent} \
 			--result_prefix=tmp/synthetic/preprune_seconds/result- \
 			--lda_path=None \
