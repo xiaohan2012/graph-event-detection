@@ -10,7 +10,7 @@ def test_process_text():
     
     df = remove_entities(df)
     assert_equal(
-        ' Domonkos Tikk  is the   '
-        'keynote speaker. \nFind out about his talk here: ',
+        ' domonkos tikk  is the   '
+        'keynote speaker. \nfind out about his talk here: ',
         df.iloc[0]['body']
     )
