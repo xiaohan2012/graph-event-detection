@@ -2,6 +2,7 @@ import os
 import codecs
 import numpy as np
 import ujson as json
+from collections import defaultdict
 
 from nose.tools import assert_equal, with_setup, assert_true
 
@@ -21,8 +22,13 @@ def teardown_func():
 @with_setup(setup_func, teardown_func)
 def test_dump_events_to_json():
     output_path = os.path.join(CURDIR, 'test/data/tmp/candidate_trees.json')
+    
     run(os.path.join(CURDIR, 'test/data/candidate_trees.pkl'),
         k=5,
+        id2people=defaultdict(lambda: {'name': 'fake'}),
+        id2interaction=defaultdict(
+            lambda: {'body': 'fake', 'subject': 'fake'}
+        ),
         dirname=os.path.join(CURDIR, 'test/data/tmp'))
     with codecs.open(output_path, 'r', 'utf8') as f:
         obj = json.loads(f.read())
@@ -31,6 +37,10 @@ def test_dump_events_to_json():
     for o in obj:
         for n in o['nodes']:
             assert_true('r' in n)
+            assert_true('sender' in n)
+            assert_true('recipients' in n)
+            assert_true('subject' in n)
+            assert_true('body' in n)
 
 
 @with_setup(setup_func, teardown_func)

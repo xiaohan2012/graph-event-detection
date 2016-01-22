@@ -54,6 +54,8 @@ for p in $(ls ${pickle_dir}/result-*.pkl); do
 	python dump_events_to_json.py \
 		--candidate_tree_path ${p} \
 		--dirname "${output_dir}/event/original_graph" \
+		--interactions_path "data/${dataset}/interactions.json" \
+		--people_path "data/${dataset}/people.json" \
 		--to_original_graph \
 		${extra}
 
@@ -61,15 +63,17 @@ for p in $(ls ${pickle_dir}/result-*.pkl); do
 	python dump_events_to_json.py \
 		--candidate_tree_path ${p} \
 		--dirname "${output_dir}/event/meta_graph" \
+		--interactions_path "data/${dataset}/interactions.json" \
+		--people_path "data/${dataset}/people.json" \
 		${extra}
 done
 
-echo "dumping meta information..."
-python dump_meta_info_to_json.py \
-	--interactions_path "data/${dataset}/interactions.json" \
-	--interactions_output_path ${output_dir}/id2interactions.json \
-	--people_path "data/${dataset}/people.json" \
-	--people_output_path ${output_dir}/id2people.json
+# echo "dumping meta information..."
+# python dump_meta_info_to_json.py \
+# 	--interactions_path "data/${dataset}/interactions.json" \
+# 	--interactions_output_path ${output_dir}/id2interactions.json \
+# 	--people_path "data/${dataset}/people.json" \
+# 	--people_output_path ${output_dir}/id2people.json
 
 echo "dumping event names..."
 python dump_all_event_json_names.py \
