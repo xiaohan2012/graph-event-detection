@@ -104,7 +104,6 @@ def run(gen_tree_func,
         result_pkl_path_prefix=os.path.join(CURDIR, 'tmp/results'),
         meta_graph_kws={
             'dist_func': cosine,
-            'decompose_interactions': True,
             'preprune_secs': timedelta(weeks=4),
             'apply_pagarank': False,
             'distance_weights': {'topics': 0.2,
@@ -160,6 +159,7 @@ def run(gen_tree_func,
             dictionary=dictionary,
             undirected=undirected,
             given_topics=given_topics,
+            decompose_interactions=False,
             **meta_graph_kws_copied
         )
 
@@ -259,9 +259,6 @@ if __name__ == '__main__':
     parser.add_argument('--calc_mg', action="store_true",
                         default=False,
                         help="Whether to recalculate meta graph or not")
-    parser.add_argument('--decompose', action="store_true",
-                        default=False,
-                        help="Whether to decompose interactions")
     parser.add_argument('--undirected', action="store_true",
                         default=False,
                         help="If the interactions are undirected or not")
@@ -308,6 +305,9 @@ if __name__ == '__main__':
     parser.add_argument('--weight_for_bow',
                         type=float,
                         default=0.8)
+    parser.add_argument('--weight_for_hashtag_bow',
+                        type=float,
+                        default=0.0)
 
     args = parser.parse_args()
 
@@ -342,6 +342,8 @@ if __name__ == '__main__':
         distance_weights['topics'] = args.weight_for_topics
     if args.weight_for_bow > 0:
         distance_weights['bow'] = args.weight_for_bow
+    if args.weight_for_hashtag_bow != 0:
+        distance_weights['hashtag_bow'] = args.weight_for_hashtag_bow
 
     run(methods[args.method],
         root_sampling_method=args.root_sampling,
@@ -355,7 +357,6 @@ if __name__ == '__main__':
         ),
         meta_graph_kws={
             'dist_func': dist_func,
-            'decompose_interactions': args.decompose,
             'preprune_secs': timespan,
             'apply_pagerank': args.apply_pagerank,
             'distance_weights': distance_weights

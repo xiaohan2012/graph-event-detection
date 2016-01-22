@@ -60,6 +60,7 @@ variance_method = lambda g, r, U: dp_dag_general(
 
 distance_weights_1 = {'topics': 1.0}
 distance_weights_2 = {'topics': 0.2, 'bow': 0.8}
+distance_weights_3 = {'topics': 0.5, 'bow': 0.5, 'hashtag_bow': -0.1}
 
 
 class CalcMGMixin(object):
@@ -77,7 +78,6 @@ class CalcMGMixin(object):
             'cand_tree_percent': 0.1,
             'meta_graph_kws': {
                 'dist_func': dist_func,
-                'decompose_interactions': False,
                 'preprune_secs': preprune_secs,
                 'apply_pagerank': apply_pagerank,
                 'distance_weights': distance_weights
@@ -91,7 +91,6 @@ class CalcMGMixin(object):
         }
 
         self.meta_pickle_path_common = experiment_signature(
-            decompose_interactions=False,
             dist_func=dist_func,
             preprune_secs=preprune_secs,
             apply_pagerank=apply_pagerank,
@@ -209,6 +208,12 @@ class GenCandidateTreeTest(unittest.TestCase, CalcMGMixin):
         self.check('variance', variance_method,
                    undirected=True)
 
+    def test_distance_weight_using_hashtag_bow(self):
+        self.update_metagraph_and_produce_if_needed(
+            distance_weights=distance_weights_3
+        )
+        self.check('greedy', greedy_grow)
+
     def tearDown(self):
         remove_tmp_data('test/data/tmp/*')
 
@@ -242,7 +247,6 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
                 timespan=timespan
             ),
             experiment_signature(
-                decompose_interactions=False,
                 dist_func='%s',
                 preprune_secs=timespan,
                 apply_pagerank=apply_pagerank,
@@ -275,6 +279,7 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         --meta_graph_path_prefix={meta_graph_pkl_path_prefix} \
         --weight_for_topics {weight_for_topics} \
         --weight_for_bow {weight_for_bow} \
+        --weight_for_hashtag_bow {weight_for_hashtag_bow} \
         {extra}""".format(
             self.script_path,
             method=method,
@@ -284,6 +289,7 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
             extra=extra,
             weight_for_topics=distance_weights.get('topics', 0),
             weight_for_bow=distance_weights.get('bow', 0),
+            weight_for_hashtag_bow=distance_weights.get('hashtag_bow', 0),
             **more_params
         ).split()
         output = check_output(cmd)
@@ -344,6 +350,10 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         self.update_result_path_template(cand_tree_percent=0.0972222222222)
         self.check(extra='--cand_n 7')
 
+    def test_hashtag_bow(self):
+        self.update_result_path_template(distance_weights=distance_weights_3)
+        self.check(distance_weights=distance_weights_3)
+
     def test_apply_pagerank(self):
         self.update_result_path_template(apply_pagerank=True)
         self.check(extra='--apply_pagerank')
@@ -359,7 +369,7 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
         random.seed(1)
         numpy.random.seed(1)
 
-        distance_weights = distance_weights_1
+        distance_weights = distance_weights_1  # 'topics' only for given topics
         self.some_kws_of_run = {
             'interaction_json_path': make_path(
                 'test/data/given_topics/interactions--n_noisy_interactions_fraction=0.1.json'
@@ -369,7 +379,6 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
             'undirected': False,
             'meta_graph_kws': {
                 'dist_func': cosine,
-                'decompose_interactions': False,
                 'preprune_secs': 8,
                 'apply_pagerank': True,
                 'distance_weights': distance_weights
@@ -383,7 +392,6 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
         }
 
         self.meta_pickle_path_common = experiment_signature(
-            decompose_interactions=False,
             dist_func='cosine',
             preprune_secs=8,
             apply_pagerank=True,
@@ -457,6 +465,9 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
     def test_greedy_grow_with_pagerank(self):
         # as the metagraph path is changed in it
         # so not applicable
+        pass
+
+    def test_distance_weight_using_hashtag_bow(self):
         pass
 
     def tearDown(self):
