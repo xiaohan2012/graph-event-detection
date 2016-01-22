@@ -41,6 +41,7 @@ def test_dump_events_to_json():
             assert_true('recipients' in n)
             assert_true('subject' in n)
             assert_true('body' in n)
+            assert_true(isinstance(n['cluster_label'], int))
 
 
 @with_setup(setup_func, teardown_func)

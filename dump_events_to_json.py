@@ -1,6 +1,9 @@
 import os
 import sys
 
+from sklearn.cluster import DBSCAN
+from sklearn.feature_extraction.text import TfidfVectorizer
+
 from events import detect_events_given_path
 from meta_graph import convert_to_original_graph
 
@@ -31,6 +34,18 @@ def run(candidate_tree_path,
                                        for id_ in e.node[n]['recipient_ids']]
             e.node[n]['subject'] = id2interaction[n]['subject']
             e.node[n]['body'] = id2interaction[n]['body']
+
+        # some clustering
+        tfidf = TfidfVectorizer()
+
+        X = tfidf.fit_transform(['{} {}'.format(e.node[n]['subject'],
+                                                e.node[n]['body'])
+                                 for n in e.nodes_iter()])
+
+        clustering = DBSCAN()
+        labels = clustering.fit_predict(X)
+        for n, l in zip(e.nodes_iter(), labels):
+            e.node[n]['cluster_label'] = l
 
     if to_original_graph:
         events = map(convert_to_original_graph,
