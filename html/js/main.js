@@ -63,9 +63,8 @@ $(document).ready(function(){
 		}
 		var dataset_setting = $.extend(
 			{
-				node_label: function(d, bunch){						
-					var i = bunch['id2interactions'][d['message_id']]
-					return '(' + d['r'] * (Math.pow(10, 4)) + ')' + i.subject;
+				node_label: function(d){						
+					return '(' + d['r'] * (Math.pow(10, 4)) + ')' + d.subject;
 				}
 			},
 			dataset_config[mc.dataset]
@@ -75,16 +74,12 @@ $(document).ready(function(){
 			'original_graph': {
 				force: {charge: -500, linkDistance: 100},
 				tip: {
-					html: function(d, bunch){
-						// console.log('tip fired in original_graph..');
-						// console.log(bunch.id2people);
-						// console.log(d['name']);
-						// console.log(dict2html(bunch.id2people[d['name']]));
-						return dict2html(bunch.id2people[d['name']]);
+					html: function(d){
+						return dict2html(d);
 					}
 				},
 				node: {
-					label: function(d, bunch){					
+					label: function(d){
 						return d.name;
 					}
 				}
@@ -93,31 +88,15 @@ $(document).ready(function(){
 				svg: {width: 1280, height: 1500},
 				force: {charge: -1000, linkDistance: 150},
 				tip: {
-					html: function(d, bunch){
-						var i = bunch.id2interactions[d['message_id']];
-						console.log('iteraction:', i);
-						i['date'] = format_time(new Date(i['timestamp']*1000));
-						// console.log("sender_id:", i['sender_id']);
-						// undirected case
-						if(bunch.id2people[i['sender_id']] == undefined){
-							i['participants'] = _.map(i['participant_ids'], function(k){
-								return dataset_setting.people_repr(
-									bunch.id2people[k]
-								);
-							}).join("    ");
-							return dict2html(i, ['subject', 'body', 'participants', 'date', 'message_id']);
-						}
-						else{
-							i['sender'] = dataset_setting.people_repr(
-								bunch.id2people[i['sender_id']]
-							);
-							i['recipients'] = _.map(i['recipient_ids'], function(k){
-								return dataset_setting.people_repr(
-									bunch.id2people[k]
-								);
-							}).join("    ");
-							return dict2html(i, ['subject', 'body', 'sender', 'recipients', 'date', 'message_id']);
-						}						
+					html: function(d){
+						console.log('iteraction:', d);
+						d['date'] = format_time(new Date(d['timestamp']*1000));
+
+						d['sender_str'] = d.sender.name;
+						d['recipients_str'] = _.map(d['recipients'], function(r){
+							return r.name;
+						}).join(',  ');
+						return dict2html(d, ['subject', 'body', 'sender_str', 'recipients_str', 'date', 'message_id']);
 					}
 				},
 				node: {
@@ -126,10 +105,7 @@ $(document).ready(function(){
 					label: dataset_setting.node_label
 				},
 				link: {
-					stroke: function(d, bunch){
-						// console.log(d);
-						// console.log(s["sender_id"], t["sender_id"], s, t);
-						// if(d['event']){
+					stroke: function(d){
 						var s = d['source'], t = d['target'];
 						if(s["sender_id"] == t["sender_id"]){
 							console.log("broadcast..")
@@ -148,7 +124,7 @@ $(document).ready(function(){
 							throw new Exception("impossible!");
 						}
 					},
-					label: function(d, bunch){
+					label: function(d){
 						return d['c'].toFixed(3);
 					}
 				}
@@ -161,7 +137,7 @@ $(document).ready(function(){
 				force: {charge: -150, linkDistance: 500},
 				tip: {
 					offset: [0, 0],
-					html: function(d, bunch){
+					html: function(d){
 						return "boiler-plate";
 					}
 				},
@@ -188,7 +164,7 @@ $(document).ready(function(){
 							return '#bbb';
 						}
 					},
-					label: function(d, bunch){
+					label: function(d){
 						return '';
 					}
 				}
