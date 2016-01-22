@@ -62,7 +62,9 @@ def process_message_body(df):
 
 
 if __name__ == '__main__':
-    df = pd.read_json('data/enron/interactions.json')
+    # df = pd.read_json('data/enron/interactions.json')
+    df = pd.DataFrame(load_json_by_line('data/enron/enron.json'))
+
     df = process_message_body(df)
     df = df[df['body'].map(len) > 10]  # filter short body
     df.to_json('data/enron/interactions.json',
