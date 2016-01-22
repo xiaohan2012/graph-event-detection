@@ -10,7 +10,7 @@ import networkx as nx
 
 from memory_profiler import profile
 from scipy.sparse import csr_matrix, issparse
-from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.feature_extraction.text import TfidfTransformer, TfidfVectorizer
 
 from util import load_items_by_line, get_datetime, compose
 from hig import construct_hig_from_interactions
@@ -199,6 +199,9 @@ class InteractionsUtil(object):
             g.node[n]['datetime'] = i['datetime']
             g.node[n]['timestamp'] = i['timestamp']
 
+            if 'hashtags' in i:
+                g.node[n]['hashtags'] = i['hashtags']
+
             g.node[n][cls.VERTEX_REWARD_KEY] = 1
 
             if decompose_interactions:
@@ -277,7 +280,25 @@ class InteractionsUtil(object):
                     ),
                     shape=(N, len(dictionary.keys())))
             )
+        
+    @classmethod
+    def add_hastag_bow_to_graph(cls, g):
+        text = [' '.join(g.node[n]['hashtags'])
+                for n in g.nodes_iter()]
+        tfidf = TfidfVectorizer(preprocessor=None,
+                                tokenizer=lambda s: s.split(),
+                                stop_words=None)
+        
+        mat = tfidf.fit_transform(text)
 
+        N = g.number_of_nodes()
+
+        for i, n in enumerate(g.nodes_iter()):
+            if i % 1000 == 0:
+                logger.debug('adding hashtag BoW: {} / {}'.format(i, N))
+            g.node[n]['hashtag_bow'] = mat[i, :]
+        return g
+    
     @classmethod
     def add_bow_to_graph(cls, g, dictionary):
         node2row, bow_mat = cls.build_bow_matrix(g, dictionary)

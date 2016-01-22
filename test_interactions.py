@@ -11,6 +11,8 @@ from nose.tools import assert_equal, assert_true, assert_almost_equal
 from scipy.spatial.distance import euclidean, cosine
 from scipy.sparse import issparse
 
+from sklearn.feature_extraction.text import TfidfVectorizer
+
 from .dag_util import binarize_dag
 from .interactions import InteractionsUtil as IU,\
     clean_decom_unzip, clean_unzip
@@ -81,6 +83,7 @@ class InteractionsUtilTest(unittest.TestCase):
         for n in self.g.nodes():
             assert_equal(1,
                          self.g.node[n][IU.VERTEX_REWARD_KEY])
+            assert_true('hashtags' in self.g.node[n])
         
         assert_equal(self.g.node['1.B']['body'], 'b1')
         assert_equal(self.g.node['1.B']['message_id'], 1)
@@ -97,6 +100,7 @@ class InteractionsUtilTest(unittest.TestCase):
         assert_equal(self.g.node['2']['peers'], [])
         assert_equal(self.g.node['2']['datetime'],
                      datetime.fromtimestamp(989587577))
+
         
     def _get_topical_graph(self):
         return IU.add_topics_to_graph(self.g,
@@ -120,6 +124,25 @@ class InteractionsUtilTest(unittest.TestCase):
             (self.g_undecom.number_of_nodes(), len(self.dictionary.keys())),
             mat.shape
         )
+
+    def test_add_hashtag_bow_to_graph(self):
+        g = IU.add_hastag_bow_to_graph(self.g_undecom)
+        tfidf = TfidfVectorizer(preprocessor=None,
+                                tokenizer=lambda s: s.split(),
+                                stop_words=None)
+        tfidf.fit([' '.join(g.node[n]['hashtags'])
+                   for n in g.nodes_iter()])
+
+        for n in g.nodes_iter():
+            assert_true(issparse(g.node[n]['hashtag_bow']))
+            assert_equal(
+                sorted(g.node[n]['hashtags']),
+                sorted(
+                    tfidf.inverse_transform(
+                        g.node[n]['hashtag_bow']
+                    )[0].tolist()
+                )
+            )
 
     def test_add_bow_to_graph(self):
         IU.add_bow_to_graph(self.g_undecom, self.dictionary)
