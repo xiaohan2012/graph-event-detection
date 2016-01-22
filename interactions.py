@@ -413,7 +413,13 @@ class InteractionsUtil(object):
                     assert not np.isinf(dists_mat[i, j])
 
         weight_mat = np.matrix([fields_weight]).T
+
+        for i, (f, w) in enumerate(fields_with_weights.items()):
+            if w < 0:  # if negative, means it's similarity
+                dists_mat[:, i] = 1 - dists_mat[:, i]
+
         dist_mat = np.matrix(dists_mat) * weight_mat
+
         for i, (s, t) in enumerate(g.edges_iter()):
             g[s][t][cls.EDGE_COST_KEY] = dist_mat[i, 0]
             assert not np.isinf(g[s][t][cls.EDGE_COST_KEY]), \
@@ -444,7 +450,7 @@ class InteractionsUtil(object):
 
         if not given_topics:
             for k in distance_weights:
-                assert k in ('bow', 'topics')
+                assert k in ('bow', 'topics', 'hashtag_bow')
 
             if 'topics' in distance_weights and distance_weights['topics'] > 0:
                 logger.debug('adding topics...')
@@ -459,6 +465,10 @@ class InteractionsUtil(object):
                     mg,
                     dictionary
                 )
+
+            if 'hashtag_bow' in distance_weights:
+                logger.debug('adding hashtag bow...')
+                mg = cls.add_hastag_bow_to_graph(mg)
         else:
             logger.info('topics are given')
             for n in mg.nodes_iter():

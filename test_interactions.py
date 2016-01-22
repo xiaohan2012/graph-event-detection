@@ -101,7 +101,6 @@ class InteractionsUtilTest(unittest.TestCase):
         assert_equal(self.g.node['2']['datetime'],
                      datetime.fromtimestamp(989587577))
 
-        
     def _get_topical_graph(self):
         return IU.add_topics_to_graph(self.g,
                                       self.lda_model,
@@ -249,7 +248,7 @@ class InteractionsUtilTest(unittest.TestCase):
             fields_with_weights={'topics': 0.2, 'bow': 0.8}
         )
         
-        self.check_weighted_dist(g)
+        self.check_weighted_dist(g, self.weight_cost_func_bow_topics)
 
     def test_decompose_interactions(self):
         d_interactions = IU.decompose_interactions(
@@ -302,7 +301,7 @@ class InteractionsUtilTest(unittest.TestCase):
                         targets):
             assert_equal(sorted(e), sorted(a))
         assert_equal([989587576, 989587577, 989587578, 989587579,
-                          989587580, 989587581],
+                      989587580, 989587581],
                      time_stamps)
 
     def test_get_topic_meta_graph(self):
@@ -323,7 +322,28 @@ class InteractionsUtilTest(unittest.TestCase):
                              ('3', '5')]),
                      sorted(g.edges()))
 
-    def check_weighted_dist(self, g):
+    def weight_cost_func_bow_topics(self, s, t):
+        a1 = numpy.array(s['bow'].todense()).ravel()
+        a2 = numpy.array(t['bow'].todense()).ravel()
+        if not a1.any() or not a2.any():
+            d = 1
+        else:
+            d = cosine(a1, a2)
+        return (0.2 * cosine(s['topics'], t['topics']) +
+                0.8 * d)
+
+    def weight_cost_func_hashtag_bow_topics(self, s, t):
+        a1 = numpy.array(s['hashtag_bow'].todense()).ravel()
+        a2 = numpy.array(t['hashtag_bow'].todense()).ravel()
+        if not a1.any() or not a2.any():
+            d = 0
+        else:
+            d = 1 - cosine(a1, a2)
+        return (0.2 * cosine(s['topics'], t['topics']) -
+                0.1 * d)
+
+    def check_weighted_dist(
+            self, g, cost_func):
         for s, t in g.edges():
             self.assertFalse(
                 numpy.isnan(g[s][t][IU.EDGE_COST_KEY])
@@ -332,17 +352,9 @@ class InteractionsUtilTest(unittest.TestCase):
                 numpy.isinf(g[s][t][IU.EDGE_COST_KEY])
             )
             
-            a1 = numpy.array(g.node[s]['bow'].todense()).ravel()
-            a2 = numpy.array(g.node[t]['bow'].todense()).ravel()
-            if not a1.any() or not a2.any():
-                d = 1
-            else:
-                d = cosine(a1, a2)
-
             numpy.testing.assert_array_almost_equal(
                 g[s][t][IU.EDGE_COST_KEY],
-                0.2 * cosine(g.node[s]['topics'], g.node[t]['topics']) +
-                0.8 * d
+                cost_func(g.node[s], g.node[t])
             )
 
     def test_get_topic_meta_graph_multiple_reprs(self):
@@ -358,7 +370,25 @@ class InteractionsUtilTest(unittest.TestCase):
             }
         )
 
-        self.check_weighted_dist(g)
+        self.check_weighted_dist(g, self.weight_cost_func_bow_topics)
+
+    def test_get_topic_meta_graph_using_hashtag_bow(self):
+        g = IU.get_topic_meta_graph(
+            self.interactions,
+            cosine,
+            self.lda_model,
+            self.dictionary,
+            preprune_secs=None,
+            distance_weights={
+                'topics': 0.2,
+                'hashtag_bow': -0.1
+            }
+        )
+
+        self.check_weighted_dist(
+            g,
+            self.weight_cost_func_hashtag_bow_topics
+        )
 
     def test_get_topic_meta_graph_without_decomposition(self):
         g = IU.get_topic_meta_graph(self.interactions,
