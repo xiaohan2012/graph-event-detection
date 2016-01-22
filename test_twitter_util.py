@@ -1,11 +1,16 @@
 from nose.tools import assert_equal
-from .twitter_util import process_text
+import pandas as pds
+
+from .test_util import make_path
+from .twitter_util import remove_entities
 
 
 def test_process_text():
-    text = 'RT @ecir2016: Domonkos Tikk @domonkostikk is the #ECIR2016 #industryday keynote speaker. \nFind out about his talk here: https://t.co/MBnugw\u2026'
+    df = pds.read_json(make_path('test/data/tweet_example.json'))
+    
+    df = remove_entities(df)
     assert_equal(
-        'RT : Domonkos Tikk  is the   '
-        'keynote speaker. \nFind out about his talk here: \u2026',
-        process_text(text)
+        ' Domonkos Tikk  is the   '
+        'keynote speaker. \nFind out about his talk here: ',
+        df.iloc[0]['body']
     )

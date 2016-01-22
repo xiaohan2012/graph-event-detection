@@ -1,15 +1,21 @@
-import re
-
-hashtag_regex = re.compile(r'\B#\w*[a-zA-Z]+\w*')
-mentions_regex = re.compile(r'(?<=^|(?<=[^a-zA-Z0-9-_\.]))'
-                            '@([A-Za-z]+[A-Za-z0-9]+)')
-links_regex = re.compile('https?:\/\/([\da-z\.-]+)\.'
-                         '([a-z\.]{2,6})([\/\w \.-]*)*\/?')
-
-regexs = [hashtag_regex, mentions_regex, links_regex]
+import itertools
 
 
-def process_text(text):
-    for regex in regexs:
-        text = regex.sub('', text)
-    return text
+def remove_entities(df):
+    def aux(r):
+        body = r['body']
+        mentions = map(lambda m: '@' + m, r['mentions'])
+        hashtags = map(lambda h: '#' + h, r['hashtags'])
+
+        for s in itertools.chain(mentions, hashtags, r['urls']):
+            body = body.replace(s, '')
+        return body
+
+    new_body = df[['body', 'mentions', 'hashtags', 'urls']].apply(
+        aux,
+        axis=1
+    )
+
+    df['body'] = new_body
+
+    return df
