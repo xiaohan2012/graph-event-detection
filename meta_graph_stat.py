@@ -178,8 +178,9 @@ class MetaGraphStat(object):
                 return Counter(data)
 
             result['sender_count'] = Counter(
-                [peopleid2info[
-                    id2interaction[self.g.node[n]['message_id']]['sender_id']]
+                [peopleid2info.get(
+                    id2interaction[self.g.node[n]['message_id']]['sender_id'],
+                    'unknown')
                  for n in self.g.nodes()]
             )
 

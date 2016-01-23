@@ -25,8 +25,9 @@ $(document).ready(function(){
 	var palette = d3.scale.ordinal()
 		.domain([EDGE_BROADCAST, EDGE_REPLY, EDGE_RELAY])
 		.range(d3.scale.category10().range());
-	var format_time = d3.time.format("%Y-%m-%d");
+	var cluster_palette = d3.scale.category20c();
 
+	var format_time = d3.time.format("%Y-%m-%d");
 
 	function get_config(mc){
 		var url_dict = {
@@ -86,7 +87,7 @@ $(document).ready(function(){
 			},
 			'meta_graph': {
 				svg: {width: 1280, height: 1500},
-				force: {charge: -1000, linkDistance: 150},
+				force: {charge: -500, linkDistance: 50},
 				tip: {
 					html: function(d){
 						console.log('iteraction:', d);
@@ -96,11 +97,13 @@ $(document).ready(function(){
 						d['recipients_str'] = _.map(d['recipients'], function(r){
 							return r.name;
 						}).join(',  ');
-						return dict2html(d, ['subject', 'body', 'sender_str', 'recipients_str', 'date', 'message_id']);
+						return dict2html(d, ['subject', 'body', 'hashtags', 'sender_str', 'recipients_str', 'date', 'message_id']);
 					}
 				},
 				node: {
-					fill: 'red',
+					fill: function(d){
+						return cluster_palette(d['cluster_label']);
+					},
 					r: 8,
 					label: dataset_setting.node_label
 				},
@@ -174,7 +177,6 @@ $(document).ready(function(){
 			mc,
 			url_dict
 		);
-		console.log('ret["force"]:', ret['force']);
 		var charge_from_input = parseInt($("#charge").val());
 		if(charge_from_input){
 			ret.force.charge = charge_from_input;

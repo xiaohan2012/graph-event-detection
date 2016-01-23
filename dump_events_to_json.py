@@ -40,13 +40,14 @@ def run(candidate_tree_path,
         assignment = greedy_clustering_on_graph(e)
         for n in e.nodes_iter():
             e.node[n]['cluster_label'] = assignment[n]
-
+            
     if to_original_graph:
         events = map(convert_to_original_graph,
                      events)
 
     d3_events = [to_d3_graph(e)
                  for e in events]
+
     json_dump(d3_events, output_path)
 
 

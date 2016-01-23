@@ -40,6 +40,10 @@ function init_dataset_and_paths_widget(paths_json_name){
 	$('#dataset').on('change', function(){
 		d3.json("data/" + $(this).val() + "/" + paths_json_name,
 				function(error, result_paths) {
+					if(error != null){
+						console.log(error);
+					}
+					
 					$('#dataPathSelection').children().remove();
 					_.each(result_paths.sort(), function(p, index){
 						var opt;

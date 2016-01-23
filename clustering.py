@@ -11,7 +11,7 @@ def greedy_clustering_on_graph(
         metric=string_similar_probability,
         threshold=0.8):
     def get_text(n):
-        return '{} {}'.format(
+        return u'{} {}'.format(
             g.node[n]['subject'], g.node[n]['body']
         )
     cluster_assignment = {}

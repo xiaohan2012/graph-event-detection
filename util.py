@@ -3,6 +3,7 @@ import ujson as json
 import math
 import gensim
 from datetime import datetime
+from collections import defaultdict
 
 
 def load_items_by_line(path):
@@ -21,14 +22,17 @@ def load_id2obj_dict(path, id_key):
         interactions = json.load(open(path))
     except ValueError:
         interactions = load_json_by_line(path)
-    return {i[id_key]: i
-            for i in interactions}
+    d = defaultdict(lambda: {'id': 'unknown', 'name': 'unknown'})
+    for i in interactions:
+        d[i[id_key]] = i
+    return d
 
 
 def get_datetime(obj):
     if isinstance(obj, datetime):
         return obj
-    elif (isinstance(obj, float) or isinstance(obj, int)) and not math.isnan(obj):
+    elif (isinstance(obj, float) or
+          isinstance(obj, int)) and not math.isnan(obj):
         return datetime.fromtimestamp(obj)
     elif isinstance(obj, long):
         return datetime.fromtimestamp(obj / 1000)
