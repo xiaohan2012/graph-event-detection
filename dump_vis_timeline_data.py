@@ -45,19 +45,21 @@ def run(cand_trees, k, summary_kws, undirected):
                 'group': group_id,
                 'type': 'background'
             })
-        groups.append(
-            {
-                'id': group_id,
-                'terms': summ['topics']['topic_terms'],
-                'participants': dict(
-                    summ['participants']['participant_count']
-                ),
-                'start': format_time(summ['time_span']['start_time']),
-                'end': format_time(summ['time_span']['end_time']),
-                'days': (summ['time_span']['end_time'] - summ['time_span']['start_time']).days,
-                'link_type_freq': summ['link_type_freq']
-            }
-        )
+        g = {
+            'id': group_id,
+            'terms': summ['topics']['topic_terms'],
+            'participants': dict(
+                summ['participants']['participant_count']
+            ),
+            'start': format_time(summ['time_span']['start_time']),
+            'end': format_time(summ['time_span']['end_time']),
+            'days': (summ['time_span']['end_time'] - summ['time_span']['start_time']).days,
+            'link_type_freq': summ['link_type_freq']
+        }
+        if 'hashtags' in summ:
+            g['hashtags'] = summ['hashtags']
+        groups.append(g)
+
         start_times.append(summ['time_span']['start_time'])
         end_times.append(summ['time_span']['end_time'])
 
@@ -96,8 +98,14 @@ def main():
         args.people_repr_template,
         undirected=args.undirected
     )
+    trees = pkl.load(open(args.cand_trees_path))
     
-    data = run(pkl.load(open(args.cand_trees_path)),
+    # add hashtags if there
+    if 'hashtags' in trees[0].node[trees[0].nodes()[0]]:
+        print('add hashtags')
+        summary_kws['hashtags'] = {}
+
+    data = run(trees,
                args.k,
                summary_kws,
                args.undirected)

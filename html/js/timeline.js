@@ -31,7 +31,6 @@ function showMicro(json_url){
 					);
 					g['content'] += '<h3>time</h3>' + g['start'] + ' - ' + g['end'] + '(' + g['days'] + ' days)';
 					var link_type_freq_str = '';
-					console.log(g['link_type_freq']);
 					if(is_string(g['link_type_freq'])){
 						link_type_freq_str = g['link_type_freq'];
 					}
@@ -62,6 +61,15 @@ function showMacro(json_url){
 				var items = new vis.DataSet(
 					_.map(data['groups'], function(g){
 						g['content'] = g['terms'].join(' ');
+						console.log(g);
+						if(g['hashtags'] != undefined){
+							g['content'] += '</br>';
+							g['content'] += _.map(
+								_.head(g['hashtags'], 10),
+								function(v){return '#'+v[0]}
+							)
+								.join(' ');
+						}
 						g['group'] = g['id'];
 						return g;
 					})

@@ -161,6 +161,15 @@ class MetaGraphStat(object):
                 'topic_terms': topic_terms,
                 'topic_divergence': topic_divergence}
 
+    def hashtags(self):
+        tags = itertools.chain(
+            *[self.g.node[n]['hashtags']
+              for n in self.g.nodes_iter()]
+        )
+        return sorted(Counter(tags).items(),
+                      key=lambda (t, c): c,
+                      reverse=True)
+
     def participants(self, people_info, interactions,
                      people_repr_template="{name}({email})",
                      undirected=False,
