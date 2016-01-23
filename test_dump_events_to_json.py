@@ -49,6 +49,10 @@ def test_dump_events_to_json_to_original_graph():
     output_path = os.path.join(CURDIR, 'test/data/tmp/candidate_trees.json')
     run(os.path.join(CURDIR, 'test/data/candidate_trees.pkl'),
         k=5,
+        id2people=defaultdict(lambda: {'name': 'fake'}),
+        id2interaction=defaultdict(
+            lambda: {'body': 'fake', 'subject': 'fake'}
+        ),
         dirname=os.path.join(CURDIR, 'test/data/tmp'),
         to_original_graph=True)
     with codecs.open(output_path, 'r', 'utf8') as f:
