@@ -1,13 +1,12 @@
 import networkx as nx
 import random
-from copy import deepcopy
 
 
 def new_frontier(new_node, selected_nodes, g, current_frontier):
     """get the frontier edges that can be selected
     """
     selected_nodes = set(selected_nodes)
-    frontier = set(deepcopy(current_frontier))
+    frontier = set(current_frontier)
     for n in selected_nodes:
         e = (n, new_node)
         if e in frontier:
