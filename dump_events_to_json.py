@@ -6,6 +6,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 from events import detect_events_given_path
 from meta_graph import convert_to_original_graph
+from clustering import greedy_clustering_on_graph
 
 from util import json_dump
 from viz_util import to_d3_graph
@@ -35,17 +36,10 @@ def run(candidate_tree_path,
             e.node[n]['subject'] = id2interaction[n]['subject']
             e.node[n]['body'] = id2interaction[n]['body']
 
-        # some clustering
-        tfidf = TfidfVectorizer()
-
-        X = tfidf.fit_transform(['{} {}'.format(e.node[n]['subject'],
-                                                e.node[n]['body'])
-                                 for n in e.nodes_iter()])
-
-        clustering = DBSCAN()
-        labels = clustering.fit_predict(X)
-        for n, l in zip(e.nodes_iter(), labels):
-            e.node[n]['cluster_label'] = l
+        # some simple clustering
+        assignment = greedy_clustering_on_graph(e)
+        for n in e.nodes_iter():
+            e.node[n]['cluster_label'] = assignment[n]
 
     if to_original_graph:
         events = map(convert_to_original_graph,
