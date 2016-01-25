@@ -11,6 +11,7 @@ import networkx as nx
 from memory_profiler import profile
 from scipy.sparse import csr_matrix, issparse
 from sklearn.feature_extraction.text import TfidfTransformer, TfidfVectorizer
+from scipy.spatial.distance import jaccard
 
 from util import load_items_by_line, get_datetime, compose
 from hig import construct_hig_from_interactions
@@ -405,18 +406,21 @@ class InteractionsUtil(object):
                 if not array1.any() or not array2.any():
                     dists_mat[i, j] = 1
                 else:
-                    dists_mat[i, j] = dist_func(
-                        array1,
-                        array2
-                    )
+                    if f == 'hashtag_bow':
+                        # special treatment to `hashtag_bow`
+                        dists_mat[i, j] = jaccard(
+                            array1,
+                            array2
+                        )
+                    else:
+                        dists_mat[i, j] = dist_func(
+                            array1,
+                            array2
+                        )
 
                     assert not np.isinf(dists_mat[i, j])
 
         weight_mat = np.matrix([fields_weight]).T
-
-        for i, (f, w) in enumerate(fields_with_weights.items()):
-            if w < 0:  # if negative, means it's similarity
-                dists_mat[:, i] = 1 - dists_mat[:, i]
 
         dist_mat = np.matrix(dists_mat) * weight_mat
 
@@ -466,7 +470,8 @@ class InteractionsUtil(object):
                     dictionary
                 )
 
-            if 'hashtag_bow' in distance_weights:
+            if 'hashtag_bow' in distance_weights and \
+               distance_weights['hashtag_bow'] > 0:
                 logger.debug('adding hashtag bow...')
                 mg = cls.add_hastag_bow_to_graph(mg)
         else:

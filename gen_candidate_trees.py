@@ -342,7 +342,7 @@ if __name__ == '__main__':
         distance_weights['topics'] = args.weight_for_topics
     if args.weight_for_bow > 0:
         distance_weights['bow'] = args.weight_for_bow
-    if args.weight_for_hashtag_bow != 0:
+    if args.weight_for_hashtag_bow > 0:
         distance_weights['hashtag_bow'] = args.weight_for_hashtag_bow
 
     run(methods[args.method],

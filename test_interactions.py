@@ -8,7 +8,7 @@ import ujson as json
 
 from datetime import datetime, timedelta
 from nose.tools import assert_equal, assert_true, assert_almost_equal
-from scipy.spatial.distance import euclidean, cosine
+from scipy.spatial.distance import euclidean, cosine, jaccard
 from scipy.sparse import issparse
 
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -336,10 +336,10 @@ class InteractionsUtilTest(unittest.TestCase):
         a1 = numpy.array(s['hashtag_bow'].todense()).ravel()
         a2 = numpy.array(t['hashtag_bow'].todense()).ravel()
         if not a1.any() or not a2.any():
-            d = 0
+            d = 1
         else:
-            d = 1 - cosine(a1, a2)
-        return (0.2 * cosine(s['topics'], t['topics']) -
+            d = jaccard(a1, a2)
+        return (0.2 * cosine(s['topics'], t['topics']) +
                 0.1 * d)
 
     def check_weighted_dist(
@@ -381,7 +381,7 @@ class InteractionsUtilTest(unittest.TestCase):
             preprune_secs=None,
             distance_weights={
                 'topics': 0.2,
-                'hashtag_bow': -0.1
+                'hashtag_bow': 0.1
             }
         )
 

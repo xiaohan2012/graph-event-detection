@@ -60,7 +60,7 @@ variance_method = lambda g, r, U: dp_dag_general(
 
 distance_weights_1 = {'topics': 1.0}
 distance_weights_2 = {'topics': 0.2, 'bow': 0.8}
-distance_weights_3 = {'topics': 0.5, 'bow': 0.5, 'hashtag_bow': -0.1}
+distance_weights_3 = {'topics': 0.5, 'bow': 0.5, 'hashtag_bow': 0.1}
 
 
 class CalcMGMixin(object):
