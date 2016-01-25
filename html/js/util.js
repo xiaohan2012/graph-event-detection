@@ -3,14 +3,18 @@ function dict2html(d, fields){
 	var truncate_len = 2000;
 	if(typeof fields === "undefined"){
 		_.each(d, function(v, k, lst){
-			html += ("<div><strong>" + k + ":  </strong>");
-			html += ("<span>" + truncate_string(d[k], truncate_len) + "</span></div>");
+			if(d[k] != undefined){
+				html += ("<div><strong>" + k + ":  </strong>");
+				html += ("<span>" + truncate_string(d[k], truncate_len) + "</span></div>");
+			}
 		});
 	}
 	else{
 		_.each(fields, function(k){
-			html += ("<div><strong>" + k + ":  </strong>");
-			html += ("<span>" + truncate_string(d[k], truncate_len) + "</span></div>");
+			if(d[k] != undefined){
+				html += ("<div><strong>" + k + ":  </strong>");
+				html += ("<span>" + truncate_string(d[k], truncate_len) + "</span></div>");
+			}
 		});
 	}
 	return html;

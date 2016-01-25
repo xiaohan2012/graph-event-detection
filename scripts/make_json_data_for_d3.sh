@@ -57,6 +57,7 @@ for p in $(ls ${pickle_dir}/result-*.pkl); do
 		--interactions_path "data/${dataset}/interactions.json" \
 		--people_path "data/${dataset}/people.json" \
 		--to_original_graph \
+		--k 30 \
 		${extra}
 
 	echo 'dumping event to meta graph'
@@ -65,6 +66,7 @@ for p in $(ls ${pickle_dir}/result-*.pkl); do
 		--dirname "${output_dir}/event/meta_graph" \
 		--interactions_path "data/${dataset}/interactions.json" \
 		--people_path "data/${dataset}/people.json" \
+		--k 30 \
 		${extra}
 done
 

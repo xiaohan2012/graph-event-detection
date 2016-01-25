@@ -73,7 +73,7 @@ $(document).ready(function(){
 		
 		var graph_type_config = {
 			'original_graph': {
-				force: {charge: -500, linkDistance: 100},
+				force: {charge: -100, linkDistance: 50},
 				tip: {
 					html: function(d){
 						return dict2html(d);
@@ -86,7 +86,7 @@ $(document).ready(function(){
 				}
 			},
 			'meta_graph': {
-				svg: {width: 1280, height: 1500},
+				svg: {width: 5000, height: 5000},
 				force: {charge: -500, linkDistance: 50},
 				tip: {
 					html: function(d){
@@ -97,7 +97,7 @@ $(document).ready(function(){
 						d['recipients_str'] = _.map(d['recipients'], function(r){
 							return r.name;
 						}).join(',  ');
-						return dict2html(d, ['subject', 'body', 'hashtags', 'sender_str', 'recipients_str', 'date', 'message_id']);
+						return dict2html(d, ['subject', 'body', 'hashtags', 'sender_str', 'recipients_str', 'date', 'message_id', 'cluster_label']);
 					}
 				},
 				node: {
@@ -136,7 +136,7 @@ $(document).ready(function(){
 		var ret = $.extend(
 			true, // deep
 			{
-				svg: {width: 960, height: 1000},
+				svg: {width: 1280, height: 1280},
 				force: {charge: -150, linkDistance: 500},
 				tip: {
 					offset: [0, 0],

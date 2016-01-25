@@ -30,6 +30,7 @@ for p in $(ls ${pickle_dir}/result-*.pkl); do
 		--corpus_dict_path  data/${dataset}/dict.pkl \
 		--lda_model_path $(ls data/${dataset}/model-*.lda) \
 		--output_path "${output_dir}/timeline/${output_name}" \
+		-k 30 \
 		${extra}
 	echo "Writing to '${output_dir}/timeline/${output_name}'"
 done
