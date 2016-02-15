@@ -428,3 +428,45 @@ TODO:
 - computation time comparison
 - how to choose U using percentile?
 - scale the node size by message count(original graph)
+
+
+## Week 12
+
+Day 2:
+
+- PCST papers:
+  - [A General Approximation Technique For Constrained Forest Problems*](http://math.mit.edu/~goemans/PAPERS/GoemansWilliamson-1995-AGeneralApproximationTechniqueForConstrainedForestProblems.pdf) and [matlab code](http://www.mathworks.com/matlabcentral/fileexchange/39916-an-approximation-solution-for-the-prize-collecting-steiner-tree-problem): undirected case
+  - [Solving the Prize-Collecting Steiner Tree Problem to Optimality](http://www.siam.org/meetings/alenex05/papers/06iljubic.pdf): directed case
+
+- A better approximation algorithm for the budget prize collecting tree problem(4-approximation)
+- [Improved Approximation Algorithms for (Budgeted) Node-weighted Steiner Problems](http://arxiv.org/pdf/1304.7530.pdf): more general problem, using primal-dual method with approximation guarantee 
+- [Solving the bi-objective prize-collecting Steiner tree problem with the ǫ-constraint method](http://homepage.univie.ac.at/markus.leitner/research/pub/pdf/leitner-13b.pdf): no approximation guarantee
+- [Approximation Algorithms for Constrained Node Weighted Steiner Tree Problems](http://www.cs.technion.ac.il/~rabani/Papers/MossR-SICOMP-revised.pdf): log|V| approximation
+
+
+## Week 13
+
+Day 1:
+
+- K-MST:
+  - [A 2 + ε approximation algorithm for the k-MST problem](http://dl.acm.org/citation.cfm?id=338636)
+  - [Saving an epsilon: a 2-approximation for the k-MST problem in graphs](http://dl.acm.org/citation.cfm?id=1060650)
+
+
+
+Learned:
+
+- K-MST for rooted and unrooted versions are equivalent.
+- Quota can be *directly* approximated by K-MST
+- Quota algorithm can be used to approximate the budget version using binary search(with 5-approximation guarantee).
+- Directed version seems to be much harder than undirected version([directed steiner forest](http://crab.rutgers.edu/~guyk/pub/sf/nabs.pdf))
+
+
+If modifiing of Problem 3 when modelled using quota problem.
+
+Still maximum set cover, but the set becomes topics or hashtags. In this case, only one event in multiple events of the same topic will be covered. 
+
+
+
+
+
