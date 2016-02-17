@@ -468,5 +468,25 @@ Still maximum set cover, but the set becomes topics or hashtags. In this case, o
 
 
 
+Day 2:
+
+- Constrained forest problems with proper function:
+  - T-join(shortest path and minimum-weight perfect matching as special case)
+  - generalized Steiner tree(minimum spanning tree as special case)
+  - point-to-point connection(fix and non-fix versions)
+  - exact partitioning(tree/path/tour): using the general algorithms as subroutine and with different approximation
+- Understanding the algorithm and approximation gaurantee proof
+
+Day 3:
+
+- Constrained forest problems with *improper* function:
+  - lower capacitated partitioning problem: each component has at least k vertices
+  - prize collecting (steiner tree/traveler)
+- algorithm and approximation proof for PCST
+- Relationship between PCST and K-MST
+  - through Lagranian relaxation, K-MST becomes PCST and bounded by PCST
+  - feasible solution for K-MST can be extracted by adjusting \\( \lambda \\)
+  - bound proof not checked
+
 
 
