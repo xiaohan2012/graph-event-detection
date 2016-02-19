@@ -488,5 +488,26 @@ Day 3:
   - feasible solution for K-MST can be extracted by adjusting \\( \lambda \\)
   - bound proof not checked
 
+Day 4:
+
+- Used to think PCST for DAG is solvable for optimal solution using the greedy algorithm, however found the linear program should change for directed graph
+- Formed a wrong linear program
+
+Day 5:
 
 
+- Undirected graph: S to connected-component/tree. Does the LP still hold?
+- If so, what about directed graph?
+- If so, how about general diracted graph and DAG?
+  - GDG: a circle(will skip the constraint as it's not a tree) plut some edge that points to it. So, the LP does not hold. Other cases?
+  - DAG: as not circle, it holds(diamonds? DAGs?)
+
+
+- Linear program for DiGraph:
+  - \\(S\\) is constrained to be connceted-component/tree
+  - component degree function changed to in-degree to component root
+  - checking the new program: is it possible to have a solution that satisfies the constraints but is actually infeasible?
+    - a disconnected component: impossible
+	- a circle: 
+  - current answer: no
+  
