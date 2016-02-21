@@ -1,5 +1,6 @@
 # simulate interactions
 
+import random
 import numpy as np
 import itertools
 from interactions import InteractionsUtil as IU
@@ -34,6 +35,36 @@ def gen_event(event_size, participants,
             'recipient_ids': [recipient_id],
             'timestamp': timestamp,
             'topics': interaction_topic
+        })
+    return event
+
+
+def gen_event_via_random_people_network(event_size, participants,
+                                        start_time, end_time,
+                                        event_topic_param):
+    """at each iteration, generate a message,
+    which is sent by some guy who already spoke
+    """
+    participants_so_far = set()
+    event = []
+    time_step = (end_time - start_time) / float(event_size)
+    for i in xrange(event_size):
+        if len(participants_so_far) == 0:
+            participants_so_far.add(random.choice(participants))
+        sender_id = random.choice(list(participants_so_far))
+        while True:
+            recipient_id = random.choice(participants)
+            if sender_id != recipient_id:
+                break
+
+        print(i, sender_id, recipient_id, time_step * (i+1))
+        participants_so_far.add(recipient_id)
+        event.append({
+            'message_id': i,  # will be changed later
+            'sender_id': 'u-{}'.format(sender_id),
+            'recipient_ids': ['u-{}'.format(recipient_id)],
+            'timestamp': time_step * (i+1),
+            'topics': np.random.dirichlet(event_topic_param)
         })
     return event
 
@@ -76,19 +107,27 @@ def random_events(n_events, event_size_mu, event_size_sigma,
         if end_time > max_time:
             end_time = max_time
 
-        event = gen_event(event_size, participants, start_time, end_time,
-                          event_topic_param)
+        event = gen_event_via_random_people_network(
+            event_size, participants, start_time, end_time,
+            event_topic_param
+        )
 
         while True:
             event = gen_event(event_size, participants, start_time, end_time,
                               event_topic_param)
-            n_interactions_in_mg = IU.get_meta_graph(
+            g = IU.get_meta_graph(
                 event,
                 decompose_interactions=False,
                 remove_singleton=True,
-                given_topics=True).number_of_nodes()
+                given_topics=True)
+            n_interactions_in_mg = g.number_of_nodes()
 
             if n_interactions_in_mg == len(event):
+                roots = [n
+                         for n, d in g.in_degree(g.nodes_iter()).items()
+                         if d == 0]
+                if len(roots) > 1:
+                    print("WARNING: roots number {}".format(len(roots)))
                 break
             else:
                 print(
@@ -173,8 +212,8 @@ def main():
     parser.add_argument('--participant_mu', type=int, default=5)
     parser.add_argument('--participant_sigma', type=int, default=3)
 
-    parser.add_argument('--min_time', type=int, default=0)
-    parser.add_argument('--max_time', type=int, default=100)
+    parser.add_argument('--min_time', type=int, default=10)
+    parser.add_argument('--max_time', type=int, default=110)
     parser.add_argument('--event_duration_mu', type=int, default=5)
     parser.add_argument('--event_duration_sigma', type=int, default=3)
 

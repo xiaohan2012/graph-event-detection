@@ -6,9 +6,11 @@ import itertools
 from collections import Counter
 from nose.tools import assert_equal, assert_true
 
+from dag_util import get_roots
 from interactions import InteractionsUtil as IU
 from artificial_data import random_topic, random_events, \
-    random_noisy_interactions, make_articifial_data
+    random_noisy_interactions, make_articifial_data, \
+    gen_event_via_random_people_network
 
 
 class ArtificialDataTest(unittest.TestCase):
@@ -80,7 +82,7 @@ class ArtificialDataTest(unittest.TestCase):
              for e in events]
         )
         np.testing.assert_almost_equal(
-            5,
+            4,
             mean_n_participants,
             decimal=0
         )
@@ -169,3 +171,29 @@ class ArtificialDataTest(unittest.TestCase):
             int(n_event_interactions * fraction),
             total - n_event_interactions
         )
+
+
+def test_gen_event_via_random_people_network():
+    event_topic_param = random_topic(10, topic_noise=0.0001)
+    participants_n = 10
+    event_size = 100
+    event = gen_event_via_random_people_network(
+        event_size,
+        participants=range(participants_n),
+        start_time=10,
+        end_time=110,
+        event_topic_param=event_topic_param
+    )
+    sender_ids = set([e['sender_id'] for e in event])
+    recipient_ids = set([e['recipient_ids'][0] for e in event])
+    assert_equal(participants_n, len(sender_ids))
+    assert_equal(participants_n, len(recipient_ids))
+
+    g = IU.get_meta_graph(
+        event,
+        decompose_interactions=False,
+        remove_singleton=True,
+        given_topics=True
+    )
+    assert_equal(1, len(get_roots(g)))
+    assert_equal(event_size, len(event))
