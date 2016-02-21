@@ -82,7 +82,7 @@ class ArtificialDataTest(unittest.TestCase):
              for e in events]
         )
         np.testing.assert_almost_equal(
-            4,
+            5,
             mean_n_participants,
             decimal=0
         )
@@ -193,7 +193,8 @@ def test_gen_event_via_random_people_network():
         event,
         decompose_interactions=False,
         remove_singleton=True,
-        given_topics=True
+        given_topics=True,
+        convert_time=False
     )
     assert_equal(1, len(get_roots(g)))
     assert_equal(event_size, len(event))

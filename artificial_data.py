@@ -57,13 +57,12 @@ def gen_event_via_random_people_network(event_size, participants,
             if sender_id != recipient_id:
                 break
 
-        print(i, sender_id, recipient_id, time_step * (i+1))
         participants_so_far.add(recipient_id)
         event.append({
             'message_id': i,  # will be changed later
             'sender_id': 'u-{}'.format(sender_id),
             'recipient_ids': ['u-{}'.format(recipient_id)],
-            'timestamp': time_step * (i+1),
+            'timestamp': start_time + time_step * (i+1),
             'topics': np.random.dirichlet(event_topic_param)
         })
     return event
@@ -112,29 +111,32 @@ def random_events(n_events, event_size_mu, event_size_sigma,
             event_topic_param
         )
 
-        while True:
-            event = gen_event(event_size, participants, start_time, end_time,
-                              event_topic_param)
-            g = IU.get_meta_graph(
-                event,
-                decompose_interactions=False,
-                remove_singleton=True,
-                given_topics=True)
-            n_interactions_in_mg = g.number_of_nodes()
+        # some checking
+        g = IU.get_meta_graph(
+            event,
+            decompose_interactions=False,
+            remove_singleton=True,
+            given_topics=True,
+            convert_time=False)
+        n_interactions_in_mg = g.number_of_nodes()
 
-            if n_interactions_in_mg == len(event):
-                roots = [n
-                         for n, d in g.in_degree(g.nodes_iter()).items()
-                         if d == 0]
-                if len(roots) > 1:
-                    print("WARNING: roots number {}".format(len(roots)))
-                break
-            else:
-                print(
-                    'regenrating the event as it\'s not a valid meta graph. {} < {}'.format(
-                        n_interactions_in_mg,
-                        len(event)
-                    ))
+        if n_interactions_in_mg == len(event):
+            roots = [n
+                     for n, d in g.in_degree(g.nodes_iter()).items()
+                     if d == 0]
+            if len(roots) > 1:
+                print(roots)
+                for r in roots:
+                    print(event[r])
+                print("WARNING: roots number {}".format(len(roots)))
+                raise
+        else:
+            print(
+                'invalid meta graph. {} < {}'.format(
+                    n_interactions_in_mg,
+                    len(event)
+                ))
+            raise
         events.append(event)
 
     return events

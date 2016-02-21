@@ -43,7 +43,8 @@ class InteractionsUtil(object):
     valid_token_regexp = re.compile('^[a-zA-Z][a-zA-Z0-9]?[_()\-a-zA-Z0-9]+$')
 
     @classmethod
-    def clean_interactions(self, interactions, undirected=False):
+    def clean_interactions(self, interactions, undirected=False,
+                           convert_time=True):
         """Some cleaning. Functional
         """
         new_interactions = []
@@ -58,23 +59,24 @@ class InteractionsUtil(object):
             else:
                 i['participant_ids'] = list(set(i['participant_ids']))
 
-            # normalize datetime and timestamp
             if 'timestamp' in i:
                 i['datetime'] = i['timestamp']
-            try:
-                i['datetime'] = get_datetime(i['datetime'])
-            except TypeError:
-                logger.warn(
-                    'Error parsing datetime, {} of type {}'.format(
-                        i['datetime'],
-                        type(i['datetime'])
+            if convert_time:
+                # normalize datetime and timestamp
+                try:
+                    i['datetime'] = get_datetime(i['datetime'])
+                except TypeError:
+                    logger.warn(
+                        'Error parsing datetime, {} of type {}'.format(
+                            i['datetime'],
+                            type(i['datetime'])
+                        )
                     )
+                    continue
+                i['timestamp'] = time.mktime(
+                    i['datetime'].timetuple()
                 )
-                continue
-            i['timestamp'] = time.mktime(
-                i['datetime'].timetuple()
-            )
-             
+
             new_interactions.append(i)
         return new_interactions
 
@@ -150,7 +152,8 @@ class InteractionsUtil(object):
                        decompose_interactions=True,
                        remove_singleton=True,
                        given_topics=False,
-                       apply_pagerank=False):
+                       apply_pagerank=False,
+                       convert_time=True):
         """
         Return the meta graph together with temporally sorted interactions
         
@@ -164,14 +167,16 @@ class InteractionsUtil(object):
             interactions = cls.decompose_interactions(
                 cls.clean_interactions(
                     interactions,
-                    undirected=undirected
+                    undirected=undirected,
+                    convert_time=convert_time
                 )
             )
         else:
             logger.info("cleaning interactions...")
             interactions = cls.clean_interactions(
                 interactions,
-                undirected=undirected
+                undirected=undirected,
+                convert_time=convert_time
             )
 
         if not undirected:
@@ -442,7 +447,8 @@ class InteractionsUtil(object):
                              remove_singleton=True,
                              given_topics=False,
                              apply_pagerank=False,
-                             distance_weights={'topics': 1}):
+                             distance_weights={'topics': 1},
+                             convert_time=True):
         logger.debug('getting meta graph...')
         mg = cls.get_meta_graph(interactions,
                                 undirected=undirected,
@@ -450,7 +456,8 @@ class InteractionsUtil(object):
                                 preprune_secs=preprune_secs,
                                 remove_singleton=remove_singleton,
                                 given_topics=given_topics,
-                                apply_pagerank=apply_pagerank)
+                                apply_pagerank=apply_pagerank,
+                                convert_time=convert_time)
 
         if not given_topics:
             for k in distance_weights:
