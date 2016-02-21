@@ -4,7 +4,7 @@ from .pcst import pcst_greedy
 
 
 class PCSTTest(unittest.TestCase):
-    def run_test(self, g, r, expected_edges, expected_missing_nodes):
+    def _run_test(self, g, r, expected_edges, expected_missing_nodes):
         t, x = pcst_greedy(g, r)
         print(t.edges())
         self.assertEqual(sorted(expected_edges),
@@ -26,7 +26,7 @@ class PCSTTest(unittest.TestCase):
 
     def test_pcst_digraph(self):
         g = self.get_g_with_circle_1()
-        self.run_test(g, 'A',
+        self._run_test(g, 'A',
                       [('A', 'C'), ('C', 'B')],
                       [])
 
@@ -36,7 +36,7 @@ class PCSTTest(unittest.TestCase):
         g.node['D']['p'] = 0
         g.node['E']['p'] = 0
 
-        self.run_test(g, 'A',
+        self._run_test(g, 'A',
                       [('A', 'C'), ('C', 'B')],
                       ['D', 'E'])
     
@@ -59,7 +59,7 @@ class PCSTTest(unittest.TestCase):
             (4, 5, {'c': 10}),
         ])
         nodes = (A, B, C, D, E, 1, 2, 3, 4, 5)
-        penalties = (200, 10, 150, 20, 100) + (0.1, ) * 5
+        penalties = (200, 10, 150, 20, 100) + (0., ) * 5
         for n, p in zip(nodes, penalties):
             g.node[n]['p'] = p
         return g
@@ -67,7 +67,7 @@ class PCSTTest(unittest.TestCase):
     def test_ivana_example(self):
         # https://homepage.univie.ac.at/ivana.ljubic/research/pcstp/
         g = self.get_ivana_example()
-        self.run_test(g, 'A',
+        self._run_test(g, 'A',
                       [('A', 2), ('A', 3), ('A', 'E'), (2, 'C'), (3, 'B')],
                       ['D', 1, 4, 5])
 

@@ -58,9 +58,9 @@ def pcst_greedy(g, r):
             if lmbd[c]:
                 w[c] += eps
                 d[Ct[c]] += eps
-        print('eps: ', eps)
+        # print('eps: ', eps)
         if eps_1 < eps_2:
-            print('chose edge ({}, {})'.format(*edge))
+            # print('chose edge ({}, {})'.format(*edge))
             # merge two components
             F.add(edge)
             C.remove(min_cp)
@@ -72,7 +72,7 @@ def pcst_greedy(g, r):
             w[c] = w[min_cp] + w[min_cq]
             lmbd[c] = (0 if r in c else 1)
         else:
-            print('deactivate {})'.format(min_c, ))
+            # print('deactivate {})'.format(min_c, ))
             # deactivate
             lmbd[min_c] = 0
             for v in min_c:
