@@ -496,18 +496,64 @@ Day 4:
 Day 5:
 
 
-- Undirected graph: S to connected-component/tree. Does the LP still hold?
-- If so, what about directed graph?
-- If so, how about general diracted graph and DAG?
-  - GDG: a circle(will skip the constraint as it's not a tree) plut some edge that points to it. So, the LP does not hold. Other cases?
-  - DAG: as not circle, it holds(diamonds? DAGs?)
+- Undirected graph: S to connected-component(in other words, tree). Does the LP still gaurantee feasible solution?
+  - suppose an infeasible solution exists meanwhile satisfies the constraints
+    1. disconnected tree?(impossible, violates the constraints)
+	2. a circle(will skip the constraints)
+  - so, LP does not gaurantee a feasible solution
+- Let S be tree and the degree sum function be root in-degree, does the LP hold for general diracted graph(GDG) and DAG?
+  - suppose again(infeasible sol without failing consts)
+  - GDG: a circle(will skip the constraint as it's not a tree). So, the LP does not hold.
+  - DAG:
+    - circle: no circle can exist as it's DAG
+	- diamond: we can make it feasible by removing one of the edges meanwhile decreasing the obj function
+  - does it make other constraints fail(conflicting constraints, only one can be satisfied)?
+    - YES
+  - So the modified LP does not hold
+  - let's go back to the original def
 
 
-- Linear program for DiGraph:
-  - \\(S\\) is constrained to be connceted-component/tree
-  - component degree function changed to in-degree to component root
-  - checking the new program: is it possible to have a solution that satisfies the constraints but is actually infeasible?
-    - a disconnected component: impossible
-	- a circle: 
-  - current answer: no
-  
+Day 6:
+
+
+- S unchanged(it contains covered nodes and possibly uncovered ones) and degree sum function to in-degree sum
+  - will satisfication of some constraint violate those of others?
+    - cannot find counter examples
+  - DAG: try counter-cases
+    - S = (B, A) and B -> A and C -> A: violates
+    - disconnected tree? violates
+	- diamond? same argument as above
+  - general DiGraph:
+    - circle? similar to diamond(remove one edge)
+
+
+
+Algorithm
+
+1. Find edge e = (i, j) with \\( i \in  C_p \in \mathcal{C}, j=C_q.root , C_q \in \mathcal{C}, C_p \neq C_q \\) that minimizes \\( \epsilon = \frac{c_e - d(j)}{f(C_q)}\\)
+2. \\( F = F \cup \{e\} \\)
+3. For each \\( C \in \mathcal{C} \\), \\(d(C.root) += \epsilon f(c)\)
+4. the rest are the same with
+
+Justification on the modification:
+
+1. \\( d(i) = \sum\limits{\{C | \text{is a tree(created sometime up till now) } && C.root = i\}} y_C \\): induction(k and k+1 iteration, i is root/no-root before/after)
+2. \\( \sum\limits{e \in \sigma(S)} y_S = d(j)\\), where \\( e=(i, j)\\): suppose if there is a tree \\(C\\) such that \\(y_C>0\\) and \\(j\\) is not root in \\(C\\), then the algorithm has formed such a tree before, which is a contradiction because \\(j\\) is a root in the current component.
+
+Approximation gaurantee proof:
+
+- left-hand side = \\( \sum\limits_{S}y_S |F^{'} \cap \sigma(S)| + \sum\limits_{j}\sum\limits_{S \subseteq C_j} y_S\\)
+- At each iteraction, left-hand side increases by \\( \epsilon (\sum\limits_{v \in N_a} din_v + |N_d|) = \epsilon (\sum\limits_{v \in N_a - N_d} din_v + |N_d|) = \epsilon (|N_a-N_d| + |N_d|) = \epsilon |N_a|\\)
+- At each iteraction, right hand side increases \\(\epsilon |N_a|\\)
+- So it's optimal
+
+
+Problem found:
+
+1. for general DiGraph: an example where the greedy solution yields value(the lower bound) **greater** than optimal primal solution. If LP is right, then the way I calculate the LB is wrong(the algorithm can be wrong).
+
+
+
+Irrelevant:
+
+ - remove nodes not reachable from root for example, remove the edge C->B in case of C->B and A->B
