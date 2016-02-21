@@ -81,10 +81,51 @@ def pcst_greedy(g, r):
         
     t = nx.DiGraph()
     t.add_edges_from(F)
+    for n in t.nodes_iter():
+        t.node[n]['p'] = g.node[n]['p']
+    for i, j in t.edges_iter():
+        t[i][j]['c'] = g[i][j]['c']
     
     edges = t.edges()
     for i, j in edges:
-        if not nx.has_path(g, r, j):
+        if not nx.has_path(t, r, j):
             t.remove_edge(i, j)
+
+    nodes = t.nodes()
+    for n in nodes:
+        if t.degree(n) == 0:
+            t.remove_node(n)
+
     return t, list(set(g.nodes()) - set(t.nodes()))
 
+
+def solve_budget_using_binary_search(g, r, B, eps=0.1):
+    """node reward are uniform
+    """
+    graph_edge_cost = lambda g: sum(
+        (g[i][j]['c'] for i, j in g.edges_iter())
+    )
+    edge_cost_sum = graph_edge_cost(g)
+    lmbd1, lmbd2 = 0, edge_cost_sum
+    cost = edge_cost_sum
+
+    while np.abs(lmbd2 - lmbd1) > eps:
+        lmbd = np.mean([lmbd1, lmbd2])
+        # print('lambda: ', lmbd)
+        for n in g.nodes_iter():
+            g.node[n]['p'] = lmbd
+        t, x = pcst_greedy(g, r)
+        cost = graph_edge_cost(t)
+
+        reward = sum(g.node[n]['p'] for n in t.nodes_iter())
+        # print('cost:', cost)
+        # print('reward:', reward / lmbd)
+        # print()
+        
+        if cost > B:
+            lmbd2 = lmbd
+        elif cost < B:
+            lmbd1 = lmbd
+        else:
+            return t
+    return t
