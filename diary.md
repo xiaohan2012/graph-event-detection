@@ -557,3 +557,173 @@ Problem found:
 Irrelevant:
 
  - remove nodes not reachable from root for example, remove the edge C->B in case of C->B and A->B
+
+
+Day 7
+
+1. PCST + binary search
+2. problem with synthetic data: multiple roots for one event
+
+
+
+## Week 14
+
+Day 1
+
+- pcst for dag(attempt to prove approximation bound)
+- prepare for the upper bound and re-using the result during sampling
+- future plan/schedule, make it formal into list with time
+
+- slides draft for meta-path(paper selection)
+- slides draft for my own work(what to include)
+- algorithm experiment on single tree
+
+- collective classification: [short paper](http://web.cs.wpi.edu/~xkong/publications/papers/cikm12.pdf), [long paper](https://www.cs.uic.edu/~xkong/kais_mcc.pdf) and [slides](http://users.wpi.edu/~xkong/paper/cikm12_slides.pdf)
+
+Day 2
+
+- presentation
+- problem found for PCST-DiGraph:
+  - an example where suboptimal solution is found
+  - Lower bound(sum of y\_s) larger than the optimal solution for integer program
+
+Day 3
+
+Reading about the book
+
+Day 4:
+
+Problem: dual objective value larger than optimal primal value
+
+Possible causes:
+
+- calculation(on primal and dual obj value) is wrong
+- dual form is wrong
+- the algorithm does not run exactly as the primal-dual form specifies
+  - in the algorithm, we only choose the root to connect
+  - in the mathematical form, there is no such restriction
+- the minimal violation set at each iteration should not be the connected component, but is the root of the component
+
+Now I know why the dual objective value is larger:
+
+The basic idea of primal-dual approximation algorithm is:
+
+- If the primal solution is infeasible, we increase the dual variables and tighten some dual constraint(s) a time and according to primal complementary slackness, we add one edge to the answer set(x_e = 1) to make the current solution less infeasible
+- We iterate until the primal solution is feasible. Along the way, the dual solution remains feasible.
+- We compare the dual solution against primal solution to get the approximation guarantee.
+
+
+In the greedy algorithm for the undirected graph, for each iteration, we tighten one of the constraints by increasing dual variables as small as possible.
+
+And according to the primal LP formulation for directed graph, it's ok to add edges and let one node being pointed to by more than one edge. This is undesirable, however as we want the result to by a tree and this motivates the idea of my greedy algorithm.
+
+In the greedy algorithm, we contrain that **only** edges whose end point correspond to one of the components' root can be added. This actually eliminate the possibility of other types of edges(undesired edges discussed above) to be added.
+
+Therefore, by adding only our target type of edges, while we tighten one of the dual constraints(the epsilon might not be the minimum we can take), some other dual constraints corresponding to the undesired edges might be **broken**. Thus, the dual solution does not necessarily remain feasible any more.
+
+Given that dual solution can be infeasible, it's no longer a lower bound so we cannot compare its value to the primal solution.
+
+
+Day 5:
+
+- Read the book, understand how the proof for PCST is done.
+- Derive an algorithm for general directed graph, which might be incorrect
+- Derive the bound for general directed graph, general DAG and DAG with just one root
+
+If we use the algorithm in Figure 4.3 in the book for directed PCST problem, the minimal violation set would be all the roots of active components. In this case, dual solution might be infeasible as dual constraints can be broken.
+
+However, if we use all the active components as the violation set, the solution before reverse deletion can be infeasible. The reverse deletion step would not work as the input solution to it is infeasible already, how can we make it feasible after this step?
+
+- No idea on how to formulate integer program for PCST-DAG specifically
+- No idea on the algorithm if we use the original integer program
+  - what is the VIOLATION-SET oracle?
+- Is PCST-DAG NP-hard?
+  - how is PCST NP-hard derived? derive steiner tree(ST) to PCST as ST is special case of PCST
+  
+Day 6&7:
+
+Undirected
+
+- [Algorithmic expedients for the Prize Collecting Steiner Tree Problem](http://www.sciencedirect.com/science/article/pii/S1572528610000022)
+- [An Algorithmic Framework for the Exact Solution of the Prize-Collecting Steiner Tree Problem](http://homepages.cwi.nl/~klau/pubs/lwpkmf-psctp.pdf): used some directed method, worth checking, related [An Algorithmic Framework for the Exact Solution of the Prize-Collecting Steiner Tree Problem](http://search.proquest.com/docview/232850336?pq-origsite=gscholar)
+  - preprocessing:
+    1. least-cost test: path from i to j has less cost than edge from i to j, remove the edge
+	2. 
+  
+- [The Prize-collecting Steiner Tree Problem and Underground Mine Planning](https://uwaterloo.ca/computational-mathematics/sites/ca.computational-mathematics/files/uploads/files/weibei_li.pdf):K-cardinality PCST: collect only K vertices. Borrows idea from the branch-cut algorithm in the above paper
+- [Algorithms for the Maximum Weight Connected Subgraph and Prize-collecting Steiner Tree Problems, 2011](http://dimacs11.cs.princeton.edu/workshop/AlthausBlumenstock.pdf): exact algorithms. reduces the size and uses mixed-integer programming. some insights on solving large steiner tree problems
+- [A fast heuristic for the prize-collecting Steiner tree problem](http://www.orlabanalytics.ca/lnms/archive/v6/lnmsv6p207.pdf)
+- [Combining a Memetic Algorithm with Integer Programming to Solve the Prize-Collecting Steiner Tree Problem](http://link.springer.com/chapter/10.1007%2F978-3-540-24854-5_125#page-1): finds something in the directed graph
+- [On the performance of a cavity method based algorithm for the Prize-Collecting Steiner Tree Problem on graphs](http://arxiv.org/pdf/1309.0346.pdf)
+- [Simultaneous Reconstruction of Multiple Signaling Pathways via the Prize-Collecting Steiner Forest Problem](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3576906/)directed or undirected networks, message passing approach
+- [A Primal-Dual Clustering Technique with Applications in Network Design](http://mhbateni.com/academic/phd-thesis.pdf): PhD thesis advised by Charikar
+- [An Improved LP-based Approximation for Steiner Tree](http://dl.acm.org/citation.cfm?id=1806769)
+
+Directed:
+
+- [Facets of two Steiner arborescence polyhedra](http://link.springer.com/article/10.1007%2FBF01586946#page-1): study the facial structure of two polyhedra associated with steiner problem
+- [Approximation Algorithms for Directed Steiner Problems](https://www.cis.upenn.edu/~sudipto/mypapers/dir_steiner.pdf): with approximation guarantee
+  - density(combines cost and number of terminals) as the heuristic
+  - recursive definition of optimal *l*-level tree based on the result of *l-1*-level trees(inspired from the worst case example)
+  - DAG has some interesting structure(for example maximum level is bounded by the depth of the tree)
+- [A dual ascent approach for steiner tree problems on a directed graph](http://link.springer.com/article/10.1007%2FBF02612335)
+- [A recursive greedy algorithm for walks in directed graphs](http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=1530718): budgeted/capacipated prize-collecting traveling salesman(related to vehicle routing), with a reference to [A Survey on the Vehicle Routing Problem and Its Variants](http://www.scirp.org/journal/PaperInformation.aspx?PaperID=19355). What's the connection to tree?
+  - recursive definition of best s-t path: best(path(s, v, B'), path(v, t, B-B')), for all mid point, v and budget allocation, B'
+- [Improved approximating algorithms for Directed Steiner Forest](http://dl.acm.org/citation.cfm?id=1496870)
+
+
+Budget problem
+
+
+- [Fast heuristics for the Steiner tree problem with revenues, budget and hop constraints](https://www.researchgate.net/publication/222521363_Fast_heuristics_for_the_Steiner_tree_problem_with_revenues_budget_and_hop_constraints): heuristic, undirected
+- [A better approximation algorithm for the budget prize collecting tree problem](http://www.sciencedirect.com/science/article/pii/S0167637703001469): undirected, (4+\epsilon)-approximation
+  - applies algorithm for quota problem iteratively
+- [Improved Approximation Algorithms for (Budgeted) Node-weighted Steiner Problems](http://arxiv.org/pdf/1304.7530.pdf): more general problem, using primal-dual method with approximation guarantee. node weight and cost
+- [Approximation Algorithms for Constrained Node Weighted Steiner Tree Problems](http://www.cs.technion.ac.il/~rabani/Papers/MossR-SICOMP-revised.pdf): log|V| approximation
+
+
+
+K-MST
+
+- [Obtaining optimal k-cardinality trees fast](http://dl.acm.org/citation.cfm?id=1537600): works for undirected graph but in the algorihtm, transformed into k-Cardinality Arborescence Problem
+  - why convert it to directed tree?
+  - many unknown terms: maximum flow
+  - practically optimal: impressive
+- [Blocking optimal k-arborescences](http://arxiv.org/pdf/1507.04207v1.pdf)
+
+
+Others:
+
+- [A Compendium on Steiner Tree Problems](http://theory.cs.uni-bonn.de/info5/steinerkompendium/netcompendium.pdf): pointer to many variation of steiner tree problems
+- [The Design of Approximation Algorithms](http://www.designofapproxalgs.com/book.pdf)
+- [branch and cut](http://homepages.rpi.edu/~mitchj/papers/bc_hao.pdf)
+- [branch and bound](http://www.imada.sdu.dk/Employees/jbj/heuristikker/TSPtext.pdf)
+
+What to discuss:
+
+- PCST-dag is NP-hard
+- my worry about the semantic drift
+- why I work on PCST: PCST->MST->Quota->Budget
+  - [PCST->MST](http://theory.stanford.edu/~tim/papers/kmst.pdf)
+  - MST = Quota
+  - [Quota -> Budget](http://dl.acm.org/citation.cfm?id=338637): how the 5-approximation comes?
+  - that's for **undirected** case
+- for directed case: I only found resources for steiner problem
+  - how about the paper suggested by Polina?
+- can we modify the problem definition somehow to circumvent this issue(unable to find algorithms for budget-DAG)?
+
+
+Next week:
+
+- some experiment on single trees
+
+
+## Week 15
+
+Day 1
+
+- PCST optimal paper(can we apply branch and cut to the DAG problem?)
+- paper suggested by Aris
+- Polina's suggested paper on Steiner tree on directed graph
+- Organize my words and discussion
+
