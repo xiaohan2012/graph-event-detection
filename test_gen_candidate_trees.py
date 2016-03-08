@@ -72,7 +72,8 @@ class CalcMGMixin(object):
             apply_pagerank=False,
             distance_weights=distance_weights_2
     ):
-
+        # this is NOT necessary any more
+        # the `run` method will calculate the meta graph when needed
         self.some_kws_of_run = {
             'cand_tree_number': None,
             'cand_tree_percent': 0.1,
