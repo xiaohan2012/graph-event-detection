@@ -2,7 +2,12 @@
 
 import random
 import numpy as np
+import networkx as nx
 import itertools
+
+from copy import deepcopy
+
+from experiment_util import weighted_choice
 from interactions import InteractionsUtil as IU
 from experiment_util import get_number_and_percentage, \
     experiment_signature
@@ -66,6 +71,82 @@ def gen_event_via_random_people_network(event_size, participants,
             'topics': np.random.dirichlet(event_topic_param)
         })
     return event
+
+
+def gen_event_with_known_tree_structure(event_size, participants,
+                                        start_time, end_time,
+                                        event_topic_param,
+                                        alpha, tau,
+                                        forward_proba,
+                                        reply_proba,
+                                        create_new_proba):
+    n_participants = len(participants)
+    time_step = (end_time - start_time) / float(event_size)
+    tree = nx.DiGraph()
+    for i in xrange(event_size):
+        time = start_time + time_step * (i+1)
+        if tree.number_of_nodes() == 0:
+            rand_inds = np.random.permutation(n_participants)
+            sender_id = participants[rand_inds[0]]
+            recipient_id = participants[rand_inds[1]]
+        else:
+            # sample a node to connect
+            # weighted by degree and recency
+            nodes = tree.nodes()
+            out_degree = np.asarray([tree.out_degree(n)
+                                     for n in nodes])
+            for n in nodes:
+                print(tree.node[n])
+            recency = np.asarray([time - tree.node[n]['timestamp']
+                                  for n in nodes])
+            weights = alpha * out_degree + np.power(tau, recency)
+            parent = weighted_choice(zip(nodes, weights))[0]
+            print('parent', parent)
+            # randomly choose the type of connection
+            # e.g, forward, reply, create_new
+            c_type = weighted_choice(
+                [('f', forward_proba),
+                 ('r', reply_proba),
+                 ('c', create_new_proba)]
+            )[0]
+            tree.add_edge(parent, i, c_type=c_type)
+
+            if c_type == 'r':
+                sender_id = tree.node[parent]['recipient_id']
+                recipient_id = tree.node[parent]['sender_id']
+            elif c_type == 'f':
+                parent_sender_id = tree.node[parent]['sender_id']
+                sender_id = tree.node[parent]['recipient_id']
+                recipient_id = (participants[r_id]
+                                for r_id in np.random.permutation(n_participants)
+                                if participants[r_id] != sender_id and
+                                participants[r_id] != parent_sender_id).next()
+            else:
+                print(tree.node[parent])
+                sender_id = tree.node[parent]['sender_id']
+                recipient_id = (participants[r_id]
+                                for r_id in np.random.permutation(n_participants)
+                                if participants[r_id] != sender_id).next()
+        tree.add_node(i)
+        tree.node[i] = {
+            'message_id': i,
+            'sender_id': sender_id,
+            'recipient_id': recipient_id,
+            'timestamp': time,
+            'topics': np.random.dirichlet(event_topic_param)
+        }
+    
+    # change int to string
+    event = []
+    for n in tree.nodes_iter():
+        e = tree.node[n]
+        e['sender_id'] = 'u-{}'.format(tree.node[n]['sender_id'])
+        e['recipient_ids'] = ['u-{}'.format(
+            tree.node[n]['recipient_id'])
+        ]
+        del e['recipient_id']
+        event.append(e)
+    return event, tree
 
 
 def random_events(n_events, event_size_mu, event_size_sigma,

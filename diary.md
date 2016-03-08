@@ -1054,6 +1054,8 @@ One approach:
 - in the end, we compare the resulting tree with the true event tree
   - any tree similarity/distance measure?
 
+We can make it even harder, generate one main event and several smaller noisy events. See if the algorithm can find the true event.
+
 Some thinking on the meta graph construction process:
 
 - can we explicitly use the forward/reply relationship in the network:
@@ -1076,3 +1078,15 @@ Some justification on why using tree:
 2. tree is natural:
   - for example, forum thread(nested structure)
 
+
+Day 2:
+
+- tree generation algorithm
+- Charikar's algorithm
+  - test cases
+  - algorithm
+- write
+  - find the template and sketch out the paper structure, e.g, section name and what to include
+  - problem definition
+  - approximation proof for budget problem
+- read the book

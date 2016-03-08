@@ -1,6 +1,7 @@
 import unittest
 import random
 import numpy as np
+import networkx as nx
 import itertools
 
 from collections import Counter
@@ -10,7 +11,8 @@ from dag_util import get_roots
 from interactions import InteractionsUtil as IU
 from artificial_data import random_topic, random_events, \
     random_noisy_interactions, make_articifial_data, \
-    gen_event_via_random_people_network
+    gen_event_via_random_people_network, \
+    gen_event_with_known_tree_structure
 
 
 class ArtificialDataTest(unittest.TestCase):
@@ -198,3 +200,49 @@ def test_gen_event_via_random_people_network():
     )
     assert_equal(1, len(get_roots(g)))
     assert_equal(event_size, len(event))
+
+
+def test_gen_event_with_known_tree_structure():
+    event_size = 100
+    participants_n = 10
+    event, tree = gen_event_with_known_tree_structure(
+        event_size=event_size,
+        participants=range(participants_n),
+        start_time=10, end_time=110,
+        event_topic_param=random_topic(10, topic_noise=0.0001),
+        alpha=1.0, tau=0.8,
+        forward_proba=0.3,
+        reply_proba=0.5,
+        create_new_proba=0.2
+    )
+
+    for e, n in zip(event, tree.nodes_iter()):
+        sid, rid = tree.node[n]['sender_id'], tree.node[n]['recipient_ids'][0]
+        assert_true(sid != rid)
+        assert_equal(e['sender_id'], sid)
+        assert_equal(e['recipient_ids'][0], rid)
+
+    for s, t in tree.edges_iter():
+        sid1, rid1 = tree.node[s]['sender_id'], tree.node[s]['recipient_ids'][0]
+        sid2, rid2 = tree.node[t]['sender_id'], tree.node[t]['recipient_ids'][0]
+        c_type = tree[s][t]['c_type']
+        if c_type == 'r':
+            assert_equal(sid1, rid2)
+            assert_equal(sid2, rid1)
+        elif c_type == 'f':
+            assert_equal(rid1, sid2)
+            assert_true(rid2 != sid1)
+        else:
+            assert_equal(sid1, sid2)
+
+    g = IU.get_meta_graph(
+        event,
+        decompose_interactions=False,
+        remove_singleton=True,
+        given_topics=True,
+        convert_time=False
+    )
+    assert_equal(1, len(get_roots(g)))
+    assert_equal(event_size, len(event))
+    
+    assert_true(nx.is_arborescence(tree))
