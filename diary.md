@@ -1082,6 +1082,7 @@ Some justification on why using tree:
 Day 2:
 
 - tree generation algorithm
+- noisy tree generation algorithm
 - Charikar's algorithm
   - test cases
   - algorithm

@@ -3,9 +3,6 @@
 import random
 import numpy as np
 import networkx as nx
-import itertools
-
-from copy import deepcopy
 
 from experiment_util import weighted_choice
 from interactions import InteractionsUtil as IU
@@ -95,13 +92,12 @@ def gen_event_with_known_tree_structure(event_size, participants,
             nodes = tree.nodes()
             out_degree = np.asarray([tree.out_degree(n)
                                      for n in nodes])
-            for n in nodes:
-                print(tree.node[n])
+
             recency = np.asarray([time - tree.node[n]['timestamp']
                                   for n in nodes])
             weights = alpha * out_degree + np.power(tau, recency)
             parent = weighted_choice(zip(nodes, weights))[0]
-            print('parent', parent)
+
             # randomly choose the type of connection
             # e.g, forward, reply, create_new
             c_type = weighted_choice(
@@ -122,7 +118,6 @@ def gen_event_with_known_tree_structure(event_size, participants,
                                 if participants[r_id] != sender_id and
                                 participants[r_id] != parent_sender_id).next()
             else:
-                print(tree.node[parent])
                 sender_id = tree.node[parent]['sender_id']
                 recipient_id = (participants[r_id]
                                 for r_id in np.random.permutation(n_participants)
@@ -137,22 +132,23 @@ def gen_event_with_known_tree_structure(event_size, participants,
         }
     
     # change int to string
-    event = []
     for n in tree.nodes_iter():
-        e = tree.node[n]
-        e['sender_id'] = 'u-{}'.format(tree.node[n]['sender_id'])
-        e['recipient_ids'] = ['u-{}'.format(
+        tree.node[n]['sender_id'] = 'u-{}'.format(tree.node[n]['sender_id'])
+        tree.node[n]['recipient_ids'] = ['u-{}'.format(
             tree.node[n]['recipient_id'])
         ]
-        del e['recipient_id']
-        event.append(e)
-    return event, tree
+        del tree.node[n]['recipient_id']
+    return tree
 
 
 def random_events(n_events, event_size_mu, event_size_sigma,
                   n_total_participants, participant_mu, participant_sigma,
                   min_time, max_time, event_duration_mu, event_duration_sigma,
-                  n_topics, topic_scaling_factor, topic_noise):
+                  n_topics, topic_scaling_factor, topic_noise,
+                  alpha, tau,
+                  forward_proba,
+                  reply_proba,
+                  create_new_proba):
     # add main events
     events = []
     for i in xrange(n_events):
@@ -187,14 +183,18 @@ def random_events(n_events, event_size_mu, event_size_sigma,
         if end_time > max_time:
             end_time = max_time
 
-        event = gen_event_via_random_people_network(
+        event = gen_event_with_known_tree_structure(
             event_size, participants, start_time, end_time,
-            event_topic_param
+            event_topic_param,
+            alpha, tau,
+            forward_proba,
+            reply_proba,
+            create_new_proba
         )
 
         # some checking
         g = IU.get_meta_graph(
-            event,
+            [event.node[n] for n in event.nodes_iter()],
             decompose_interactions=False,
             remove_singleton=True,
             given_topics=True,
@@ -247,17 +247,25 @@ def random_noisy_interactions(n_noisy_interactions,
     return noisy_interactions
 
 
-def make_articifial_data(
+def make_artificial_data(
         n_events, event_size_mu, event_size_sigma,
         n_total_participants, participant_mu, participant_sigma,
         min_time, max_time, event_duration_mu, event_duration_sigma,
         n_topics, topic_scaling_factor, topic_noise,
-        n_noisy_interactions, n_noisy_interactions_fraction):
+        n_noisy_interactions, n_noisy_interactions_fraction,
+        alpha, tau,
+        forward_proba,
+        reply_proba,
+        create_new_proba):
     events = random_events(
         n_events, event_size_mu, event_size_sigma,
         n_total_participants, participant_mu, participant_sigma,
         min_time, max_time, event_duration_mu, event_duration_sigma,
-        n_topics, topic_scaling_factor, topic_noise
+        n_topics, topic_scaling_factor, topic_noise,
+        alpha, tau,
+        forward_proba,
+        reply_proba,
+        create_new_proba
     )
 
     (n_noisy_interactions, _) = get_number_and_percentage(
@@ -271,7 +279,8 @@ def make_articifial_data(
         n_topics, topic_noise
     )
 
-    all_interactions = list(itertools.chain(*events)) + noisy_interactions
+    event_interactions = [e.node[n] for e in events for n in e.nodes_iter()]
+    all_interactions = event_interactions + noisy_interactions
 
     # add interaction id
     for i, intr in enumerate(all_interactions):
@@ -309,6 +318,17 @@ def main():
                         type=float, default=0.1)
     parser.add_argument('--output_dir', type=str, default='data/synthetic')
 
+    parser.add_argument('--alpha',
+                        type=float, default=1.0)
+    parser.add_argument('--tau',
+                        type=float, default=0.8)
+    parser.add_argument('--forward_proba',
+                        type=float, default=0.3)
+    parser.add_argument('--reply_proba',
+                        type=float, default=0.5)
+    parser.add_argument('--create_new_proba',
+                        type=float, default=0.2)
+
     args = parser.parse_args()
     pprint(vars(args))
 
@@ -316,12 +336,13 @@ def main():
     args_dict = vars(args)
     del args_dict['output_dir']
 
-    events, interactions = make_articifial_data(**args_dict)
+    events, interactions = make_artificial_data(**args_dict)
     sig = experiment_signature(
         n_noisy_interactions_fraction=args.n_noisy_interactions_fraction,
     )
-    json.dump(events,
-              open('{}/events--{}.json'.format(output_dir, sig), 'w'))
+    nx.write_gpickle(events,
+                     '{}/events--{}.pkl'.format(output_dir, sig)
+    )
     json.dump(interactions,
               open('{}/interactions--{}.json'.format(output_dir, sig),
                    'w'))
