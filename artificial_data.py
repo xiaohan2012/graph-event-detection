@@ -254,12 +254,12 @@ def random_noisy_interactions(n_noisy_interactions,
 def get_gen_cand_tree_params(e):
     U = np.sum([cosine(e.node[s]['topics'], e.node[t]['topics'])
                 for s, t in e.edges_iter()])
-    root = get_roots(e)[0]
+    roots = get_roots(e)
     timestamps = [e.node[n]['timestamp'] for n in e.nodes_iter()]
     preprune_secs = np.max(timestamps) - np.min(timestamps)
     return {
         'U': U,
-        'root': root,
+        'roots': roots,
         'preprune_secs': preprune_secs
     }
 

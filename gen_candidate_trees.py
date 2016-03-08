@@ -47,9 +47,9 @@ def calc_tree(node_i, r, U,
               timespan, gen_tree_kws,
               shared_dict,
               print_summary):
-
     # g is shared in memory
     g = shared_dict['g']
+    print('g.nodes', g.nodes())
     sub_g = IU.get_rooted_subgraph_within_timespan(
         g, r, timespan
     )
@@ -114,6 +114,7 @@ def run(gen_tree_func,
             'U': 0.5,
             'dijkstra': False
         },
+        roots=None,
         calculate_graph=False,
         given_topics=False,
         print_summary=False):
@@ -146,7 +147,9 @@ def run(gen_tree_func,
     )
     logger.info('meta_graph_pkl_path: {}'.format(meta_graph_pkl_path))
 
-    if calculate_graph:
+    if calculate_graph or not os.path.exists(meta_graph_pkl_path):
+        # we want to calculate the graph or
+        # it's not there so we have to
         logger.info('calculating meta_graph...')
         meta_graph_kws_copied = copy.deepcopy(meta_graph_kws)
 
@@ -168,8 +171,7 @@ def run(gen_tree_func,
             IU.compactize_meta_graph(g, map_nodes=False),
             meta_graph_pkl_path
         )
-
-    if not calculate_graph:
+    else:
         logger.info('loading pickle...')
         g = nx.read_gpickle(meta_graph_pkl_path)
         
@@ -182,16 +184,21 @@ def run(gen_tree_func,
         cand_tree_number,
         cand_tree_percent
     )
-
-    root_sampling_methods = {
-        'uniform': sample_nodes,
-        'out_degree': sample_nodes_by_out_degree
-    }
     
-    logger.info('sampling root nodes...')
-    roots = root_sampling_methods[root_sampling_method](g, cand_tree_number)
+    if not roots:
+        logger.info('sampling root nodes...')
+        root_sampling_methods = {
+            'uniform': sample_nodes,
+            'out_degree': sample_nodes_by_out_degree
+        }
+        roots = root_sampling_methods[root_sampling_method](
+            g, cand_tree_number)
+    else:
+        logger.info('Roots given')
     logger.info('#roots: {}'.format(len(roots)))
-    logger.info('#cand_tree_percent: {}'.format(len(roots) / float(g.number_of_nodes())))
+    logger.info('#cand_tree_percent: {}'.format(
+        len(roots) / float(g.number_of_nodes()))
+    )
     
     shared_dict = {'g': g}
     
@@ -291,6 +298,9 @@ if __name__ == '__main__':
                         type=float,
                         default=0.5,
                         help="Parameter U")
+    parser.add_argument('--event_param_pickle_path',
+                        default=None,
+                        help="Path of pickle file that contains the U, preprune_secs and roots parameters")
 
     parser.add_argument('--fixed_point',
                         type=int,
@@ -330,11 +340,6 @@ if __name__ == '__main__':
                'greedy': greedy_grow_by_discounted_reward,
                'random': random_grow}
 
-    # `seconds` of higher priority
-    timespan = (args.seconds
-                if args.seconds
-                else timedelta(weeks=args.weeks))
-
     pprint(vars(args))
 
     distance_weights = {}
@@ -344,6 +349,19 @@ if __name__ == '__main__':
         distance_weights['bow'] = args.weight_for_bow
     if args.weight_for_hashtag_bow > 0:
         distance_weights['hashtag_bow'] = args.weight_for_hashtag_bow
+
+    if args.event_param_pickle_path:
+        params = pickle.load(open(args.event_param_pickle_path))
+        timespan = params['preprune_secs']
+        U = params['U']
+        roots = params['roots']
+    else:
+        # `seconds` of higher priority
+        timespan = (args.seconds
+                    if args.seconds
+                    else timedelta(weeks=args.weeks))
+        U = args.U
+        roots = None
 
     run(methods[args.method],
         root_sampling_method=args.root_sampling,
@@ -363,11 +381,12 @@ if __name__ == '__main__':
         },
         gen_tree_kws={
             'timespan': timespan,
-            'U': args.U,
+            'U': U,
             'dijkstra': args.dij
         },
         cand_tree_number=args.cand_n,
         cand_tree_percent=args.cand_n_percent,
         calculate_graph=args.calc_mg,
-        given_topics=args.given_topics
+        given_topics=args.given_topics,
+        roots=roots
     )

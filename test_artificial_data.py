@@ -283,4 +283,4 @@ def test_get_gen_cand_tree_params():
     params = get_gen_cand_tree_params(event)
     assert_true(params['U'] > 0)
     assert_equal(99, params['preprune_secs'])
-    assert_equal(0, params['root'])
+    assert_equal([0], params['roots'])

@@ -5,7 +5,7 @@ import numpy
 import cPickle as pkl
 
 from datetime import timedelta
-from nose.tools import assert_true
+from nose.tools import assert_true, assert_equal
 from subprocess import check_output
 
 from gen_candidate_trees import run
@@ -214,6 +214,11 @@ class GenCandidateTreeTest(unittest.TestCase, CalcMGMixin):
         )
         self.check('greedy', greedy_grow)
 
+    def test_with_roots(self):
+        self.some_kws_of_run['roots'] = [54647]
+        trees = self.check('lst', lst)
+        assert_equal(1, len(trees))
+
     def tearDown(self):
         remove_tmp_data('test/data/tmp/*')
 
@@ -234,6 +239,7 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         self.update_result_path_template()
 
     def update_result_path_template(self,
+                                    U=2.0,
                                     timespan=timedelta(days=28),
                                     cand_tree_percent=0.01,
                                     sampling_method='uniform',
@@ -242,7 +248,7 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         self.result_output_path_template = "test/data/tmp/result-{}--{}----{}----{}.pkl".format(
             '%s',
             experiment_signature(
-                U=2.0,
+                U=U,
                 dijkstra=False,
                 timespan=timespan
             ),
@@ -358,6 +364,20 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         self.update_result_path_template(apply_pagerank=True)
         self.check(extra='--apply_pagerank')
 
+    def test_with_event_param_pkl_path(self):
+        path = make_path('test/data/tmp/event_param.pkl')
+        pkl.dump({'U': 1.0,
+                  'preprune_secs': timedelta(weeks=4),
+                  'roots': [54647]},
+                 open(path, 'w'))
+        self.update_result_path_template(
+            U=1.0,
+            timespan=timedelta(weeks=4)
+        )
+        self.check('greedy',
+                   extra='--event_param_pickle_path {}'.format(path)
+        )
+
     def tearDown(self):
         remove_tmp_data('test/data/tmp')
     
@@ -388,7 +408,7 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
                 'U': 2.0,
                 'dijkstra': False
             },
-            'given_topics': True
+            'given_topics': True,
         }
 
         self.meta_pickle_path_common = experiment_signature(
