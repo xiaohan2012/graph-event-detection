@@ -145,7 +145,15 @@ class ArtificialDataTest(unittest.TestCase):
             # make sure it's jsonable
             assert_true(isinstance(i['topics'], list))
 
+        # all ids are unique
+        all_ids = list(itertools.chain(*[e.nodes() for e in events]))
+        assert_equal(len(all_ids), len(set(all_ids)))
+
         for e in events:
+            # make sure nodes are relabeled
+            for n in e.nodes_iter():
+                assert_equal(n, e.node[n]['message_id'])
+
             interactions = [e.node[n] for n in e.nodes_iter()]
             assert_equal(len(interactions),
                          IU.get_meta_graph(

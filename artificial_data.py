@@ -287,7 +287,12 @@ def make_artificial_data(
         intr['message_id'] = i
         intr['topics'] = intr['topics'].tolist()
 
-    return events, all_interactions
+    # relabel the nodes
+    relabeled_events = []
+    for e in events:
+        mapping = {n: e.node[n]['message_id'] for n in e.nodes_iter()}
+        relabeled_events.append(nx.relabel_nodes(e, mapping))
+    return relabeled_events, all_interactions
 
 
 def main():
