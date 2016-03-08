@@ -3,8 +3,12 @@
 import random
 import numpy as np
 import networkx as nx
+import cPickle as pkl
+
+from scipy.spatial.distance import cosine
 
 from experiment_util import weighted_choice
+from dag_util import get_roots
 from interactions import InteractionsUtil as IU
 from experiment_util import get_number_and_percentage, \
     experiment_signature
@@ -247,6 +251,19 @@ def random_noisy_interactions(n_noisy_interactions,
     return noisy_interactions
 
 
+def get_gen_cand_tree_params(e):
+    U = np.sum([cosine(e.node[s]['topics'], e.node[t]['topics'])
+                for s, t in e.edges_iter()])
+    root = get_roots(e)[0]
+    timestamps = [e.node[n]['timestamp'] for n in e.nodes_iter()]
+    preprune_secs = np.max(timestamps) - np.min(timestamps)
+    return {
+        'U': U,
+        'root': root,
+        'preprune_secs': preprune_secs
+    }
+
+
 def make_artificial_data(
         n_events, event_size_mu, event_size_sigma,
         n_total_participants, participant_mu, participant_sigma,
@@ -292,7 +309,9 @@ def make_artificial_data(
     for e in events:
         mapping = {n: e.node[n]['message_id'] for n in e.nodes_iter()}
         relabeled_events.append(nx.relabel_nodes(e, mapping))
-    return relabeled_events, all_interactions
+
+    gen_cand_trees_params = [get_gen_cand_tree_params(e) for e in events]        
+    return relabeled_events, all_interactions, gen_cand_trees_params
 
 
 def main():
@@ -341,7 +360,7 @@ def main():
     args_dict = vars(args)
     del args_dict['output_dir']
 
-    events, interactions = make_artificial_data(**args_dict)
+    events, interactions, gen_cand_tree_params = make_artificial_data(**args_dict)
     sig = experiment_signature(
         n_noisy_interactions_fraction=args.n_noisy_interactions_fraction,
     )
@@ -351,6 +370,9 @@ def main():
     json.dump(interactions,
               open('{}/interactions--{}.json'.format(output_dir, sig),
                    'w'))
+    pkl.dump(gen_cand_tree_params,
+             open('{}/gen_cand_tree_params--{}.pkl'.format(output_dir, sig),
+                  'w'))
 
 
 if __name__ == '__main__':

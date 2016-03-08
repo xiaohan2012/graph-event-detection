@@ -12,7 +12,8 @@ from interactions import InteractionsUtil as IU
 from artificial_data import random_topic, random_events, \
     random_noisy_interactions, make_artificial_data, \
     gen_event_via_random_people_network, \
-    gen_event_with_known_tree_structure
+    gen_event_with_known_tree_structure, \
+    get_gen_cand_tree_params
 
 
 class ArtificialDataTest(unittest.TestCase):
@@ -130,7 +131,9 @@ class ArtificialDataTest(unittest.TestCase):
         self.seems_like_uniform_distribution(freq / freq.sum())
 
     def test_make_artificial_data(self):
-        events, all_interactions = make_artificial_data(**self.params)
+        events, all_interactions, params = make_artificial_data(**self.params)
+        assert_equal(self.params['n_events'],
+                     len(params))
         assert_equal(
             self.params['n_events'],
             len(events)
@@ -166,12 +169,12 @@ class ArtificialDataTest(unittest.TestCase):
 
         for i in all_interactions:
             assert_true(i['sender_id'].startswith('u-'))
-
+    
     def test_make_artificial_data_with_small_noise_percentage(self):
         fraction = 0.1
         self.params['n_noisy_interactions'] = None
         self.params['n_noisy_interactions_fraction'] = fraction
-        events, all_interactions = make_artificial_data(**self.params)
+        events, all_interactions, _ = make_artificial_data(**self.params)
         n_event_interactions = sum([1 for e in events for _ in e])
         total = len(all_interactions)
         assert_equal(
@@ -183,7 +186,7 @@ class ArtificialDataTest(unittest.TestCase):
         fraction = 1.1
         self.params['n_noisy_interactions'] = None
         self.params['n_noisy_interactions_fraction'] = fraction
-        events, all_interactions = make_artificial_data(**self.params)
+        events, all_interactions, _ = make_artificial_data(**self.params)
         n_event_interactions = sum([1 for e in events for _ in e])
         total = len(all_interactions)
         assert_equal(
@@ -262,3 +265,22 @@ def test_gen_event_with_known_tree_structure():
     assert_equal(event_size, len(interactions))
     
     assert_true(nx.is_arborescence(event))
+
+
+def test_get_gen_cand_tree_params():
+    event_size = 100
+    participants_n = 10
+    event = gen_event_with_known_tree_structure(
+        event_size=event_size,
+        participants=range(participants_n),
+        start_time=10, end_time=110,
+        event_topic_param=random_topic(10, topic_noise=0.1),
+        alpha=1.0, tau=0.8,
+        forward_proba=0.3,
+        reply_proba=0.5,
+        create_new_proba=0.2
+    )
+    params = get_gen_cand_tree_params(event)
+    assert_true(params['U'] > 0)
+    assert_equal(99, params['preprune_secs'])
+    assert_equal(0, params['root'])

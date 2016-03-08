@@ -1082,7 +1082,11 @@ Some justification on why using tree:
 Day 2:
 
 - tree generation algorithm
-- noisy tree generation algorithm
+- single tree experiment code
+  - `make_artificial_data`: for each event, dump also `preprune_seconds`, `root`, `U`
+  - `gen_cand_trees`: `--roots` argument
+  - `synthetic_different_noise_fraction.sh`: to bundle them up
+  - `synthetic_evaluation`: `noise_fraction`
 - Charikar's algorithm
   - test cases
   - algorithm
