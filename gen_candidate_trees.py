@@ -49,7 +49,6 @@ def calc_tree(node_i, r, U,
               print_summary):
     # g is shared in memory
     g = shared_dict['g']
-    print('g.nodes', g.nodes())
     sub_g = IU.get_rooted_subgraph_within_timespan(
         g, r, timespan
     )
@@ -256,7 +255,7 @@ if __name__ == '__main__':
     parser.add_argument('--dist', required=True,
                         choices=('euclidean', 'cosine'),
                         help="Distance function to use")
-    parser.add_argument('--root_sampling', required=True,
+    parser.add_argument('--root_sampling', default='uniform',
                         choices=('uniform', 'out_degree'),
                         help="Scheme to sample roots")
 
@@ -351,7 +350,7 @@ if __name__ == '__main__':
         distance_weights['hashtag_bow'] = args.weight_for_hashtag_bow
 
     if args.event_param_pickle_path:
-        params = pickle.load(open(args.event_param_pickle_path))
+        params = pickle.load(open(args.event_param_pickle_path))[0]  # take the first one
         timespan = params['preprune_secs']
         U = params['U']
         roots = params['roots']

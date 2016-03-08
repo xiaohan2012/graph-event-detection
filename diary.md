@@ -1086,12 +1086,18 @@ Day 2:
   - `make_artificial_data`: for each event, dump also `preprune_seconds`, `root`, `U`
   - `gen_cand_trees`: `--roots` argument
   - `synthetic_different_noise_fraction.sh`: to bundle them up
-  - `synthetic_evaluation`: `noise_fraction`
-- Charikar's algorithm
-  - test cases
-  - algorithm
 - write
   - find the template and sketch out the paper structure, e.g, section name and what to include
   - problem definition
-  - approximation proof for budget problem
 - read the book
+
+Day 3:
+
+- `synthetic_evaluation`: `noise_fraction`
+  - find some metric to use
+  - finish the code `def evaluate_single_tree`
+- Charikar's algorithm
+  - test cases
+  - algorithm
+
+- approximation proof for budget problem

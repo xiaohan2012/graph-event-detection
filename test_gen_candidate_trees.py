@@ -366,9 +366,9 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
 
     def test_with_event_param_pkl_path(self):
         path = make_path('test/data/tmp/event_param.pkl')
-        pkl.dump({'U': 1.0,
-                  'preprune_secs': timedelta(weeks=4),
-                  'roots': [54647]},
+        pkl.dump([{'U': 1.0,
+                   'preprune_secs': timedelta(weeks=4),
+                   'roots': [54647]}],
                  open(path, 'w'))
         self.update_result_path_template(
             U=1.0,

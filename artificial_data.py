@@ -117,6 +117,7 @@ def gen_event_with_known_tree_structure(event_size, participants,
             elif c_type == 'f':
                 parent_sender_id = tree.node[parent]['sender_id']
                 sender_id = tree.node[parent]['recipient_id']
+                # print(np.random.permutation(n_participants))
                 recipient_id = (participants[r_id]
                                 for r_id in np.random.permutation(n_participants)
                                 if participants[r_id] != sender_id and
@@ -310,7 +311,7 @@ def make_artificial_data(
         mapping = {n: e.node[n]['message_id'] for n in e.nodes_iter()}
         relabeled_events.append(nx.relabel_nodes(e, mapping))
 
-    gen_cand_trees_params = [get_gen_cand_tree_params(e) for e in events]        
+    gen_cand_trees_params = [get_gen_cand_tree_params(e) for e in events]
     return relabeled_events, all_interactions, gen_cand_trees_params
 
 
@@ -329,13 +330,13 @@ def main():
     parser.add_argument('--participant_sigma', type=int, default=3)
 
     parser.add_argument('--min_time', type=int, default=10)
-    parser.add_argument('--max_time', type=int, default=110)
-    parser.add_argument('--event_duration_mu', type=int, default=5)
-    parser.add_argument('--event_duration_sigma', type=int, default=3)
+    parser.add_argument('--max_time', type=int, default=1100)
+    parser.add_argument('--event_duration_mu', type=int, default=100)
+    parser.add_argument('--event_duration_sigma', type=int, default=1)
 
     parser.add_argument('--n_topics', type=int, default=10)
-    parser.add_argument('--topic_scaling_factor', type=int, default=0.5)
-    parser.add_argument('--topic_noise', type=int, default=0.1)
+    parser.add_argument('--topic_scaling_factor', type=float, default=0.5)
+    parser.add_argument('--topic_noise', type=float, default=0.1)
 
     parser.add_argument('--n_noisy_interactions', type=int, default=None)
     parser.add_argument('--n_noisy_interactions_fraction',
