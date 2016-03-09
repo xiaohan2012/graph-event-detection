@@ -1,6 +1,9 @@
 import sys
+import numpy as np
 from itertools import chain
 from sklearn import metrics
+
+from tree_util import salzburg_ted, tree_similarity_ratio
 
 
 def precision_recall_f1(true_clusters, pred_clusters):
@@ -64,9 +67,9 @@ def trees2clusters(trees):
 
 
 def evaluate_meta_tree_result(
-        true_events, pred_trees, all_entry_ids, methods):
-    true_clusters = events2clusters(true_events)
-    pred_clusters = trees2clusters(pred_trees)
+        true_events, pred_events, all_entry_ids, methods):
+    true_clusters = trees2clusters(true_events)
+    pred_clusters = trees2clusters(pred_events)
     
     scores = {}
 
@@ -85,7 +88,16 @@ def evaluate_meta_tree_result(
     scores['precision'] = p
     scores['recall'] = r
     scores['f1'] = f1
-
+    
+    # mean of tree edit distance across all (true, pred) pairs
+    # weighted mean can be added
+    scores['tree_similarity'] = np.mean(
+        [tree_similarity_ratio(
+            salzburg_ted(true, pred),
+            true, pred
+        )
+         for true, pred in zip(true_events, pred_events)]
+    )
     return scores
 
 

@@ -1,0 +1,4 @@
+result--fraction=0.2--greedy--U=34.0728347028--dijkstra=False--timespan=100.28206487----apply_pagerank=False--dist_func=cosine--distance_weights={"topics":1.0}--preprune_secs=100.28206487----cand_tree_percent=0.1--root_sampling=uniform.pkl
+result--fraction=0.2--random--U=34.0728347028--dijkstra=False--timespan=100.28206487----apply_pagerank=False--dist_func=cosine--distance_weights={"topics":1.0}--preprune_secs=100.28206487----cand_tree_percent=0.1--root_sampling=uniform.pkl
+result--fraction=0.4--greedy--U=42.2426892283--dijkstra=False--timespan=99.0883768001----apply_pagerank=False--dist_func=cosine--distance_weights={"topics":1.0}--preprune_secs=99.0883768001----cand_tree_percent=0.1--root_sampling=uniform.pkl
+result--fraction=0.4--random--U=42.2426892283--dijkstra=False--timespan=99.0883768001----apply_pagerank=False--dist_func=cosine--distance_weights={"topics":1.0}--preprune_secs=99.0883768001----cand_tree_percent=0.1--root_sampling=uniform.pkl

@@ -15,8 +15,11 @@ def to_bracket_notation(tree):
                 node,
                 ''.join([aux(n) for n in nbrs])
             )
-    assert nx.is_arborescence(tree)
-    return aux(get_roots(tree)[0])
+    if tree.number_of_nodes() == 0:
+        return '{}'
+    else:
+        assert nx.is_arborescence(tree)
+        return aux(get_roots(tree)[0])
     
 
 JAR_PATH = make_path('external/APTED-0.1.1.jar')
@@ -28,9 +31,10 @@ def salzburg_ted(tree1, tree2):
 
     From [Source](tree-edit-distance.dbresearch.uni-salzburg.at/#download)
     """
+    print('##### 1 ######')
     print(to_bracket_notation(tree1))
+    print('##### 2 ######')
     print(to_bracket_notation(tree2))
-
     output = check_output('java -jar {} --trees {} {}'.format(
         JAR_PATH,
         to_bracket_notation(tree1),
@@ -50,5 +54,15 @@ def tree_similarity_ratio(ted, t1, t2):
     
     `ratio` idea from [DiffLib](https://fossies.org/dox/Python-3.5.1/difflib_8py_source.html)
     """
+    print(ted)
+    import networkx as nx
+    empty_tree = nx.DiGraph()
+    print('#nodes',
+          t1.number_of_nodes(),
+          t2.number_of_nodes())
+    print('ted against empty_tree',
+          salzburg_ted(t1, empty_tree),
+          salzburg_ted(t2, empty_tree))
+
     return 1 - 2 * ted/(t1.number_of_nodes() + t2.number_of_nodes())
     

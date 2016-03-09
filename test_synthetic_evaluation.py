@@ -6,7 +6,7 @@ import cPickle as pkl
 from nose.tools import assert_equal, assert_true, assert_almost_equal
 from sklearn import metrics
 
-from .synthetic_evaluation import group_paths, evaluate_U,\
+from .synthetic_evaluation import group_paths, evaluate_single_tree,\
     get_values_by_key
 from .test_util import make_path
 from .util import load_items_by_line, json_load
@@ -21,6 +21,12 @@ class SyntheticEvaluationTest(unittest.TestCase):
             make_path,
             load_items_by_line(
                 make_path("test/data/synthetic/result_paths_U.txt")
+            )
+        )
+        self.result_paths_single_tree = map(
+            lambda p: make_path('test/data/synthetic_single_tree/result', p),
+            load_items_by_line(
+                make_path("test/data/synthetic_single_tree/result_paths_single_tree.txt")
             )
         )
         self.paths_preprune_seconds = map(
@@ -72,44 +78,59 @@ class SyntheticEvaluationTest(unittest.TestCase):
              for p in actual[0][1]]
         )
 
-    def test_evaluate_U(self):
-        interactions_path = make_path(
-            'test/data/synthetic/interactions.json'
+    def test_evaluate_single_tree(self):
+        make_single_tree_path = (lambda p:
+                                 make_path(
+                                     'test/data/synthetic_single_tree/', p)
         )
-        events_path = make_path('test/data/synthetic/events.json')
-        actual = evaluate_U(
-            result_paths=self.paths_U,
-            interactions_path=interactions_path,
-            events_path=events_path,
-            metrics=[metrics.adjusted_rand_score],
-            K=10
+        interactions_paths = ['interactions--n_noisy_interactions_fraction=0.2.json',
+                             'interactions--n_noisy_interactions_fraction=0.4.json']
+        interactions_paths = sorted(map(make_single_tree_path, interactions_paths) * 2)
+        events_paths = ['events--n_noisy_interactions_fraction=0.2.pkl',
+                       'events--n_noisy_interactions_fraction=0.4.pkl']
+        events_paths = sorted(map(make_single_tree_path, events_paths) * 2)
+
+        actual = evaluate_single_tree(
+            result_paths=self.result_paths_single_tree,
+            interactions_paths=interactions_paths,
+            events_paths=events_paths,
+            metrics=[metrics.adjusted_rand_score]
         )
-        for key in ('recall', 'precision', 'f1', 'adjusted_rand_score'):
+        for key in ('recall', 'precision', 'f1',
+                    'adjusted_rand_score',
+                    'tree_similarity'):
+            # each key => dataframe
             assert_true(key in actual)
             assert_true(
                 isinstance(actual[key], pd.DataFrame)
             )
+            # check x axis
             np.testing.assert_almost_equal(
-                np.linspace(0.1, 1, num=10),
+                np.asarray([0.2, 0.4]),
                 actual[key].columns
             )
-            for method in ('lst-dij', 'greedy'):
+            # check the legend part
+            for method in ('random', 'greedy'):
                 assert_true(method in actual[key].index)
 
-        pred_trees = k_best_trees(
-            pkl.load(
-                open(
-                    make_path(
-                        "test/data/synthetic/result-lst-dijkstra=True--U=0.6.pkl"
-                    ))), 10)
-        interactions = json_load(interactions_path)
+        # check if the score is right
+        pred_trees = pkl.load(open(make_single_tree_path(
+            'result/result--fraction=0.2--greedy--U=34.0728347028--dijkstra=False--timespan=100.28206487----apply_pagerank=False--dist_func=cosine--distance_weights={"topics":1.0}--preprune_secs=100.28206487----cand_tree_percent=0.1--root_sampling=uniform.pkl'
+        )))
+        true_trees = pkl.load(open(make_single_tree_path(
+            "events--n_noisy_interactions_fraction=0.2.pkl"
+        )))
+        interactions = json_load(interactions_paths[0])
+        expected_f1 = evaluate_meta_tree_result(
+            true_trees,
+            pred_trees,
+            [i['message_id'] for i in interactions],
+            methods=[])['f1']
+        actual_f1 = actual['f1'].loc['greedy', 0.2]
+
         assert_almost_equal(
-            evaluate_meta_tree_result(
-                json_load(events_path),
-                pred_trees,
-                [i['message_id'] for i in interactions],
-                [metrics.adjusted_rand_score])['f1'],
-            actual['f1'].loc['lst-dij', 0.6]
+            expected_f1,
+            actual_f1
         )
 
     def test_get_values_by_key(self):

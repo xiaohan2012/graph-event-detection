@@ -12,6 +12,13 @@ from .evaluation import precision_recall_f1, \
 class EvaluationTest(unittest.TestCase):
     def setUp(self):
         self.all_entry_ids = range(10)
+        te1, te2, pe1, pe2 = [nx.DiGraph() for i in xrange(4)]
+        te1.add_path([6, 7, 4, 5])
+        te2.add_path([0, 1])
+        pe1.add_path([5, 7, 8])
+        pe2.add_path([0, 1])
+        self.true_events = [te1, te2]
+        self.pred_events = [pe1, pe2]
         self.true_clusters = [[6, 7, 4, 5], [0, 1]]
         self.pred_clusters = [[5, 7, 8], [0, 1]]
         self.args = (self.true_clusters,
@@ -88,18 +95,9 @@ class EvaluationTest(unittest.TestCase):
         )
 
     def test_evaluate_meta_tree_result(self):
-        true_events = [[{'message_id': i} for i in c]
-                       for c in self.true_clusters]
-        pred_trees = []
-        for c in self.pred_clusters:
-            t = nx.DiGraph()
-            for i in c:
-                t.add_node(i)
-            pred_trees.append(t)
-
         scores = evaluate_meta_tree_result(
-            true_events,
-            pred_trees, self.all_entry_ids,
+            self.true_events,
+            self.pred_events, self.all_entry_ids,
             methods=[metrics.adjusted_rand_score]
         )
         assert_almost_equal(
@@ -119,3 +117,6 @@ class EvaluationTest(unittest.TestCase):
         assert_almost_equal(0.8, scores['precision'])
         assert_almost_equal(2 / 3., scores['recall'])
         assert_almost_equal(8 / 11., scores['f1'])
+
+        assert_almost_equal((0.1428571428571429 + 1) / 2,
+                            scores['tree_similarity'])

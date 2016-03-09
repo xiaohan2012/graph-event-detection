@@ -56,7 +56,12 @@ def evaluate_general(
         x_axis_name, x_axis_type,
         group_key, group_key_name_func, sort_keyfunc=None,
         K=10):
-
+    """
+    Return a 3D table
+    group_key: the legend part
+    metrics: the y axis
+    x_axis_name: the x axis
+    """
     groups = group_paths(result_paths, group_key, sort_keyfunc)
     xs = get_values_by_key(groups[0][1],
                            x_axis_name,
@@ -65,7 +70,7 @@ def evaluate_general(
     group_keys = [k for k, _ in groups]
 
     # get metric names
-    example_true_events = json_load(events_paths[0])
+    example_true_events = pkl.load(open(events_paths[0]))
     example_all_entry_ids = get_interaction_ids(
         interactions_paths[0]
     )
@@ -78,7 +83,7 @@ def evaluate_general(
         metrics
     ).keys()  # extra computing
 
-    # enchange groups with other paths
+    # enchance groups with other paths
     result_path2all_paths = {
         tpl[0]: tpl
         for tpl in zip(result_paths, interactions_paths, events_paths)
@@ -93,7 +98,7 @@ def evaluate_general(
     # 3d array: (method, U, metric)
     data3d = np.array([
         [evaluate_meta_tree_result(
-            json_load(events_path),
+            pkl.load(open(events_path)),
             k_best_trees(pkl.load(open(result_path)), K),
             get_interaction_ids(interactions_path),
             metrics).values()
@@ -112,7 +117,7 @@ def evaluate_general(
 
     return ret
 
-
+# deprecated
 def evaluate_U(result_paths, interactions_path, events_path, metrics,
                K=10):
     return evaluate_general(
@@ -129,7 +134,7 @@ def evaluate_U(result_paths, interactions_path, events_path, metrics,
         K=K
     )
 
-
+# deprecated
 def evaluate_preprune_seconds(result_paths, interactions_path,
                               events_path, metrics,
                               K=10):
@@ -145,7 +150,7 @@ def evaluate_preprune_seconds(result_paths, interactions_path,
         K=10
     )
 
-
+# deprecated
 def evaluate_sampling(result_paths, interactions_path,
                       events_path, metrics,
                       K=10):
@@ -168,6 +173,9 @@ def plot_evalution_result(result, output_dir,
     """
     result: similar to 3d matrix (metric, method, U)
     """
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
     for metric, df in result.items():
         plt.clf()
         fig = plt.figure()
@@ -193,8 +201,8 @@ metrics = [metrics.adjusted_rand_score,
            metrics.completeness_score,
            metrics.v_measure_score]
 
-
-def main(exp_name):
+# deprecated
+def main_DEPRECATED(exp_name):
     exp_func = {
         'preprune_seconds': evaluate_preprune_seconds,
         'U': evaluate_U,
@@ -221,37 +229,60 @@ def main(exp_name):
     )
 
 
-def main_varying_interactions():
-    result_paths = glob('tmp/synthetic/noise_fraction/result/result-*.pkl')
-    interactions_paths = glob(
-        'tmp/synthetic/noise_fraction/data/interactions*.json'
-    )
-    events_paths = glob(
-        'tmp/synthetic/noise_fraction/data/events*.json'
-    )
-
+def evaluate_single_tree(result_paths, interactions_paths, events_paths,
+                         metrics):
     assert_equal(len(result_paths),
                  len(interactions_paths))
     assert_equal(len(interactions_paths),
                  len(events_paths))
-
+    
     result = evaluate_general(
         result_paths,
         interactions_paths,
-        events_paths, metrics,
+        events_paths,
+        metrics,
         x_axis_name='fraction', x_axis_type=float,
-        group_key=lambda k: 'greedy',
-        group_key_name_func=lambda k: k,
+        group_key=lambda p: (p['args'][0], p['dijkstra']),
+        group_key_name_func=(lambda (m, dij):
+                             ("{}-dij".format(m)
+                              if dij == 'True' else m)),
         sort_keyfunc=lambda k: float(k['fraction']),
-        K=5
+        K=1
+    )
+    return result
+
+
+def main():
+    from test_util import make_path
+    from util import load_items_by_line
+
+    make_single_tree_path = (lambda p:
+                             make_path(
+                                 'test/data/synthetic_single_tree/', p)
+    )
+    interactions_paths = ['interactions--n_noisy_interactions_fraction=0.2.json',
+                         'interactions--n_noisy_interactions_fraction=0.4.json']
+    interactions_paths = sorted(map(make_single_tree_path, interactions_paths) * 2)
+    events_paths = ['events--n_noisy_interactions_fraction=0.2.pkl',
+                    'events--n_noisy_interactions_fraction=0.4.pkl']
+    events_paths = sorted(map(make_single_tree_path, events_paths) * 2)
+    result_paths = map(
+        lambda p: make_path('test/data/synthetic_single_tree/result', p),
+        load_items_by_line(
+            make_path("test/data/synthetic_single_tree/result_paths_single_tree.txt")
+        )
+    )
+    result = evaluate_single_tree(
+        result_paths, interactions_paths, events_paths, metrics=[]
     )
     plot_evalution_result(
         result,
         xlabel='noise fraction',
-        output_dir='/cs/home/hxiao/public_html/figures/synthetic/noise_fraction'
+        output_dir='/cs/home/hxiao/public_html/figures/synthetic/single_tree'
     )
+
 if __name__ == '__main__':
     # main('preprune_seconds')
     # main('sampling')
-    main('U')
-    # main_varying_interactions()
+    # main('U')
+    main()

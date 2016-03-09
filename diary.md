@@ -1095,9 +1095,19 @@ Day 3:
 
 - `synthetic_evaluation`: `noise_fraction`
   - find some metric to use
+    - found the [apted](http://tree-edit-distance.dbresearch.uni-salzburg.at/#ted)
+	- however, it's a distance, how to make into similarity
+	- problem: the edit distance can be larger than the size of any of the trees
   - finish the code `def evaluate_single_tree`
 - Charikar's algorithm
   - test cases
   - algorithm
-
+- think about synthetic data
+  - how noise interactions should be added, pros and cons
+    - should the event and noise grow together? instead of randomly adding some noises?
+  - how to add semantic shift(the repr vector)?
 - approximation proof for budget problem
+- move the following to pkdd draft
+  - NP-hard proof
+  - algorithm(modify the notation if necessary)
+
