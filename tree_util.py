@@ -42,3 +42,13 @@ def salzburg_ted(tree1, tree2):
     except ValueError:
         print(output)
         raise
+
+
+def tree_similarity_ratio(ted, t1, t2):
+    """
+    Return the similarity ratio from 0 to 1 between two trees given their edit distance
+    
+    `ratio` idea from [DiffLib](https://fossies.org/dox/Python-3.5.1/difflib_8py_source.html)
+    """
+    return 1 - 2 * ted/(t1.number_of_nodes() + t2.number_of_nodes())
+    
