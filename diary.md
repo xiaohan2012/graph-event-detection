@@ -1111,3 +1111,45 @@ Day 3:
   - NP-hard proof
   - algorithm(modify the notation if necessary)
 
+
+
+**Incorporating semantic drift in synthetic event generation**:
+
+Current problem: all interactions within the same event are about the same topic, then it cannot capture the possible semantic drift in real life data.
+
+However, we don't know whether semantic drift exists or not.
+
+How to incorporate semantic drift
+
+- There is a probability for semantic to drift(toss a coin)
+- If coin lands on head, add noise to the underlying dirichlet parameter that generates the topic vector(seems simpler and easier to understand)
+  - `a * \alpha + (1-a) * noise_topic_vector`, `noise_topic_vector` can be a random one-hot vector
+
+**Noisy interactions**:
+
+Current problem: noises are single and scattered across all the trees.
+
+In reality, there can be noisy subevents, which contain many interactions.
+
+How to incorporate such noisy subevents:
+
+- toss a coin on whether grow a noisy subevent or not
+- if so, call the `gen_event` function and attach the returning event to (by random) one of the nodes in the main/true event
+
+**Adding recency to edge weight**:
+
+Considering the following conversation:
+
+1. A->B
+2. B->A
+3. A->B
+
+Suppose we know the structure, `1->2->3`, however, for the meta graph, there is `1->3`, which seems unnecessary. The greedy approach might fail by first connecting `1->3` and then `1->2`. This is not a good result.
+
+If we'd like to favor 1->3 and 2->3 over 1->3, we can add a time penalty in an edge. The longer the time gap, the higher the penalty.
+
+However, if some algorithm(other than greedy) might avoid this trap as well.
+
+So, not sure if this should be added.
+
+Let's incorporate the semantic drift first.
