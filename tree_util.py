@@ -66,3 +66,11 @@ def tree_similarity_ratio(ted, t1, t2):
 
     return 1 - 2 * ted/(t1.number_of_nodes() + t2.number_of_nodes())
     
+
+def tree_density(tree, X, edge_weight='c'):
+    cost = sum(tree[s][t][edge_weight]
+               for s, t in tree.edges_iter())
+    try:
+        return float(cost) / len(set(tree.nodes()).intersection(X))
+    except ZeroDivisionError:
+        return float('inf')
