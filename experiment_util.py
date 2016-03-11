@@ -79,7 +79,7 @@ def sample_rooted_binary_graphs_within_timespan(
 def experiment_signature(**kws):
     def value_str(v):
         if callable(v):
-            return v.__name__
+            return None
         elif isinstance(v, timedelta):
             return '{}days'.format(v.days)
         elif isinstance(v, dict):
@@ -88,7 +88,7 @@ def experiment_signature(**kws):
             return str(v)
 
     return '--'.join(["{}={}".format(k, value_str(v))
-                      for k, v in sorted(kws.items())])
+                      for k, v in sorted(kws.items()) if value_str(v) is not None])
 
 
 def get_output_path(candidate_tree_path, dirname=None):

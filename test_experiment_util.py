@@ -23,11 +23,12 @@ CURDIR = os.path.dirname(os.path.abspath(__file__))
 
 def test_experiment_signature():
     assert_equal("", experiment_signature())
-    assert_equal("a=1--b=two--c=True--d=1.5--e=asarray--f=28days"
+    assert_equal("a=1--b=two--c=True--d=1.5--f=28days"
                  "--g={\"a\":1,\"b\":2}",
                  experiment_signature(a=1, b='two', c=True, d=1.5,
-                                      e=np.asarray, f=timedelta(weeks=4),
-                                      g={'a': 1, 'b': 2}))
+                                      f=timedelta(weeks=4),
+                                      g={'a': 1, 'b': 2})
+    )
     
 
 class ExperimentUtilTest(unittest.TestCase):

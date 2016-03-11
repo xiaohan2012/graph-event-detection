@@ -104,9 +104,13 @@ def run(gen_tree_func,
         meta_graph_kws={
             'dist_func': cosine,
             'preprune_secs': timedelta(weeks=4),
-            'apply_pagarank': False,
+            # 'apply_pagarank': False,  # DISABLED
             'distance_weights': {'topics': 0.2,
                                  'bow': 0.8},
+            'consider_recency': False,
+            'tau': 0.8,
+            'alpha': 0.5,
+            'timestamp_converter': lambda s: s
         },
         gen_tree_kws={
             'timespan': timedelta(weeks=4),
@@ -228,6 +232,7 @@ def run(gen_tree_func,
     pickle.dump(trees,
                 open(result_pkl_path, 'w'),
                 protocol=pickle.HIGHEST_PROTOCOL)
+    return result_pkl_path, meta_graph_pkl_path
 
 if __name__ == '__main__':
     import random
@@ -318,6 +323,24 @@ if __name__ == '__main__':
                         type=float,
                         default=0.0)
 
+    parser.add_argument('--recency',
+                        action='store_true',
+                        default=False,
+                        help="whether considering recency or not")
+    parser.add_argument('--tau', type=float,
+                        default=0.8,
+                        help="the \tau value in the recency function"
+    )
+    parser.add_argument('--alpha', type=float,
+                        default=0.5,
+                        help="the \alpha value in the recency function"
+    )
+    parser.add_argument('--time_diff_unit', type=str,
+                        default='day',
+                        choices=('sec', 'day'),
+                        help="How do we consider *one* recency, 1 second or 1 day?"
+    )
+
     args = parser.parse_args()
 
     dist_funcs = {'euclidean': euclidean, 'cosine': cosine}
@@ -362,6 +385,11 @@ if __name__ == '__main__':
         U = args.U
         roots = None
 
+    if args.time_diff_unit:
+        time_unit2converter = {'sec': lambda s: s,
+                               'day': lambda s: s / 86400.}
+        timestamp_converter = time_unit2converter[args.time_diff_unit]
+        
     run(methods[args.method],
         root_sampling_method=args.root_sampling,
         undirected=args.undirected,
@@ -375,8 +403,11 @@ if __name__ == '__main__':
         meta_graph_kws={
             'dist_func': dist_func,
             'preprune_secs': timespan,
-            'apply_pagerank': args.apply_pagerank,
-            'distance_weights': distance_weights
+            'distance_weights': distance_weights,
+            'consider_recency': args.recency,
+            'tau': args.tau,
+            'alpha': args.alpha,
+            'timestamp_converter': timestamp_converter
         },
         gen_tree_kws={
             'timespan': timespan,

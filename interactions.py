@@ -233,17 +233,17 @@ class InteractionsUtil(object):
 
     @classmethod
     def add_recency(cls, g,
-                    beta=1.0, tau=0.8,
+                    alpha=1.0, tau=0.8,
                     timestamp_converter=lambda s: s):
         """
         substract some edge weight by the recency of the edge,
-        e.g,  \beta \tau^{t2 - t1}
+        e.g,  \alpha \tau^{t2 - t1}
         """
         for s, t in g.edges_iter():
             t1 = timestamp_converter(g.node[s]['timestamp'])
             t2 = timestamp_converter(g.node[t]['timestamp'])
             diff_t = t2 - t1
-            g[s][t][cls.EDGE_COST_KEY] -= beta * (tau ** diff_t)
+            g[s][t][cls.EDGE_COST_KEY] -= alpha * (tau ** diff_t)
         return g
 
     @classmethod
@@ -465,7 +465,7 @@ class InteractionsUtil(object):
                              distance_weights={'topics': 1},
                              convert_time=True,
                              consider_recency=False,
-                             beta=1.0, tau=0.8,
+                             alpha=1.0, tau=0.8,
                              timestamp_converter=lambda s: s):
         logger.debug('getting meta graph...')
         mg = cls.get_meta_graph(interactions,
@@ -511,7 +511,7 @@ class InteractionsUtil(object):
                                 )
         if consider_recency:
             g = cls.add_recency(g,
-                                beta=beta,
+                                alpha=alpha,
                                 tau=tau,
                                 timestamp_converter=timestamp_converter)
         return g

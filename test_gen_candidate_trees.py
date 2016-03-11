@@ -2,10 +2,11 @@ import random
 import os
 import unittest
 import numpy
+import networkx as nx
 import cPickle as pkl
 
 from datetime import timedelta
-from nose.tools import assert_true, assert_equal
+from nose.tools import assert_true, assert_equal, assert_almost_equal
 from subprocess import check_output
 
 from gen_candidate_trees import run
@@ -80,7 +81,6 @@ class CalcMGMixin(object):
             'meta_graph_kws': {
                 'dist_func': dist_func,
                 'preprune_secs': preprune_secs,
-                'apply_pagerank': apply_pagerank,
                 'distance_weights': distance_weights
             },
             'gen_tree_kws': {
@@ -153,26 +153,23 @@ class GenCandidateTreeTest(unittest.TestCase, CalcMGMixin):
         if more_args:
             kws.update(more_args)
 
-        pickle_path = "{}--{}.pkl".format(
-            result_pickle_prefix,
-            pickle_path_suffix
-        )
-
-        run(tree_gen_func,
+        result_path, mg_path = run(
+            tree_gen_func,
             calculate_graph=False,
             print_summary=False,
             result_pkl_path_prefix=result_pickle_prefix,
             **kws)
 
-        trees = pkl.load(open(pickle_path))
+        trees = pkl.load(open(result_path))
 
         assert_true(len(trees) > 0)
         for t in trees:
             assert_true(len(t.edges()) > 0)
-        return trees
+
+        return trees, nx.read_gpickle(mg_path)
 
     def test_if_sender_and_recipient_information_saved(self):
-        trees = self.check('lst', lst)
+        trees, _ = self.check('lst', lst)
         for t in trees:
             for n in t.nodes():
                 assert_true('sender_id' in t.node[n])
@@ -183,7 +180,7 @@ class GenCandidateTreeTest(unittest.TestCase, CalcMGMixin):
 
     def test_greedy_grow_with_pagerank(self):
         self.update_metagraph_and_produce_if_needed(apply_pagerank=True)
-        trees = self.check('greedy', greedy_grow)
+        trees, _ = self.check('greedy', greedy_grow)
         for n in trees[0].nodes_iter():
             assert_true(trees[0].node[n]['r'] < 1)
 
@@ -194,10 +191,10 @@ class GenCandidateTreeTest(unittest.TestCase, CalcMGMixin):
         self.check('lst', lst)
 
     def test_lst_dag_after_dijkstra(self):
-        trees = self.check('lst', lst)
+        trees, _ = self.check('lst', lst)
 
         self.some_kws_of_run['gen_tree_kws']['dijkstra'] = True
-        trees_with_dij = self.check('lst', lst)
+        trees_with_dij, _ = self.check('lst', lst)
 
         for t, t_dij in zip(trees, trees_with_dij):
             assert_true(sorted(t.edges()) != sorted(t_dij))
@@ -217,8 +214,25 @@ class GenCandidateTreeTest(unittest.TestCase, CalcMGMixin):
 
     def test_with_roots(self):
         self.some_kws_of_run['roots'] = [54647]
-        trees = self.check('lst', lst)
+        trees, _ = self.check('lst', lst)
         assert_equal(1, len(trees))
+    
+    def test_with_recency(self):
+        self.some_kws_of_run['meta_graph_kws']['consider_recency'] = True
+        self.some_kws_of_run['meta_graph_kws']['tau'] = 0.4
+        self.some_kws_of_run['meta_graph_kws']['alpha'] = 0.6
+        self.some_kws_of_run['meta_graph_kws']['timestamp_converter'] = lambda s: 2 * s
+        self.some_kws_of_run['meta_graph_kws']['distance_weights'] = {'topics': 1.0}
+        _, mg = self.check('greey', greedy_grow)
+        
+        s, t = mg.edges_iter().next()
+        time_diff = mg.node[t]['timestamp'] - mg.node[s]['timestamp']
+        assert_almost_equal(
+            cosine(mg.node[s]['topics'],
+                   mg.node[t]['topics'])
+            - 0.6 * (0.4 ** (2 * time_diff)),
+            mg[s][t]['c']
+        )
 
     def tearDown(self):
         remove_tmp_data('test/data/tmp/*')
@@ -304,13 +318,13 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
 
         assert_true("traceback" not in output.lower())
 
-        output_path = make_path(
-            self.result_output_path_template % (
-                method, distance
-            )
-        )
-        print('output_path:', output_path)
-        assert_true(os.path.exists(output_path))
+        # output_path = make_path(
+        #     self.result_output_path_template % (
+        #         method, distance
+        #     )
+        # )
+        # print('output_path:', output_path)
+        # assert_true(os.path.exists(output_path))
 
         return output
 
@@ -379,6 +393,10 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
                    extra='--event_param_pickle_path {}'.format(path)
         )
 
+    def test_with_recency(self):
+        self.check('greedy',
+                   extra='--recency')
+        
     def tearDown(self):
         remove_tmp_data('test/data/tmp')
     

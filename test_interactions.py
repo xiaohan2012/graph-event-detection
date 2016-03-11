@@ -526,7 +526,7 @@ class InteractionsUtilTest(unittest.TestCase):
     def test_add_recency(self):
         g_before = self._get_meta_graph()
         g = IU.add_recency(g_before.copy(),
-                           beta=1.0, tau=0.8,
+                           alpha=1.0, tau=0.8,
                            timestamp_converter=lambda s: 2*s)
         assert_almost_equal(
             g_before[1][2]['c'] - 1.0 * (0.8 ** 2),
@@ -542,7 +542,7 @@ class InteractionsUtilTest(unittest.TestCase):
             dictionary=self.dictionary,
             decompose_interactions=False,
             consider_recency=True,
-            beta=0.5,
+            alpha=0.5,
             tau=0.6
         )
         assert_almost_equal(
