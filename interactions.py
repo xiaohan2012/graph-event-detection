@@ -228,7 +228,22 @@ class InteractionsUtil(object):
         if apply_pagerank:
             logger.info('Appling pagerank to get node rewark')
             g = cls.add_rewards_to_nodes_using_pagerank(g, interactions)
-            
+        
+        return g
+
+    @classmethod
+    def add_recency(cls, g,
+                    beta=1.0, tau=0.8,
+                    timestamp_converter=lambda s: s):
+        """
+        substract some edge weight by the recency of the edge,
+        e.g,  \beta \tau^{t2 - t1}
+        """
+        for s, t in g.edges_iter():
+            t1 = timestamp_converter(g.node[s]['timestamp'])
+            t2 = timestamp_converter(g.node[t]['timestamp'])
+            diff_t = t2 - t1
+            g[s][t][cls.EDGE_COST_KEY] -= beta * (tau ** diff_t)
         return g
 
     @classmethod
@@ -448,7 +463,10 @@ class InteractionsUtil(object):
                              given_topics=False,
                              apply_pagerank=False,
                              distance_weights={'topics': 1},
-                             convert_time=True):
+                             convert_time=True,
+                             consider_recency=False,
+                             beta=1.0, tau=0.8,
+                             timestamp_converter=lambda s: s):
         logger.debug('getting meta graph...')
         mg = cls.get_meta_graph(interactions,
                                 undirected=undirected,
@@ -487,10 +505,16 @@ class InteractionsUtil(object):
                 mg.node[n]['topics'] = np.array(mg.node[n]['topics'])
 
         logger.debug('assiging edge weights')
-        return cls.assign_edge_weights(mg,
-                                       dist_func,
-                                       distance_weights
-                                   )
+        g = cls.assign_edge_weights(mg,
+                                    dist_func,
+                                    distance_weights
+                                )
+        if consider_recency:
+            g = cls.add_recency(g,
+                                beta=beta,
+                                tau=tau,
+                                timestamp_converter=timestamp_converter)
+        return g
 
     @classmethod
     def compactize_meta_graph(cls, g, map_nodes=True):

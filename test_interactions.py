@@ -513,7 +513,43 @@ class InteractionsUtilTest(unittest.TestCase):
             cleaned_interactions
         )
         assert_true(new_mg.node[1]['r'] < new_mg.node[5]['r'])
-        
+
+    def _get_meta_graph(self):
+        cleaned_interactions = IU.clean_interactions(self.interactions)
+        mg = IU.get_topic_meta_graph(cleaned_interactions,
+                                     cosine,
+                                     self.lda_model,
+                                     self.dictionary,
+                                     decompose_interactions=False)
+        return IU.assign_edge_weights(mg, cosine)
+
+    def test_add_recency(self):
+        g_before = self._get_meta_graph()
+        g = IU.add_recency(g_before.copy(),
+                           beta=1.0, tau=0.8,
+                           timestamp_converter=lambda s: 2*s)
+        assert_almost_equal(
+            g_before[1][2]['c'] - 1.0 * (0.8 ** 2),
+            g[1][2]['c']
+        )
+
+    def test_get_topic_meta_graph_with_recency(self):
+        g_before = self._get_meta_graph()
+        g = IU.get_topic_meta_graph(
+            IU.clean_interactions(self.interactions),
+            cosine,
+            lda_model=self.lda_model,
+            dictionary=self.dictionary,
+            decompose_interactions=False,
+            consider_recency=True,
+            beta=0.5,
+            tau=0.6
+        )
+        assert_almost_equal(
+            g_before[1][2]['c'] - 0.5 * (0.6 ** 1),
+            g[1][2]['c']
+        )
+
 
 class InteractionsUtilTestUndirected(unittest.TestCase):
     """undirected case
