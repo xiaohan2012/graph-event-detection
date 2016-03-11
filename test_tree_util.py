@@ -1,12 +1,16 @@
 import unittest
 import networkx as nx
-from nose.tools import assert_equal, assert_almost_equal
 
+from nose.tools import assert_equal, assert_almost_equal, \
+    assert_true
+
+from dag_util import get_roots
 from tree_util import to_bracket_notation, salzburg_ted, \
-    tree_similarity_ratio, tree_density
+    tree_similarity_ratio, tree_density, \
+    tree_cover
 
 
-class TestCase(unittest.TestCase):
+class TreeUtilTestCase(unittest.TestCase):
     def setUp(self):
         t1 = nx.DiGraph()
         t1.add_edges_from([
