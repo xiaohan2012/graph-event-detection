@@ -1,6 +1,7 @@
 # simulate interactions
 
 import random
+import math
 import numpy as np
 import networkx as nx
 import cPickle as pkl
@@ -77,12 +78,20 @@ def gen_event_via_random_people_network(event_size, participants,
 def gen_event_with_known_tree_structure(event_size, participants,
                                         start_time, end_time,
                                         event_topic_param,
+                                        topic_noise,
                                         alpha, tau,
                                         forward_proba,
                                         reply_proba,
                                         create_new_proba):
     n_participants = len(participants)
     time_step = (end_time - start_time) / float(event_size)
+    if time_step < 1:
+        raise ValueError('time_step should be larger than 1 ({}-{}) / {}'.format(
+            end_time,
+            start_time,
+            event_size
+        ))
+
     tree = nx.DiGraph()
     for i in xrange(event_size):
         time = start_time + time_step * (i+1)
@@ -118,22 +127,34 @@ def gen_event_with_known_tree_structure(event_size, participants,
                 parent_sender_id = tree.node[parent]['sender_id']
                 sender_id = tree.node[parent]['recipient_id']
                 # print(np.random.permutation(n_participants))
-                recipient_id = (participants[r_id]
-                                for r_id in np.random.permutation(n_participants)
-                                if participants[r_id] != sender_id and
-                                participants[r_id] != parent_sender_id).next()
+                try:
+                    recipient_id = (participants[r_id]
+                                    for r_id in np.random.permutation(n_participants)
+                                    if participants[r_id] != sender_id and
+                                    participants[r_id] != parent_sender_id).next()
+                except StopIteration:
+                    print('participants', participants)
+                    print('sender_id, parent_sender_id', sender_id, parent_sender_id)
             else:
                 sender_id = tree.node[parent]['sender_id']
                 recipient_id = (participants[r_id]
                                 for r_id in np.random.permutation(n_participants)
                                 if participants[r_id] != sender_id).next()
         tree.add_node(i)
+
+        # randomly adding white noise
+        topics = event_topic_param + np.random.uniform(
+            0, topic_noise,
+            len(event_topic_param)
+        )
+        topics /= topics.sum()
+
         tree.node[i] = {
             'message_id': i,
             'sender_id': sender_id,
             'recipient_id': recipient_id,
             'timestamp': time,
-            'topics': np.random.dirichlet(event_topic_param)
+            'topics': topics
         }
     
     # change int to string
@@ -160,8 +181,11 @@ def random_events(n_events, event_size_mu, event_size_sigma,
         # randomly select a topic and add some noise to it
         event = []
 
-        event_topic_param = topic_scaling_factor * random_topic(n_topics,
-                                                                topic_noise)
+        # event_topic_param = topic_scaling_factor * random_topic(n_topics,
+        #                                                         topic_noise)
+        event_topic_param = random_topic(n_topics,
+                                         topic_noise)
+        print('event_topic_param:', event_topic_param)
         event_size = 0
         while event_size <= 0:
             event_size = int(round(
@@ -171,18 +195,19 @@ def random_events(n_events, event_size_mu, event_size_sigma,
 
         # randomly select participants
         n_participants = 0
-        while n_participants <= 1:
+        while n_participants <= 2:
             n_participants = int(round(
                 np.random.normal(participant_mu, participant_sigma)
             ))
-        assert n_participants > 1
+        assert n_participants > 2
         
         participants = np.random.permutation(
             n_total_participants
         )[:n_participants]
+        print('participants:', participants)
 
         # event timespan
-        start_time = np.random.uniform(min_time, max_time)
+        start_time = np.random.uniform(min_time, max_time - event_duration_mu)
         end_time = start_time + np.random.normal(event_duration_mu,
                                                  event_duration_sigma)
         if end_time > max_time:
@@ -191,6 +216,7 @@ def random_events(n_events, event_size_mu, event_size_sigma,
         event = gen_event_with_known_tree_structure(
             event_size, participants, start_time, end_time,
             event_topic_param,
+            topic_noise,
             alpha, tau,
             forward_proba,
             reply_proba,
@@ -253,15 +279,15 @@ def random_noisy_interactions(n_noisy_interactions,
 
 
 def get_gen_cand_tree_params(e):
-    U = np.sum([cosine(e.node[s]['topics'], e.node[t]['topics'])
-                for s, t in e.edges_iter()])
+    U = np.sum(e[s][t]['c'] for s, t in e.edges_iter())
+
     roots = get_roots(e)
     timestamps = [e.node[n]['timestamp'] for n in e.nodes_iter()]
     preprune_secs = np.max(timestamps) - np.min(timestamps)
     return {
         'U': U,
         'roots': roots,
-        'preprune_secs': preprune_secs
+        'preprune_secs': math.ceil(preprune_secs)
     }
 
 
@@ -274,7 +300,11 @@ def make_artificial_data(
         alpha, tau,
         forward_proba,
         reply_proba,
-        create_new_proba):
+        create_new_proba,
+        dist_func,
+        recency,
+        edge_cost_alpha,
+        edge_cost_tau):
     events = random_events(
         n_events, event_size_mu, event_size_sigma,
         n_total_participants, participant_mu, participant_sigma,
@@ -311,7 +341,13 @@ def make_artificial_data(
         mapping = {n: e.node[n]['message_id'] for n in e.nodes_iter()}
         relabeled_events.append(nx.relabel_nodes(e, mapping))
 
-    gen_cand_trees_params = [get_gen_cand_tree_params(e) for e in events]
+    for e in events:
+        e = IU.assign_edge_weights(e, dist_func)
+        if recency:
+            e = IU.add_recency(e, edge_cost_alpha, edge_cost_tau)
+
+    gen_cand_trees_params = [get_gen_cand_tree_params(e)
+                             for e in events]
     return relabeled_events, all_interactions, gen_cand_trees_params
 
 
@@ -327,7 +363,7 @@ def main():
 
     parser.add_argument('--n_total_participants', type=int, default=50)
     parser.add_argument('--participant_mu', type=int, default=5)
-    parser.add_argument('--participant_sigma', type=int, default=3)
+    parser.add_argument('--participant_sigma', type=float, default=3)
 
     parser.add_argument('--min_time', type=int, default=10)
     parser.add_argument('--max_time', type=int, default=1100)
@@ -354,6 +390,13 @@ def main():
     parser.add_argument('--create_new_proba',
                         type=float, default=0.2)
 
+    parser.add_argument('--recency',
+                        action='store_true')
+    parser.add_argument('--edge_cost_alpha',
+                        type=float, default=1.0)
+    parser.add_argument('--edge_cost_tau',
+                        type=float, default=0.8)
+    
     args = parser.parse_args()
     pprint(vars(args))
 
@@ -361,7 +404,10 @@ def main():
     args_dict = vars(args)
     del args_dict['output_dir']
 
-    events, interactions, gen_cand_tree_params = make_artificial_data(**args_dict)
+    events, interactions, gen_cand_tree_params = make_artificial_data(
+        dist_func=cosine,
+        **args_dict
+    )
     sig = experiment_signature(
         n_noisy_interactions_fraction=args.n_noisy_interactions_fraction,
     )
@@ -377,4 +423,6 @@ def main():
 
 
 if __name__ == '__main__':
+    random.seed(12345)
+    np.random.seed(12345)
     main()

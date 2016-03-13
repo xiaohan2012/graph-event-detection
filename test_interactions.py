@@ -4,6 +4,7 @@ import os
 import scipy
 import numpy
 import gensim
+import cPickle as pkl
 import ujson as json
 
 from datetime import datetime, timedelta
@@ -13,6 +14,7 @@ from scipy.sparse import issparse
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+from .test_util import  make_path
 from .dag_util import binarize_dag
 from .interactions import InteractionsUtil as IU,\
     clean_decom_unzip, clean_unzip
@@ -185,6 +187,19 @@ class InteractionsUtilTest(unittest.TestCase):
             for n in sub_g.nodes():
                 assert_equal(sub_g.node[n], self.g.node[n])
 
+    def test_filter_nodes_given_root_real_example(self):
+        g = pkl.load(open(make_path('test/data/synthetic_meta_graph.pkl')))
+        timespan = 49.0
+        sub_g = IU.filter_dag_given_root(
+            g, 0,
+            lambda n:
+            g.node[n]['timestamp'] - g.node[0]['timestamp'] <= timespan,
+        )
+        assert g.node[3]['timestamp'] - g.node[0]['timestamp'] <= timespan
+        assert g.node[1]['timestamp'] - g.node[0]['timestamp'] <= timespan, (g.node[1]['timestamp'] - g.node[0]['timestamp'])
+
+        assert_true(sub_g.has_edge(1, 3))
+        
     def test_get_rooted_subgraph_within_timespan(self):
         time_deltas = [timedelta(seconds=i)
                        for i in range(5)]  # 0 ... 4 secs
@@ -529,9 +544,13 @@ class InteractionsUtilTest(unittest.TestCase):
                            alpha=1.0, tau=0.8,
                            timestamp_converter=lambda s: 2*s)
         assert_almost_equal(
-            g_before[1][2]['c'] - 1.0 * (0.8 ** 2),
+            max(0, g_before[1][2]['c'] - 1.0 * (0.8 ** 2)),
             g[1][2]['c']
         )
+        assert_almost_equal(g[1][2]['recency'],
+                            1.0 * (0.8 ** 2))
+        assert_almost_equal(g_before[1][2]['c'],
+                            g[1][2]['orig_c'])
 
     def test_get_topic_meta_graph_with_recency(self):
         g_before = self._get_meta_graph()
@@ -546,7 +565,7 @@ class InteractionsUtilTest(unittest.TestCase):
             tau=0.6
         )
         assert_almost_equal(
-            g_before[1][2]['c'] - 0.5 * (0.6 ** 1),
+            max(0, g_before[1][2]['c'] - 0.5 * (0.6 ** 1)),
             g[1][2]['c']
         )
 

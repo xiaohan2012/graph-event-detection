@@ -1153,3 +1153,76 @@ However, if some algorithm(other than greedy) might avoid this trap as well.
 So, not sure if this should be added.
 
 Let's incorporate the semantic drift first.
+
+
+Day 4
+
+- Charikar algorithm
+- paper writing
+  - problem definition: consistent with the theorem and lemma
+- check some video/lecture/book on reinforcement learning
+  - basic concept, if it suits our need
+  - partially observable world
+  - regret bound
+
+
+Problem for binary search algorithm:
+
+- In the original binary search algorithm, we take the subtree that maximize the total prize, this ensures the prize collected is >= 1/4
+- However, now we can only take the subtree rooted at r, this does not necessarily satisfy the prize lower bound
+
+How to split the tree such that the rooted such tree has cost <= B and prize >= some thing?
+
+1. Can we have some lemma like [Lemma 4.1](http://dl.acm.org/citation.cfm?id=338637)?
+2. Can we use greedy algorithm to find such a tree under such constraint?
+   - we **might** need to add some assumption on the edge cost, because:
+   - given uniform node prize, budget B and 2-approximation algo, the tree to be split have cost `2B` , suppose r gets connected to two nodes both with `B` cost, and there many grandchildren of `r` with zero edge cost, then we can not achieve better `Q/2`
+   - however, if we constrain edge cost <= `B/2`, can we achieve better `Q/2`? Again no..
+     - example: `r->u B/2`, `r->v B/2 - \epsilon`, `v->a \epislon` and many zero edge-cost node
+   - Can be get such a tree by adding edge cost assumption?
+     - the point of adding edge cost assumption is to prove the maximum number of #sub_trees so that, by taking the one with the maximum total prize, its prize have a lower bound
+	 - however, we don't need to have the maximum number of #sub_trees because we only get on tree rooted at `r`
+3. This reminds me of the lst-tree algorithm, which can be solved optimally in polinomial time
+   - however, this requires the edge cost to be integral
+   - can we have some prize lower bound for integral edge cost and uniform node prize?
+     - need edge cost assumption?
+	 - Edge cost <= something does not work, we can duplicate many edges with the maximium possible cost into a path
+	 - how about edge cost >= something, let's say `B/4`
+4. Some simple bound:
+  - Example 1: tree cost `2B`, `Q=4`,
+    - if all edge cost `<= 1/2 B`, the tree(from greedy search) can have at least 2 nodes, thus approx ratio is 0.5
+  - Example 2: tree cost `2B`, `Q=8`
+  	- if all edge cost `<= 3/4 B`, then at least 1 nodes, thus approx ratio is 0.125
+    - if all edge cost `<= 1/2 B`, then at least 2 nodes, thus approx ratio is 0.25
+	- if all edge cost `<= 1/4 B`, then at least 4 nodes, thus approx ratio is 0.5
+  - In general: given tree cost `\alpha B`, `Q`,
+    - if all edge cost `<= \beta B`(`\beta >= \alpha / Q`), then at least `floor(1 / \beta)` nodes, so the ratio is at least  `floor(1 / \beta) /  Q`, which is at most `1/\alpha`.
+	- so approx ratio depends on `\beta` and `Q` now.
+
+
+Day 5
+
+- visualize the result tree
+- binary search using Charkar's algorithm without approximation bound
+- add semantic drift
+- add recency(?)
+  - `U` value in synthetic experiment should change
+  - some edge cost becomes negative
+  - tree width is too large
+  - tree shape is not so good now
+  - need to seperate the tau, alpha used to generate the tree and the one to calculate the tree
+  - comparison on with and without recency
+  - parameter U is calculated wrong
+- read approximation algorithm book
+- markov decision process
+
+
+Day 7
+
+- adding recency also reduces weight for other non-event edges as well, [example](https://www.cs.helsinki.fi/u/hxiao/figures/tree_inspection/adding_recency_consequences.png)
+  - tuning the parameter for recency is important, if tuned well, it's useful.
+  - the result using greedy is even better [without recency](https://www.cs.helsinki.fi/u/hxiao/figures/tree_inspection/true_event_vs_pred_event_without_recency.png)
+  - 5 to 8 should have a larger weight than 7 to 8
+  - also, 1->10 is wrongly added because of recency
+  - something wrong with the generating process
+  - however, the recency stuff is only hypothesis, let's dive into some real data first

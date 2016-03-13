@@ -243,7 +243,14 @@ class InteractionsUtil(object):
             t1 = timestamp_converter(g.node[s]['timestamp'])
             t2 = timestamp_converter(g.node[t]['timestamp'])
             diff_t = t2 - t1
-            g[s][t][cls.EDGE_COST_KEY] -= alpha * (tau ** diff_t)
+            recency = alpha * (tau ** diff_t)
+            g[s][t]['orig_c'] = g[s][t][cls.EDGE_COST_KEY]
+            g[s][t]['recency'] = recency
+
+            g[s][t][cls.EDGE_COST_KEY] -= recency
+            if g[s][t][cls.EDGE_COST_KEY] < 0:
+                g[s][t][cls.EDGE_COST_KEY] = 0
+
         return g
 
     @classmethod
@@ -363,25 +370,29 @@ class InteractionsUtil(object):
 
         # prevent re-push impossible nodes
         # e.g: A, B, C -> bad_nodes
-        black_node_set = set()
+        # black_node_set = set()
 
         # prevent re-pushing pushed edges
         # e.g: A, B, C, -> good_node -> C, E, F
-        white_edge_set = set()
+        # white_edge_set = set()
+
+        failed_nodes = set()
+        expanded_nodes = set()
 
         while len(stack) > 0:
             node, parent = stack.pop()
-            if filter_func(node) and (node, parent) not in white_edge_set:
-                white_edge_set.add((node, parent))
+            dag.add_node(node, g.node[node])
+            if parent is not None:
+                dag.add_edge(parent, node, g[parent][node])
 
-                dag.add_node(node, g.node[node])
-                if parent is not None:  # not root
-                    dag.add_edge(parent, node, g[parent][node])
+            if node not in expanded_nodes:
                 for child in g.neighbors(node):
-                    if child not in black_node_set:
-                        stack.append((child, node))
-            else:
-                black_node_set.add(node)
+                    if child not in failed_nodes:
+                        if filter_func(child):
+                            stack.append((child, node))
+                        else:
+                            failed_nodes.add(child)
+            expanded_nodes.add(node)
         return dag
 
     @classmethod
@@ -415,12 +426,12 @@ class InteractionsUtil(object):
                 if issparse(g.node[s][f]):
                     array1 = np.array(g.node[s][f].todense()).ravel()
                 else:
-                    array1 = g.node[s][f]
+                    array1 = np.array(g.node[s][f])
 
                 if issparse(g.node[t][f]):
                     array2 = np.array(g.node[t][f].todense()).ravel()
                 else:
-                    array2 = g.node[t][f]
+                    array2 = np.array(g.node[t][f])
 
                 # at least one is all-zero
                 if not array1.any() or not array2.any():

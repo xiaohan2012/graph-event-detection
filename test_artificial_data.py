@@ -6,6 +6,7 @@ import itertools
 
 from collections import Counter
 from nose.tools import assert_equal, assert_true
+from scipy.spatial.distance import cosine
 
 from dag_util import get_roots
 from interactions import InteractionsUtil as IU
@@ -27,9 +28,9 @@ class ArtificialDataTest(unittest.TestCase):
             'n_total_participants': 20,
             'participant_mu': 5,
             'participant_sigma': 1,
-            'min_time': 0,
-            'max_time': 100,
-            'event_duration_mu': 5,
+            'min_time': 10,
+            'max_time': 600,
+            'event_duration_mu': 510,
             'event_duration_sigma': 0.0001,
             'n_topics': 10,
             'topic_scaling_factor': 1000,
@@ -40,7 +41,8 @@ class ArtificialDataTest(unittest.TestCase):
             'tau': 0.8,
             'forward_proba': 0.3,
             'reply_proba': 0.5,
-            'create_new_proba': 0.2
+            'create_new_proba': 0.2,
+            'dist_func': cosine
         }
 
     def seems_like_uniform_distribution(self, array):
@@ -280,7 +282,7 @@ def test_get_gen_cand_tree_params():
         reply_proba=0.5,
         create_new_proba=0.2
     )
-    params = get_gen_cand_tree_params(event)
+    params = get_gen_cand_tree_params(event, cosine, 0.8, 0.8)
     assert_true(params['U'] > 0)
     assert_equal(99, params['preprune_secs'])
     assert_equal([0], params['roots'])

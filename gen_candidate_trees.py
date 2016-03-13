@@ -80,7 +80,11 @@ def calc_tree(node_i, r, U,
 
     tree = unbinarize_dag(tree,
                           edge_weight_key=IU.EDGE_COST_KEY)
-
+    print("preprune_secs:", timespan)
+    print("g.node[3]['timestamp'] - g.node[0]['timestamp']:", g.node[3]['timestamp'] - g.node[0]['timestamp'])
+    print('sub_g has edge (1, 3):', sub_g.has_edge(1, 3))
+    print('g[1][3]:', g[1][3])
+    print('tree.nodes():', tree.nodes())
     if len(tree.edges()) == 0:
         logger.debug("empty event tree")
         return None
@@ -117,6 +121,7 @@ def run(gen_tree_func,
             'U': 0.5,
             'dijkstra': False
         },
+        convert_time=True,
         roots=None,
         calculate_graph=False,
         given_topics=False,
@@ -166,6 +171,7 @@ def run(gen_tree_func,
             undirected=undirected,
             given_topics=given_topics,
             decompose_interactions=False,
+            convert_time=convert_time,
             **meta_graph_kws_copied
         )
 
@@ -341,6 +347,10 @@ if __name__ == '__main__':
                         help="How do we consider *one* recency, 1 second or 1 day?"
     )
 
+    parser.add_argument('--not_convert_time',
+                        action='store_true',
+                        help="whether convert datetime or not")
+
     args = parser.parse_args()
 
     dist_funcs = {'euclidean': euclidean, 'cosine': cosine}
@@ -390,33 +400,37 @@ if __name__ == '__main__':
                                'day': lambda s: s / 86400.}
         timestamp_converter = time_unit2converter[args.time_diff_unit]
         
-    run(methods[args.method],
-        root_sampling_method=args.root_sampling,
-        undirected=args.undirected,
-        interaction_json_path=args.interaction_path,
-        corpus_dict_path=args.corpus_dict_path,
-        meta_graph_pkl_path_prefix=args.meta_graph_path_prefix,
-        lda_model_path=args.lda_path,
-        result_pkl_path_prefix='{}{}'.format(
-            args.result_prefix, args.method
-        ),
-        meta_graph_kws={
-            'dist_func': dist_func,
-            'preprune_secs': timespan,
-            'distance_weights': distance_weights,
-            'consider_recency': args.recency,
-            'tau': args.tau,
-            'alpha': args.alpha,
-            'timestamp_converter': timestamp_converter
-        },
-        gen_tree_kws={
-            'timespan': timespan,
-            'U': U,
-            'dijkstra': args.dij
-        },
-        cand_tree_number=args.cand_n,
-        cand_tree_percent=args.cand_n_percent,
-        calculate_graph=args.calc_mg,
-        given_topics=args.given_topics,
-        roots=roots
-    )
+    paths = run(methods[args.method],
+                root_sampling_method=args.root_sampling,
+                undirected=args.undirected,
+                interaction_json_path=args.interaction_path,
+                corpus_dict_path=args.corpus_dict_path,
+                meta_graph_pkl_path_prefix=args.meta_graph_path_prefix,
+                lda_model_path=args.lda_path,
+                result_pkl_path_prefix='{}{}'.format(
+                    args.result_prefix, args.method
+                ),
+                meta_graph_kws={
+                    'dist_func': dist_func,
+                    'preprune_secs': timespan,
+                    'distance_weights': distance_weights,
+                    'consider_recency': args.recency,
+                    'tau': args.tau,
+                    'alpha': args.alpha,
+                    'timestamp_converter': timestamp_converter
+                },
+                gen_tree_kws={
+                    'timespan': timespan,
+                    'U': U,
+                    'dijkstra': args.dij
+                },
+                cand_tree_number=args.cand_n,
+                cand_tree_percent=args.cand_n_percent,
+                calculate_graph=args.calc_mg,
+                given_topics=args.given_topics,
+                roots=roots,
+                convert_time=not args.not_convert_time
+            )
+
+    import cPickle as pkl
+    pkl.dump(paths, open('.paths.pkl', 'w'))
