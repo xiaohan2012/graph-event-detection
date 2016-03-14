@@ -1264,7 +1264,14 @@ Todo:
   - AdaptiveSampler, Random, Upperbound
   - Synthetic data(5x noise)
   - Metric: F1, #root that are correct, objective value of k-max set cover
-- Problems of the argument and result path:
-  - hard to read/locate
-  - argument path can be too long that allowed by OS
-  - some arguments are temporary, if removed, tests will fail
+- Discuss
+
+Adaptive sampler seems to be promising, more metrics to add
+
+Day 2
+
+- more metrics to sampler
+- algorithm comparison
+- Charikar's algorithm
+
+

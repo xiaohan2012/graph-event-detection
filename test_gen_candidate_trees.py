@@ -1,5 +1,4 @@
 import random
-import os
 import unittest
 import numpy
 import networkx as nx
@@ -16,7 +15,7 @@ from .lst import lst_dag, dp_dag_general, make_variance_cost_func
 from .baselines import greedy_grow_by_discounted_reward as greedy_grow, \
     random_grow
 from .test_util import remove_tmp_data, make_path
-from .experiment_util import experiment_signature
+from dag_util import get_roots
 
 
 directed_params = {
@@ -64,85 +63,33 @@ distance_weights_2 = {'topics': 0.2, 'bow': 0.8}
 distance_weights_3 = {'topics': 0.5, 'bow': 0.5, 'hashtag_bow': 0.1}
 
 
-class CalcMGMixin(object):
-    def update_metagraph_and_produce_if_needed(
-            self,
-            dist_func=cosine,
-            preprune_secs=timedelta(weeks=4),
-            U=2.0,
-            apply_pagerank=False,
-            distance_weights=distance_weights_2
-    ):
-        # this is NOT necessary any more
-        # the `run` method will calculate the meta graph when needed
+class GenCandidateTreeTest(unittest.TestCase):
+    def setUp(self):
+        random.seed(1)
+        numpy.random.seed(1)
+
         self.some_kws_of_run = {
             'cand_tree_number': None,
             'cand_tree_percent': 0.1,
             'meta_graph_kws': {
-                'dist_func': dist_func,
-                'preprune_secs': preprune_secs,
-                'distance_weights': distance_weights
+                'dist_func': cosine,
+                'preprune_secs': timedelta(days=28),
+                'distance_weights': {'topics': 1.0},
+                'consider_recency': False,
+                'alpha': 0.2,
+                'tau': 0.8
             },
             'gen_tree_kws': {
-                'timespan': preprune_secs,
-                'U': U,
+                'timespan': timedelta(days=28),
+                'U': 5.0,
                 'dijkstra': False
             },
-            'root_sampling_method': 'out_degree'
+            'root_sampling_method': 'random'
         }
 
-        self.meta_pickle_path_common = experiment_signature(
-            dist_func=dist_func,
-            preprune_secs=preprune_secs,
-            apply_pagerank=apply_pagerank,
-            distance_weights=distance_weights
-        )
-        pkl_path = make_path('test/data/enron-head-100--{}.pkl'.format(
-            self.meta_pickle_path_common)
-        )
-        if not os.path.exists(pkl_path):
-            print('calc meta graph')
-            self._calc_cand_trees_pkl(undirected=False)
-            self._calc_cand_trees_pkl(undirected=True)
-        else:
-            print('no need to calc meta graph')
-
-    def _calc_cand_trees_pkl(self, undirected):
-        kws = self.some_kws_of_run.copy()
-        print(undirected)
-        if undirected:
-            kws.update(undirected_params)
-        else:
-            kws.update(directed_params)
-
-        run(
-            lst,
-            calculate_graph=True,
-            print_summary=False,
-            result_pkl_path_prefix=make_path('test/data/tmp/test'),  # can be ignored
-            **kws
-        )
-
-
-class GenCandidateTreeTest(unittest.TestCase, CalcMGMixin):
-    def setUp(self):
-        random.seed(1)
-        numpy.random.seed(1)
-        self.update_metagraph_and_produce_if_needed()
-
     def check(self, test_name, tree_gen_func, undirected=False, **more_args):
-        # empty trees are ignored
-        # very likely actual tree number should >= 0
         result_pickle_prefix = make_path("test/data/tmp",
                                          "result-{}".format(test_name))
-        pickle_path_suffix = 'U=2.0--dijkstra={}--timespan=28days----{}----{}'.format(
-            self.some_kws_of_run['gen_tree_kws'].get('dijkstra', False),
-            self.meta_pickle_path_common,
-            experiment_signature(
-                cand_tree_percent=self.some_kws_of_run['cand_tree_percent'],
-                root_sampling=self.some_kws_of_run['root_sampling_method']
-            )
-        )
         kws = self.some_kws_of_run.copy()
         
         if undirected:
@@ -161,15 +108,17 @@ class GenCandidateTreeTest(unittest.TestCase, CalcMGMixin):
             **kws)
 
         trees = pkl.load(open(result_path))
+        trees = filter(None, trees)  # remove Nones
 
         assert_true(len(trees) > 0)
+
         for t in trees:
             assert_true(len(t.edges()) > 0)
 
         return trees, nx.read_gpickle(mg_path)
 
     def test_if_sender_and_recipient_information_saved(self):
-        trees, _ = self.check('lst', lst)
+        trees, _ = self.check('greedy', greedy_grow)
         for t in trees:
             for n in t.nodes():
                 assert_true('sender_id' in t.node[n])
@@ -177,12 +126,6 @@ class GenCandidateTreeTest(unittest.TestCase, CalcMGMixin):
         
     def test_greedy_grow(self):
         self.check('greedy', greedy_grow)
-
-    def test_greedy_grow_with_pagerank(self):
-        self.update_metagraph_and_produce_if_needed(apply_pagerank=True)
-        trees, _ = self.check('greedy', greedy_grow)
-        for n in trees[0].nodes_iter():
-            assert_true(trees[0].node[n]['r'] < 1)
 
     def test_random_grow(self):
         self.check('random', random_grow)
@@ -202,20 +145,15 @@ class GenCandidateTreeTest(unittest.TestCase, CalcMGMixin):
     def test_variance_method(self):
         self.check('variance', variance_method)
 
-    def test_undirected(self):
-        self.check('variance', variance_method,
-                   undirected=True)
-
     def test_distance_weight_using_hashtag_bow(self):
-        self.update_metagraph_and_produce_if_needed(
-            distance_weights=distance_weights_3
-        )
+        self.some_kws_of_run['meta_graph_kws']['distance_weights'] = distance_weights_3
         self.check('greedy', greedy_grow)
 
     def test_with_roots(self):
         self.some_kws_of_run['roots'] = [54647]
-        trees, _ = self.check('lst', lst)
+        trees, _ = self.check('greedy', greedy_grow)
         assert_equal(1, len(trees))
+        assert_equal(54647, get_roots(trees[0])[0])
     
     def test_with_recency(self):
         self.some_kws_of_run['meta_graph_kws']['consider_recency'] = True
@@ -234,6 +172,18 @@ class GenCandidateTreeTest(unittest.TestCase, CalcMGMixin):
             mg[s][t]['c']
         )
 
+    def test_random_sampler(self):
+        self.some_kws_of_run['root_sampling_method'] = 'random'
+        self.check('greedy', greedy_grow)
+
+    def test_upperbound_sampler(self):
+        self.some_kws_of_run['root_sampling_method'] = 'upperbound'
+        self.check('greedy', greedy_grow)
+
+    def test_adaptive_sampler(self):
+        self.some_kws_of_run['root_sampling_method'] = 'adaptive'
+        self.check('greedy', greedy_grow)
+
     def tearDown(self):
         remove_tmp_data('test/data/tmp/*')
 
@@ -251,36 +201,12 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         self.directed_params = directed_params
         self.undirected_params = undirected_params
 
-        self.update_result_path_template()
 
-    def update_result_path_template(self,
-                                    U=2.0,
-                                    timespan=timedelta(days=28),
-                                    cand_tree_percent=0.01,
-                                    sampling_method='uniform',
-                                    apply_pagerank=False,
-                                    distance_weights=distance_weights_2):
-        self.result_output_path_template = "test/data/tmp/result-{}--{}----{}----{}.pkl".format(
-            '%s',
-            experiment_signature(
-                U=U,
-                dijkstra=False,
-                timespan=timespan
-            ),
-            experiment_signature(
-                dist_func='%s',
-                preprune_secs=timespan,
-                apply_pagerank=apply_pagerank,
-                distance_weights=distance_weights
-            ),
-            experiment_signature(
-                cand_tree_percent=cand_tree_percent,
-                root_sampling=sampling_method
-            )
-        )
+    def get_path(self):
+        return pkl.load(open(make_path('.paths.pkl')))
 
     def check(self, method="random", distance="cosine",
-              sampling_method="uniform", extra="", undirected=False,
+              sampling_method="random", extra="", undirected=False,
               distance_weights=distance_weights_2):
         if undirected:
             more_params = self.undirected_params
@@ -318,14 +244,6 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
 
         assert_true("traceback" not in output.lower())
 
-        # output_path = make_path(
-        #     self.result_output_path_template % (
-        #         method, distance
-        #     )
-        # )
-        # print('output_path:', output_path)
-        # assert_true(os.path.exists(output_path))
-
         return output
 
     def test_random(self):
@@ -334,14 +252,9 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
     def test_variance(self):
         self.check(method='variance')
 
-    def test_out_degree_sampling(self):
-        self.update_result_path_template(sampling_method='out_degree')
-        output = self.check(sampling_method='out_degree')
-        assert_true('out_degree' in output)
-        
-    def test_undirected(self):
-        self.update_result_path_template(sampling_method='out_degree')
-        self.check(sampling_method='out_degree', undirected=True)
+    def test_adaptive_sampling(self):
+        output = self.check(sampling_method='adaptive')
+        assert_true('adaptive' in output)
 
     def test_given_topics(self):
         self.directed_params = {
@@ -356,28 +269,17 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
             'corpus_dict_path': None,
             'undirected': False,
         }
-        self.update_result_path_template(timespan=8,
-                                         sampling_method='out_degree',
-                                         apply_pagerank=True,
-                                         distance_weights=distance_weights_1
-                                     )
 
-        self.check(sampling_method='out_degree', undirected=False,
+        self.check(undirected=False,
                    distance='cosine',
                    extra='--seconds=8 --given_topics --apply_pagerank',
                    distance_weights={'topics': 1.0})
 
     def test_cand_n(self):
-        self.update_result_path_template(cand_tree_percent=0.0972222222222)
         self.check(extra='--cand_n 7')
 
     def test_hashtag_bow(self):
-        self.update_result_path_template(distance_weights=distance_weights_3)
         self.check(distance_weights=distance_weights_3)
-
-    def test_apply_pagerank(self):
-        self.update_result_path_template(apply_pagerank=True)
-        self.check(extra='--apply_pagerank')
 
     def test_with_event_param_pkl_path(self):
         path = make_path('test/data/tmp/event_param.pkl')
@@ -385,10 +287,6 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
                    'preprune_secs': timedelta(weeks=4),
                    'roots': [54647]}],
                  open(path, 'w'))
-        self.update_result_path_template(
-            U=1.0,
-            timespan=timedelta(weeks=4)
-        )
         self.check('greedy',
                    extra='--event_param_pickle_path {}'.format(path)
         )
@@ -420,7 +318,10 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
                 'dist_func': cosine,
                 'preprune_secs': 8,
                 'apply_pagerank': True,
-                'distance_weights': distance_weights
+                'distance_weights': distance_weights,
+                'consider_recency': False,
+                'tau': 0.0,
+                'alpha': 0.8
             },
             'gen_tree_kws': {
                 'timespan': 8,
@@ -430,84 +331,40 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
             'given_topics': True,
         }
 
-        self.meta_pickle_path_common = experiment_signature(
-            dist_func='cosine',
-            preprune_secs=8,
-            apply_pagerank=True,
-            distance_weights=distance_weights
-        )
-        pkl_path = '{}--{}.pkl'.format(
-            self.some_kws_of_run['meta_graph_pkl_path_prefix'],
-            self.meta_pickle_path_common
-        )
-        if not os.path.exists(pkl_path):
-            print('calc meta graph')
-            self._calc_cand_trees_pkl()
-        else:
-            print('no need to calc meta graph')
-
-    def _calc_cand_trees_pkl(self):
-        kws = self.some_kws_of_run.copy()
-        run(
-            lst,
-            calculate_graph=True,
-            print_summary=False,
-            result_pkl_path_prefix=make_path('test/data/tmp/test'),
-            **kws
-        )
-
     def check(self, test_name, tree_gen_func, **more_args):
         result_pickle_prefix = make_path("test/data/tmp",
                                          "result-{}".format(test_name))
 
-        pickle_path_suffix = 'U=2.0--dijkstra={}--timespan=8----{}----{}'.format(
-            self.some_kws_of_run['gen_tree_kws'].get('dijkstra', False),
-            self.meta_pickle_path_common,
-            experiment_signature(
-                cand_tree_percent=self.some_kws_of_run['cand_tree_percent'],
-                root_sampling='out_degree',
-            )
-        )
         kws = self.some_kws_of_run.copy()
         
         if more_args:
             kws.update(more_args)
+            
+        kws['root_sampling_method'] = 'random'
+        result_pkl_path, meta_graph_pkl_path = run(tree_gen_func,
+                                                   calculate_graph=False,
+                                                   print_summary=False,
+                                                   result_pkl_path_prefix=result_pickle_prefix,
+                                                   **kws)
 
-        pickle_path = "{}--{}.pkl".format(
-            result_pickle_prefix,
-            pickle_path_suffix
-        )
-
-        kws['root_sampling_method'] = 'out_degree'
-        run(tree_gen_func,
-            calculate_graph=False,
-            print_summary=False,
-            result_pkl_path_prefix=result_pickle_prefix,
-            **kws)
-
-        trees = pkl.load(open(pickle_path))
+        trees = pkl.load(open(result_pkl_path))
+        trees = filter(None, trees)
 
         assert_true(len(trees) > 0)
         for t in trees:
             assert_true(len(t.edges()) > 0)
-        return trees
+        return trees, nx.read_gpickle(meta_graph_pkl_path)
 
     # overrides
     def test_variance_method(self):
         self.check('variance', variance_method)
 
-    def test_undirected(self):
-        # this example is directed,
-        # so not applicable
-        pass
-    
-    def test_greedy_grow_with_pagerank(self):
-        # as the metagraph path is changed in it
-        # so not applicable
-        pass
-
     def test_distance_weight_using_hashtag_bow(self):
         pass
 
+    def test_with_roots(self):
+        pass
+        
     def tearDown(self):
         remove_tmp_data('test/data/tmp')
+        

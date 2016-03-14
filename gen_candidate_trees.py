@@ -5,7 +5,6 @@ import networkx as nx
 import ujson as json
 import copy
 import logging
-import itertools
 
 from pprint import pprint
 from datetime import timedelta
@@ -15,12 +14,11 @@ from dag_util import unbinarize_dag, binarize_dag, remove_edges_via_dijkstra
 from lst import lst_dag, make_variance_cost_func, dp_dag_general
 from interactions import InteractionsUtil as IU
 from meta_graph_stat import MetaGraphStat
-from experiment_util import sample_nodes, \
-    sample_nodes_by_out_degree,\
-    experiment_signature,\
+from experiment_util import experiment_signature,\
     get_number_and_percentage
 from util import load_json_by_line
 from baselines import random_grow, greedy_grow_by_discounted_reward
+from sampler import RandomSampler, UBSampler, AdaptiveSampler, DeterministicSampler
 
 logging.basicConfig(format="%(asctime)s;%(levelname)s;%(message)s",
                     datefmt="%Y-%m-%d %H:%M:%S")
@@ -42,49 +40,38 @@ def get_summary(g):
     ).summary()
 
 
-def calc_tree(node_i, r, U,
+def calc_tree(node_i, r, dag, U,
               gen_tree_func,
-              timespan, gen_tree_kws,
-              shared_dict,
+              gen_tree_kws,
               print_summary):
     # g is shared in memory
-    g = shared_dict['g']
-    sub_g = IU.get_rooted_subgraph_within_timespan(
-        g, r, timespan
-    )
-    logger.info('nodes procssed {}'.format(node_i))
-    logger.debug('getting rooted subgraph within timespan')
 
-    if len(sub_g.edges()) == 0:
+    logger.info('nodes procssed {}'.format(node_i))
+    if len(dag.edges()) == 0:
         logger.debug("empty rooted sub graph")
         return None
 
     if gen_tree_kws.get('dijkstra'):
         logger.debug('applying dijkstra')
-        sub_g = remove_edges_via_dijkstra(
-            sub_g,
+        dag = remove_edges_via_dijkstra(
+            dag,
             source=r,
             weight=IU.EDGE_COST_KEY
         )
 
     logger.debug('binarizing dag...')
 
-    binary_sub_g = binarize_dag(sub_g,
-                                IU.VERTEX_REWARD_KEY,
-                                IU.EDGE_COST_KEY,
-                                dummy_node_name_prefix="d_")
+    binary_dag = binarize_dag(dag,
+                              IU.VERTEX_REWARD_KEY,
+                              IU.EDGE_COST_KEY,
+                              dummy_node_name_prefix="d_")
 
     logger.debug('generating tree ')
 
-    tree = gen_tree_func(binary_sub_g, r, U)
+    tree = gen_tree_func(binary_dag, r, U)
 
     tree = unbinarize_dag(tree,
                           edge_weight_key=IU.EDGE_COST_KEY)
-    print("preprune_secs:", timespan)
-    print("g.node[3]['timestamp'] - g.node[0]['timestamp']:", g.node[3]['timestamp'] - g.node[0]['timestamp'])
-    print('sub_g has edge (1, 3):', sub_g.has_edge(1, 3))
-    print('g[1][3]:', g[1][3])
-    print('tree.nodes():', tree.nodes())
     if len(tree.edges()) == 0:
         logger.debug("empty event tree")
         return None
@@ -96,7 +83,7 @@ def calc_tree(node_i, r, U,
 
 
 def run(gen_tree_func,
-        root_sampling_method='uniform',
+        root_sampling_method='random',
         undirected=False,
         interaction_json_path=os.path.join(CURDIR, 'data/enron.json'),
         lda_model_path=os.path.join(CURDIR, 'models/model-4-50.lda'),
@@ -108,7 +95,6 @@ def run(gen_tree_func,
         meta_graph_kws={
             'dist_func': cosine,
             'preprune_secs': timedelta(weeks=4),
-            # 'apply_pagarank': False,  # DISABLED
             'distance_weights': {'topics': 0.2,
                                  'bow': 0.8},
             'consider_recency': False,
@@ -149,6 +135,10 @@ def run(gen_tree_func,
         lda_model = None
         dictionary = None
 
+    if not meta_graph_kws['consider_recency']:
+        del meta_graph_kws['tau']
+        del meta_graph_kws['alpha']
+
     meta_graph_pkl_path = "{}--{}.pkl".format(
         meta_graph_pkl_path_prefix,
         experiment_signature(**meta_graph_kws)
@@ -163,7 +153,6 @@ def run(gen_tree_func,
 
         if isinstance(meta_graph_kws_copied['preprune_secs'], timedelta):
             meta_graph_kws_copied['preprune_secs'] = meta_graph_kws['preprune_secs'].total_seconds()
-
         g = IU.get_topic_meta_graph(
             interactions,
             lda_model=lda_model,
@@ -188,42 +177,40 @@ def run(gen_tree_func,
         logger.debug(get_summary(g))
 
     assert g.number_of_nodes() > 0, 'empty graph!'
-    cand_tree_number, cand_tree_percent = get_number_and_percentage(
-        g.number_of_nodes(),
-        cand_tree_number,
-        cand_tree_percent
-    )
-    
+
     if not roots:
-        logger.info('sampling root nodes...')
-        root_sampling_methods = {
-            'uniform': sample_nodes,
-            'out_degree': sample_nodes_by_out_degree
-        }
-        roots = root_sampling_methods[root_sampling_method](
-            g, cand_tree_number)
+        cand_tree_number, cand_tree_percent = get_number_and_percentage(
+            g.number_of_nodes(),
+            cand_tree_number,
+            cand_tree_percent
+        )
+        if root_sampling_method == 'random':
+            root_sampler = RandomSampler(g, timespan)
+        elif root_sampling_method == 'upperbound':
+            root_sampler = UBSampler(g, U, timespan)
+        else:
+            root_sampler = AdaptiveSampler(g, U, timespan)
     else:
         logger.info('Roots given')
-    logger.info('#roots: {}'.format(len(roots)))
+        cand_tree_number = len(roots)
+        root_sampler = DeterministicSampler(g, roots, timespan)
+    
+    logger.info('#roots: {}'.format(cand_tree_number))
     logger.info('#cand_tree_percent: {}'.format(
-        len(roots) / float(g.number_of_nodes()))
+        cand_tree_number / float(g.number_of_nodes()))
     )
-    
-    shared_dict = {'g': g}
-    
-    trees = map(lambda (i, r):
-                calc_tree(
-                    i, r,
-                    U=U,
-                    gen_tree_func=gen_tree_func,
-                    timespan=timespan,
-                    gen_tree_kws=gen_tree_kws,
-                    shared_dict=shared_dict,
-                    print_summary=print_summary),
-                itertools.izip(xrange(len(roots)),
-                               roots))
-    
-    trees = filter(None, trees)  # remove Nones
+
+    trees = []
+    for i in xrange(cand_tree_number):
+        root, dag = root_sampler.take()
+
+        tree = calc_tree(i, root, dag, U,
+                         gen_tree_func,
+                         gen_tree_kws,
+                         print_summary)
+        trees.append(tree)
+        
+        root_sampler.update(root, tree)
 
     result_pkl_path = "{}--{}----{}----{}.pkl".format(
         result_pkl_path_prefix,
@@ -266,8 +253,8 @@ if __name__ == '__main__':
     parser.add_argument('--dist', required=True,
                         choices=('euclidean', 'cosine'),
                         help="Distance function to use")
-    parser.add_argument('--root_sampling', default='uniform',
-                        choices=('uniform', 'out_degree'),
+    parser.add_argument('--root_sampling', default='random',
+                        choices=('random', 'upperbound', 'adaptive'),
                         help="Scheme to sample roots")
 
     parser.add_argument('--dij', action="store_true",

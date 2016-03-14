@@ -111,6 +111,16 @@ class RandomSampler(RootedTreeSampler):
         return self.root_and_dag(n)
 
 
+class DeterministicSampler(RootedTreeSampler):
+    def __init__(self, g, roots, timespan_secs):
+        super(DeterministicSampler, self).__init__(g, timespan_secs)
+        self.roots = roots
+
+    def take(self):
+        r = self.roots.pop(0)
+        return self.root_and_dag(r)
+
+
 class AdaptiveSampler(RootedTreeSampler):
     def __init__(self, g, B, timespan_secs, node_score_func=tree_density):
         super(AdaptiveSampler, self).__init__(g, timespan_secs)
@@ -120,11 +130,28 @@ class AdaptiveSampler(RootedTreeSampler):
                                 for r in g.nodes_iter()}
 
         # updated at each iteration
+        # nodes that are partially/fully computed
+        # excluding leaves
         self.covered_nodes = set()
-        self.roots_to_explore = set(g.nodes())
+
+        # exclude leaves
+        self.roots_to_explore = set([n for n in g.nodes_iter()
+                                     if g.out_degree(n) > 0])
+        self.n_nodes_to_cover = len(self.roots_to_explore)
+
         self.node2score = {}
 
     def update(self, root, tree):
+        # handle empty tree
+        if tree is None:
+            self.covered_nodes.add(root)
+            if root in self.roots_to_explore:
+                self.roots_to_explore.remove(root)
+            return
+
+        if root in self.node2score:
+            del self.node2score[root]
+
         # update the node scores
         scores = node_scores_from_tree(tree, root,
                                        score_func=self.node_score_func)
@@ -136,34 +163,29 @@ class AdaptiveSampler(RootedTreeSampler):
                     if self.node2score[node] < score:
                         self.node2score[node] = score
 
-        tree_nodes_except_leaves = set([n for n in tree.nodes_iter()
-                                        if tree.out_degree(n) > 0 or
-                                        self.g.out_degree(n) == 0  # is leaf in g
-                                    ])
+        nodes_covered_by_tree = set([n for n in tree.nodes_iter()
+                                     if tree.out_degree(n) > 0
+                                 ])
         # update roots_to_explore
-        newly_covered_nodes = tree_nodes_except_leaves - self.covered_nodes
-        roots_to_stop_explore = []
-        for root in self.roots_to_explore:
-            intersect = self.root2nodes[root].intersection(newly_covered_nodes)
-            if intersect:
-                roots_to_stop_explore.append(root)
-        self.roots_to_explore -= set(roots_to_stop_explore)
-        
+        newly_covered_nodes = nodes_covered_by_tree - self.covered_nodes
+        self.roots_to_explore -= set(newly_covered_nodes)
+
         # update covered_nodes
-        self.covered_nodes |= tree_nodes_except_leaves
+        self.covered_nodes |= newly_covered_nodes
 
     @property
     def explore_proba(self):
-        return 1 - float(len(self.covered_nodes)) / self.g.number_of_nodes()
+        return float(len(self.roots_to_explore)) / self.n_nodes_to_cover
 
     def random_action(self):
-        if random.random() <= self.explore_proba:
+        rnd = random.random()
+        if rnd <= self.explore_proba:
             return 'explore'
         else:
             return 'exploit'
 
     def take(self):
-        if self.random_action() == 'explore':
+        if self.random_action() == 'explore' and len(self.roots_to_explore) > 0:
             # explore
             # sample by upper bound
             r = max(self.roots_to_explore,

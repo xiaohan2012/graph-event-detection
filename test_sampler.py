@@ -3,11 +3,11 @@ import random
 import numpy as np
 
 from nose.tools import assert_equal, assert_true, \
-    assert_false, assert_almost_equal
+    assert_false, assert_almost_equal, assert_raises
 
 import networkx as nx
 from sampler import quota_upperbound, UBSampler, RandomSampler, \
-    node_scores_from_tree, AdaptiveSampler
+    node_scores_from_tree, AdaptiveSampler, DeterministicSampler
     
 
 def test_node_scores_from_tree():
@@ -81,6 +81,11 @@ class UpperboundTest(unittest.TestCase):
         assert_false([s.take()[0] for i in xrange(4)] == range(4))
         assert_equal(0, len(s.nodes))
 
+    def test_deterministic_sampler(self):
+        s = DeterministicSampler(self.g, roots=[0, 1, 2], timespan_secs=3)
+        assert_true(range(3), [s.take()[0] for i in xrange(3)])
+        assert_raises(IndexError, s.take)
+
 
 class AdaptiveSamplerTest(unittest.TestCase):
     def setUp(self):
@@ -114,6 +119,11 @@ class AdaptiveSamplerTest(unittest.TestCase):
              7: 1, 3: 1, 4: 1, 5: 1},
             self.s.root2upperbound
         )
+        assert_equal(
+            set([0, 1, 2, 6]),
+            self.s.roots_to_explore
+        )
+        assert_equal(4, self.s.n_nodes_to_cover)
 
     def test_update(self):
         result_tree = nx.DiGraph()
@@ -124,11 +134,11 @@ class AdaptiveSamplerTest(unittest.TestCase):
 
         self.s.update(0, result_tree)
         assert_equal(
-            set([2, 4, 5, 6, 7, 8]),
+            set([2, 6]),
             self.s.roots_to_explore
         )
         assert_equal(
-            set([0, 1, 3]),
+            set([0, 1]),
             self.s.covered_nodes
         )
         assert_equal(
@@ -146,12 +156,16 @@ class AdaptiveSamplerTest(unittest.TestCase):
             self.s.node2score
         )
 
-    def test_update_edge_case(self):
+    def test_update_border_case(self):
         self.s.update(0, self.tree)
         assert_equal(
-            set(range(9)),
+            set([0, 1, 2, 6]),
             self.s.covered_nodes
         )
+        assert_equal(
+            set([]),
+            self.s.roots_to_explore)
+
         assert_equal(0,
                      self.s.explore_proba)
 
@@ -165,7 +179,7 @@ class AdaptiveSamplerTest(unittest.TestCase):
         self.assign_g_attrs(result_tree)
         self.s.update(0, result_tree)
 
-        assert_almost_equal(6 / 9., self.s.explore_proba)
+        assert_almost_equal(2 / 4., self.s.explore_proba)
 
     def test_take_via_explore(self):
         r, tree = self.s.take()
@@ -178,9 +192,13 @@ class AdaptiveSamplerTest(unittest.TestCase):
         )
 
     def test_take_via_exploit(self):
-        # round 2
+        # round 1
         self.s.update(0, self.tree)
         assert_equal('exploit',
                      self.s.random_action())
         r, tree = self.s.take()
         assert_equal(1, r)
+
+        # round 2
+        self.s.update(r, tree)
+        assert_true(r not in self.s.node2score)

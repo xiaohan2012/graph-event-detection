@@ -72,3 +72,8 @@ scripts/experiment_cmds.sh
 *dist_func=cosine*.pkl
 
 *.lprof
+
+.*.pkl
+
+test/data/*distance_weights*.pkl
+test/data/given_topics/meta-graph*.pkl
