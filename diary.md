@@ -1226,3 +1226,45 @@ Day 7
   - also, 1->10 is wrongly added because of recency
   - something wrong with the generating process
   - however, the recency stuff is only hypothesis, let's dive into some real data first
+
+
+## Week 17
+
+Day 1
+
+What to talk:
+
+- mistake about the bound
+  - backup algorithm to approximate the budget-DAG problem
+- synthetic experiment design
+  - event generation process
+    - include topic shift?
+	- use tree edit distance?
+  - x axis: increasing noise
+  - y axis: the metrics
+  - other parameters?
+    - event/total participant number: influences the event
+	- event/total duration: influences the event
+  - legend: different methods
+- exploration/exploitation experiment
+  - x: iteration
+  - y:
+    - node coverage by trees?
+	- contribution to the objective function of the k-max set cover
+	- f1/precesion/recall
+	- # of sampled roots that correspond to the event roots
+  - legend: different sampling methods
+    - `out_degree`
+	- simply by upper bound
+
+
+Todo: 
+
+- Experiment
+  - AdaptiveSampler, Random, Upperbound
+  - Synthetic data(5x noise)
+  - Metric: F1, #root that are correct, objective value of k-max set cover
+- Problems of the argument and result path:
+  - hard to read/locate
+  - argument path can be too long that allowed by OS
+  - some arguments are temporary, if removed, tests will fail

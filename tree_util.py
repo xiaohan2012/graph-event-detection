@@ -80,13 +80,30 @@ def tree_density(tree, X, edge_weight='c'):
         return float('inf')
 
 
-def draw_pred_tree_against_true_tree(pred_tree, true_tree, meta_graph):
+def draw_pred_tree_against_true_tree(pred_tree, true_tree, meta_graph,
+                                     draw_which='together',
+                                     output_path_suffix=''):
     """
+
     Draw predicted event against the true event
     while using the meta graph as the background
+
+    doesn't draw the entire meta_graph, just nx.compose(pred_tree, true_tree)
     """
+    # some checking
     for n in true_tree.nodes_iter():
-        assert meta_graph.has_node(n)
+        assert meta_graph.has_node(n), n
+    for s, t in true_tree.edges_iter():
+        assert meta_graph.has_edge(s, t), (s, t,
+                                           (meta_graph.node[s]['sender_id'], meta_graph.node[s]['recipient_ids']),
+                                           (meta_graph.node[t]['sender_id'], meta_graph.node[t]['recipient_ids']),
+                                           meta_graph.node[s]['timestamp'],
+                                           meta_graph.node[t]['timestamp'],
+                                           meta_graph.node[t]['timestamp'] - meta_graph.node[s]['timestamp'])
+    for n in pred_tree.nodes_iter():
+        assert meta_graph.has_node(n), n
+    for s, t in pred_tree.edges_iter():
+        assert meta_graph.has_edge(s, t), (s, t)
     
     node_color_types = {'tp': 'green',
                         'fn': 'blue',
@@ -96,10 +113,6 @@ def draw_pred_tree_against_true_tree(pred_tree, true_tree, meta_graph):
                         'fn': 'blue',
                         'fp': 'red',
                         'tn': 'gray'}
-    # edge_alpha_types = {'tp': 1.0,
-    #                     'fn': 1.0,
-    #                     'fp': 1.0,
-    #                     'tn': 0.2}
 
     def get_style_general(n, true_tree_bool_func, pred_tree_bool_func,
                           style_map):
@@ -132,32 +145,81 @@ def draw_pred_tree_against_true_tree(pred_tree, true_tree, meta_graph):
                                                  true_tree.has_edge,
                                                  pred_tree.has_edge,
                                                  edge_color_types)
-    # pos = nx.spring_layout(meta_graph, k=1.0)
-    pos = nx.graphviz_layout(meta_graph, prog='dot')
-    nx.draw(meta_graph, pos,
-            node_color=map(get_node_color, meta_graph.nodes_iter()),
-            edge_color=map(get_edge_color, meta_graph.edges_iter()),
-            node_size=100,
+
+    if draw_which == "together":
+        g = nx.compose(true_tree, pred_tree)
+        output_path = '/cs/home/hxiao/public_html/figures/tree_inspection/true_event_vs_pred_event{}.png'.format(output_path_suffix)
+    else:
+        g = true_tree
+        output_path = '/cs/home/hxiao/public_html/figures/tree_inspection/true_event{}.png'.format(output_path_suffix)
+
+    pos = nx.graphviz_layout(g, prog='dot')
+
+    nx.draw(g, pos,
+            node_color=map(get_node_color, g.nodes_iter()),
+            edge_color=map(get_edge_color, g.edges_iter()),
+            node_size=200,
             alpha=0.5,
             arrows=False
     )
 
+    if False:
+        edge_label_func = lambda s, t: '{0:.2f}({1:.2f}, {2:.2f})'.format(
+            meta_graph[s][t]['c'],
+            meta_graph[s][t]['orig_c'],
+            meta_graph[s][t]['recency']
+        )
+    else:
+        edge_label_func = lambda s, t: '{0:.2f}'.format(meta_graph[s][t]['c'])
 
+    if True:
+        nx.draw_networkx_edge_labels(
+            g, pos,
+            edge_labels={(s, t): edge_label_func(s, t)
+                         for s, t in g.edges_iter()},
+            alpha=0.5
+        )
+
+    if True:
+        nx.draw_networkx_labels(
+            g, pos,
+            edge_labels={i: str(i) for i in g.nodes()},
+            alpha=0.5
+        )
+        
+    plt.savefig(output_path)
 if __name__ == '__main__':
+    import numpy as np
+    np.set_printoptions(precision=2, suppress=True)
     import matplotlib.pyplot as plt
     import cPickle as pkl
 
     plt.figure(figsize=(8, 8))
-    pred_path = 'tmp/synthetic_single_tree/result/result--fraction=0.2--greedy--U=34.0728347028--dijkstra=False--timespan=100.28206487----apply_pagerank=False--dist_func=cosine--distance_weights={"topics":1.0}--preprune_secs=100.28206487----cand_tree_percent=0.1--root_sampling=uniform.pkl'
-    true_path = 'data/synthetic_single_tree/events--n_noisy_interactions_fraction=0.2.pkl'
-    mg_path = 'tmp/synthetic_single_tree/meta-graph--apply_pagerank=False--dist_func=cosine--distance_weights={"topics":1.0}--preprune_secs=100.28206487.pkl'
-
+    pred_path, mg_path = pkl.load(open('.paths.pkl'))
+    true_path = 'data/synthetic_single_tree/events--n_noisy_interactions_fraction=0.0.pkl'
     pred_tree = pkl.load(open(pred_path))[0]
     true_tree = pkl.load(open(true_path))[0]
-    # meta_graph = nx.read_gpickle(mg_path)
-    meta_graph = nx.compose(pred_tree, true_tree)
-    # meta_graph = true_treep
+    
+    meta_graph = nx.read_gpickle(mg_path)
 
-    draw_pred_tree_against_true_tree(pred_tree, true_tree, meta_graph)
+    # print('mg.c:', [meta_graph[s][t]['c'] for s, t in true_tree.edges_iter()])
+    # print('t.c:', [true_tree[s][t]['c'] for s, t in true_tree.edges_iter()])
+    # print 'true_tree.cost', sum(meta_graph[s][t]['c'] for s, t in true_tree.edges_iter())
+    # print 'pred_tree.cost', sum(meta_graph[s][t]['c'] for s, t in pred_tree.edges_iter())
+    for s, t in true_tree.edges_iter():
+        print(s, t, meta_graph[s][t])
 
-    plt.savefig('/cs/home/hxiao/public_html/figures/tree_inspection/true_event_vs_pred_event.png')
+    if not True:
+        output_path_suffix = '_recency'
+    else:
+        output_path_suffix = ''
+
+    if True:
+        draw_which = 'together'
+    else:
+        draw_which = 'true_tree'
+
+    draw_pred_tree_against_true_tree(pred_tree, true_tree, meta_graph,
+                                     draw_which=draw_which,
+                                     output_path_suffix=output_path_suffix)
+
