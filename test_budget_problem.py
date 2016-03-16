@@ -19,7 +19,7 @@ class CharikarAlgoTest(unittest.TestCase):
         g.add_path([R, A, B, C, D, E])
         g.add_edges_from([(A, C), (A, D), (A, E)])
         for n in g.nodes_iter():
-            g.node[n]['p'] = 1
+            g.node[n]['r'] = 1
         for n in [B, C, D, E]:
             g[A][n]['c'] = 10
         for s, t in zip([B, C, D], [C, D, E]):
@@ -38,7 +38,7 @@ class CharikarAlgoTest(unittest.TestCase):
 
     def check_level(self, level, edges, k=5, root=R, X=[A, B, C, D, E]):
         actual = charikar_algo(self.g1, root,
-                               tuple(X),  # make it tuple to be memoizable
+                               X,
                                k, level)
         assert_equal(sorted(edges),
                      sorted(actual.edges())
@@ -46,7 +46,7 @@ class CharikarAlgoTest(unittest.TestCase):
 
     def test_return_empty(self):
         actual = charikar_algo(self.g1, R,
-                               tuple([A, B, C, D, E]),
+                               [A, B, C, D, E],
                                100, 1)
         assert_equal([],
                      actual.edges()

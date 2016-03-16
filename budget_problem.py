@@ -6,7 +6,7 @@ from tree_util import tree_density
 from util import memoized
 
 
-def transitive_closure(g, node_weight='p', edge_weight='c'):
+def transitive_closure(g, node_weight='r', edge_weight='c'):
     new_g = nx.DiGraph()
     l = nx.all_pairs_dijkstra_path_length(g, weight=edge_weight)
     # add shortest path and weight
@@ -20,7 +20,6 @@ def transitive_closure(g, node_weight='p', edge_weight='c'):
     return new_g, nx.all_pairs_dijkstra_path(g, weight=edge_weight)
 
 
-@memoized
 def charikar_algo(g, root, terminals, k, level):
     """
     d: terminals
@@ -33,8 +32,12 @@ def charikar_algo(g, root, terminals, k, level):
     if not isinstance(terminals, set):
         terminals = set(terminals)
 
+    @memoized
     def aux(r, X, k, l):
-        X = copy(X)
+        """
+        X should be tuple in order to be memoizable
+        """
+        X = set(X)
 
         reachable_from_r = nx.descendants(g, r)
         X_p = set(reachable_from_r).intersection(X)
@@ -67,7 +70,7 @@ def charikar_algo(g, root, terminals, k, level):
                 density_best = float('inf')
                 for v in reachable_from_r:
                     for k_p in range(1, k+1):
-                        tree = aux(v, X, k_p, l-1)
+                        tree = aux(v, tuple(X), k_p, l-1)
                         # if l == 3:
                         #     print('after aux, X:', X)
                         for s, t in zip(sp_table[r][v][:-1],
@@ -102,7 +105,7 @@ def charikar_algo(g, root, terminals, k, level):
                 #     print('***'*10)
             return reduce(nx.compose, sub_trees, nx.DiGraph())
 
-    return aux(root, terminals, k, level)
+    return aux(root, tuple(terminals), k, level)
 
 
 def binary_search_using_charikar(g, root, B, level,
@@ -121,7 +124,7 @@ def binary_search_using_charikar(g, root, B, level,
     
     while Q_l < Q_u - 1:
         Q = int(math.floor((Q_l + Q_u) / 2.))
-        # print('Q:', Q)
+        print('Q_l, Q_u, Q:', Q_l, Q_u, Q)
         t = charikar_algo(g, root, terminals, Q, level)
 
         assert(len(terminals) == g.number_of_nodes())
