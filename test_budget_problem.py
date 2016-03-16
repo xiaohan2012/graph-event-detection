@@ -83,7 +83,7 @@ class CharikarAlgoTest(unittest.TestCase):
 
     def test_level_100(self):
         self.check_level(
-            3,
+            100,
             [(R, A), (A, B), (B, C), (C, D), (D, E)]
         )
 

@@ -1270,8 +1270,34 @@ Adaptive sampler seems to be promising, more metrics to add
 
 Day 2
 
-- more metrics to sampler
-- algorithm comparison
-- Charikar's algorithm
 
+- read randomized algorithm on set cover
+
+
+Played for the whole afternoon.
+
+
+Day 3:
+
+- more metrics to sampler
+  - node/edge(f1, precision, recall)
+- Charikar's algorithm
+  - does not scale to 100 nodes
+  - why no cache hit at all?
+    - for graphs such as with edges `A->B->C` and `B->C`, each `A_i[n]` for `i=1...l` and `n \in V` is called only once, thus no
+	cache hit.
+  - remove the non roots in dag
+- single tree experiment
+  - 10 trees, given roots and Bs
+  - noise 0 -> 5
+  - metrics: node/edge(f1, precision, recall)
+
+
+A way to reduce edges:
+
+For structure like transitive closure, if c(A, B) + c(B, C) < c(A, C) where A is root, then why should we have the edge A -> C. because A->C cost more while harvest less than A->B->C, optimal answer mustn't select A->C.
+
+To generalize, if there is an edge from i to j that has cost larger than cost of the shortest path from i to j, then we can safely remove i->j as optimal answer won't select it. Assume optimal anwser contains i->j, then we can achieve a lower cost using the shortest path. Thus, the answer is not optimal.
+
+Additional benefit of reducing the graph: charikar's algorithm becomes less expensive.
 

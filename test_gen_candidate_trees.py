@@ -15,7 +15,8 @@ from .lst import lst_dag, dp_dag_general, make_variance_cost_func
 from .baselines import greedy_grow_by_discounted_reward as greedy_grow, \
     random_grow
 from .test_util import remove_tmp_data, make_path
-from dag_util import get_roots
+from .budget_problem import binary_search_using_charikar
+from .dag_util import get_roots
 
 
 directed_params = {
@@ -23,24 +24,23 @@ directed_params = {
     'lda_model_path': make_path('test/data/test.lda'),
     'corpus_dict_path': make_path('test/data/test_dictionary.gsm'),
     'meta_graph_pkl_path_prefix': make_path('test/data/enron-head-100'),
-    'undirected': False
 }
 
-undirected_params = {
-    'interaction_json_path': make_path(
-        'test/data/undirected/interactions.json'
-    ),
-    'lda_model_path': make_path(
-        'test/data/undirected/lda_model-50-50.lda'
-    ),
-    'corpus_dict_path': make_path(
-        'test/data/undirected/dict.pkl'
-    ),
-    'meta_graph_pkl_path_prefix': make_path(
-        'test/data/undirected/meta-graph'
-    ),
-    'undirected': True
-}
+# undirected_params = {
+#     'interaction_json_path': make_path(
+#         'test/data/undirected/interactions.json'
+#     ),
+#     'lda_model_path': make_path(
+#         'test/data/undirected/lda_model-50-50.lda'
+#     ),
+#     'corpus_dict_path': make_path(
+#         'test/data/undirected/dict.pkl'
+#     ),
+#     'meta_graph_pkl_path_prefix': make_path(
+#         'test/data/undirected/meta-graph'
+#     ),
+#     'undirected': True
+# }
 
 
 lst = lambda g, r, U: lst_dag(
@@ -56,6 +56,10 @@ variance_method = lambda g, r, U: dp_dag_general(
                             fixed_point=1,
                             debug=False),
     debug=False
+)
+
+quota_based_method = lambda g, r, U: binary_search_using_charikar(
+    g, r, U, level=2
 )
 
 distance_weights_1 = {'topics': 1.0}
@@ -81,21 +85,18 @@ class GenCandidateTreeTest(unittest.TestCase):
             },
             'gen_tree_kws': {
                 'timespan': timedelta(days=28),
-                'U': 5.0,
+                'U': 0.01,
                 'dijkstra': False
             },
             'root_sampling_method': 'random'
         }
 
-    def check(self, test_name, tree_gen_func, undirected=False, **more_args):
+    def check(self, test_name, tree_gen_func, **more_args):
         result_pickle_prefix = make_path("test/data/tmp",
                                          "result-{}".format(test_name))
         kws = self.some_kws_of_run.copy()
         
-        if undirected:
-            kws.update(undirected_params)
-        else:
-            kws.update(directed_params)
+        kws.update(directed_params)
         
         if more_args:
             kws.update(more_args)
@@ -131,9 +132,14 @@ class GenCandidateTreeTest(unittest.TestCase):
         self.check('random', random_grow)
 
     def test_lst_dag(self):
+        self.some_kws_of_run['should_binarize_dag'] = True
         self.check('lst', lst)
 
+    def test_quota(self):
+        self.check('quota', quota_based_method)
+
     def test_lst_dag_after_dijkstra(self):
+        self.some_kws_of_run['should_binarize_dag'] = True
         trees, _ = self.check('lst', lst)
 
         self.some_kws_of_run['gen_tree_kws']['dijkstra'] = True
@@ -143,7 +149,8 @@ class GenCandidateTreeTest(unittest.TestCase):
             assert_true(sorted(t.edges()) != sorted(t_dij))
 
     def test_variance_method(self):
-        self.check('variance', variance_method)
+        # self.check('variance', variance_method)
+        pass
 
     def test_distance_weight_using_hashtag_bow(self):
         self.some_kws_of_run['meta_graph_kws']['distance_weights'] = distance_weights_3
@@ -185,7 +192,8 @@ class GenCandidateTreeTest(unittest.TestCase):
         self.check('greedy', greedy_grow)
 
     def tearDown(self):
-        remove_tmp_data('test/data/tmp/*')
+        # remove_tmp_data('test/data/tmp/*')
+        pass
 
 
 class GenCandidateTreeCMDTest(unittest.TestCase):
@@ -199,24 +207,16 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         self.result_dir = make_path("test/data/tmp/result-")
 
         self.directed_params = directed_params
-        self.undirected_params = undirected_params
-
-
-    def get_path(self):
-        return pkl.load(open(make_path('.paths.pkl')))
 
     def check(self, method="random", distance="cosine",
               sampling_method="random", extra="", undirected=False,
               distance_weights=distance_weights_2):
-        if undirected:
-            more_params = self.undirected_params
-        else:
-            more_params = self.directed_params
+        more_params = self.directed_params
 
         cmd = """python {} \
         --method={method} \
         --dist={distance_func} \
-        --cand_n_percent=0.01 \
+        --cand_n_percent=0.05 \
         --root_sampling={sampling_method}\
         --result_prefix={result_dir} \
         --weeks=4 --U=2.0 \
@@ -250,7 +250,12 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         self.check(method='random')
 
     def test_variance(self):
-        self.check(method='variance')
+        # self.check(method='variance')
+        pass
+
+    def test_quota(self):
+        self.check(method='quota',
+                   extra='--charikar_level 2')
 
     def test_adaptive_sampling(self):
         output = self.check(sampling_method='adaptive')
@@ -272,7 +277,7 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
 
         self.check(undirected=False,
                    distance='cosine',
-                   extra='--seconds=8 --given_topics --apply_pagerank',
+                   extra='--seconds=8 --given_topics',
                    distance_weights={'topics': 1.0})
 
     def test_cand_n(self):
@@ -313,11 +318,9 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
             ),
             'cand_tree_percent': 0.1,
             'meta_graph_pkl_path_prefix': make_path('test/data/given_topics/meta-graph'),
-            'undirected': False,
             'meta_graph_kws': {
                 'dist_func': cosine,
                 'preprune_secs': 8,
-                'apply_pagerank': True,
                 'distance_weights': distance_weights,
                 'consider_recency': False,
                 'tau': 0.0,
@@ -357,7 +360,8 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
 
     # overrides
     def test_variance_method(self):
-        self.check('variance', variance_method)
+        # self.check('variance', variance_method)
+        pass
 
     def test_distance_weight_using_hashtag_bow(self):
         pass

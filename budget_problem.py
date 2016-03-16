@@ -1,6 +1,6 @@
 import networkx as nx
 import math
-from copy import copy
+from sampler import quota_upperbound
 
 from tree_util import tree_density
 from util import memoized
@@ -64,15 +64,12 @@ def charikar_algo(g, root, terminals, k, level):
         else:
             sub_trees = []
             while k > 0:
-                # if l ==3:
-                #     print('---'*10)
                 t_best = None
                 density_best = float('inf')
                 for v in reachable_from_r:
                     for k_p in range(1, k+1):
-                        tree = aux(v, tuple(X), k_p, l-1)
-                        # if l == 3:
-                        #     print('after aux, X:', X)
+                        tree = aux(v, tuple(sorted(list(X))), k_p, l-1)
+
                         for s, t in zip(sp_table[r][v][:-1],
                                         sp_table[r][v][1:]):
                             tree.add_edge(s, t, {'c': g[s][t]['c']})
@@ -80,32 +77,16 @@ def charikar_algo(g, root, terminals, k, level):
                         if density_best > density_new:
                             t_best = tree
                             density_best = density_new
-                            # if l == 3:
-                            #     print('root:', v)
-                            #     print('X:', X)
-                            #     print('k_p:', k_p)
-                            #     print('l:', l-1)
-                            #     print('tree:', tree.nodes())
-                            #     print('density: {}'.format(density_new))
                 assert t_best is not None
                 sub_trees.append(t_best)
-                # if l == 3:
-                #     print('***'*10)
-                #     print(t_best.nodes())
-                #     print(X)
+
                 reached_X = set(t_best.nodes()).intersection(X)
                 k -= len(reached_X)
                 X -= reached_X
-                # if l == 3:
-                #     print('t_best.nodes():', t_best.nodes())
-                #     print('update on X, k:')
-                #     print('reached_X:', reached_X)
-                #     print('X:', X)
-                #     print('k:', k)
-                #     print('***'*10)
+
             return reduce(nx.compose, sub_trees, nx.DiGraph())
 
-    return aux(root, tuple(terminals), k, level)
+    return aux(root, tuple(sorted(list(terminals))), k, level)
 
 
 def binary_search_using_charikar(g, root, B, level,
@@ -114,13 +95,19 @@ def binary_search_using_charikar(g, root, B, level,
     works for the problem, budgeted k-minimum spanning tree,
     thus, node prize are uniform
     """
+    paths = transitive_closure(g)[1][root]
+    depth = max(len(p) for p in paths.values())
+    print('depth:', depth)
+    print('root:', root)
     g_cost = lambda t: sum(t[u][v][cost_key]
                            for u, v in t.edges_iter())
     Q_l = 1.  # feasible for sure
-    Q_u = g.number_of_nodes()  # might be feasible
+    print('B:', B)
+    print('quota_ub:', quota_upperbound(g, root, B))
+    Q_u = quota_upperbound(g, root, B)  # might be feasible
 
     lastest_feasible_t = None
-    terminals = tuple(g.nodes())  # make it memoizable
+    terminals = g.nodes()
     
     while Q_l < Q_u - 1:
         Q = int(math.floor((Q_l + Q_u) / 2.))

@@ -18,6 +18,7 @@ from experiment_util import experiment_signature,\
     get_number_and_percentage
 from util import load_json_by_line
 from baselines import random_grow, greedy_grow_by_discounted_reward
+from budget_problem import binary_search_using_charikar
 from sampler import RandomSampler, UBSampler, AdaptiveSampler, DeterministicSampler
 
 logging.basicConfig(format="%(asctime)s;%(levelname)s;%(message)s",
@@ -43,7 +44,8 @@ def get_summary(g):
 def calc_tree(node_i, r, dag, U,
               gen_tree_func,
               gen_tree_kws,
-              print_summary):
+              print_summary,
+              should_binarize_dag=False):
     # g is shared in memory
 
     logger.info('nodes procssed {}'.format(node_i))
@@ -59,19 +61,21 @@ def calc_tree(node_i, r, dag, U,
             weight=IU.EDGE_COST_KEY
         )
 
-    logger.debug('binarizing dag...')
+    if should_binarize_dag:
+        logger.debug('binarizing dag...')
 
-    binary_dag = binarize_dag(dag,
-                              IU.VERTEX_REWARD_KEY,
-                              IU.EDGE_COST_KEY,
-                              dummy_node_name_prefix="d_")
+        dag = binarize_dag(dag,
+                                  IU.VERTEX_REWARD_KEY,
+                                  IU.EDGE_COST_KEY,
+                                  dummy_node_name_prefix="d_")
 
     logger.debug('generating tree ')
 
-    tree = gen_tree_func(binary_dag, r, U)
+    tree = gen_tree_func(dag, r, U)
 
-    tree = unbinarize_dag(tree,
-                          edge_weight_key=IU.EDGE_COST_KEY)
+    if should_binarize_dag:
+        tree = unbinarize_dag(tree,
+                              edge_weight_key=IU.EDGE_COST_KEY)
     if len(tree.edges()) == 0:
         logger.debug("empty event tree")
         return None
@@ -84,7 +88,6 @@ def calc_tree(node_i, r, dag, U,
 
 def run(gen_tree_func,
         root_sampling_method='random',
-        undirected=False,
         interaction_json_path=os.path.join(CURDIR, 'data/enron.json'),
         lda_model_path=os.path.join(CURDIR, 'models/model-4-50.lda'),
         corpus_dict_path=os.path.join(CURDIR, 'models/dictionary.pkl'),
@@ -111,7 +114,8 @@ def run(gen_tree_func,
         roots=None,
         calculate_graph=False,
         given_topics=False,
-        print_summary=False):
+        print_summary=False,
+        should_binarize_dag=False):
     if isinstance(gen_tree_kws['timespan'], timedelta):
         timespan = gen_tree_kws['timespan'].total_seconds()
     else:
@@ -135,9 +139,9 @@ def run(gen_tree_func,
         lda_model = None
         dictionary = None
 
-    if not meta_graph_kws['consider_recency']:
-        del meta_graph_kws['tau']
-        del meta_graph_kws['alpha']
+    # if not meta_graph_kws['consider_recency']:
+    #     del meta_graph_kws['tau']
+    #     del meta_graph_kws['alpha']
 
     meta_graph_pkl_path = "{}--{}.pkl".format(
         meta_graph_pkl_path_prefix,
@@ -157,7 +161,7 @@ def run(gen_tree_func,
             interactions,
             lda_model=lda_model,
             dictionary=dictionary,
-            undirected=undirected,
+            undirected=False,  # deprecated
             given_topics=given_topics,
             decompose_interactions=False,
             convert_time=convert_time,
@@ -201,13 +205,16 @@ def run(gen_tree_func,
     )
 
     trees = []
+    dags = []
     for i in xrange(cand_tree_number):
         root, dag = root_sampler.take()
+        dags.append(dag)
 
         tree = calc_tree(i, root, dag, U,
                          gen_tree_func,
                          gen_tree_kws,
-                         print_summary)
+                         print_summary,
+                         should_binarize_dag=should_binarize_dag)
         trees.append(tree)
         
         root_sampler.update(root, tree)
@@ -224,6 +231,9 @@ def run(gen_tree_func,
     logger.info('result_pkl_path: {}'.format(result_pkl_path))
     pickle.dump(trees,
                 open(result_pkl_path, 'w'),
+                protocol=pickle.HIGHEST_PROTOCOL)
+    pickle.dump(dags,
+                open(result_pkl_path+'.dag', 'w'),
                 protocol=pickle.HIGHEST_PROTOCOL)
     return result_pkl_path, meta_graph_pkl_path
 
@@ -246,9 +256,12 @@ if __name__ == '__main__':
                         help="Path of corpus dictionary")
     parser.add_argument('--meta_graph_path_prefix', required=True,
                         help="Prefix of path of meta graph pickle")
+    parser.add_argument('--calc_mg', action='store_true',
+                        help="calc meta graph or not")
 
     parser.add_argument('--method', required=True,
-                        choices=("lst", "greedy", "random", "variance"),
+                        choices=("lst", "greedy",
+                                 "random", "quota"),
                         help="Method you will use")
     parser.add_argument('--dist', required=True,
                         choices=('euclidean', 'cosine'),
@@ -260,12 +273,6 @@ if __name__ == '__main__':
     parser.add_argument('--dij', action="store_true",
                         default=False,
                         help="Whether to use Dijkstra or not")
-    parser.add_argument('--calc_mg', action="store_true",
-                        default=False,
-                        help="Whether to recalculate meta graph or not")
-    parser.add_argument('--undirected', action="store_true",
-                        default=False,
-                        help="If the interactions are undirected or not")
     parser.add_argument('--cand_n',
                         default=None,
                         type=int,
@@ -303,9 +310,6 @@ if __name__ == '__main__':
                         type=int,
                         default=1,
                         help="How many places to approximate for lst algorithm")
-    parser.add_argument('--apply_pagerank',
-                        action='store_true',
-                        help="Whether use pagerank to assign node weights or not")
     parser.add_argument('--weight_for_topics',
                         type=float,
                         default=0.2)
@@ -336,7 +340,13 @@ if __name__ == '__main__':
 
     parser.add_argument('--not_convert_time',
                         action='store_true',
-                        help="whether convert datetime or not")
+                        help="whether convert datetime or not(for synthetic data experiment)")
+
+    parser.add_argument('--charikar_level',
+                        type=int,
+                        default=2,
+                        help="the `level` parameter in charikar's algorithm"
+    )
 
     args = parser.parse_args()
 
@@ -354,10 +364,20 @@ if __name__ == '__main__':
         debug=False
     )
 
+    quota_based_method = lambda g, r, U: binary_search_using_charikar(
+        g, r, U, args.charikar_level
+    )
+
     methods = {'lst': lst,
                'variance': variance_method,
                'greedy': greedy_grow_by_discounted_reward,
-               'random': random_grow}
+               'quota': quota_based_method,
+               'random': random_grow
+    }
+    if args.method == 'lst':
+        should_binarize_dag = True
+    else:
+        should_binarize_dag = False
 
     pprint(vars(args))
 
@@ -389,7 +409,6 @@ if __name__ == '__main__':
         
     paths = run(methods[args.method],
                 root_sampling_method=args.root_sampling,
-                undirected=args.undirected,
                 interaction_json_path=args.interaction_path,
                 corpus_dict_path=args.corpus_dict_path,
                 meta_graph_pkl_path_prefix=args.meta_graph_path_prefix,
@@ -416,7 +435,8 @@ if __name__ == '__main__':
                 calculate_graph=args.calc_mg,
                 given_topics=args.given_topics,
                 roots=roots,
-                convert_time=not args.not_convert_time
+                convert_time=not args.not_convert_time,
+                should_binarize_dag=should_binarize_dag
             )
 
     import cPickle as pkl
