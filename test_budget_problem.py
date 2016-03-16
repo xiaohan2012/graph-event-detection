@@ -3,7 +3,8 @@ import string
 import unittest
 from nose.tools import assert_equal
 
-from budget_problem import charikar_algo, transitive_closure
+from budget_problem import charikar_algo, transitive_closure, \
+    binary_search_using_charikar
 
 
 R = 'root'
@@ -36,15 +37,17 @@ class CharikarAlgoTest(unittest.TestCase):
                      sp_table[R][C])
 
     def check_level(self, level, edges, k=5, root=R, X=[A, B, C, D, E]):
-        actual = charikar_algo(self.g1, root, X,
-                               k=k, level=level)
+        actual = charikar_algo(self.g1, root,
+                               tuple(X),  # make it tuple to be memoizable
+                               k, level)
         assert_equal(sorted(edges),
                      sorted(actual.edges())
         )
 
     def test_return_empty(self):
-        actual = charikar_algo(self.g1, R, [A, B, C, D, E],
-                               k=100, level=1)
+        actual = charikar_algo(self.g1, R,
+                               tuple([A, B, C, D, E]),
+                               100, 1)
         assert_equal([],
                      actual.edges()
                  )
@@ -82,4 +85,34 @@ class CharikarAlgoTest(unittest.TestCase):
         self.check_level(
             3,
             [(R, A), (A, B), (B, C), (C, D), (D, E)]
+        )
+
+    def check_binary_search(self, B, edges, level=2):
+        t = binary_search_using_charikar(
+            self.g1, R,
+            B=B,
+            level=3
+        )
+
+        assert_equal(
+            sorted(edges),
+            sorted(t.edges())
+        )
+
+    def check_bs_zero_budget(self):
+        self.check_binary_search(
+            B=0,
+            edges=[]
+        )
+
+    def check_bs_infinite_budget(self):
+        self.check_binary_search(
+            B=100,
+            edges=[(R, A), (A, B), (B, C), (C, D), (D, E)]
+        )
+
+    def check_bs_just_enough_budget(self):
+        self.check_binary_search(
+            B=10 + 4 * EPS,
+            edges=[(R, A), (A, B), (B, C), (C, D), (D, E)]
         )

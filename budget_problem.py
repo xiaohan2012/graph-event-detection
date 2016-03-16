@@ -1,6 +1,9 @@
 import networkx as nx
+import math
 from copy import copy
+
 from tree_util import tree_density
+from util import memoized
 
 
 def transitive_closure(g, node_weight='p', edge_weight='c'):
@@ -17,6 +20,7 @@ def transitive_closure(g, node_weight='p', edge_weight='c'):
     return new_g, nx.all_pairs_dijkstra_path(g, weight=edge_weight)
 
 
+@memoized
 def charikar_algo(g, root, terminals, k, level):
     """
     d: terminals
@@ -101,14 +105,46 @@ def charikar_algo(g, root, terminals, k, level):
     return aux(root, terminals, k, level)
 
 
-def tree_cover(tree, B):
+def binary_search_using_charikar(g, root, B, level,
+                                 cost_key='c'):
     """
-    Split the tree into a set of subtrees such that each of them has [B/2, B] cost
+    works for the problem, budgeted k-minimum spanning tree,
+    thus, node prize are uniform
     """
+    g_cost = lambda t: sum(t[u][v][cost_key]
+                           for u, v in t.edges_iter())
+    Q_l = 1.  # feasible for sure
+    Q_u = g.number_of_nodes()  # might be feasible
 
+    lastest_feasible_t = None
+    terminals = tuple(g.nodes())  # make it memoizable
+    
+    while Q_l < Q_u - 1:
+        Q = int(math.floor((Q_l + Q_u) / 2.))
+        # print('Q:', Q)
+        t = charikar_algo(g, root, terminals, Q, level)
 
-def binary_search_using_charikar(tree, root, B, epsilon, max_level):
-    """
-    Suppose `OPT` is the optimal value for the budget problem with `B`. If `Q <= OPT`, `c(T) <= \alpha B `. Thus, we increase `Q` geometrically as long as it stays under the bound. So finally `OPT/(1+\epsilon) <= Q <= OPT`. For the resulting tree `T`, we can split into `N` subtrees such that they cover `T` and the average cost of subtree stays between `[B/2, B]`. Thus there can be at most `\beta = 2 * floor(\alpha) + round(mod(\alpha), 1)` subtrees and their reward is at least `OPT / (1+\epsilon) / \beta`.
-    """
-    pass
+        assert(len(terminals) == g.number_of_nodes())
+
+        cost = g_cost(t)
+        # print('cost, B:', cost, B)
+        if cost > B:
+            Q_u = Q - 1
+        elif cost < B:
+            if set(t.nodes()) == set(g.nodes()):
+                # all nodes are included
+                return t
+            lastest_feasible_t = t
+            Q_l = Q
+        else:
+            return t
+    
+    t_p = charikar_algo(g, root, terminals, Q_u, level)
+    # print('Q_u, cost(t_p):', Q_u, g_cost(t_p))
+    if g_cost(t_p) < B:
+        return t_p
+    else:
+        if lastest_feasible_t is None:
+            return charikar_algo(g, root, terminals, Q_l, level)
+        else:
+            return lastest_feasible_t
