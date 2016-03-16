@@ -2,7 +2,8 @@ import networkx as nx
 import unittest
 from .dag_util import (binarize_dag, is_binary,
                        unbinarize_dag,
-                       remove_edges_via_dijkstra)
+                       remove_edges_via_dijkstra,
+                       shirnk_by_transitive_closure)
 from .test_lst_dag import get_example_6
 from .interactions import InteractionsUtil
 from nose.tools import assert_equal, assert_true
@@ -104,3 +105,21 @@ class EdgeRemovalTest(unittest.TestCase):
     
         t = remove_edges_via_dijkstra(g, source=0)
         assert_equal(expected_edges, set(t.edges()))
+
+
+class ShrinkTransitiveClosureTestCase(unittest.TestCase):
+    def setUp(self):
+        g = nx.DiGraph()
+        g.add_path(range(5))
+        g = nx.transitive_closure(g)
+        for s, t in g.edges_iter():
+            g[s][t]['c'] = 1
+        self.g = g
+
+    def test_shirnk_by_transitive_closure(self):
+        new_g = shirnk_by_transitive_closure(
+            self.g,
+            sorted(self.g.nodes()),
+            cost_key='c'
+        )
+        raise

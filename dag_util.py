@@ -114,3 +114,30 @@ def all_simple_paths_from_source(g, root):
 def longest_path(g, root):
     return max(all_simple_paths_from_source(g, root),
                key=lambda path: len(path))
+
+
+def shrink_by_transitive_closure(g, closure, cost_key='c'):
+    """I mean those triangles actually
+    """
+    # make sure it's a transitive closure
+    assert g.number_of_edges() > 0
+    for i in xrange(len(closure)-1):
+        n1 = closure[i]
+        for j in xrange(i+1, len(closure)):
+            n2 = closure[j]
+            assert g.has_edge(n1, n2)
+    
+    raise NotImplementedError
+
+
+def shrink_by_multiple_transitive_closures(g, closures):
+    """
+    given the a list of transitive closures, where nodes are ordered from shallow to deep,
+    remove redundant edges so that the shrinked graph maintains the same optimal solution
+    """
+    for c in closures:
+        g = shrink_by_transitive_closure(g, c)
+    raise NotImplementedError
+    # return g
+
+        
