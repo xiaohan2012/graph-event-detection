@@ -396,13 +396,18 @@ def main():
                         type=float, default=1.0)
     parser.add_argument('--edge_cost_tau',
                         type=float, default=0.8)
+
+    parser.add_argument('--result_suffix',
+                        default='')
     
     args = parser.parse_args()
     pprint(vars(args))
-
+    result_suffix = args.result_suffix
     output_dir = args.output_dir
+
     args_dict = vars(args)
     del args_dict['output_dir']
+    del args_dict['result_suffix']
 
     events, interactions, gen_cand_tree_params = make_artificial_data(
         dist_func=cosine,
@@ -412,13 +417,16 @@ def main():
         n_noisy_interactions_fraction=args.n_noisy_interactions_fraction,
     )
     nx.write_gpickle(events,
-                     '{}/events--{}.pkl'.format(output_dir, sig)
+                     '{}/events--{}{}.pkl'.format(output_dir, sig,
+                                                  result_suffix)
     )
     json.dump(interactions,
-              open('{}/interactions--{}.json'.format(output_dir, sig),
+              open('{}/interactions--{}{}.json'.format(output_dir, sig,
+                                                       result_suffix),
                    'w'))
     pkl.dump(gen_cand_tree_params,
-             open('{}/gen_cand_tree_params--{}.pkl'.format(output_dir, sig),
+             open('{}/gen_cand_tree_params--{}{}.pkl'.format(output_dir, sig,
+                                                             result_suffix),
                   'w'))
 
 
