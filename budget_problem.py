@@ -77,16 +77,39 @@ def charikar_algo(g, root, terminals, k, level):
                         if density_best > density_new:
                             t_best = tree
                             density_best = density_new
-                assert t_best is not None
+                # assert t_best is not None
+                # assert nx.is_arborescence(t_best)
                 sub_trees.append(t_best)
 
                 reached_X = set(t_best.nodes()).intersection(X)
+                # print('X:', X)
+                # print('k:', k)
+                # print('reached_X:', reached_X)
+                # print('t_best:', t_best.edges())
                 k -= len(reached_X)
                 X -= reached_X
+            
+            t = reduce(nx.compose, sub_trees, nx.DiGraph())
+            # for n in t.nodes_iter():
+            #     if t.in_degree(n) > 1:
+            #         print('n:', n)
+            # assert nx.is_arborescence(t)
+            return t
+    dag = aux(root, tuple(sorted(list(terminals))), k, level)
 
-            return reduce(nx.compose, sub_trees, nx.DiGraph())
-
-    return aux(root, tuple(sorted(list(terminals))), k, level)
+    # remove redundant edges
+    # to make it tree
+    edges_to_remove = set()
+    for n in dag.nodes_iter():
+        if dag.in_degree(n) > 1:
+            in_edges = dag.in_edges(n)
+            min_cost_edge = min(
+                in_edges,
+                key=lambda (s, t): dag[s][t]['c']
+            )
+            edges_to_remove |= (set(in_edges) - {min_cost_edge})
+    dag.remove_edges_from(edges_to_remove)
+    return dag
 
 
 def binary_search_using_charikar(g, root, B, level,

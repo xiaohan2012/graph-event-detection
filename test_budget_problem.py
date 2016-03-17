@@ -1,8 +1,11 @@
 import networkx as nx
+import cPickle as pkl
 import string
 import unittest
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_true
 
+from interactions import InteractionsUtil as IU
+from test_util import make_path
 from budget_problem import charikar_algo, transitive_closure, \
     binary_search_using_charikar
 
@@ -99,20 +102,38 @@ class CharikarAlgoTest(unittest.TestCase):
             sorted(t.edges())
         )
 
-    def check_bs_zero_budget(self):
+    def test_bs_zero_budget(self):
         self.check_binary_search(
             B=0,
             edges=[]
         )
 
-    def check_bs_infinite_budget(self):
+    def test_bs_infinite_budget(self):
         self.check_binary_search(
             B=100,
             edges=[(R, A), (A, B), (B, C), (C, D), (D, E)]
         )
 
-    def check_bs_just_enough_budget(self):
+    def test_bs_just_enough_budget(self):
         self.check_binary_search(
             B=10 + 4 * EPS,
             edges=[(R, A), (A, B), (B, C), (C, D), (D, E)]
         )
+
+    def test_bs_ensure_result_is_tree(self):
+        params = pkl.load(
+            open(make_path('test/data/quota_test_cases/params.pkl'))
+        )[0]
+
+        root = params['roots'][0]
+        preprune_secs = params['preprune_secs']
+        mg = IU.get_topic_meta_graph_from_synthetic(
+            make_path('test/data/quota_test_cases/interactions.json'),
+            preprune_secs
+        )
+        dag = IU.get_rooted_subgraph_within_timespan(
+            mg, root, preprune_secs
+        )
+        t = charikar_algo(dag, root, dag.nodes(),
+                          k=20, level=2)
+        assert_true(nx.is_arborescence(t))
