@@ -19,7 +19,8 @@ from experiment_util import experiment_signature,\
 from util import load_json_by_line
 from baselines import random_grow, greedy_grow_by_discounted_reward
 from budget_problem import binary_search_using_charikar
-from sampler import RandomSampler, UBSampler, AdaptiveSampler, DeterministicSampler
+from sampler import RandomSampler, UBSampler, AdaptiveSampler, \
+    DeterministicSampler
 
 logging.basicConfig(format="%(asctime)s;%(levelname)s;%(message)s",
                     datefmt="%Y-%m-%d %H:%M:%S")
@@ -92,6 +93,7 @@ def run(gen_tree_func,
         lda_model_path=os.path.join(CURDIR, 'models/model-4-50.lda'),
         corpus_dict_path=os.path.join(CURDIR, 'models/dictionary.pkl'),
         meta_graph_pkl_path_prefix=os.path.join(CURDIR, 'data/enron'),
+        meta_graph_pkl_suffix='',
         cand_tree_number=None,  # higher priority than percentage
         cand_tree_percent=0.1,
         result_pkl_path_prefix=os.path.join(CURDIR, 'tmp/results'),
@@ -147,9 +149,10 @@ def run(gen_tree_func,
     #     del meta_graph_kws['tau']
     #     del meta_graph_kws['alpha']
 
-    meta_graph_pkl_path = "{}--{}.pkl".format(
+    meta_graph_pkl_path = "{}--{}{}.pkl".format(
         meta_graph_pkl_path_prefix,
-        experiment_signature(**meta_graph_kws)
+        experiment_signature(**meta_graph_kws),
+        meta_graph_pkl_suffix
     )
     logger.info('meta_graph_pkl_path: {}'.format(meta_graph_pkl_path))
 
@@ -241,13 +244,15 @@ def run(gen_tree_func,
     pickle.dump(trees,
                 open(result_pkl_path, 'w'),
                 protocol=pickle.HIGHEST_PROTOCOL)
-    pickle.dump(dags,
-                open(result_pkl_path+'.dag', 'w'),
-                protocol=pickle.HIGHEST_PROTOCOL)
+    if False:
+        # for debugging purpose
+        pickle.dump(dags,
+                    open(result_pkl_path+'.dag', 'w'),
+                    protocol=pickle.HIGHEST_PROTOCOL)
     
-    logger.info('Dumping the paths info')
     all_paths_pkl_path = make_detailed_path(all_paths_pkl_prefix,
                                             all_paths_pkl_suffix)
+    logger.info('Dumping the paths info to {}'.format(all_paths_pkl_path))
     paths_dict = {'interactions': interaction_json_path,
                   'meta_graph': meta_graph_pkl_path,
                   'result': result_pkl_path,
@@ -279,6 +284,8 @@ if __name__ == '__main__':
                         help="Path of corpus dictionary")
     parser.add_argument('--meta_graph_path_prefix', required=True,
                         help="Prefix of path of meta graph pickle")
+    parser.add_argument('--meta_graph_pkl_suffix', default='')
+    
     parser.add_argument('--calc_mg', action='store_true',
                         help="calc meta graph or not")
 
@@ -444,12 +451,15 @@ if __name__ == '__main__':
                 interaction_json_path=args.interaction_path,
                 corpus_dict_path=args.corpus_dict_path,
                 meta_graph_pkl_path_prefix=args.meta_graph_path_prefix,
+                meta_graph_pkl_suffix=args.meta_graph_pkl_suffix,
                 lda_model_path=args.lda_path,
                 result_pkl_path_prefix='{}{}'.format(
                     args.result_prefix, args.method
                 ),
                 result_suffix=args.result_suffix,
-                all_paths_pkl_prefix=args.all_paths_pkl_prefix,
+                all_paths_pkl_prefix='{}{}'.format(
+                    args.all_paths_pkl_prefix, args.method
+                ),
                 all_paths_pkl_suffix=args.all_paths_pkl_suffix,
                 true_events_path=args.true_events_path,
                 meta_graph_kws={

@@ -1,8 +1,3 @@
-import matplotlib as mpl
-mpl.use('Agg')
-
-import os
-import matplotlib.pyplot as plt
 import itertools
 import cPickle as pkl
 import pandas as pd
@@ -167,34 +162,6 @@ def evaluate_sampling(result_paths, interactions_path,
     )
 
 
-def plot_evalution_result(result, output_dir,
-                          xlabel='U',
-                          file_prefix=''):
-    """
-    result: similar to 3d matrix (metric, method, U)
-    """
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
-    for metric, df in result.items():
-        plt.clf()
-        fig = plt.figure()
-        xs = df.columns.tolist()
-        for r, series in df.iterrows():
-            ys = series.tolist()
-            plt.plot(xs, ys, '*-')
-            plt.hold(True)
-        plt.xlabel(xlabel)
-        plt.ylabel(metric)
-        # plt.ylim([0, 1])
-        plt.legend(df.index.tolist(), loc='upper left')
-
-        fig.savefig(
-            os.path.join(output_dir,
-                         '{}{}.png'.format(file_prefix, metric)
-                     )
-        )
-
 metrics = [metrics.adjusted_rand_score,
            metrics.adjusted_mutual_info_score,
            metrics.homogeneity_score,
@@ -253,36 +220,25 @@ def evaluate_single_tree(result_paths, interactions_paths, events_paths,
 
 
 def main():
-    from test_util import make_path
-    from util import load_items_by_line
+    import argparse
 
-    make_single_tree_path = (lambda p:
-                             make_path(
-                                 'test/data/synthetic_single_tree/', p)
-    )
-    interactions_paths = ['interactions--n_noisy_interactions_fraction=0.2.json',
-                         'interactions--n_noisy_interactions_fraction=0.4.json']
-    interactions_paths = sorted(map(make_single_tree_path, interactions_paths) * 2)
-    events_paths = ['events--n_noisy_interactions_fraction=0.2.pkl',
-                    'events--n_noisy_interactions_fraction=0.4.pkl']
-    events_paths = sorted(map(make_single_tree_path, events_paths) * 2)
-    result_paths = map(
-        lambda p: make_path('test/data/synthetic_single_tree/result', p),
-        load_items_by_line(
-            make_path("test/data/synthetic_single_tree/result_paths_single_tree.txt")
-        )
-    )
+    parser = argparse.ArgumentParser('')
+    parser.add_argument('--experiment_paths',
+                        nargs='+')
+    parser.add_argument('--output_path', required=True)
+
+    args = parser.parse_args()
+
+    experiment_results = [pkl.load(open(p))
+                          for p in args.experiment_paths]
+    interactions_paths = [e['interactions'] for e in experiment_results]
+    result_paths = [e['result'] for e in experiment_results]
+    events_paths = [e['true_events'] for e in experiment_results]
+    
     result = evaluate_single_tree(
         result_paths, interactions_paths, events_paths, metrics=[]
     )
-    plot_evalution_result(
-        result,
-        xlabel='noise fraction',
-        output_dir='/cs/home/hxiao/public_html/figures/synthetic/single_tree'
-    )
+    pkl.dump(result, open(args.output_path, 'w'))
 
 if __name__ == '__main__':
-    # main('preprune_seconds')
-    # main('sampling')
-    # main('U')
     main()

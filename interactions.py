@@ -11,9 +11,10 @@ import networkx as nx
 from memory_profiler import profile
 from scipy.sparse import csr_matrix, issparse
 from sklearn.feature_extraction.text import TfidfTransformer, TfidfVectorizer
+from scipy.spatial.distance import cosine
 from scipy.spatial.distance import jaccard
 
-from util import load_items_by_line, get_datetime, compose
+from util import load_items_by_line, get_datetime, compose, json_load
 from hig import construct_hig_from_interactions
 from meta_graph import convert_to_meta_graph, \
     convert_to_meta_graph_undirected
@@ -463,6 +464,20 @@ class InteractionsUtil(object):
         
         return g
         
+    @classmethod
+    def get_topic_meta_graph_from_synthetic(cls,
+                                            path,
+                                            preprune_secs,
+                                            **kwargs):
+        return cls.get_topic_meta_graph(json_load(path),
+                                        cosine,
+                                        preprune_secs=preprune_secs,
+                                        decompose_interactions=False,
+                                        given_topics=True,
+                                        convert_time=False,
+                                        **kwargs
+                                    )
+
     @classmethod
     def get_topic_meta_graph(cls, interactions,
                              dist_func,

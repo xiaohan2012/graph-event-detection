@@ -46,7 +46,9 @@ def convert_to_cluster_assignment_array(
 
 
 def evaluate_clustering_result(
-        true_clusters, pred_clusters, all_entry_ids, metric, true_only=True):
+        true_clusters, pred_clusters,
+        all_entry_ids,
+        metric, true_only=True):
     """
     pred_clusters, true_clusters: array of list[int]
     all_entry_ids: list[int]
@@ -68,11 +70,14 @@ def trees2clusters(trees):
 
 def evaluate_meta_tree_result(
         true_events, pred_events, all_entry_ids, methods):
+    setcover_obj = len(set([n for t in pred_events for n in t.nodes_iter()]))
+    scores = {
+        'set_cover_obj': setcover_obj
+    }
+    
     true_clusters = trees2clusters(true_events)
     pred_clusters = trees2clusters(pred_events)
     
-    scores = {}
-
     for m in methods:
         for true_only in (True, False):
             name = m.__name__
@@ -96,7 +101,7 @@ def evaluate_meta_tree_result(
             salzburg_ted(true, pred),
             true, pred
         )
-         for true, pred in zip(true_events, pred_events)]
+        for true, pred in zip(true_events, pred_events)]
     )
     return scores
 

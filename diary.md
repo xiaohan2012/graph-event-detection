@@ -1301,3 +1301,9 @@ To generalize, if there is an edge from i to j that has cost larger than cost of
 
 Additional benefit of reducing the graph: charikar's algorithm becomes less expensive.
 
+
+Day 4:
+
+- Repeat experiment for single trees
+  - saved the resulting path(input, output, etc) in one file(centralization)
+  - in charikar algorithm: dag may be produced
