@@ -2,8 +2,8 @@ import networkx as nx
 import unittest
 from .dag_util import (binarize_dag, is_binary,
                        unbinarize_dag,
-                       remove_edges_via_dijkstra,
-                       shirnk_by_transitive_closure)
+                       remove_edges_via_dijkstra)
+                       # shirnk_by_transitive_closure)
 from .test_lst_dag import get_example_6
 from .interactions import InteractionsUtil
 from nose.tools import assert_equal, assert_true

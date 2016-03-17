@@ -42,7 +42,10 @@ class ArtificialDataTest(unittest.TestCase):
             'forward_proba': 0.3,
             'reply_proba': 0.5,
             'create_new_proba': 0.2,
-            'dist_func': cosine
+            'dist_func': cosine,
+            'recency': False,
+            'edge_cost_alpha': 0.0,
+            'edge_cost_tau': 0.0,
         }
 
     def seems_like_uniform_distribution(self, array):
@@ -63,8 +66,11 @@ class ArtificialDataTest(unittest.TestCase):
         self.seems_like_uniform_distribution(topic)
 
     def test_random_events(self):
-        del self.params['n_noisy_interactions']
-        del self.params['n_noisy_interactions_fraction']
+        for f in ('n_noisy_interactions', 'n_noisy_interactions_fraction',
+                  'dist_func', 'recency', 'edge_cost_alpha',
+                  'edge_cost_tau'):
+            del self.params[f]
+
         events = random_events(**self.params)
         assert_equal(self.params['n_events'], len(events))
 
@@ -78,9 +84,9 @@ class ArtificialDataTest(unittest.TestCase):
         mean_duration = np.mean([max(times(e)) - min(times(e))
                                  for e in events])
         np.testing.assert_almost_equal(
-            5,
+            510,
             mean_duration,
-            decimal=0
+            decimal=-1
         )
         
         unique_participants = lambda e: set(itertools.chain(
@@ -119,9 +125,9 @@ class ArtificialDataTest(unittest.TestCase):
         self.seems_like_uniform_distribution(topic_mean)
         
         np.testing.assert_almost_equal(
-            49,
+            305,
             np.mean([i['timestamp'] for i in intrs]),
-            decimal=0
+            decimal=-1
         )
         
         freq = Counter(itertools.chain(
@@ -232,6 +238,7 @@ def test_gen_event_with_known_tree_structure():
         participants=range(participants_n),
         start_time=10, end_time=110,
         event_topic_param=random_topic(10, topic_noise=0.0001),
+        topic_noise=1,
         alpha=1.0, tau=0.8,
         forward_proba=0.3,
         reply_proba=0.5,
@@ -277,12 +284,15 @@ def test_get_gen_cand_tree_params():
         participants=range(participants_n),
         start_time=10, end_time=110,
         event_topic_param=random_topic(10, topic_noise=0.1),
+        topic_noise=1,
         alpha=1.0, tau=0.8,
         forward_proba=0.3,
         reply_proba=0.5,
         create_new_proba=0.2
     )
-    params = get_gen_cand_tree_params(event, cosine, 0.8, 0.8)
+    event = IU.assign_edge_weights(event, cosine)
+    params = get_gen_cand_tree_params(event)
+
     assert_true(params['U'] > 0)
     assert_equal(99, params['preprune_secs'])
     assert_equal([0], params['roots'])

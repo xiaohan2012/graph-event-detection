@@ -6,8 +6,7 @@ from nose.tools import assert_equal, assert_almost_equal, \
 
 from dag_util import get_roots
 from tree_util import to_bracket_notation, salzburg_ted, \
-    tree_similarity_ratio, tree_density, \
-    tree_cover
+    tree_similarity_ratio, tree_density
 
 
 class TreeUtilTestCase(unittest.TestCase):
