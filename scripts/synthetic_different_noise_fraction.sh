@@ -19,6 +19,9 @@ fraction_end=5.0
 
 
 if [ "$1" == "data" ]; then
+	if [ ! -d ${data_dir} ]; then
+		mkdir -p ${data_dir}
+	fi
 	rm -r ${data_dir}/*
 	for ((round=1; round <= ${rounds}; round++)); do
 		echo "time: ${round}"
