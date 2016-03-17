@@ -65,9 +65,9 @@ def calc_tree(node_i, r, dag, U,
         logger.debug('binarizing dag...')
 
         dag = binarize_dag(dag,
-                                  IU.VERTEX_REWARD_KEY,
-                                  IU.EDGE_COST_KEY,
-                                  dummy_node_name_prefix="d_")
+                           IU.VERTEX_REWARD_KEY,
+                           IU.EDGE_COST_KEY,
+                           dummy_node_name_prefix="d_")
 
     logger.debug('generating tree ')
 
@@ -95,6 +95,10 @@ def run(gen_tree_func,
         cand_tree_number=None,  # higher priority than percentage
         cand_tree_percent=0.1,
         result_pkl_path_prefix=os.path.join(CURDIR, 'tmp/results'),
+        result_suffix='',
+        all_paths_pkl_prefix='',
+        all_paths_pkl_suffix='',
+        true_events_path='',
         meta_graph_kws={
             'dist_func': cosine,
             'preprune_secs': timedelta(weeks=4),
@@ -219,15 +223,20 @@ def run(gen_tree_func,
         
         root_sampler.update(root, tree)
 
-    result_pkl_path = "{}--{}----{}----{}.pkl".format(
-        result_pkl_path_prefix,
-        experiment_signature(**gen_tree_kws),
-        experiment_signature(**meta_graph_kws),
-        experiment_signature(
-            cand_tree_percent=cand_tree_percent,
-            root_sampling=root_sampling_method
+    def make_detailed_path(prefix, suffix):
+        return "{}--{}----{}----{}{}.pkl".format(
+            prefix,
+            experiment_signature(**gen_tree_kws),
+            experiment_signature(**meta_graph_kws),
+            experiment_signature(
+                cand_tree_percent=cand_tree_percent,
+                root_sampling=root_sampling_method
+            ),
+            suffix
         )
-    )
+    result_pkl_path = make_detailed_path(result_pkl_path_prefix,
+                                         result_suffix)
+
     logger.info('result_pkl_path: {}'.format(result_pkl_path))
     pickle.dump(trees,
                 open(result_pkl_path, 'w'),
@@ -235,7 +244,21 @@ def run(gen_tree_func,
     pickle.dump(dags,
                 open(result_pkl_path+'.dag', 'w'),
                 protocol=pickle.HIGHEST_PROTOCOL)
-    return result_pkl_path, meta_graph_pkl_path
+    
+    logger.info('Dumping the paths info')
+    all_paths_pkl_path = make_detailed_path(all_paths_pkl_prefix,
+                                            all_paths_pkl_suffix)
+    paths_dict = {'interactions': interaction_json_path,
+                  'meta_graph': meta_graph_pkl_path,
+                  'result': result_pkl_path,
+                  'true_events': true_events_path,
+                  'self': all_paths_pkl_path
+    }
+    pickle.dump(
+        paths_dict,
+        open(all_paths_pkl_path, 'w')
+    )
+    return paths_dict
 
 if __name__ == '__main__':
     import random
@@ -285,7 +308,16 @@ if __name__ == '__main__':
     parser.add_argument('--result_prefix',
                         default='tmp/result-',
                         help="Prefix of result path")
-
+    parser.add_argument('--result_suffix',
+                        default='',
+                        help="Suffix of result path")
+    parser.add_argument('--all_paths_pkl_prefix',
+                        required=True)
+    parser.add_argument('--all_paths_pkl_suffix',
+                        default='')
+    parser.add_argument('--true_events_path',
+                        default='')
+                
     parser.add_argument('--weeks',
                         type=int,
                         default=4,
@@ -416,6 +448,10 @@ if __name__ == '__main__':
                 result_pkl_path_prefix='{}{}'.format(
                     args.result_prefix, args.method
                 ),
+                result_suffix=args.result_suffix,
+                all_paths_pkl_prefix=args.all_paths_pkl_prefix,
+                all_paths_pkl_suffix=args.all_paths_pkl_suffix,
+                true_events_path=args.true_events_path,
                 meta_graph_kws={
                     'dist_func': dist_func,
                     'preprune_secs': timespan,

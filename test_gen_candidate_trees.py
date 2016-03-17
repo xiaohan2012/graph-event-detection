@@ -1,6 +1,7 @@
 import random
 import unittest
 import numpy
+import glob
 import networkx as nx
 import cPickle as pkl
 
@@ -88,12 +89,16 @@ class GenCandidateTreeTest(unittest.TestCase):
                 'U': 0.01,
                 'dijkstra': False
             },
-            'root_sampling_method': 'random'
+            'root_sampling_method': 'random',
+            'result_pkl_path_prefix': make_path("test/data/tmp/result-"),
+            'all_paths_pkl_prefix': make_path("test/data/tmp/paths-")
         }
 
     def check(self, test_name, tree_gen_func, **more_args):
-        result_pickle_prefix = make_path("test/data/tmp",
-                                         "result-{}".format(test_name))
+        # result_pickle_prefix = make_path("test/data/tmp",
+        #                                  "result-{}".format(test_name))
+        # paths_pickle_prefix = make_path("test/data/tmp",
+        #                                 "paths-{}".format(test_name))
         kws = self.some_kws_of_run.copy()
         
         kws.update(directed_params)
@@ -101,14 +106,15 @@ class GenCandidateTreeTest(unittest.TestCase):
         if more_args:
             kws.update(more_args)
 
-        result_path, mg_path = run(
+        paths = run(
             tree_gen_func,
             calculate_graph=False,
             print_summary=False,
-            result_pkl_path_prefix=result_pickle_prefix,
+            # result_pkl_path_prefix=result_pickle_prefix,
             **kws)
+        trees = pkl.load(open(paths['result']))
+        print(trees)
 
-        trees = pkl.load(open(result_path))
         trees = filter(None, trees)  # remove Nones
 
         assert_true(len(trees) > 0)
@@ -116,7 +122,7 @@ class GenCandidateTreeTest(unittest.TestCase):
         for t in trees:
             assert_true(len(t.edges()) > 0)
 
-        return trees, nx.read_gpickle(mg_path)
+        return trees, nx.read_gpickle(paths['meta_graph'])
 
     def test_if_sender_and_recipient_information_saved(self):
         trees, _ = self.check('greedy', greedy_grow)
@@ -148,12 +154,8 @@ class GenCandidateTreeTest(unittest.TestCase):
         for t, t_dij in zip(trees, trees_with_dij):
             assert_true(sorted(t.edges()) != sorted(t_dij))
 
-    def test_variance_method(self):
-        # self.check('variance', variance_method)
-        pass
-
     def test_distance_weight_using_hashtag_bow(self):
-        self.some_kws_of_run['meta_graph_kws']['distance_weights'] = distance_weights_3
+        self.some_kws_of_run['meta_graph_kws']['distance_weights'] = distance_weights_2
         self.check('greedy', greedy_grow)
 
     def test_with_roots(self):
@@ -191,9 +193,24 @@ class GenCandidateTreeTest(unittest.TestCase):
         self.some_kws_of_run['root_sampling_method'] = 'adaptive'
         self.check('greedy', greedy_grow)
 
+    def test_save_input_paths(self):
+        self.some_kws_of_run['all_paths_pkl_suffix'] = 'blahblah'
+        self.some_kws_of_run['true_events_path'] = make_path("test/data/tmp",
+                                                             'true_event.pkl')
+        self.check('greedy', greedy_grow)
+
+        paths_info_path = glob.glob(
+            make_path('test/data/tmp/paths*blahblah.pkl')
+        )[0]
+        paths_info = pkl.load(open(paths_info_path))
+        assert_equal(self.some_kws_of_run['true_events_path'],
+                     paths_info['true_events']
+        )
+        for field in ['result', 'interactions', 'meta_graph', 'self']:
+            assert_true(len(paths_info[field]) > 0)
+        
     def tearDown(self):
-        # remove_tmp_data('test/data/tmp/*')
-        pass
+        remove_tmp_data('test/data/tmp/*')
 
 
 class GenCandidateTreeCMDTest(unittest.TestCase):
@@ -204,7 +221,8 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         numpy.random.seed(123456)
 
         self.script_path = make_path("gen_candidate_trees.py")
-        self.result_dir = make_path("test/data/tmp/result-")
+        self.result_path_prefix = make_path("test/data/tmp/result-")
+        self.all_paths_pkl_prefix = make_path("test/data/tmp/paths-")
 
         self.directed_params = directed_params
 
@@ -218,7 +236,8 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         --dist={distance_func} \
         --cand_n_percent=0.05 \
         --root_sampling={sampling_method}\
-        --result_prefix={result_dir} \
+        --result_prefix={result_path_prefix} \
+        --all_paths_pkl_prefix={all_paths_pkl_prefix} \
         --weeks=4 --U=2.0 \
         --lda_path={lda_model_path} \
         --interaction_path={interaction_json_path} \
@@ -232,7 +251,8 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
             method=method,
             distance_func=distance,
             sampling_method=sampling_method,
-            result_dir=self.result_dir,
+            result_path_prefix=self.result_path_prefix,
+            all_paths_pkl_prefix=self.all_paths_pkl_prefix,
             extra=extra,
             weight_for_topics=distance_weights.get('topics', 0),
             weight_for_bow=distance_weights.get('bow', 0),
@@ -248,10 +268,6 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
 
     def test_random(self):
         self.check(method='random')
-
-    def test_variance(self):
-        # self.check(method='variance')
-        pass
 
     def test_quota(self):
         self.check(method='quota',
@@ -332,31 +348,29 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
                 'dijkstra': False
             },
             'given_topics': True,
+            'result_pkl_path_prefix': make_path('test/data/tmp/result'),
+            'all_paths_pkl_prefix': make_path('test/data/tmp/paths')
         }
 
     def check(self, test_name, tree_gen_func, **more_args):
-        result_pickle_prefix = make_path("test/data/tmp",
-                                         "result-{}".format(test_name))
-
         kws = self.some_kws_of_run.copy()
         
         if more_args:
             kws.update(more_args)
             
         kws['root_sampling_method'] = 'random'
-        result_pkl_path, meta_graph_pkl_path = run(tree_gen_func,
-                                                   calculate_graph=False,
-                                                   print_summary=False,
-                                                   result_pkl_path_prefix=result_pickle_prefix,
-                                                   **kws)
+        paths = run(tree_gen_func,
+                    calculate_graph=False,
+                    print_summary=False,
+                    **kws)
 
-        trees = pkl.load(open(result_pkl_path))
+        trees = pkl.load(open(paths['result']))
         trees = filter(None, trees)
 
         assert_true(len(trees) > 0)
         for t in trees:
             assert_true(len(t.edges()) > 0)
-        return trees, nx.read_gpickle(meta_graph_pkl_path)
+        return trees, nx.read_gpickle(paths['meta_graph'])
 
     # overrides
     def test_variance_method(self):
