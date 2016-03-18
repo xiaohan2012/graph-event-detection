@@ -52,6 +52,7 @@ def sample_nodes_by_out_degree(g, node_sample_size=100):
                                   node_sample_size=node_sample_size)
 
 
+# Deprecated
 def sample_rooted_binary_graphs_within_timespan(
         meta_graph_pickle_path,
         sample_number,
