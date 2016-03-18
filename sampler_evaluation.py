@@ -12,13 +12,11 @@ def correct_roots_ratio(acc_trees, true_trees):
 
 
 def k_max_setcover(acc_trees, true_trees, k):
-    acc_trees = filter(None, acc_trees)
     trees = k_best_trees(acc_trees, k)
     return len(set([n for t in trees for n in t.nodes_iter()]))
 
 
 def get_meta_data_of_f1(acc_trees, true_trees, k):
-    acc_trees = filter(None, acc_trees)
     pred_trees = k_best_trees(acc_trees, k)
     pred_nodes = set([n for t in pred_trees for n in t.nodes_iter()])
     true_nodes = set([n for t in true_trees for n in t.nodes_iter()])
