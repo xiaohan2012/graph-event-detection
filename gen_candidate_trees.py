@@ -267,9 +267,7 @@ def run(gen_tree_func,
 
 if __name__ == '__main__':
     import random
-    import numpy
-    random.seed(123456)
-    numpy.random.seed(123456)
+    import numpy as np
 
     import argparse
     parser = argparse.ArgumentParser(
@@ -386,8 +384,14 @@ if __name__ == '__main__':
                         default=2,
                         help="the `level` parameter in charikar's algorithm"
     )
+    parser.add_argument('--random_seed',
+                        type=int,
+                        default=None)
 
     args = parser.parse_args()
+
+    random.seed(args.random_seed)
+    np.random.seed(args.random_seed)
 
     dist_funcs = {'euclidean': euclidean, 'cosine': cosine}
     dist_func = dist_funcs[args.dist]
