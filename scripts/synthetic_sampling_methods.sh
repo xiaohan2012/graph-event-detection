@@ -38,13 +38,17 @@ fi
 if [ "$1" == "gen" ]; then
 	rm -r ${result_dir}/*
 
-	result_paths=()
-	for method in "${methods[@]}"; do
-		result_prefix=${result_dir}/result/result--fraction=${fraction}--
-		if [ ! -d "${result_dir}/result" ]; then
-			mkdir -p "${result_dir}/result"
-		fi
+	result_prefix=${result_dir}/result/
+	if [ ! -d "${result_dir}/result" ]; then
+		mkdir -p "${result_dir}/result"
+	fi
 
+	path_file_prefix=${result_dir}/paths/
+	if [ ! -d "${result_dir}/paths" ]; then
+		mkdir -p "${result_dir}/paths"
+	fi
+
+	for method in "${methods[@]}"; do
 		python gen_candidate_trees.py \
 			--method=greedy \
 			--U ${U} \
@@ -53,7 +57,9 @@ if [ "$1" == "gen" ]; then
 			--corpus_dict_path None \
 			--interaction_path ${data_dir}/interactions--n_noisy_interactions_fraction=${fraction}.json \
 			--meta_graph_path_prefix ${result_dir}/meta-graph \
-			--result_prefix=${result_prefix} \
+			--result_prefix ${result_prefix} \
+			--all_paths_pkl_prefix ${path_file_prefix} \
+			--true_events_path ${data_dir}/events--n_noisy_interactions_fraction=${fraction}.pkl \
 			--given_topics \
 			--weight_for_bow 0 \
 			--weight_for_topics 1.0 \
@@ -62,16 +68,18 @@ if [ "$1" == "gen" ]; then
 			--cand_n_percent 0.20 \
 			--seconds 50 \
 			--root_sampling ${method}
-
-		result_paths=("${result_paths[@]}" "$(python read_result_path.py)")
 	done
+
+fi
+
+
+if [ "$1" == "eval" ]; then
 	python sampler_evaluation.py \
-		--result_paths "${result_paths[@]}" \
+		--experiment_paths ${result_dir}/paths/*.pkl \
 		--legends "${methods[@]}" \
 		-k ${n_events} \
-		--true_trees_path ${data_dir}/gen_cand_tree_params--n_noisy_interactions_fraction=${fraction}.pkl \
-		--output_path /cs/home/hxiao/public_html/figures/sampling_methods/result.png
+		--output_dir /cs/home/hxiao/public_html/figures/sampling_methods/ \
+		--metrics k_setcover_obj precision recall f1
 
 	chmod -R a+rx /cs/home/hxiao/public_html/figures/sampling_methods/
-
 fi
