@@ -1,6 +1,6 @@
 #! /bin/bash
 
-rounds=2
+rounds=10
 fraction=5.0
 n_events=5
 methods=("random" "upperbound" "adaptive")
@@ -10,8 +10,8 @@ methods=("random" "upperbound" "adaptive")
 U=3.2
 timespan=50
 
-data_dir='/home/hxiao/code/lst_dag/data/synthetic_sampling_methods'
-result_dir='/home/hxiao/code/lst_dag/tmp/synthetic_sampling_methods'
+data_dir='/cs/home/hxiao/code/lst_dag/data/synthetic_sampling_methods'
+result_dir='/cs/home/hxiao/code/lst_dag/tmp/synthetic_sampling_methods'
 
 
 if [ "$1" == "data" ]; then
@@ -77,7 +77,7 @@ if [ "$1" == "gen" ]; then
 				--weight_for_topics 1.0 \
 				--not_convert_time \
 				--time_diff_unit sec \
-				--cand_n_percent 0.20 \
+				--cand_n 200  \
 				--seconds ${timespan} \
 				--root_sampling ${method}
 		done
@@ -110,9 +110,13 @@ if [ "$1" == "eval" ]; then
 fi
 
 if [ "$1" == "viz" ]; then
+	if [ ! -d ${result_dir}/figure/ ]; then
+		mkdir -p ${result_dir}/figure/
+	fi
 	python draw_evaluation_result.py \
 		--result_path ${combined_eval_result_path} \
 		--xlabel "#epoch" \
-		--output_dir /cs/home/hxiao/public_html/figures/sampling_methods
-	chmod -R a+rx /cs/home/hxiao/public_html/figures/sampling_methods
+		--output_dir ${result_dir}/figure/
+	scp ${result_dir}/figure/*  shell.cs.helsinki.fi:/cs/home/hxiao/public_html/figures/sampling_methods
+	# chmod -R a+rx /cs/home/hxiao/public_html/figures/sampling_methods
 fi

@@ -96,13 +96,13 @@ def evaluate_meta_tree_result(
     
     # mean of tree edit distance across all (true, pred) pairs
     # weighted mean can be added
-    scores['tree_similarity'] = np.mean(
-        [tree_similarity_ratio(
-            salzburg_ted(true, pred),
-            true, pred
-        )
-        for true, pred in zip(true_events, pred_events)]
-    )
+    # scores['tree_similarity'] = np.mean(
+    #     [tree_similarity_ratio(
+    #         salzburg_ted(true, pred),
+    #         true, pred
+    #     )
+    #     for true, pred in zip(true_events, pred_events)]
+    # )
     return scores
 
 

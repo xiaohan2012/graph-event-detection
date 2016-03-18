@@ -39,7 +39,10 @@ def recall(acc_trees, true_trees, k):
 def f1(acc_trees, true_trees, k):
     prec = precision(acc_trees, true_trees, k)
     rec =  recall(acc_trees, true_trees, k)
-    return 2 * prec * rec / (prec + rec)
+    if prec == 0 and rec == 0:
+        return 0
+    else:
+        return 2 * prec * rec / (prec + rec)
 
 
 def evaluate(pred_trees, true_trees, metric, *args, **kwargs):
@@ -111,19 +114,6 @@ def main():
         data,
         open(args.output_path, 'w')
     )
-
-        # fig = plt.figure()
-        # fig.clf()
-        # for ys in result.values():
-        #     plt.plot(np.arange(len(ys)), ys)
-        #     plt.hold(True)
-        #     plt.xlabel('#epoch')
-        #     plt.ylabel(metric_name)
-        # plt.legend(result.keys(), loc='lower right')
-
-        # fig.savefig('{}/{}.png'.format(args.output_dir,
-        #                                metric_name))
-
     
 if __name__ == '__main__':
     main()
