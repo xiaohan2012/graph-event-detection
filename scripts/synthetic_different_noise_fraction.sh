@@ -4,8 +4,8 @@
 rounds=10
 methods=("random" "greedy" "quota" "lst --dij")
 
-data_dir='/home/hxiao/code/lst_dag/data/synthetic_single_tree'
-result_dir='/home/hxiao/code/lst_dag/tmp/synthetic_single_tree'
+data_dir='/cs/home/hxiao/code/lst_dag/data/synthetic_single_tree'
+result_dir='/cs/home/hxiao/code/lst_dag/tmp/synthetic_single_tree'
 
 ALPHA=0.5
 TAU=0.8
@@ -15,7 +15,7 @@ extra=''
 
 fraction_start=0.5
 fraction_step=0.5
-fraction_end=5.0
+fraction_end=10.0
 
 
 if [ "$1" == "data" ]; then
@@ -123,10 +123,14 @@ fi
 
 	
 if [ "$1" == "viz" ]; then
+    if [ ! -d ${result_dir}/figure ]; then
+	mkdir -p ${result_dir}/figure
+    fi
 	# viz
 	python draw_evaluation_result.py \
 		--result_path ${combined_eval_result_path} \
 		--xlabel "noise fraction" \
-		--output_dir /cs/home/hxiao/public_html/figures/synthetic/noise_fraction/
-	chmod -R a+rx /cs/home/hxiao/public_html/figures/synthetic/noise_fraction/
+		--output_dir ${result_dir}/figure
+	scp ${result_dir}/figure/*  shell.cs.helsinki.fi:/cs/home/hxiao/public_html/figures/synthetic/noise_fraction/
+	# chmod -R a+rx /cs/home/hxiao/public_html/figures/synthetic/noise_fraction/
 fi
