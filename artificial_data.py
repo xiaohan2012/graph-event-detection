@@ -399,8 +399,16 @@ def main():
 
     parser.add_argument('--result_suffix',
                         default='')
+    parser.add_argument('--random_seed',
+                        type=int,
+                        default=None)
     
+
     args = parser.parse_args()
+
+    random.seed(args.random_seed)
+    np.random.seed(args.random_seed)
+
     pprint(vars(args))
     result_suffix = args.result_suffix
     output_dir = args.output_dir
@@ -408,6 +416,7 @@ def main():
     args_dict = vars(args)
     del args_dict['output_dir']
     del args_dict['result_suffix']
+    del args_dict['random_seed']
 
     events, interactions, gen_cand_tree_params = make_artificial_data(
         dist_func=cosine,
@@ -431,6 +440,4 @@ def main():
 
 
 if __name__ == '__main__':
-    random.seed(12345)
-    np.random.seed(12345)
     main()
