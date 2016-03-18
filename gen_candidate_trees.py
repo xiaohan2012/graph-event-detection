@@ -52,7 +52,8 @@ def calc_tree(node_i, r, dag, U,
     logger.info('nodes procssed {}'.format(node_i))
     if len(dag.edges()) == 0:
         logger.debug("empty rooted sub graph")
-        return None
+        assert dag.number_of_nodes() == 1
+        return dag
 
     if gen_tree_kws.get('dijkstra'):
         logger.debug('applying dijkstra')
@@ -79,11 +80,17 @@ def calc_tree(node_i, r, dag, U,
                               edge_weight_key=IU.EDGE_COST_KEY)
     if len(tree.edges()) == 0:
         logger.debug("empty event tree")
-        return None
 
     if print_summary:
         logger.debug('tree summary:\n{}'.format(get_summary(tree)))
 
+    # post checking
+    if tree.number_of_edges() == 0:
+        assert tree.number_of_nodes() == 1, '#roots={}'.format(
+            tree.number_of_nodes()
+        )
+    else:
+        assert nx.is_arborescence(tree), 'not a tree'
     return tree
 
 

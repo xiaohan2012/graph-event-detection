@@ -101,6 +101,7 @@ def dp_dag_general(G, r, U,
     best_cost = max(xrange(U + 1),
                     key=lambda i: A[r][i] if i in A[r] else float('-inf'))
     tree = DiGraph()
+    tree.add_node(r)
     stack = []
     if debug and len(stack) == 0:
         print('stack empty')
@@ -199,6 +200,7 @@ def round_edge_weights_by_multiplying(G,
         )
     U = int(U * multiplier)
     return G, U
+
 
 def lst_dag(G, r, U,
             node_reward_key='r',
@@ -311,6 +313,7 @@ def lst_dag(G, r, U,
         print("best_cost", best_cost)
 
     tree = DiGraph()
+    tree.add_node(r)
     stack = []
     for n, cost in BP[r][best_cost]:
         stack.append((r, n, cost))

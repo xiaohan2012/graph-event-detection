@@ -12,7 +12,7 @@ from subprocess import check_output
 from gen_candidate_trees import run
 from scipy.spatial.distance import cosine
 
-from .lst import lst_dag, dp_dag_general, make_variance_cost_func
+from .lst import lst_dag, make_variance_cost_func
 from .baselines import greedy_grow_by_discounted_reward as greedy_grow, \
     random_grow
 from .test_util import remove_tmp_data, make_path
@@ -27,35 +27,9 @@ directed_params = {
     'meta_graph_pkl_path_prefix': make_path('test/data/enron-head-100'),
 }
 
-# undirected_params = {
-#     'interaction_json_path': make_path(
-#         'test/data/undirected/interactions.json'
-#     ),
-#     'lda_model_path': make_path(
-#         'test/data/undirected/lda_model-50-50.lda'
-#     ),
-#     'corpus_dict_path': make_path(
-#         'test/data/undirected/dict.pkl'
-#     ),
-#     'meta_graph_pkl_path_prefix': make_path(
-#         'test/data/undirected/meta-graph'
-#     ),
-#     'undirected': True
-# }
-
-
 lst = lambda g, r, U: lst_dag(
     g, r, U,
     edge_weight_decimal_point=2,
-    debug=False
-)
-
-variance_method = lambda g, r, U: dp_dag_general(
-    g, r, int(U*10),  # fixed point 1
-    make_variance_cost_func(cosine,
-                            'topics',
-                            fixed_point=1,
-                            debug=False),
     debug=False
 )
 
@@ -95,10 +69,6 @@ class GenCandidateTreeTest(unittest.TestCase):
         }
 
     def check(self, test_name, tree_gen_func, **more_args):
-        # result_pickle_prefix = make_path("test/data/tmp",
-        #                                  "result-{}".format(test_name))
-        # paths_pickle_prefix = make_path("test/data/tmp",
-        #                                 "paths-{}".format(test_name))
         kws = self.some_kws_of_run.copy()
         
         kws.update(directed_params)
@@ -113,9 +83,9 @@ class GenCandidateTreeTest(unittest.TestCase):
             # result_pkl_path_prefix=result_pickle_prefix,
             **kws)
         trees = pkl.load(open(paths['result']))
-        print(trees)
 
-        trees = filter(None, trees)  # remove Nones
+        trees = filter(lambda t: t.number_of_edges() > 0,
+                       trees)  # remove empty trees
 
         assert_true(len(trees) > 0)
 
@@ -365,17 +335,13 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
                     **kws)
 
         trees = pkl.load(open(paths['result']))
-        trees = filter(None, trees)
+        trees = filter(lambda t: t.number_of_edges() > 0,
+                       trees)  # remove empty trees
 
         assert_true(len(trees) > 0)
         for t in trees:
             assert_true(len(t.edges()) > 0)
         return trees, nx.read_gpickle(paths['meta_graph'])
-
-    # overrides
-    def test_variance_method(self):
-        # self.check('variance', variance_method)
-        pass
 
     def test_distance_weight_using_hashtag_bow(self):
         pass
