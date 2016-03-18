@@ -80,11 +80,11 @@ if [ "$1" == "gen" ]; then
 					--interaction_path ${data_dir}/interactions--n_noisy_interactions_fraction=${fraction}-${round}.json \
 					--event_param_pickle_path ${data_dir}/gen_cand_tree_params--n_noisy_interactions_fraction=${fraction}-${round}.pkl \
 					--meta_graph_path_prefix ${result_dir}/meta-graph--fraction=${fraction} \
-					--meta_graph_pkl_suffix "-${round}" \
 					--result_prefix ${result_prefix} \
-					--result_suffix "-${round}" \
 					--all_paths_pkl_prefix ${path_file_prefix} \
 				    --all_paths_pkl_suffix "-${round}" \
+					--meta_graph_pkl_suffix "-${round}" \
+					--result_suffix "-${round}" \
 					--true_events_path ${data_dir}/events--n_noisy_interactions_fraction=${fraction}-${round}.pkl \
 					--given_topics \
 					--weight_for_bow 0 \

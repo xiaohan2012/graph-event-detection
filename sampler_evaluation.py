@@ -1,6 +1,7 @@
 import matplotlib as mpl
 mpl.use('Agg')
 
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -59,12 +60,12 @@ def main():
     import cPickle as pkl
     import argparse
 
-    parser = argparse.ArgumentParser('draw the sampler evaluation result')
+    parser = argparse.ArgumentParser('Draw the sampler evaluation result')
     parser.add_argument('--experiment_paths',
                         nargs='+')
     parser.add_argument('--legends',
                         nargs='+')
-    parser.add_argument('--output_dir')
+    parser.add_argument('--output_path')
     parser.add_argument('--metrics',
                         nargs="+")
     parser.add_argument('-k', type=int)
@@ -81,8 +82,10 @@ def main():
         'f1': f1
     }
 
+    data = {}
     for metric_name in args.metrics:
         metric = metric_map[metric_name]
+        data[metric_name] = []
         for experiment_path, legend in zip(sorted(args.experiment_paths),
                                            sorted(args.legends)):
             paths = pkl.load(open(experiment_path))
@@ -90,25 +93,36 @@ def main():
             true_events_path = paths['true_events']
 
             assert legend in result_path, (legend, result_path)
-            # print('result_path:', result_path)
-            # print('legend:', legend)
 
-            result[legend] = evaluate(pkl.load(open(result_path)),
-                                      pkl.load(open(true_events_path)),
-                                      metric,
-                                      k=args.k)
+            data[metric_name].append(
+                evaluate(
+                    pkl.load(open(result_path)),
+                    pkl.load(open(true_events_path)),
+                    metric,
+                    k=args.k
+                )
+            )
+        data[metric_name] = pd.DataFrame(data[metric_name],
+                                         index=sorted(args.legends),
+                                         columns=np.arange(len(data[metric_name][0]))
+        )
 
-        fig = plt.figure()
-        fig.clf()
-        for ys in result.values():
-            plt.plot(np.arange(len(ys)), ys)
-            plt.hold(True)
-            plt.xlabel('#epoch')
-            plt.ylabel(metric_name)
-        plt.legend(result.keys(), loc='lower right')
+    pkl.dump(
+        data,
+        open(args.output_path, 'w')
+    )
 
-        fig.savefig('{}/{}.png'.format(args.output_dir,
-                                       metric_name))
+        # fig = plt.figure()
+        # fig.clf()
+        # for ys in result.values():
+        #     plt.plot(np.arange(len(ys)), ys)
+        #     plt.hold(True)
+        #     plt.xlabel('#epoch')
+        #     plt.ylabel(metric_name)
+        # plt.legend(result.keys(), loc='lower right')
+
+        # fig.savefig('{}/{}.png'.format(args.output_dir,
+        #                                metric_name))
 
     
 if __name__ == '__main__':
