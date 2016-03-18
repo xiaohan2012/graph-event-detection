@@ -67,5 +67,6 @@ if __name__ == '__main__':
 
     df = process_message_body(df)
     df = df[df['body'].map(len) > 10]  # filter short body
+    df = df[df['sender_id'] != 256]
     df.to_json('data/enron/interactions.json',
                orient="records")
