@@ -26,7 +26,7 @@ def plot_evalution_result(result, output_dir,
         plt.xlabel(xlabel)
         plt.ylabel(metric)
         # plt.ylim([0, 1])
-        plt.legend(df.index.tolist(), loc='upper left')
+        plt.legend(df.index.tolist(), loc='lower right')
 
         fig.savefig(
             os.path.join(output_dir,
