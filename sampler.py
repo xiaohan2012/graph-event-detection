@@ -71,10 +71,9 @@ class RootedTreeSampler(object):
     """
     def __init__(self, g, timespan_secs):
         self.g = g
-        self.root2dag = {r: IU.get_rooted_subgraph_within_timespan(g, r, timespan_secs)
-                         for r in g.nodes_iter()}
-        self.root2nodes = {r: set(dag.nodes())
-                           for r, dag in self.root2dag.items()}
+        self.timespan_secs = timespan_secs
+        # self.root2nodes = {r: set(dag.nodes())
+        #                    for r, dag in self.root2dag.items()}
 
     def update(self, root, tree):
         pass
@@ -83,7 +82,9 @@ class RootedTreeSampler(object):
         raise NotImplementedError
 
     def root_and_dag(self, r):
-        return r, self.root2dag[r]
+        return r, IU.get_rooted_subgraph_within_timespan(
+            self.g, r, self.timespan_secs
+        )
 
 
 class UBSampler(RootedTreeSampler):
@@ -91,7 +92,9 @@ class UBSampler(RootedTreeSampler):
         super(UBSampler, self).__init__(g, timespan_secs)
         self.nodes_sorted_by_upperbound = sorted(
             g.nodes_iter(),
-            key=lambda r: quota_upperbound(self.root2dag[r], r, B),
+            key=lambda r: quota_upperbound(
+                IU.get_rooted_subgraph_within_timespan(g, r, timespan_secs),
+                r, B),
             reverse=True
         )
 
@@ -126,8 +129,11 @@ class AdaptiveSampler(RootedTreeSampler):
         super(AdaptiveSampler, self).__init__(g, timespan_secs)
 
         self.node_score_func = node_score_func
-        self.root2upperbound = {r: quota_upperbound(self.root2dag[r], r, B)
-                                for r in g.nodes_iter()}
+        self.root2upperbound = {r: quota_upperbound(
+            IU.get_rooted_subgraph_within_timespan(g, r, timespan_secs),
+            r, B)
+                                for r in g.nodes_iter()
+        }
 
         # updated at each iteration
         # nodes that are partially/fully computed
