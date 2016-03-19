@@ -207,6 +207,7 @@ def run(gen_tree_func,
         elif root_sampling_method == 'upperbound':
             root_sampler = UBSampler(g, U, timespan)
         else:
+            logger.info('init AdaptiveSampler...')
             root_sampler = AdaptiveSampler(g, U, timespan)
     else:
         logger.info('Roots given')

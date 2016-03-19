@@ -26,7 +26,9 @@ def quota_upperbound(g,
     return cnt
 
 
-tree_density = (lambda prize_sum, cost_sum: prize_sum / float(cost_sum))
+tree_density = (lambda prize_sum, cost_sum: float('inf')
+                if cost_sum == 0 else
+                prize_sum / float(cost_sum))
 log_x_density = (lambda prize_sum, cost_sum:
                  np.log(prize_sum+1) * prize_sum / cost_sum)
 
