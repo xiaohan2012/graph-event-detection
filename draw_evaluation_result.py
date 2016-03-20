@@ -21,7 +21,7 @@ def plot_evalution_result(result, output_dir,
         xs = df.columns.tolist()
         for r, series in df.iterrows():
             ys = series.tolist()
-            plt.plot(xs, ys, '*-')
+            plt.plot(xs, ys)
             plt.hold(True)
         plt.xlabel(xlabel)
         plt.ylabel(metric)

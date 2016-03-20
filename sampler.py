@@ -29,8 +29,10 @@ def quota_upperbound(g,
 tree_density = (lambda prize_sum, cost_sum: float('inf')
                 if cost_sum == 0 else
                 prize_sum / float(cost_sum))
-log_x_density = (lambda prize_sum, cost_sum:
-                 np.log(prize_sum+1) * prize_sum / cost_sum)
+log_x_density = (lambda prize_sum, cost_sum: 
+                 np.log(prize_sum+1) * prize_sum / (cost_sum + 0.1))
+size_x_density = (lambda prize_sum, cost_sum: 
+                  prize_sum * prize_sum / (cost_sum + 0.1))
 
 
 def node_scores_from_tree(
@@ -133,11 +135,15 @@ class AdaptiveSampler(RootedTreeSampler):
         super(AdaptiveSampler, self).__init__(g, timespan_secs)
 
         non_leaf_roots = [n for n in g.nodes_iter() if g.out_degree(n) > 0]
+        print("AdaptiveSampler: #roots to explore {}".format(len(non_leaf_roots)))
 
+        print("AdaptiveSampler: getting upperbounds...")
         upperbounds = map(lambda r: quota_upperbound(
                 IU.get_rooted_subgraph_within_timespan(g, r, timespan_secs),
                 r, B),
                           non_leaf_roots)
+
+        print("AdaptiveSampler: sorting the roots by upperbound... ")
         inds = np.argsort(np.asarray(upperbounds))[::-1]  # descending order
         self.roots_sorted_by_upperbound = [non_leaf_roots[i] for i in inds]
         
