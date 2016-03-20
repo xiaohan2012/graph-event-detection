@@ -336,8 +336,12 @@ if __name__ == '__main__':
                 
     parser.add_argument('--weeks',
                         type=int,
-                        default=4,
+                        default=0,
                         help="Time span in terms of weeks")
+    parser.add_argument('--days',
+                        type=int,
+                        default=0,
+                        help="Time span in terms of days")
     parser.add_argument('--seconds',
                         type=int,
                         default=0,
@@ -450,9 +454,17 @@ if __name__ == '__main__':
         roots = params['roots']
     else:
         # `seconds` of higher priority
-        timespan = (args.seconds
-                    if args.seconds
-                    else timedelta(weeks=args.weeks))
+        if args.seconds:
+            logger.info('using `seconds` as timespan unit')
+            timespan = args.seconds
+        elif args.days:
+            logger.info('using `days` as timespan unit')
+            timespan = timedelta(days=args.days)
+        else:
+            assert args.weeks > 0
+            logger.info('using `weeks` as timespan unit')
+            timespan = timedelta(weeks=args.weeks)
+
         U = args.U
         roots = None
 
