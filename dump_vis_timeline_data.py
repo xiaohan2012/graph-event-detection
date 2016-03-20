@@ -29,7 +29,9 @@ def run(cand_trees, k, summary_kws, undirected):
             counter += 1
             items.append({
                 'id': counter,
-                'content': mid2i[i]['subject'],
+                'content': (mid2i[i]['subject'].strip()
+                            if mid2i[i]['subject'] else
+                            mid2i[i]['body']),
                 'start': format_time(mid2i[i]['datetime']),
                 'group': group_id
             })

@@ -39,3 +39,6 @@ echo "dumping timeline names..."
 python dump_all_event_json_names.py \
 	${output_dir}/timeline \
 	${output_dir}/timeline_names.json
+
+chmod -R a+rx /cs/home/hxiao/public_html/event_html/data
+
