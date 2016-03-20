@@ -1,31 +1,40 @@
 import networkx as nx
 import random
+import numpy as np
 
-
+# @profile
 def new_frontier(new_node, selected_nodes, g, current_frontier):
     """get the frontier edges that can be selected
     """
     selected_nodes = set(selected_nodes)
     frontier = set(current_frontier)
     for n in selected_nodes:
-        e = (n, new_node)
-        if e in frontier:
-            frontier.remove(e)
+        frontier -=  {(n, new_node)}
+        # e = (n, new_node)
+        # if e in frontier:
+        #     frontier.remove(e)
 
-    for nbr in g.neighbors(new_node):
+    for nbr in g.neighbors_iter(new_node):
         if nbr not in selected_nodes:
-            e = (new_node, nbr)
-            frontier.add(e)
+            frontier.add((new_node, nbr))
     return list(frontier)
 
-
+# @profile
 def greedy_choice_by_cost(g, edges,
                           edge_cost_key,
                           node_reward_key):
     return min(edges,
                key=lambda e: g[e[0]][e[1]][edge_cost_key])
 
+# @profile
+def greedy_choice_by_cost_numpy(g, edges,
+                                edge_cost_key,
+                                node_reward_key):
+    costs = np.asarray([s][t][edge_cost_key] for s, t in edges)
+    return edges[np.argmin(costs)]
 
+
+# @profile
 def greedy_choice_by_discounted_reward(
         g, edges,
         edge_cost_key, node_reward_key):
@@ -43,6 +52,7 @@ def random_choice(g, edges, edge_cost_key, node_reward_key):
     return random.choice(edges)
 
 
+# @profile
 def grow_tree_general(g, r, U, choose_edge,
                       edge_cost_key='c',
                       node_reward_key='r'):
@@ -74,6 +84,8 @@ def grow_tree_general(g, r, U, choose_edge,
 
 greedy_grow = lambda g, r, U: grow_tree_general(g, r, U,
                                                 greedy_choice_by_cost)
+greedy_grow_numpy = lambda g, r, U: grow_tree_general(g, r, U,
+                                                      greedy_choice_by_cost_numpy)
 random_grow = lambda g, r, U: grow_tree_general(g, r, U,
                                                 random_choice)
 

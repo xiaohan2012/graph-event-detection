@@ -17,7 +17,8 @@ from meta_graph_stat import MetaGraphStat
 from experiment_util import experiment_signature,\
     get_number_and_percentage
 from util import load_json_by_line
-from baselines import random_grow, greedy_grow_by_discounted_reward
+from baselines import random_grow, greedy_grow_by_discounted_reward, \
+    greedy_grow, greedy_grow_numpy
 from budget_problem import binary_search_using_charikar
 from sampler import RandomSampler, UBSampler, AdaptiveSampler, \
     DeterministicSampler
@@ -421,7 +422,7 @@ if __name__ == '__main__':
 
     methods = {'lst': lst,
                'variance': variance_method,
-               'greedy': greedy_grow_by_discounted_reward,
+               'greedy': greedy_grow_numpy,
                'quota': quota_based_method,
                'random': random_grow
     }
