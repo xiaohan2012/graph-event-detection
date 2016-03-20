@@ -45,7 +45,6 @@ should contain fields:
 For the last two fields, it can be replaced by `participant_ids`
 
 
+# 
 
-
-
-
+`gen_cand_trees.sh` and `check_events.sh`

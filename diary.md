@@ -1307,3 +1307,47 @@ Day 4:
 - Repeat experiment for single trees
   - saved the resulting path(input, output, etc) in one file(centralization)
   - in charikar algorithm: dag may be produced
+
+
+Day 5:
+
+- finalize the synthetic data experiment
+  - the bump the in single tree experiment
+    - random seed is the same across different rounds
+  - artificial data:
+    - noisy event cannot have the topic of the true event.
+	- however, when there are multiple true events, this will be too restrictive.
+  - more metrics to the sampling stuff
+  - single tree experiment
+	- use all methods
+	- inspect result
+
+- review the process for processing real data
+  - lda started for enron
+- beefban dumped to mongo
+
+Day 6:
+
+- sampler get rooted_tree lazily
+  - however, it's still slow, we can
+    - remove leave nodes from the candidate root pool
+	- use dynamic programming to get the rooted tree for all nodes
+- greedy algorithm needs to be optimized
+- TODO: adaptive sampler using the other scoring function(the log one)
+
+
+Day 7:
+
+Beefban data:
+
+- "event" is short
+  - happens on just one day
+- a lot of information duplication, like retweet
+  - should we cope with it?
+- maharashtra is a hot topic
+- several events can be merged into one
+- broadcast and relay is dominant(no reply)
+
+Enron data:
+
+- 
