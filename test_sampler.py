@@ -65,10 +65,10 @@ class UpperboundTest(unittest.TestCase):
 
     def test_ub_sampler(self):
         s = UBSampler(self.g, B=3, timespan_secs=3)
-        assert_equal(range(4),
+        assert_equal(range(3),
                      s.nodes_sorted_by_upperbound)
 
-        for i in xrange(4):
+        for i in xrange(3):
             node, dag = s.take()
             assert_equal(i, node)
             assert_true(isinstance(dag, nx.DiGraph))
@@ -115,8 +115,7 @@ class AdaptiveSamplerTest(unittest.TestCase):
 
     def test_sampler_init(self):
         assert_equal(
-            {0: 4, 1: 3, 2: 3, 6: 2, 8: 1,
-             7: 1, 3: 1, 4: 1, 5: 1},
+            {0: 4, 1: 3, 2: 3, 6: 2},
             self.s.root2upperbound
         )
         assert_equal(

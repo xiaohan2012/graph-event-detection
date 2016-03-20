@@ -92,8 +92,10 @@ class RootedTreeSampler(object):
 class UBSampler(RootedTreeSampler):
     def __init__(self, g, B, timespan_secs):
         super(UBSampler, self).__init__(g, timespan_secs)
+        non_leaf_roots = (n for n in g.nodes_iter() if g.out_degree(n) > 0)
+
         self.nodes_sorted_by_upperbound = sorted(
-            g.nodes_iter(),
+            non_leaf_roots,
             key=lambda r: quota_upperbound(
                 IU.get_rooted_subgraph_within_timespan(g, r, timespan_secs),
                 r, B),
@@ -130,11 +132,13 @@ class AdaptiveSampler(RootedTreeSampler):
     def __init__(self, g, B, timespan_secs, node_score_func=tree_density):
         super(AdaptiveSampler, self).__init__(g, timespan_secs)
 
+        non_leaf_roots = (n for n in g.nodes_iter() if g.out_degree(n) > 0)
+
         self.node_score_func = node_score_func
         self.root2upperbound = {r: quota_upperbound(
             IU.get_rooted_subgraph_within_timespan(g, r, timespan_secs),
             r, B)
-                                for r in g.nodes_iter()
+                                for r in non_leaf_roots
         }
 
         # updated at each iteration
