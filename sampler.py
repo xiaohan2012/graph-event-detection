@@ -127,19 +127,33 @@ class DeterministicSampler(RootedTreeSampler):
         r = self.roots.pop(0)
         return self.root_and_dag(r)
 
-
+# @profile
 class AdaptiveSampler(RootedTreeSampler):
     def __init__(self, g, B, timespan_secs, node_score_func=tree_density):
         super(AdaptiveSampler, self).__init__(g, timespan_secs)
 
-        non_leaf_roots = (n for n in g.nodes_iter() if g.out_degree(n) > 0)
+        non_leaf_roots = [n for n in g.nodes_iter() if g.out_degree(n) > 0]
 
+        upperbounds = map(lambda r: quota_upperbound(
+                IU.get_rooted_subgraph_within_timespan(g, r, timespan_secs),
+                r, B),
+                          non_leaf_roots)
+        inds = np.argsort(np.asarray(upperbounds))[::-1]  # descending order
+        self.roots_sorted_by_upperbound = [non_leaf_roots[i] for i in inds]
+        
+        # self.roots_sorted_by_upperbound = sorted(
+        #     non_leaf_roots,
+        #     key=lambda r: quota_upperbound(
+        #         IU.get_rooted_subgraph_within_timespan(g, r, timespan_secs),
+        #         r, B),
+        #     reverse=True
+        # )
         self.node_score_func = node_score_func
-        self.root2upperbound = {r: quota_upperbound(
-            IU.get_rooted_subgraph_within_timespan(g, r, timespan_secs),
-            r, B)
-                                for r in non_leaf_roots
-        }
+        # self.root2upperbound = {r: quota_upperbound(
+        #     IU.get_rooted_subgraph_within_timespan(g, r, timespan_secs),
+        #     r, B)
+        #                         for r in non_leaf_roots
+        # }
 
         # updated at each iteration
         # nodes that are partially/fully computed
@@ -147,9 +161,9 @@ class AdaptiveSampler(RootedTreeSampler):
         self.covered_nodes = set()
 
         # exclude leaves
-        self.roots_to_explore = set([n for n in g.nodes_iter()
-                                     if g.out_degree(n) > 0])
-        self.n_nodes_to_cover = len(self.roots_to_explore)
+        # self.roots_to_explore = sorted((n for n in g.nodes_iter()
+        #                                if g.out_degree(n) > 0))
+        self.n_nodes_to_cover = len(self.roots_sorted_by_upperbound)
 
         self.node2score = {}
 
@@ -157,8 +171,8 @@ class AdaptiveSampler(RootedTreeSampler):
         # handle empty tree
         if tree is None:
             self.covered_nodes.add(root)
-            if root in self.roots_to_explore:
-                self.roots_to_explore.remove(root)
+            # if root in self.roots_to_explore:
+            #     self.roots_to_explore.remove(root)
             return
 
         if root in self.node2score:
@@ -178,16 +192,16 @@ class AdaptiveSampler(RootedTreeSampler):
         nodes_covered_by_tree = set([n for n in tree.nodes_iter()
                                      if tree.out_degree(n) > 0
                                  ])
-        # update roots_to_explore
-        newly_covered_nodes = nodes_covered_by_tree - self.covered_nodes
-        self.roots_to_explore -= set(newly_covered_nodes)
+        # # update roots_to_explore
+        # newly_covered_nodes = nodes_covered_by_tree - self.covered_nodes
+        # self.roots_to_explore -= set(newly_covered_nodes)
 
         # update covered_nodes
-        self.covered_nodes |= newly_covered_nodes
+        self.covered_nodes |= nodes_covered_by_tree
 
     @property
     def explore_proba(self):
-        return float(len(self.roots_to_explore)) / self.n_nodes_to_cover
+        return 1 - float(len(self.covered_nodes)) / self.n_nodes_to_cover
 
     def random_action(self):
         rnd = random.random()
@@ -197,15 +211,19 @@ class AdaptiveSampler(RootedTreeSampler):
             return 'exploit'
 
     def take(self):
-        if self.random_action() == 'explore' and len(self.roots_to_explore) > 0:
+        if self.random_action() == 'explore':
+            # and len(self.roots_to_explore) > 0:
             # explore
             # sample by upper bound
-            r = max(self.roots_to_explore,
-                    key=lambda r: self.root2upperbound)
-            return self.root_and_dag(r)
+            while True:
+                r = self.roots_sorted_by_upperbound.pop(0)
+                if r not in self.covered_nodes:
+                    break
+            # r = max(self.roots_to_explore,
+            #         key=lambda r: self.root2upperbound)
         else:
             # exploit
             # take the node with the highest score
             r = max(self.node2score,
                     key=lambda n: self.node2score[n])
-            return self.root_and_dag(r)
+        return self.root_and_dag(r)

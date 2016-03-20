@@ -77,7 +77,7 @@ if [ "$1" == "gen" ]; then
 				--weight_for_topics 1.0 \
 				--not_convert_time \
 				--time_diff_unit sec \
-				--cand_n 200  \
+				--cand_n 400  \
 				--seconds ${timespan} \
 				--root_sampling ${method}
 		done

@@ -223,6 +223,7 @@ def run(gen_tree_func,
     trees = []
     dags = []
     for i in xrange(cand_tree_number):
+        logger.info("sampling root...")
         root, dag = root_sampler.take()
         dags.append(dag)
 
@@ -232,7 +233,8 @@ def run(gen_tree_func,
                          print_summary,
                          should_binarize_dag=should_binarize_dag)
         trees.append(tree)
-        
+
+        logger.info("updating sampler states...")
         root_sampler.update(root, tree)
 
     def make_detailed_path(prefix, suffix):

@@ -115,13 +115,15 @@ class AdaptiveSamplerTest(unittest.TestCase):
 
     def test_sampler_init(self):
         assert_equal(
-            {0: 4, 1: 3, 2: 3, 6: 2},
-            self.s.root2upperbound
+            # {0: 4, 1: 3, 2: 3, 6: 2},
+            [0, 2, 1, 6],
+            self.s.roots_sorted_by_upperbound
         )
         assert_equal(
-            set([0, 1, 2, 6]),
-            self.s.roots_to_explore
-        )
+            1.0,
+            self.s.explore_proba
+            )
+
         assert_equal(4, self.s.n_nodes_to_cover)
 
     def test_update(self):
@@ -133,9 +135,10 @@ class AdaptiveSamplerTest(unittest.TestCase):
 
         self.s.update(0, result_tree)
         assert_equal(
-            set([2, 6]),
-            self.s.roots_to_explore
+            0.5,
+            self.s.explore_proba
         )
+
         assert_equal(
             set([0, 1]),
             self.s.covered_nodes
@@ -161,9 +164,6 @@ class AdaptiveSamplerTest(unittest.TestCase):
             set([0, 1, 2, 6]),
             self.s.covered_nodes
         )
-        assert_equal(
-            set([]),
-            self.s.roots_to_explore)
 
         assert_equal(0,
                      self.s.explore_proba)
@@ -189,6 +189,13 @@ class AdaptiveSamplerTest(unittest.TestCase):
             sorted([(0, 1), (0, 6), (0, 8)]),
             sorted(tree.edges())
         )
+        
+        # on and on
+        r, tree = self.s.take()
+        assert_equal(2, r)
+
+        r, tree = self.s.take()
+        assert_equal(1, r)
 
     def test_take_via_exploit(self):
         # round 1
