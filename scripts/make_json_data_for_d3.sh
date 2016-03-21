@@ -15,14 +15,14 @@ if [ -z $1 ]; then
 	exit -1
 fi
 
-if [ -z $2 ]; then
-	echo "events pickle dir is not given"
-	exit -1
-fi
+# if [ -z $2 ]; then
+# 	echo "events pickle dir is not given"
+# 	exit -1
+# fi
 
 dataset=$1
-pickle_dir=$2
-extra=$3
+pickle_dir=tmp/${dataset}
+extra=$2
 
 output_dir="/cs/home/hxiao/public_html/event_html/data/${dataset}"
 metadata_dir="/cs/home/hxiao/public_html/event_html/data/${dataset}"
@@ -33,22 +33,6 @@ fi
 
 for p in $(ls ${pickle_dir}/result-*.pkl); do
 	echo "${p}"
-	# contexted events
-	# echo 'dumping contexted event to original graph'
-	# python dump_contexted_events_to_json.py \
-	# 	--interactions_path "data/${dataset}/interactions.json" \
-	# 	--candidate_tree_path ${p} \
-	# 	--dirname "${output_dir}/contexted_event/original_graph" \
-	# 	--to_original_graph \
-	# 	${extra}
-
-	# echo 'dumping contexted event to meta graph'
-	# python dump_contexted_events_to_json.py \
-	# 	--interactions_path "data/${dataset}/interactions.json" \
-	# 	--candidate_tree_path ${p} \
-	# 	--dirname "${output_dir}/contexted_event/meta_graph" \
-	# 	${extra}
-
 	# just events
 	echo 'dumping event to original graph'
 	python dump_events_to_json.py \
@@ -57,7 +41,7 @@ for p in $(ls ${pickle_dir}/result-*.pkl); do
 		--interactions_path "data/${dataset}/interactions.json" \
 		--people_path "data/${dataset}/people.json" \
 		--to_original_graph \
-		--k 30 \
+		-k 20 \
 		${extra}
 
 	echo 'dumping event to meta graph'
@@ -66,7 +50,7 @@ for p in $(ls ${pickle_dir}/result-*.pkl); do
 		--dirname "${output_dir}/event/meta_graph" \
 		--interactions_path "data/${dataset}/interactions.json" \
 		--people_path "data/${dataset}/people.json" \
-		--k 30 \
+		-k 20 \
 		${extra}
 done
 
@@ -81,3 +65,5 @@ echo "dumping event names..."
 python dump_all_event_json_names.py \
 	${output_dir}/event/meta_graph \
 	${output_dir}/event_names.json
+
+chmod -R a+rx ${output_dir}

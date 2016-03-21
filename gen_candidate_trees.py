@@ -342,6 +342,10 @@ if __name__ == '__main__':
                         type=int,
                         default=0,
                         help="Time span in terms of days")
+    parser.add_argument('--hours',
+                        type=int,
+                        default=0,
+                        help="Time span in terms of hours")
     parser.add_argument('--seconds',
                         type=int,
                         default=0,
@@ -457,6 +461,9 @@ if __name__ == '__main__':
         if args.seconds:
             logger.info('using `seconds` as timespan unit')
             timespan = args.seconds
+        elif args.hours:
+            logger.info('using `hours` as timespan unit')
+            timespan = timedelta(hours=args.hours)
         elif args.days:
             logger.info('using `days` as timespan unit')
             timespan = timedelta(days=args.days)

@@ -5,7 +5,7 @@ from collections import Counter
 
 
 def format_time(dt):
-    return datetime.strftime(dt, '%Y-%m-%d')
+    return datetime.strftime(dt, '%Y-%m-%d %H:00:00')
 
 
 def run(cand_trees, k, summary_kws, undirected):

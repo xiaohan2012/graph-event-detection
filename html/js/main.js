@@ -86,7 +86,7 @@ $(document).ready(function(){
 				}
 			},
 			'meta_graph': {
-				svg: {width: 5000, height: 5000},
+				svg: {width: 1000, height: 1000},
 				force: {charge: -500, linkDistance: 50},
 				tip: {
 					html: function(d){
