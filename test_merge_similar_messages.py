@@ -52,5 +52,9 @@ class MergeMessagesTest(unittest.TestCase):
             string_similar_threshold=50,
             time_field='datetime'
         )
-        
+        assert_equal(
+            592820666782580736,
+            df.iloc[0]['message_id']
+            )
+        # raise
         assert_equal(1, len(df))
