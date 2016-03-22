@@ -114,9 +114,10 @@ def run(gen_tree_func,
             'preprune_secs': timedelta(weeks=4),
             'distance_weights': {'topics': 0.2,
                                  'bow': 0.8},
-            'consider_recency': False,
-            'tau': 0.8,
-            'alpha': 0.5,
+            'self_talking_penalty': 0,
+            # 'consider_recency': False,
+            # 'tau': 0.8,
+            # 'alpha': 0.5,
             'timestamp_converter': lambda s: s
         },
         gen_tree_kws={
@@ -152,10 +153,6 @@ def run(gen_tree_func,
     else:
         lda_model = None
         dictionary = None
-
-    # if not meta_graph_kws['consider_recency']:
-    #     del meta_graph_kws['tau']
-    #     del meta_graph_kws['alpha']
 
     meta_graph_pkl_path = "{}--{}{}.pkl".format(
         meta_graph_pkl_path_prefix,
@@ -342,6 +339,10 @@ if __name__ == '__main__':
                         type=int,
                         default=0,
                         help="Time span in terms of days")
+    parser.add_argument('--hours',
+                        type=int,
+                        default=0,
+                        help="Time span in terms of hours")
     parser.add_argument('--seconds',
                         type=int,
                         default=0,
@@ -399,6 +400,12 @@ if __name__ == '__main__':
                         default=2,
                         help="the `level` parameter in charikar's algorithm"
     )
+    parser.add_argument('--self_talking_penalty',
+                        type=int,
+                        default=0,
+                        help="penalty to add to self-talking edges"
+    )
+
     parser.add_argument('--random_seed',
                         type=int,
                         default=None)
@@ -457,6 +464,9 @@ if __name__ == '__main__':
         if args.seconds:
             logger.info('using `seconds` as timespan unit')
             timespan = args.seconds
+        elif args.hours:
+            logger.info('using `hours` as timespan unit')
+            timespan = timedelta(hours=args.hours)
         elif args.days:
             logger.info('using `days` as timespan unit')
             timespan = timedelta(days=args.days)
@@ -493,9 +503,7 @@ if __name__ == '__main__':
                     'dist_func': dist_func,
                     'preprune_secs': timespan,
                     'distance_weights': distance_weights,
-                    'consider_recency': args.recency,
-                    'tau': args.tau,
-                    'alpha': args.alpha,
+                    'self_talking_penalty': args.self_talking_penalty,
                     'timestamp_converter': timestamp_converter
                 },
                 gen_tree_kws={

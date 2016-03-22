@@ -54,9 +54,10 @@ class GenCandidateTreeTest(unittest.TestCase):
                 'dist_func': cosine,
                 'preprune_secs': timedelta(days=28),
                 'distance_weights': {'topics': 1.0},
-                'consider_recency': False,
-                'alpha': 0.2,
-                'tau': 0.8
+                # 'consider_recency': False,
+                # 'alpha': 0.2,
+                # 'tau': 0.8,
+                'self_talking_penalty': 0.001
             },
             'gen_tree_kws': {
                 'timespan': timedelta(days=28),

@@ -406,7 +406,16 @@ class InteractionsUtil(object):
             lambda n:
             (g.node[n]['timestamp'] - g.node[r]['timestamp'] <= secs)
         )
-        
+
+    @classmethod
+    def add_penalty_to_self_talking_edges(cls, g, penalty):
+        for s, t in g.edges_iter():
+            if g.node[s]['sender_id'] == g.node[t]['sender_id']:
+                # print('before:', g[s][t][cls.EDGE_COST_KEY])
+                g[s][t][cls.EDGE_COST_KEY] += penalty
+                # print('after:', g[s][t][cls.EDGE_COST_KEY])
+        return g
+
     @classmethod
     def assign_edge_weights(cls, g,
                             dist_func,
@@ -492,7 +501,8 @@ class InteractionsUtil(object):
                              convert_time=True,
                              consider_recency=False,
                              alpha=1.0, tau=0.8,
-                             timestamp_converter=lambda s: s):
+                             timestamp_converter=lambda s: s,
+                             self_talking_penalty=0):
         logger.debug('getting meta graph...')
         mg = cls.get_meta_graph(interactions,
                                 undirected=undirected,
@@ -535,6 +545,10 @@ class InteractionsUtil(object):
                                     dist_func,
                                     distance_weights
                                 )
+        if self_talking_penalty:
+            logger.debug('adding self-talking penalty')
+            g = cls.add_penalty_to_self_talking_edges(g, self_talking_penalty)
+
         if consider_recency:
             g = cls.add_recency(g,
                                 alpha=alpha,

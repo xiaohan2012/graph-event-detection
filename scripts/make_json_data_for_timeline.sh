@@ -3,14 +3,9 @@ if [ -z $1 ]; then
 	exit -1
 fi
 
-if [ -z $2 ]; then
-	echo "events pickle dir is not given"
-	exit -1
-fi
-
 dataset=$1
-pickle_dir=$2
-extra=$3
+pickle_dir="tmp/${dataset}"
+extra=$2
 
 output_dir="/cs/home/hxiao/public_html/event_html/data/${dataset}"
 
@@ -30,7 +25,7 @@ for p in $(ls ${pickle_dir}/result-*.pkl); do
 		--corpus_dict_path  data/${dataset}/dict.pkl \
 		--lda_model_path $(ls data/${dataset}/model-*.lda) \
 		--output_path "${output_dir}/timeline/${output_name}" \
-		-k 30 \
+		-k 10 \
 		${extra}
 	echo "Writing to '${output_dir}/timeline/${output_name}'"
 done
@@ -41,4 +36,3 @@ python dump_all_event_json_names.py \
 	${output_dir}/timeline_names.json
 
 chmod -R a+rx /cs/home/hxiao/public_html/event_html/data
-

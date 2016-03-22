@@ -1348,6 +1348,80 @@ Beefban data:
 - several events can be merged into one
 - broadcast and relay is dominant(no reply)
 
+Tried with U=15.0 and timespan=7days, some discovery:
+
+- March, 3rd is an important day, the law passed and on March 4, there are a lot of reactions on twitter
+- 1st event is about supporting, 3rd event is about opposing. That's controversy.
+
 Enron data:
 
-- 
+- still some machine generated messages: removed by hand
+
+
+Ukraine data:
+
+- many junks: one person tweeting all the time
+
+
+How to deal with repeated messages?
+
+- modify the set cover problem?
+  - given different weight to different event?
+
+## Week 18
+
+Time frequency for the twitter data:
+
+- for each hashtag, all tweets span only several days, which suggest we might use hours as the timespan unit
+- `timeline.html` should zoom into hours
+
+Enron experiment after removing another machine generated junk
+
+- still many junks, the "report", "performance feedback"
+- how to get ride of those?
+  - remove them before hand?
+  - not selecting them when ranking the events?
+- I remembered there are category information about each mail, maybe we can use that to filter.
+
+
+Things to improve(for Baltimore dataset)
+
+- multiple events about the same topic(also applies to Enron)
+  - try to diversify topics? also set cover problem, where set is the topics/hashtags
+    - will be problematic in case there are indeed multiple events about the same topic(do we care about it?)
+- same guy repeating the same thing many times, this prevents us from seeing what others are talking about
+  - maybe we should assign weight to each interaction(like the like/retweet count)
+  - remove such cases before the set cover algorithm
+
+One problem on similarity: repeating the same message is encouraged
+
+
+Observations:
+
+Baltimore:
+
+- anger towards the death of the young man
+- anger about the riot and disorder
+- questioning government
+
+beefban:
+
+- support
+- mock and questioning
+
+
+
+What to talk:
+
+- different method comparison
+- sampling method
+- some observations about the data set
+- multiple people talk about the same thing
+  - is it valuable?
+  - if no, how to remove it?
+    - rule based
+	- adding like count to node reward to implicitly remove those garbage
+  - if we want to avoid that same people talk about same thing, we might incorporate some noise of that kind into the synthetic data
+- how to summarize the event better?
+  - using some summarization tool?
+  - or improve the topic model
