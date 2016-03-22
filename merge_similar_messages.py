@@ -18,6 +18,7 @@ def merge_messages(df, max_time_diff,
     sender_count = len(df['sender_id'].unique())
     cnt = 0
     msg_processed = 0
+    merged_msgs = []
     for sender_id, sub_df in df.groupby(['sender_id']):
         msg_processed += len(sub_df)
         if len(sub_df) > 1:
@@ -27,14 +28,14 @@ def merge_messages(df, max_time_diff,
                 string_similar_threshold,
                 time_field
                 )
-            ret_df = ret_df.append(new_df)
+            merged_msgs.append(new_df)
             print('{} -> {}'.format(len(sub_df), len(new_df)))
         else:
-            ret_df = ret_df.append(sub_df)
+            merged_msgs.append(sub_df)
         cnt += 1
 
         print('{} / {}'.format(msg_processed, len(df)))
-    return ret_df
+    return pd.concat(merged_msgs)
 
 
 def merge_messages_by_single_user(df,
@@ -52,7 +53,7 @@ def merge_messages_by_single_user(df,
     
     while len(msg_ids) > 0:
         msg_id = msg_ids.pop(0)
-        print(msg_id)
+        # print(msg_id)
         msg = df[df['message_id'] == msg_id].iloc[0]
         msg_text = get_text(msg)
 
@@ -75,6 +76,7 @@ def merge_messages_by_single_user(df,
 
             similar_msgs_ids = set(similar_msgs['message_id'].tolist())
             msg_ids = [m for m in msg_ids if m not in similar_msgs_ids]
+        # print(msg['message_id'])
         merged_msgs.append(msg)
     
     return pd.DataFrame(merged_msgs)
