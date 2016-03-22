@@ -608,7 +608,6 @@ class InteractionsUtilTestUndirected(unittest.TestCase):
         assert_equal(827, g.number_of_nodes())
         assert_equal(3874, g.number_of_edges())
 
-
 class InteractionsUtilTestGivenTopics(unittest.TestCase):
     """when topics are given
     """
