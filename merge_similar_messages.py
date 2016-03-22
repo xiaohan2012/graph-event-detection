@@ -43,26 +43,17 @@ def merge_messages_by_single_user(df,
             similar_msgs = sub_df[
                 sub_df.apply(
                     lambda r: fuzz.ratio(
-                        r.subject,
-                        msg.subject),
+                        get_text(r),
+                        msg_text),
                     axis=1
                 ) > string_similar_threshold
             ]
-            if not similar_msgs.empty:
-                similar_msgs = similar_msgs[
-                    similar_msgs.apply(
-                        lambda r: fuzz.ratio(
-                            get_text(r),
-                            msg_text),
-                        axis=1
-                    ) > string_similar_threshold
-                ]
 
-                for _, m in similar_msgs.iterrows():
-                    msg['recipient_ids'] += m['recipient_ids']
+            for _, m in similar_msgs.iterrows():
+                msg['recipient_ids'] += m['recipient_ids']
 
-                similar_msgs_ids = set(similar_msgs['message_id'].tolist())
-                msg_ids = [m for m in msg_ids if m not in similar_msgs_ids]
+            similar_msgs_ids = set(similar_msgs['message_id'].tolist())
+            msg_ids = [m for m in msg_ids if m not in similar_msgs_ids]
 
         df_after_merging = df_after_merging.append(msg)
 

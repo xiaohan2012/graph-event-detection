@@ -16,6 +16,10 @@ class MergeMessagesTest(unittest.TestCase):
             make_path('test/data/repeated_messages_interactions_multiple_senders.json')
         )
 
+        self.df3 = pd.io.json.read_json(
+            make_path('test/data/repeated_messages_twitter_example.json')
+        )
+
     def _check_mid_year(self, new_df):
         mid_year_messages = new_df[new_df['subject'].map(
             lambda s: s.startswith('Mid-Year'))
@@ -41,5 +45,12 @@ class MergeMessagesTest(unittest.TestCase):
         self._check_mid_year(new_df)
         assert_true(len(new_df[new_df['message_id'] == 71808]) > 0)
 
+    def test_twitter_case(self):
+        df = merge_messages(
+            self.df3,
+            max_time_diff=td(days=1),
+            string_similar_threshold=50,
+            time_field='datetime'
+        )
         
-        
+        assert_equal(1, len(df))
