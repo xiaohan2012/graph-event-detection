@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from check_k_best_trees import k_best_trees
-
+from dag_util import get_roots
 
 def correct_roots_ratio(acc_trees, true_trees):
     pass
@@ -43,6 +43,17 @@ def f1(acc_trees, true_trees, k):
         return 0
     else:
         return 2 * prec * rec / (prec + rec)
+
+
+def roots(acc_trees, true_trees, k):
+    roots = set()
+    for t in acc_trees:
+        rs = get_roots(t)
+        if rs:
+            roots.add(rs[0])
+    
+    true_roots = set([get_roots(t)[0] for t in true_trees])
+    return len(roots & true_roots) / float(len(true_roots))
 
 
 def evaluate(pred_trees, true_trees, metric, *args, **kwargs):
@@ -82,7 +93,8 @@ def main():
         'k_setcover_obj': k_max_setcover,
         'precision': precision,
         'recall': recall,
-        'f1': f1
+        'f1': f1,
+        'roots': roots
     }
 
     data = {}

@@ -146,6 +146,8 @@ class AdaptiveSampler(RootedTreeSampler):
         print("AdaptiveSampler: sorting the roots by upperbound... ")
         inds = np.argsort(np.asarray(upperbounds))[::-1]  # descending order
         self.roots_sorted_by_upperbound = [non_leaf_roots[i] for i in inds]
+        self.root2upperbound = {r: u
+                                for r, u in zip(non_leaf_roots, upperbounds)}
         
         # self.roots_sorted_by_upperbound = sorted(
         #     non_leaf_roots,
@@ -207,17 +209,45 @@ class AdaptiveSampler(RootedTreeSampler):
 
     @property
     def explore_proba(self):
+        self.root2upperbound
         return 1 - float(len(self.covered_nodes)) / self.n_nodes_to_cover
 
     def random_action(self):
+        # rnd = random.random()
+        # if rnd <= self.explore_proba:
+        #     return 'explore'
+        # else:
+        #     return 'exploit'
         rnd = random.random()
-        if rnd <= self.explore_proba:
+        greedy_level = 1.0
+        for i in xrange(len(self.roots_sorted_by_upperbound)):
+            r = self.roots_sorted_by_upperbound[i]
+            if r not in self.covered_nodes:
+                break
+        best_ub = self.root2upperbound[r]
+        print('best_ub:', best_ub)
+        if self.node2score:
+            best_score = max(self.node2score.values())
+            print('best_score:', best_score)
+        else:
+            best_score = 0
+        if rnd < best_ub / (best_ub + greedy_level * best_score):
             return 'explore'
         else:
             return 'exploit'
 
     def take(self):
-        if self.random_action() == 'explore':
+        print("explore_proba: {}".format(self.explore_proba))
+        # for i in xrange(len(self.roots_sorted_by_upperbound)):
+        #     r = self.roots_sorted_by_upperbound[i]
+        #     if r not in self.covered_nodes:
+        #         break
+        # print('highest upperbound:', self.root2upperbound[r])
+        # if self.node2score:
+        #     print('max(node2score):', max(self.node2score.values()))
+        action = self.random_action()
+        print('action:', action)
+        if action == 'explore':
             # and len(self.roots_to_explore) > 0:
             # explore
             # sample by upper bound
@@ -232,4 +262,6 @@ class AdaptiveSampler(RootedTreeSampler):
             # take the node with the highest score
             r = max(self.node2score,
                     key=lambda n: self.node2score[n])
+
+        print('selected root: {}'.format(r))
         return self.root_and_dag(r)
