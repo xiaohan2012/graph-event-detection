@@ -2,12 +2,13 @@ import itertools
 import pandas as pd
 from langdetect import detect
 
+from merge_similar_messages import merge_messages
+from datetime import timedelta
 
 def remove_mentions_and_urls(df):
     def aux(r):
-        body = r['body']
+        body = r['body'].lower()
         mentions = map(lambda m: '@' + m, r['mentions'])
-
         for s in itertools.chain(mentions, r['urls']):
             body = body.replace(s.lower(), '')
         return body
@@ -29,10 +30,19 @@ def main():
     args = parser.parse_args()
     
     df = pd.read_json('data/{}/interactions.json'.format(args.dataset))
+
+    # df = df.iloc[:100]
+
     df = remove_mentions_and_urls(df)
     df = df[df['body'].map(len) > 10]  # filter short body
     df = df[df['body'].map(detect) == 'en']  # non english
-    df.to_json('data/{}/interactions.json'.format(args.dataset),
+
+    df = merge_messages(df,
+                        timedelta(days=1),
+                        50,
+                        'datetime')
+
+    df.to_json('data/{}/interactions_new.json'.format(args.dataset),
                orient='records')
 
 if __name__ == '__main__':
