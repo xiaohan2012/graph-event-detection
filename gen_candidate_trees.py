@@ -79,6 +79,7 @@ def calc_tree(node_i, r, dag, U,
     if should_binarize_dag:
         tree = unbinarize_dag(tree,
                               edge_weight_key=IU.EDGE_COST_KEY)
+
     if len(tree.edges()) == 0:
         logger.debug("empty event tree")
 
@@ -401,8 +402,8 @@ if __name__ == '__main__':
                         help="the `level` parameter in charikar's algorithm"
     )
     parser.add_argument('--self_talking_penalty',
-                        type=int,
-                        default=0,
+                        type=float,
+                        default=0.0,
                         help="penalty to add to self-talking edges"
     )
 
