@@ -59,8 +59,9 @@ function showMacro(json_url){
 			function(error, data) {
 				console.log(data);
 				var items = new vis.DataSet(
-					_.map(data['groups'], function(g){
-						g['content'] = g['terms'].join(' ');
+					_.map(data['groups'], function(g, i){
+						g['content'] = 'Event ' + (i+1);
+						g['content'] += g['terms'].join(' ');
 						console.log(g);
 						if(g['hashtags'] != undefined){
 							g['content'] += '</br>';
@@ -75,7 +76,7 @@ function showMacro(json_url){
 					})
 				);
 
-				_.each(data['groups'], function(g){
+				_.each(data['groups'], function(g, i){
 					g['content'] = '<h3>time</h3>' + g['start'] + ' - ' + g['end'] + '(' + g['days'] + ' days)';
 					g['content'] += '<h3>link type frequency</h3>' + dict2html(g['link_type_freq']);
 					g['content'] = '';

@@ -33,7 +33,13 @@ def run(candidate_tree_path,
             e.node[n]['sender'] = id2people[e.node[n]['sender_id']]
             e.node[n]['recipients'] = [id2people[id_]
                                        for id_ in e.node[n]['recipient_ids']]
+            # print(id2interaction[n])
             e.node[n]['subject'] = id2interaction[n]['subject']
+            e.node[n]['body'] = id2interaction[n]['body']
+
+            for f in ('retweet_count', 'favorite_count'):
+                e.node[n][f] = id2interaction[n].get(f)
+            
             e.node[n]['body'] = id2interaction[n]['body']
 
         # some simple clustering

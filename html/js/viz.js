@@ -99,6 +99,9 @@ function load_event_1(config){
 		}
 
 		force.on("tick", function() {
+			gnodes[0].x = config.svg.width / 2;
+			gnodes[0].y = config.svg.height / 2;
+
 			link.attr("x1", function(d) { return d.source.x; })
 				.attr("y1", function(d) { return d.source.y; })
 				.attr("x2", function(d) { return d.target.x; })

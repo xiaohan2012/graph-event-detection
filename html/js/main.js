@@ -86,7 +86,7 @@ $(document).ready(function(){
 				}
 			},
 			'meta_graph': {
-				svg: {width: 1000, height: 1000},
+				svg: {width: 1200, height: 750},
 				force: {charge: -500, linkDistance: 50},
 				tip: {
 					html: function(d){
@@ -97,14 +97,17 @@ $(document).ready(function(){
 						d['recipients_str'] = _.map(d['recipients'], function(r){
 							return r.name;
 						}).join(',  ');
-						return dict2html(d, ['subject', 'body', 'hashtags', 'sender_str', 'recipients_str', 'date', 'message_id', 'cluster_label']);
+						return dict2html(d, ['subject', 'body', 'hashtags', 'sender_str', 'recipients_str', 'date', 'message_id', 'cluster_label', 'retweet_count', 'favorite_count']);
 					}
 				},
 				node: {
 					fill: function(d){
 						return cluster_palette(d['cluster_label']);
 					},
-					r: 8,
+					r: function(d){
+						// console.log(d);
+						return 8;// d['retweet_count'] + 1;
+					},
 					label: dataset_setting.node_label
 				},
 				link: {

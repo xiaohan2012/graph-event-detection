@@ -103,7 +103,9 @@ def main():
     trees = pkl.load(open(args.cand_trees_path))
     
     # add hashtags if there
-    if 'hashtags' in trees[0].node[trees[0].nodes()[0]]:
+    print(len(trees))
+    first_node = trees[0].nodes()[0]
+    if 'hashtags' in trees[0].node[first_node]:
         print('add hashtags')
         summary_kws['hashtags'] = {}
 

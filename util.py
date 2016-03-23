@@ -4,6 +4,7 @@ import math
 import gensim
 import collections
 import functools
+import pandas as pd
 
 from datetime import datetime
 from collections import defaultdict
@@ -21,13 +22,15 @@ def load_json_by_line(path):
 
 
 def load_id2obj_dict(path, id_key):
-    try:
-        interactions = json.load(open(path))
-    except ValueError:
-        interactions = load_json_by_line(path)
-    d = defaultdict(lambda: {'id': 'unknown', 'name': 'unknown'})
-    for i in interactions:
-        d[i[id_key]] = i
+    df = pd.read_json(path)
+    # try:
+    #     interactions = json.load(open(path))
+    # except ValueError:
+    #     interactions = load_json_by_line(path)
+    d = defaultdict(lambda: {'id': 'unknown', 'name': 'unknown',
+                             'subject': '', 'body': ''})
+    for _, r in df.iterrows():
+        d[r[id_key]] = r.to_dict()
     return d
 
 
