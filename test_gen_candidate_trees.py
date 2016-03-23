@@ -180,6 +180,11 @@ class GenCandidateTreeTest(unittest.TestCase):
         for field in ['result', 'interactions', 'meta_graph', 'self']:
             assert_true(len(paths_info[field]) > 0)
         
+    def test_calculation_time_saved(self):
+        trees, _ = self.check('greedy', greedy_grow)
+        for t in trees:
+            assert_true(t.graph['calculation_time'] > 0)
+        
     def tearDown(self):
         remove_tmp_data('test/data/tmp/*')
 

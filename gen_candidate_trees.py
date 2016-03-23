@@ -7,7 +7,7 @@ import copy
 import logging
 
 from pprint import pprint
-from datetime import timedelta
+from datetime import timedelta, datetime
 from scipy.spatial.distance import euclidean, cosine
 
 from dag_util import unbinarize_dag, binarize_dag, remove_edges_via_dijkstra
@@ -224,12 +224,16 @@ def run(gen_tree_func,
         logger.info("sampling root...")
         root, dag = root_sampler.take()
         dags.append(dag)
-
+        
+        
+        start = datetime.now()
         tree = calc_tree(i, root, dag, U,
                          gen_tree_func,
                          gen_tree_kws,
                          print_summary,
                          should_binarize_dag=should_binarize_dag)
+        tree.graph['calculation_time'] = (datetime.now() - start).total_seconds()
+        
         trees.append(tree)
 
         logger.info("updating sampler states...")
