@@ -15,64 +15,18 @@ from experiment_util import get_number_and_percentage, \
     experiment_signature
 
 
-def random_topic(n_topics, topic_noise=0.0001):
-    main_topic = np.random.choice(np.arange(n_topics))
+def random_topic(n_topics, topic_noise=0.0001, taboo_topics=set()):
+    taboo_topics = set(taboo_topics)
+    while True:
+        main_topic = np.random.choice(np.arange(n_topics))
+        if main_topic not in taboo_topics:
+            break
+        
     dirich_alpha = np.zeros(n_topics)
     dirich_alpha[main_topic] = 1
     dirich_alpha += np.random.uniform(0, topic_noise, n_topics)
     dirich_alpha /= dirich_alpha.sum()
-    return np.random.dirichlet(dirich_alpha)
-
-
-def gen_event(event_size, participants,
-              start_time, end_time,
-              event_topic_param):
-    event = []
-    for j in xrange(event_size):
-        # how to ensure it's a tree?
-        # is a real event necessarily a tree?
-        interaction_topic = np.random.dirichlet(event_topic_param)
-        sender_id, recipient_id = np.random.permutation(participants)[:2]
-        sender_id, recipient_id = 'u-{}'.format(sender_id), \
-                                  'u-{}'.format(recipient_id)
-        timestamp = np.random.uniform(start_time, end_time)
-        event.append({
-            'message_id': j,  # will be changed later
-            'sender_id': sender_id,
-            'recipient_ids': [recipient_id],
-            'timestamp': timestamp,
-            'topics': interaction_topic
-        })
-    return event
-
-
-def gen_event_via_random_people_network(event_size, participants,
-                                        start_time, end_time,
-                                        event_topic_param):
-    """at each iteration, generate a message,
-    which is sent by some guy who already spoke
-    """
-    participants_so_far = set()
-    event = []
-    time_step = (end_time - start_time) / float(event_size)
-    for i in xrange(event_size):
-        if len(participants_so_far) == 0:
-            participants_so_far.add(random.choice(participants))
-        sender_id = random.choice(list(participants_so_far))
-        while True:
-            recipient_id = random.choice(participants)
-            if sender_id != recipient_id:
-                break
-
-        participants_so_far.add(recipient_id)
-        event.append({
-            'message_id': i,  # will be changed later
-            'sender_id': 'u-{}'.format(sender_id),
-            'recipient_ids': ['u-{}'.format(recipient_id)],
-            'timestamp': start_time + time_step * (i+1),
-            'topics': np.random.dirichlet(event_topic_param)
-        })
-    return event
+    return np.random.dirichlet(dirich_alpha), main_topic
 
 
 def gen_event_with_known_tree_structure(event_size, participants,
@@ -174,17 +128,26 @@ def random_events(n_events, event_size_mu, event_size_sigma,
                   alpha, tau,
                   forward_proba,
                   reply_proba,
-                  create_new_proba):
+                  create_new_proba,
+                  taboo_topics=set(),
+                  accumulate_taboo=False):
     # add main events
     events = []
+    taboo_topics = set(taboo_topics)
+    
     for i in xrange(n_events):
         # randomly select a topic and add some noise to it
         event = []
 
-        # event_topic_param = topic_scaling_factor * random_topic(n_topics,
-        #                                                         topic_noise)
-        event_topic_param = random_topic(n_topics,
-                                         topic_noise)
+        event_topic_param, topic_id = random_topic(
+            n_topics,
+            topic_noise,
+            taboo_topics
+        )
+
+        if accumulate_taboo:
+            taboo_topics.add(topic_id)
+
         print('event_topic_param:', event_topic_param)
         event_size = 0
         while event_size <= 0:
@@ -251,17 +214,19 @@ def random_events(n_events, event_size_mu, event_size_sigma,
             raise
         events.append(event)
 
-    return events
+    return events, taboo_topics
 
 
 def random_noisy_interactions(n_noisy_interactions,
                               min_time, max_time,
                               n_total_participants,
-                              n_topics, topic_noise):
+                              n_topics, topic_noise,
+                              taboo_topics=set()):
+    taboo_topics = set(taboo_topics)
     noisy_interactions = []
     # noisy events
     for i in xrange(n_noisy_interactions):
-        topic = random_topic(n_topics, topic_noise)
+        topic, _ = random_topic(n_topics, topic_noise, taboo_topics)
         sender_id, recipient_id = np.random.permutation(
             n_total_participants
         )[:2]
@@ -292,8 +257,16 @@ def get_gen_cand_tree_params(e):
 
 
 def make_artificial_data(
-        n_events, event_size_mu, event_size_sigma,
-        n_total_participants, participant_mu, participant_sigma,
+        # for main events
+        n_events,
+        event_size_mu, event_size_sigma,
+        participant_mu, participant_sigma,
+        # for minor events
+        n_minor_events,
+        minor_event_size_mu, minor_event_size_sigma,
+        minor_event_participant_mu, minor_event_participant_sigma,
+        # shared
+        n_total_participants,
         min_time, max_time, event_duration_mu, event_duration_sigma,
         n_topics, topic_scaling_factor, topic_noise,
         n_noisy_interactions, n_noisy_interactions_fraction,
@@ -301,11 +274,8 @@ def make_artificial_data(
         forward_proba,
         reply_proba,
         create_new_proba,
-        dist_func,
-        recency,
-        edge_cost_alpha,
-        edge_cost_tau):
-    events = random_events(
+        dist_func):
+    events, taboo_topics = random_events(
         n_events, event_size_mu, event_size_sigma,
         n_total_participants, participant_mu, participant_sigma,
         min_time, max_time, event_duration_mu, event_duration_sigma,
@@ -313,9 +283,24 @@ def make_artificial_data(
         alpha, tau,
         forward_proba,
         reply_proba,
-        create_new_proba
+        create_new_proba,
+        accumulate_taboo=True
     )
 
+    minor_events, _ = random_events(
+        n_minor_events, minor_event_size_mu, minor_event_size_sigma,
+        n_total_participants, minor_event_participant_mu,
+        minor_event_participant_sigma,
+        min_time, max_time, event_duration_mu, event_duration_sigma,
+        n_topics, topic_scaling_factor, topic_noise,
+        alpha, tau,
+        forward_proba,
+        reply_proba,
+        create_new_proba,
+        taboo_topics=taboo_topics,
+        accumulate_taboo=False
+    )
+    
     (n_noisy_interactions, _) = get_number_and_percentage(
         sum([1 for e in events for _ in e]),
         n_noisy_interactions, n_noisy_interactions_fraction
@@ -324,11 +309,16 @@ def make_artificial_data(
         n_noisy_interactions,
         min_time, max_time,
         n_total_participants,
-        n_topics, topic_noise
+        n_topics, topic_noise,
+        taboo_topics
     )
 
-    event_interactions = [e.node[n] for e in events for n in e.nodes_iter()]
-    all_interactions = event_interactions + noisy_interactions
+    event_interactions = [e.node[n] for e in events
+                          for n in e.nodes_iter()]
+    minor_event_interactions = [e.node[n] for e in minor_events
+                                for n in e.nodes_iter()]
+    all_interactions = (event_interactions + minor_event_interactions
+                        + noisy_interactions)
 
     # add interaction id
     for i, intr in enumerate(all_interactions):
@@ -343,8 +333,6 @@ def make_artificial_data(
 
     for e in events:
         e = IU.assign_edge_weights(e, dist_func)
-        if recency:
-            e = IU.add_recency(e, edge_cost_alpha, edge_cost_tau)
 
     gen_cand_trees_params = [get_gen_cand_tree_params(e)
                              for e in events]
@@ -360,11 +348,16 @@ def main():
     parser.add_argument('--n_events', type=int, default=10)
     parser.add_argument('--event_size_mu', type=int, default=40)
     parser.add_argument('--event_size_sigma', type=int, default=5)
-
-    parser.add_argument('--n_total_participants', type=int, default=50)
     parser.add_argument('--participant_mu', type=int, default=5)
     parser.add_argument('--participant_sigma', type=float, default=3)
 
+    parser.add_argument('--n_minor_events', type=int)
+    parser.add_argument('--minor_event_size_mu', type=int)
+    parser.add_argument('--minor_event_size_sigma', type=int)
+    parser.add_argument('--minor_event_participant_mu', type=int)
+    parser.add_argument('--minor_event_participant_sigma', type=float)
+
+    parser.add_argument('--n_total_participants', type=int, default=50)
     parser.add_argument('--min_time', type=int, default=10)
     parser.add_argument('--max_time', type=int, default=1100)
     parser.add_argument('--event_duration_mu', type=int, default=100)
@@ -389,13 +382,6 @@ def main():
                         type=float, default=0.5)
     parser.add_argument('--create_new_proba',
                         type=float, default=0.2)
-
-    parser.add_argument('--recency',
-                        action='store_true')
-    parser.add_argument('--edge_cost_alpha',
-                        type=float, default=1.0)
-    parser.add_argument('--edge_cost_tau',
-                        type=float, default=0.8)
 
     parser.add_argument('--result_suffix',
                         default='')

@@ -12,7 +12,6 @@ from dag_util import get_roots
 from interactions import InteractionsUtil as IU
 from artificial_data import random_topic, random_events, \
     random_noisy_interactions, make_artificial_data, \
-    gen_event_via_random_people_network, \
     gen_event_with_known_tree_structure, \
     get_gen_cand_tree_params
 
@@ -22,12 +21,20 @@ class ArtificialDataTest(unittest.TestCase):
         np.random.seed(123456)
         random.seed(123456)
         self.params = {
+            # main events
             'n_events': 5,
             'event_size_mu': 500,
             'event_size_sigma': 0.00001,
-            'n_total_participants': 20,
             'participant_mu': 5,
             'participant_sigma': 1,
+            ## minor events
+            'n_minor_events': 0,
+            'minor_event_size_mu': 50,
+            'minor_event_size_sigma': 0.0001,
+            'minor_event_participant_mu': 5,
+            'minor_event_participant_sigma': 1,
+            ## shared
+            'n_total_participants': 20,
             'min_time': 10,
             'max_time': 600,
             'event_duration_mu': 510,
@@ -42,10 +49,7 @@ class ArtificialDataTest(unittest.TestCase):
             'forward_proba': 0.3,
             'reply_proba': 0.5,
             'create_new_proba': 0.2,
-            'dist_func': cosine,
-            'recency': False,
-            'edge_cost_alpha': 0.0,
-            'edge_cost_tau': 0.0,
+            'dist_func': cosine
         }
 
     def seems_like_uniform_distribution(self, array):
@@ -57,21 +61,34 @@ class ArtificialDataTest(unittest.TestCase):
         assert_true((max_1st / max_2nd) > 10000)
 
     def test_random_topic(self):
-        topic = random_topic(10, 0.00001)
+        topic, _ = random_topic(10, 0.00001)
         np.testing.assert_almost_equal(1, topic.sum())
         self.seems_like_skewed_distribution(topic)
 
+    def test_random_topic_with_taboo(self):
+        topic, main_topic = random_topic(10, 0.00001, taboo_topics=range(9))
+        np.testing.assert_almost_equal(1, topic.sum())
+        self.seems_like_skewed_distribution(topic)
+        assert_equal(9, topic.argmax())
+        assert_equal(9, main_topic)
+
     def test_uniform_topic(self):
-        topic = random_topic(10, 1)
+        topic, _ = random_topic(10, 1)
         self.seems_like_uniform_distribution(topic)
 
-    def test_random_events(self):
+    def adjust_params(self):
         for f in ('n_noisy_interactions', 'n_noisy_interactions_fraction',
-                  'dist_func', 'recency', 'edge_cost_alpha',
-                  'edge_cost_tau'):
+                  'dist_func',
+                  'n_minor_events', 'minor_event_size_mu',
+                  'minor_event_size_sigma',
+                  'minor_event_participant_mu',
+                  'minor_event_participant_sigma'):
             del self.params[f]
 
-        events = random_events(**self.params)
+    def test_random_events(self):
+        self.adjust_params()
+
+        events, _ = random_events(**self.params)
         assert_equal(self.params['n_events'], len(events))
 
         sizes = np.array([e.number_of_nodes() for e in events])
@@ -110,6 +127,31 @@ class ArtificialDataTest(unittest.TestCase):
             topic_2nd, topic_1st = np.sort(topic_mean)[-2:]
             assert_true((topic_1st / topic_2nd) > 10000)
 
+    def test_random_events_with_taboo(self):
+        self.adjust_params()
+        events, taboos = random_events(taboo_topics=range(9),
+                                       accumulate_taboo=False,
+                                       **self.params)
+        for e in events:
+            for i in e.nodes_iter():
+                assert_equal(9, e.node[i]['topics'].argmax())
+
+        assert_equal(set(range(9)), taboos)
+
+    def test_random_events_with_taboo_and_accumulation(self):
+        self.adjust_params()
+        events, taboos = random_events(
+            taboo_topics=range(5),
+            accumulate_taboo=True,
+            **self.params
+        )
+        new_topics = set([e.node[n]['topics'].argmax()
+                          for e in events
+                          for n in e.nodes_iter()])
+        
+        assert_equal(set(range(5, 10)), set(new_topics))
+        assert_equal(set(range(10)), taboos)
+
     def test_random_noisy_interactions(self):
         intrs = random_noisy_interactions(
             self.params['n_noisy_interactions'],
@@ -117,7 +159,7 @@ class ArtificialDataTest(unittest.TestCase):
             self.params['max_time'],
             self.params['n_total_participants'],
             self.params['n_topics'],
-            self.params['topic_noise']
+            self.params['topic_noise'],
         )
         assert_equal(self.params['n_noisy_interactions'],
                      len(intrs))
@@ -137,6 +179,19 @@ class ArtificialDataTest(unittest.TestCase):
         freq = np.array(freq.values(),
                         dtype=np.float64)
         self.seems_like_uniform_distribution(freq / freq.sum())
+
+    def test_random_noisy_interactions_with_taboo(self):
+        intrs = random_noisy_interactions(
+            self.params['n_noisy_interactions'],
+            self.params['min_time'],
+            self.params['max_time'],
+            self.params['n_total_participants'],
+            self.params['n_topics'],
+            self.params['topic_noise'],
+            taboo_topics=range(9)
+        )
+        for i in intrs:
+            assert_equal(9, i['topics'].argmax())
 
     def test_make_artificial_data(self):
         events, all_interactions, params = make_artificial_data(**self.params)
@@ -202,32 +257,31 @@ class ArtificialDataTest(unittest.TestCase):
             total - n_event_interactions
         )
 
-
-def test_gen_event_via_random_people_network():
-    event_topic_param = random_topic(10, topic_noise=0.0001)
-    participants_n = 10
-    event_size = 100
-    event = gen_event_via_random_people_network(
-        event_size,
-        participants=range(participants_n),
-        start_time=10,
-        end_time=110,
-        event_topic_param=event_topic_param
-    )
-    sender_ids = set([e['sender_id'] for e in event])
-    recipient_ids = set([e['recipient_ids'][0] for e in event])
-    assert_equal(participants_n, len(sender_ids))
-    assert_equal(participants_n, len(recipient_ids))
-
-    g = IU.get_meta_graph(
-        event,
-        decompose_interactions=False,
-        remove_singleton=True,
-        given_topics=True,
-        convert_time=False
-    )
-    assert_equal(1, len(get_roots(g)))
-    assert_equal(event_size, len(event))
+    def test_make_artificial_data_with_minor_events(self):
+        self.params['n_minor_events'] = 10
+        events, all_interactions, _ = make_artificial_data(**self.params)
+        assert_equal(
+            self.params['event_size_mu'] * self.params['n_events'] +
+            self.params['minor_event_size_mu'] * self.params['n_minor_events'] +
+            self.params['n_noisy_interactions'],
+            len(all_interactions)
+        )
+        event_msg_ids = set([e.node[n]['message_id']
+                             for e in events
+                             for n in e.nodes_iter()])
+        event_topics = set([np.asarray(e.node[n]['topics']).argmax()
+                            for e in events
+                            for n in e.nodes_iter()])
+        other_topics = set()
+        for i in all_interactions:
+            id_ = i['message_id']
+            if id_ not in event_msg_ids:  # either noise or minor
+                topic = np.asarray(i['topics']).argmax()
+                other_topics.add(topic)
+                assert(topic not in event_topics)
+        # should complement each other and sum to all topics
+        assert_equal(set(range(10)),
+                     other_topics | event_topics)
 
 
 def test_gen_event_with_known_tree_structure():
@@ -237,7 +291,7 @@ def test_gen_event_with_known_tree_structure():
         event_size=event_size,
         participants=range(participants_n),
         start_time=10, end_time=110,
-        event_topic_param=random_topic(10, topic_noise=0.0001),
+        event_topic_param=random_topic(10, topic_noise=0.0001)[0],
         topic_noise=1,
         alpha=1.0, tau=0.8,
         forward_proba=0.3,
@@ -283,7 +337,7 @@ def test_get_gen_cand_tree_params():
         event_size=event_size,
         participants=range(participants_n),
         start_time=10, end_time=110,
-        event_topic_param=random_topic(10, topic_noise=0.1),
+        event_topic_param=random_topic(10, topic_noise=0.1)[0],
         topic_noise=1,
         alpha=1.0, tau=0.8,
         forward_proba=0.3,
