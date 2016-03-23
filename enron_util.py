@@ -1,7 +1,8 @@
 import pandas as pd
 import re
 from pandas import DataFrame
-from datetime import datetime
+from datetime import datetime, timedelta
+from merge_similar_messages import merge_messages
 from util import load_json_by_line, json_load, json_dump
 
 
@@ -60,13 +61,31 @@ def process_message_body(df):
     df['body'] = df['body'].map(lambda b: b.replace('=20', ''))
     return df
 
+def filter_and_save(df):
+    # df = process_message_body(df)
+    # df = df[df['body'].map(len) > 10]  # filter short body
+    
+    # potential: 14557
+    black_list = [256, 1175]
+    for s in black_list:
+        df = df[df['sender_id'] != s]
 
-if __name__ == '__main__':
-    # df = pd.read_json('data/enron/interactions.json')
-    df = pd.DataFrame(load_json_by_line('data/enron/enron.json'))
-
-    df = process_message_body(df)
-    df = df[df['body'].map(len) > 10]  # filter short body
-    df = df[df['sender_id'] != 256]
     df.to_json('data/enron/interactions.json',
                orient="records")
+
+if __name__ == '__main__':
+    df = pd.read_json('data/enron/interactions.json')
+    df = merge_messages(
+        df, 
+        timedelta(weeks=2),
+        50,
+        'timestamp'
+        )
+    df.to_json('data/enron/interactions.json')
+    # frequent_senders = df['sender_id'].value_counts().index[20:40]
+    # for s in frequent_senders:
+    #     print(s)
+    #     print(df[df['sender_id'] == s]['subject'][:10])
+    #     print('*' * 20)
+    
+    # filter_and_save(df)
