@@ -1414,7 +1414,10 @@ beefban:
 What to talk:
 
 - different method comparison
+  - why the quota method is bad at first? 
 - sampling method
+  - upperbound is pretty enough in this case, because only the event nodes have high upperbound
+  - in reality, we might have smaller unimportant events, this suggests our data generation process is not very realistic
 - some observations about the data set
 - multiple people talk about the same thing
   - is it valuable?
@@ -1425,3 +1428,156 @@ What to talk:
 - how to summarize the event better?
   - using some summarization tool?
   - or improve the topic model
+
+
+Day 2:
+
+**addressing "self-talking" event issue**:
+
+cause: one guy talks too much and those talks get connected
+
+they are not desirable because:
+
+1. many messages are repeated
+2. they are not real interactions
+
+Options:
+
+- add penalty to the edge cost if it's a self talking edge
+  - don't connect self talking messages
+    - However, we still cannot avoid the self-talking problem. Suppose, A->B and B sends the same msg to many others, then "A->B" get connected to many msgs sent by B. Again, the same message is repeated many times.
+  - when selecting events, filtering out those self-talking events
+- assign reward to each message(for example, like count in twitter), this assumes self-talking messages have low reward
+  - if so, the quota method does not apply
+- combine those repeated messages into one?
+  - if they are similar in terms of string similarity
+  - they are sent by the same person and within a short period of time
+
+What's wrong about disconnecting self-talking messages?
+
+- what if `A->B` and `A-C` are indeed about the same topic and should be included in the same event, how to make them in one event?
+
+Conclusion:
+
+we can try adding penalty to the edge cost, it's more general. If we want to disable self-talking edges, just add huge penalty.
+
+Also, check whether reply and forward type of interactions is rich in both dataset.
+
+
+**what's wrong with the adaptive sampling method**
+
+Original idea:
+
+- Bad side of upperbound method: several small trivial events(about different topics) might be included in the input dag and the upperbound is higher compared to real events
+- Adaptive method allows us to stop exploring the many fake events and get down to find real good event using the exploration result.
+
+What should the data be like if we want to see adaptive sampling method is better than UB?
+
+There are many fake events with high upperbound so that UB method is lured to select those fake dags. For adaptive method, when it has explored a certain number of high UB fake trees, it started to exploit.
+
+The dataset should be have:
+
+- a few fake events with high UB
+- fake events should contain some of the real event roots
+
+Is this practical?
+
+
+Problems:
+
+
+**Topic incoherence/drift problem**
+
+\#beefban first event, edge cost are polarized, either ~0.99 or 0.00 and they represent contrasting opinions.
+
+Also, applies for the first event in \#baltimore
+
+That's actually, the topic drift problem.
+
+How to solve:
+
+- Prune them to make it topically coherent?
+- Add some topic coherence constraint
+
+
+**Similarity measure for twitter**
+
+Tweets are too short and hard to understand event for human.
+
+3rd event in \#beefban, most of them are criticism about the beefban, but they get high topic distance.
+
+How to solve:
+
+- better representation for hashtag
+
+Twitter seems to be not a good dataset, or I haven't found a good way to measure the similarity.
+
+- [Learning Similarity Functions for Topic Detection in Online Reputation Monitoring](http://nlp.uned.es/~damiano/pdf/spina2014learning.pdf)
+
+
+Done:
+
+- found problems and proposed solutions
+- preprocessing
+  - merge similar messages
+  - bug fix: remove mentions and urls in tweets
+
+
+**Beefban**
+
+After removing repeated messages:
+
+- results seems better
+- the 1st event about \#beefban, it's against \#beefban
+  - however, still much self-talking(by "someone somewhere")
+- the 3rd event is supporting \#beefban
+  - more about retweeting
+- however, tweets about the same opinion cluster together might due to
+  - people within a community have similar opinion
+  - the bi-cluster figure(American presidential election)
+  - *NOT* because they similarity measure is good 
+- **if event is topically relevant needs to be check**
+
+About summarizing the tweet:
+
+- Use those with highest like/retweet count
+
+
+Day 3:
+
+**#baltimore**
+
+Events: `sampling_ratio 0.01`
+
+1. people's anger and sarcasism, also some reports/broadcast about the situation
+2. people's anger, some report and one or two tweets on supporting the riot
+3. more descriptive(e,g, mayor reaction)
+
+The majority events are against the riot, with few tweets being mixed within them.
+
+
+TODO:
+
+- new synthetic data
+- why quota sucks at first?
+
+**Enron**
+
+Again a lot of self-talking, but the machine messages disappear.
+
+How many people are both sender and recipient(non self-talking guys):
+
+    In [21]: len(recipients & senders)
+	Out[21]: 9383
+
+    In [22]: len(senders)
+    Out[22]: 19542
+
+    In [23]: len(recipients)
+    Out[23]: 1458384
+
+
+About speeding up budget problem:
+
+- more agressive Q adjust?
+- if slightly smaller than B, then we save the next few runnings of quota method as the extra gain is not so big
