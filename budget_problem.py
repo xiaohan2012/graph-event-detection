@@ -39,6 +39,10 @@ def charikar_algo(g, root, terminals, k, level):
         """
         X = set(X)
 
+        if r in X:
+            k -= 1
+            X -= {r}
+
         reachable_from_r = nx.descendants(g, r)
         X_p = set(reachable_from_r).intersection(X)
 
@@ -97,6 +101,7 @@ def charikar_algo(g, root, terminals, k, level):
             return t
     dag = aux(root, tuple(sorted(list(terminals))), k, level)
 
+    # print('dag.nodes():', dag.nodes())
     # remove redundant edges
     # to make it tree
     edges_to_remove = set()
@@ -136,6 +141,7 @@ def binary_search_using_charikar(g, root, B, level,
     while Q_l < Q_u - 1:
         Q = int(math.floor((Q_l + Q_u) / 2.))
         print('Q_l, Q_u, Q:', Q_l, Q_u, Q)
+        # print('g, root, Q, level:', g, root, Q, level)
         t = charikar_algo(g, root, terminals, Q, level)
 
         assert(len(terminals) == g.number_of_nodes())
@@ -153,8 +159,10 @@ def binary_search_using_charikar(g, root, B, level,
         else:
             return t
     
+    # print('terminals:', terminals)
+    # print('g, root, Q_u, level:', g, root, Q_u, level)
     t_p = charikar_algo(g, root, terminals, Q_u, level)
-    # print('Q_u, cost(t_p):', Q_u, g_cost(t_p))
+    print('Q_u, cost(t_p):', Q_u, g_cost(t_p))
     if g_cost(t_p) < B:
         return t_p
     else:
