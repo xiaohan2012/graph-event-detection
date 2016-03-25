@@ -39,7 +39,7 @@ quota_based_method = lambda g, r, U: binary_search_using_charikar(
 
 distance_weights_1 = {'topics': 1.0}
 distance_weights_2 = {'topics': 0.2, 'bow': 0.8}
-distance_weights_3 = {'topics': 0.5, 'bow': 0.5, 'hashtag_bow': 0.1}
+distance_weights_3 = {'topics': 0.5, 'bow': 0.4, 'hashtag_bow': 0.1}
 
 
 class GenCandidateTreeTest(unittest.TestCase):
@@ -54,10 +54,6 @@ class GenCandidateTreeTest(unittest.TestCase):
                 'dist_func': cosine,
                 'preprune_secs': timedelta(days=28),
                 'distance_weights': {'topics': 1.0},
-                # 'consider_recency': False,
-                # 'alpha': 0.2,
-                # 'tau': 0.8,
-                'self_talking_penalty': 0.001
             },
             'gen_tree_kws': {
                 'timespan': timedelta(days=28),
@@ -126,7 +122,7 @@ class GenCandidateTreeTest(unittest.TestCase):
             assert_true(sorted(t.edges()) != sorted(t_dij))
 
     def test_distance_weight_using_hashtag_bow(self):
-        self.some_kws_of_run['meta_graph_kws']['distance_weights'] = distance_weights_2
+        self.some_kws_of_run['meta_graph_kws']['distance_weights'] = distance_weights_3
         self.check('greedy', greedy_grow)
 
     def test_with_roots(self):
@@ -135,23 +131,6 @@ class GenCandidateTreeTest(unittest.TestCase):
         assert_equal(1, len(trees))
         assert_equal(54647, get_roots(trees[0])[0])
     
-    def test_with_recency(self):
-        self.some_kws_of_run['meta_graph_kws']['consider_recency'] = True
-        self.some_kws_of_run['meta_graph_kws']['tau'] = 0.4
-        self.some_kws_of_run['meta_graph_kws']['alpha'] = 0.6
-        self.some_kws_of_run['meta_graph_kws']['timestamp_converter'] = lambda s: 2 * s
-        self.some_kws_of_run['meta_graph_kws']['distance_weights'] = {'topics': 1.0}
-        _, mg = self.check('greey', greedy_grow)
-        
-        s, t = mg.edges_iter().next()
-        time_diff = mg.node[t]['timestamp'] - mg.node[s]['timestamp']
-        assert_almost_equal(
-            cosine(mg.node[s]['topics'],
-                   mg.node[t]['topics'])
-            - 0.6 * (0.4 ** (2 * time_diff)),
-            mg[s][t]['c']
-        )
-
     def test_random_sampler(self):
         self.some_kws_of_run['root_sampling_method'] = 'random'
         self.check('greedy', greedy_grow)
@@ -288,9 +267,8 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
                    extra='--event_param_pickle_path {}'.format(path)
         )
 
-    def test_with_recency(self):
-        self.check('greedy',
-                   extra='--recency')
+    def test_with_dij(self):
+        self.check('lst+dij')
         
     def tearDown(self):
         remove_tmp_data('test/data/tmp')
@@ -314,9 +292,8 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
                 'dist_func': cosine,
                 'preprune_secs': 8,
                 'distance_weights': distance_weights,
-                'consider_recency': False,
-                'tau': 0.0,
-                'alpha': 0.8
+                # 'tau': 0.0,
+                # 'alpha': 0.8
             },
             'gen_tree_kws': {
                 'timespan': 8,
