@@ -8,6 +8,7 @@ from util import memoized
 
 def transitive_closure(g, node_weight='r', edge_weight='c'):
     new_g = nx.DiGraph()
+
     l = nx.all_pairs_dijkstra_path_length(g, weight=edge_weight)
     # add shortest path and weight
     new_g.add_edges_from([
