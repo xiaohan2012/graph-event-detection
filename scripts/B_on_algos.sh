@@ -32,6 +32,10 @@ if [ ${operation} == 'gen' ]; then
     U_step=1.0
     U_end=50.0
 
+    # U_start=1.0
+    # U_step=1.0
+    # U_end=2.0
+
     Us=$(seq ${U_start} ${U_step} ${U_end})
 
     # methods=("random" "greedy" "quota" "lst" "lst+dij")
@@ -46,12 +50,12 @@ if [ ${operation} == 'gen' ]; then
 
     function run_experiment {
 	if [ -z $1 ]; then
-	    echo 'method should be given'
+	    echo 'U should be given'
 	    exit -1
 	fi
 
 	if [ -z $2 ]; then
-	    echo 'U should be given'
+	    echo 'method should be given'
 	    exit -1
 	fi
 
@@ -61,7 +65,7 @@ if [ ${operation} == 'gen' ]; then
 	fi
 
 	python gen_candidate_trees.py \
-	    --method=$1 \
+	    --method=$2 \
 	    --root_sampling=random \
 	    --dist=cosine \
 	    --result_prefix=${root_dir}/tmp/${dataset}-${dir_suffix}/result- \
@@ -70,7 +74,7 @@ if [ ${operation} == 'gen' ]; then
 	    --corpus_dict_path=${root_dir}/data/${dataset}/dict.pkl \
 	    --interaction_path=${root_dir}/data/${dataset}/interactions.json \
 	    --meta_graph_path_prefix=${root_dir}/tmp/${dataset}-${dir_suffix}/meta-graph \
-	    --U=$2 \
+	    --U=$1 \
             --cand_n=$3 \
 	    --days=1 \
 	    --weight_for_topics=0.4 \
@@ -83,13 +87,13 @@ if [ ${operation} == 'gen' ]; then
     export -f run_experiment
 
     echo "generating the meta grpah..."
-    run_experiment random 0 1 # gen the metagraph
+    run_experiment 0 random 1 # gen the metagraph
 
 # rm the result
     rm -r ${root_dir}/tmp/${dataset}-${dir_suffix}/result-*
     rm -r ${root_dir}/tmp/${dataset}-${dir_suffix}/path-*
 
-    ${PARALLEL} run_experiment  :::  ${methods[@]} ::: ${Us[@]} ::: 100
+    ${PARALLEL} run_experiment ::: ${Us[@]}  :::  ${methods[@]} ::: 100
 fi
 
 if [ ${operation} == 'eval' ]; then
