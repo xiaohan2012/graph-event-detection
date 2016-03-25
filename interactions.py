@@ -462,7 +462,7 @@ class InteractionsUtil(object):
 
         weight_mat = np.matrix([fields_weight]).T
 
-        dist_mat = np.matrix(dists_mat) * weight_mat
+        dist_mat = np.abs(np.matrix(dists_mat) * weight_mat)
 
         for i, (s, t) in enumerate(g.edges_iter()):
             g[s][t][cls.EDGE_COST_KEY] = dist_mat[i, 0]
@@ -498,10 +498,11 @@ class InteractionsUtil(object):
                              apply_pagerank=False,
                              distance_weights={'topics': 1},
                              convert_time=True,
-                             consider_recency=False,
-                             alpha=1.0, tau=0.8,
-                             timestamp_converter=lambda s: s,
-                             self_talking_penalty=0):
+                             # consider_recency=False,
+                             # alpha=1.0, tau=0.8,
+                             # timestamp_converter=lambda s: s,
+                             # self_talking_penalty=0
+                             ):
         logger.debug('getting meta graph...')
         mg = cls.get_meta_graph(interactions,
                                 undirected=undirected,
@@ -544,15 +545,15 @@ class InteractionsUtil(object):
                                     dist_func,
                                     distance_weights
                                 )
-        if self_talking_penalty:
-            logger.debug('adding self-talking penalty')
-            g = cls.add_penalty_to_self_talking_edges(g, self_talking_penalty)
+        # if self_talking_penalty:
+        #     logger.debug('adding self-talking penalty')
+        #     g = cls.add_penalty_to_self_talking_edges(g, self_talking_penalty)
 
-        if consider_recency:
-            g = cls.add_recency(g,
-                                alpha=alpha,
-                                tau=tau,
-                                timestamp_converter=timestamp_converter)
+        # if consider_recency:
+        #     g = cls.add_recency(g,
+        #                         alpha=alpha,
+        #                         tau=tau,
+        #                         timestamp_converter=timestamp_converter)
         return g
 
     @classmethod

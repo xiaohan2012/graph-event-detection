@@ -552,23 +552,6 @@ class InteractionsUtilTest(unittest.TestCase):
         assert_almost_equal(g_before[1][2]['c'],
                             g[1][2]['orig_c'])
 
-    def test_get_topic_meta_graph_with_recency(self):
-        g_before = self._get_meta_graph()
-        g = IU.get_topic_meta_graph(
-            IU.clean_interactions(self.interactions),
-            cosine,
-            lda_model=self.lda_model,
-            dictionary=self.dictionary,
-            decompose_interactions=False,
-            consider_recency=True,
-            alpha=0.5,
-            tau=0.6
-        )
-        assert_almost_equal(
-            max(0, g_before[1][2]['c'] - 0.5 * (0.6 ** 1)),
-            g[1][2]['c']
-        )
-
 
 class InteractionsUtilTestUndirected(unittest.TestCase):
     """undirected case
