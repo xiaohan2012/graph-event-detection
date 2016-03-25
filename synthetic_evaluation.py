@@ -55,7 +55,7 @@ def evaluate_general(
     Return a 3D table
     group_key: the legend part
     metrics: the y axis
-    x_axis_name: the x axis
+    x_axis_name, sort_keyfunc: the x axis
     """
     groups = group_paths(result_paths, group_key, sort_keyfunc)
     xs = get_values_by_key(groups[0][1],

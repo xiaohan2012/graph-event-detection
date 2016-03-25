@@ -36,7 +36,6 @@ fi
 time ${CMD} gen_candidate_trees.py \
 	--method=greedy \
 	--root_sampling=${sampler} \
-	--weeks=2 \
 	--dist=cosine \
 	--result_prefix=${root_dir}/tmp/${dataset}/result- \
         --all_paths_pkl_prefix=${root_dir}/tmp/${dataset}/paths- \

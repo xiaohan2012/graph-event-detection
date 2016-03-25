@@ -148,10 +148,10 @@ def draw_pred_tree_against_true_tree(pred_tree, true_tree, meta_graph,
 
     if draw_which == "together":
         g = nx.compose(true_tree, pred_tree)
-        output_path = '/cs/home/hxiao/public_html/figures/tree_inspection/true_event_vs_pred_event{}.png'.format(output_path_suffix)
+        output_path = 'tmp/tree_inspection/true_event_vs_pred_event{}.png'.format(output_path_suffix)
     else:
         g = true_tree
-        output_path = '/cs/home/hxiao/public_html/figures/tree_inspection/true_event{}.png'.format(output_path_suffix)
+        output_path = 'tmp/tree_inspection/true_event{}.png'.format(output_path_suffix)
 
     pos = nx.graphviz_layout(g, prog='dot')
 
@@ -195,12 +195,16 @@ if __name__ == '__main__':
     import cPickle as pkl
 
     plt.figure(figsize=(8, 8))
-    pred_path, mg_path = pkl.load(open('.paths.pkl'))
-    true_path = 'data/synthetic_single_tree/events--n_noisy_interactions_fraction=0.0.pkl'
-    pred_tree = pkl.load(open(pred_path))[0]
-    true_tree = pkl.load(open(true_path))[0]
+    # pred_path, mg_path = pkl.load(open('.paths.pkl'))
+    # true_path = 'data/synthetic_single_tree/events--n_noisy_interactions_fraction=0.0.pkl'
     
-    meta_graph = nx.read_gpickle(mg_path)
+    true_path = 'data/synthetic_single_tree/interactions--event_size=20--n_noisy_interactions_fraction=1.0-1.json'
+    paths = pkl.load(open('tmp/synthetic_single_tree/paths/fraction=1.0--greedy--U=3.2559987036--dijkstra=False--timespan=44.0----distance_weights={\"topics\":1.0}--preprune_secs=44.0--self_talking_penalty=0.0----cand_tree_percent=0.1--root_sampling=random-1.pkl'))
+
+    pred_tree = pkl.load(open(paths['result']))[0]
+    true_tree = pkl.load(open(paths['true_events']))[0]
+    
+    meta_graph = nx.read_gpickle(paths['meta_graph'])
 
     # print('mg.c:', [meta_graph[s][t]['c'] for s, t in true_tree.edges_iter()])
     # print('t.c:', [true_tree[s][t]['c'] for s, t in true_tree.edges_iter()])
@@ -209,10 +213,8 @@ if __name__ == '__main__':
     for s, t in true_tree.edges_iter():
         print(s, t, meta_graph[s][t])
 
-    if not True:
-        output_path_suffix = '_recency'
-    else:
-        output_path_suffix = ''
+
+    output_path_suffix = ''
 
     if True:
         draw_which = 'together'

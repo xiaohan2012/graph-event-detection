@@ -74,14 +74,19 @@ def filter_and_save(df):
                orient="records")
 
 if __name__ == '__main__':
-    df = pd.read_json('data/enron/interactions.json')
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-d', '--dataset')
+    args = parser.parse_args()
+    
+    df = pd.read_json('data/{}/interactions.json'.format(args.dataset))
     df = merge_messages(
         df, 
-        timedelta(weeks=2),
-        50,
-        'timestamp'
+        timedelta(weeks=4),
+        70,
+        'datetime'
         )
-    df.to_json('data/enron/interactions.json')
+    df.to_json('data/{}/interactions.json'.format(args.dataset))
     # frequent_senders = df['sender_id'].value_counts().index[20:40]
     # for s in frequent_senders:
     #     print(s)
