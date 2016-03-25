@@ -4,7 +4,7 @@ import random
 from nose.tools import assert_equal, assert_true
 
 from .baselines import (grow_tree_general,
-                        greedy_choice_by_cost,
+                        greedy_choice_by_cost_numpy,
                         greedy_choice_by_discounted_reward,
                         random_choice,
                         new_frontier)
@@ -118,13 +118,13 @@ class GrowingTreeTest(unittest.TestCase):
 
     def test_greedy_grow_tree_1(self):
         self.greedy_approach_template(Example1,
-                                      greedy_choice_by_cost)
+                                      greedy_choice_by_cost_numpy)
         self.greedy_approach_template(Example1,
                                       greedy_choice_by_discounted_reward)
         
     def test_greedy_grow_tree_2(self):
         self.greedy_approach_template(Example2,
-                                      greedy_choice_by_cost)
+                                      greedy_choice_by_cost_numpy)
         self.greedy_approach_template(Example2,
                                       greedy_choice_by_discounted_reward)
 
