@@ -196,7 +196,7 @@ def main_DEPRECATED(exp_name):
     )
 
 
-def evaluate_single_tree(result_paths, interactions_paths, events_paths,
+def evaluate_against_noise(result_paths, interactions_paths, events_paths,
                          metrics):
     assert_equal(len(result_paths),
                  len(interactions_paths))
@@ -219,6 +219,29 @@ def evaluate_single_tree(result_paths, interactions_paths, events_paths,
     return result
 
 
+def evaluate_against_event_size(result_paths, interactions_paths, events_paths,
+                         metrics):
+    assert_equal(len(result_paths),
+                 len(interactions_paths))
+    assert_equal(len(interactions_paths),
+                 len(events_paths))
+    
+    result = evaluate_general(
+        result_paths,
+        interactions_paths,
+        events_paths,
+        metrics,
+        x_axis_name='event_size', x_axis_type=int,
+        group_key=lambda p: (p['args'][0], p['dijkstra']),
+        group_key_name_func=(lambda (m, dij):
+                             ("{}-dij".format(m)
+                              if dij == 'True' else m)),
+        sort_keyfunc=lambda k: float(k['event_size']),
+        K=1
+    )
+    return result
+
+
 def main():
     import argparse
 
@@ -226,6 +249,7 @@ def main():
     parser.add_argument('--experiment_paths',
                         nargs='+')
     parser.add_argument('--output_path', required=True)
+    parser.add_argument('--experiment', choices=('noise', 'event_size'), required=True)
 
     args = parser.parse_args()
 
@@ -235,7 +259,10 @@ def main():
     result_paths = [e['result'] for e in experiment_results]
     events_paths = [e['true_events'] for e in experiment_results]
     
-    result = evaluate_single_tree(
+    m = {'event_size': evaluate_against_event_size, 
+         'noise': evaluate_against_noise}
+    eval_func = m[args.experiment]
+    result = eval_func(
         result_paths, interactions_paths, events_paths, metrics=[]
     )
     pkl.dump(result, open(args.output_path, 'w'))

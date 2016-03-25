@@ -3,15 +3,10 @@
 rounds=50
 
 PARALLEL="/cs/home/hxiao/.local/bin/parallel --tmpdir /cs/home/hxiao/tmp "
-SINGLE_ROUND_SCRIPT="./scripts/synthetic_comparing_algorithms_against_noise.sh"
+SINGLE_ROUND_SCRIPT="./scripts/synthetic_comparing_algorithms_against_event_size.sh"
 
-data_dir='/cs/home/hxiao/code/lst/data/synthetic_single_tree'
-result_dir='/cs/home/hxiao/code/lst/tmp/synthetic_single_tree'
-
-ALPHA=0.5
-TAU=0.8
-
-extra=''
+data_dir='/cs/home/hxiao/code/lst/data/synthetic_event_size'
+result_dir='/cs/home/hxiao/code/lst/tmp/synthetic_event_size'
 
 rounds_array=()
 for ((round=1; round <= ${rounds}; round++)); do
@@ -66,7 +61,7 @@ if [ "$1" == "viz" ]; then
 	# viz
     python draw_evaluation_result.py \
 	--result_path ${combined_eval_result_path} \
-	--xlabel "noise fraction" \
+	--xlabel "event size" \
 	--output_dir ${result_dir}/figure
-    scp ${result_dir}/figure/*  shell.cs.helsinki.fi:/cs/home/hxiao/public_html/figures/synthetic/noise_fraction/
+    scp ${result_dir}/figure/*  shell.cs.helsinki.fi:/cs/home/hxiao/public_html/figures/synthetic/event_size/
 fi

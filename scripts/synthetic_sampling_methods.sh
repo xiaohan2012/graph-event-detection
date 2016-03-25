@@ -1,7 +1,8 @@
 #! /bin/bash
 
 rounds=10
-fraction=5.0
+# rounds=1
+fraction=10.0
 n_events=5
 methods=("random" "upperbound" "adaptive")
 # methods=("adaptive")
@@ -30,9 +31,9 @@ if [ "$1" == "data" ]; then
 			--participant_sigma 0.1 \
 			--n_total_participants 30 \
 			--min_time 10 \
-			--max_time  200 \
+			--max_time  250 \
 			--event_duration_mu 50 \
-			--n_topics 10 \
+			--n_topics 20 \
 			--n_noisy_interactions_fraction ${fraction} \
 			--topic_noise 1.0 \
 			--topic_scaling_factor 10.0 \
@@ -77,7 +78,7 @@ if [ "$1" == "gen" ]; then
 				--weight_for_topics 1.0 \
 				--not_convert_time \
 				--time_diff_unit sec \
-				--cand_n 400  \
+				--cand_n 500  \
 				--seconds ${timespan} \
 				--root_sampling ${method}
 		done
@@ -99,7 +100,7 @@ if [ "$1" == "eval" ]; then
 		--experiment_paths ${result_dir}/paths/*-${round}.pkl \
 		--legends "${methods[@]}" \
 		-k ${n_events} \
-		--metrics k_setcover_obj precision recall f1 \
+		--metrics k_setcover_obj precision recall f1 roots \
 		--output_path ${result_dir}/eval/eval_result-${round}.pkl		
 	done
 

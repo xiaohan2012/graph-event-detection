@@ -40,11 +40,12 @@ def gen_event_with_known_tree_structure(event_size, participants,
     n_participants = len(participants)
     time_step = (end_time - start_time) / float(event_size)
     if time_step < 1:
-        raise ValueError('time_step should be larger than 1 ({}-{}) / {}'.format(
-            end_time,
-            start_time,
-            event_size
-        ))
+        # raise ValueError('time_step should be larger than 1 ({}-{}) / {}'.format(
+        #     end_time,
+        #     start_time,
+        #     event_size
+        # ))
+        print("timestemp < 1")
 
     tree = nx.DiGraph()
     for i in xrange(event_size):
@@ -351,11 +352,11 @@ def main():
     parser.add_argument('--participant_mu', type=int, default=5)
     parser.add_argument('--participant_sigma', type=float, default=3)
 
-    parser.add_argument('--n_minor_events', type=int)
-    parser.add_argument('--minor_event_size_mu', type=int)
-    parser.add_argument('--minor_event_size_sigma', type=int)
-    parser.add_argument('--minor_event_participant_mu', type=int)
-    parser.add_argument('--minor_event_participant_sigma', type=float)
+    parser.add_argument('--n_minor_events', type=int, default=0)
+    parser.add_argument('--minor_event_size_mu', type=int, default=10)
+    parser.add_argument('--minor_event_size_sigma', type=int, default=1)
+    parser.add_argument('--minor_event_participant_mu', type=int, default=4)
+    parser.add_argument('--minor_event_participant_sigma', type=float, default=0.1)
 
     parser.add_argument('--n_total_participants', type=int, default=50)
     parser.add_argument('--min_time', type=int, default=10)
@@ -410,6 +411,7 @@ def main():
     )
     sig = experiment_signature(
         n_noisy_interactions_fraction=args.n_noisy_interactions_fraction,
+        event_size=args.event_size_mu,
     )
     nx.write_gpickle(events,
                      '{}/events--{}{}.pkl'.format(output_dir, sig,

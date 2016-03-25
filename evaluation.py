@@ -93,6 +93,9 @@ def evaluate_meta_tree_result(
     scores['precision'] = p
     scores['recall'] = r
     scores['f1'] = f1
+    scores['log(running_time)'] = np.log(np.mean(
+        [t.graph['calculation_time'] for t in pred_events]
+    ))
     
     # mean of tree edit distance across all (true, pred) pairs
     # weighted mean can be added

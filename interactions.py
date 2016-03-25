@@ -77,7 +77,6 @@ class InteractionsUtil(object):
                 i['timestamp'] = time.mktime(
                     i['datetime'].timetuple()
                 )
-
             new_interactions.append(i)
         return new_interactions
 
