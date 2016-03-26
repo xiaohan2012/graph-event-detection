@@ -7,8 +7,8 @@ from meta_graph_stat import build_default_summary_kws_from_path
 
 
 def k_best_trees(cand_trees, k):
-    print('removing self-talking event')
-    print('before, len(cand_trees):', len(cand_trees))
+    # print('removing self-talking event')
+    # print('before, len(cand_trees):', len(cand_trees))
     # cand_trees = [t for t in cand_trees
     #               if len(set(t.node[n]['sender_id']
     #                          for n in t.nodes_iter())) > 1]

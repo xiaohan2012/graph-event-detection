@@ -40,7 +40,7 @@ def main():
         calculation_time_mat.append([eval_calculation_time(pkl.load(open(p)))
                                      for p in paths])
         
-
+    print('index:', index)
     columns = [float(parse_result_path(p)['U'])
                for p in paths]
     df1 = pd.DataFrame(obj_func_mat,

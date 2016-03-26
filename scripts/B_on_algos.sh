@@ -38,8 +38,8 @@ if [ ${operation} == 'gen' ]; then
 
     Us=$(seq ${U_start} ${U_step} ${U_end})
 
-    # methods=("random" "greedy" "quota" "lst" "lst+dij")
-    methods=("quota")
+    methods=("random" "greedy" "quota" "lst" "lst+dij")
+    # methods=("quota")
 
     if [ ! -d ${root_dir}/tmp/${dataset}-${dir_suffix} ]; then
 	mkdir -p ${root_dir}/tmp/${dataset}-${dir_suffix}
@@ -89,7 +89,7 @@ if [ ${operation} == 'gen' ]; then
     echo "generating the meta grpah..."
     run_experiment 0 random 1 # gen the metagraph
 
-# rm the result
+    # rm the result
     rm -r ${root_dir}/tmp/${dataset}-${dir_suffix}/result-*
     rm -r ${root_dir}/tmp/${dataset}-${dir_suffix}/path-*
 
@@ -112,5 +112,5 @@ if [ ${operation} == 'viz' ]; then
 	--result_path "${root_dir}/tmp/${dataset}-${dir_suffix}/eval_result.pkl" \
 	--xlabel U \
 	--output_dir ${output_dir}
-    scp -r ${output_dir}  shell.cs.helsinki.fi:/cs/home/hxiao/public_html/figures/${dataset}-${dir_suffix}
+    scp  ${output_dir}/*  shell.cs.helsinki.fi:/cs/home/hxiao/public_html/figures/${dataset}-${dir_suffix}
 fi
