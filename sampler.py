@@ -131,7 +131,7 @@ class DeterministicSampler(RootedTreeSampler):
 
 # @profile
 class AdaptiveSampler(RootedTreeSampler):
-    def __init__(self, g, B, timespan_secs, node_score_func=tree_density):
+    def __init__(self, g, B, timespan_secs, node_score_func=log_x_density):
         super(AdaptiveSampler, self).__init__(g, timespan_secs)
 
         non_leaf_roots = [n for n in g.nodes_iter() if g.out_degree(n) > 0]
@@ -212,7 +212,7 @@ class AdaptiveSampler(RootedTreeSampler):
         self.root2upperbound
         return 1 - float(len(self.covered_nodes)) / self.n_nodes_to_cover
 
-    def random_action(self):
+    def random_action(self, debug=True):
         # rnd = random.random()
         # if rnd <= self.explore_proba:
         #     return 'explore'
@@ -225,15 +225,24 @@ class AdaptiveSampler(RootedTreeSampler):
             if r not in self.covered_nodes:
                 break
         best_ub = self.root2upperbound[r]
-        print('best_ub:', best_ub)
         if self.node2score:
             best_score = max(self.node2score.values())
             print('best_score:', best_score)
         else:
             best_score = 0
+
+        if debug:
+            print('-' * 30)
+            print('best_ub:', best_ub)
+            print('greedy_level * best_score', best_score)
+
         if rnd < best_ub / (best_ub + greedy_level * best_score):
+            if debug:
+                print "explore"
             return 'explore'
         else:
+            if debug:
+                print "exploit"
             return 'exploit'
 
     def take(self):

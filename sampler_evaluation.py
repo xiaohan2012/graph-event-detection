@@ -85,16 +85,17 @@ def main():
     parser.add_argument('-k', type=int)
 
     args = parser.parse_args()
+    print(args.experiment_paths)
     assert len(args.experiment_paths) == len(args.legends), '{} != {}'.format(len(args.experiment_paths),
                                                                               len(args.legends))
     result = {}
     
     metric_map = {
         'k_setcover_obj': k_max_setcover,
-        'precision': precision,
-        'recall': recall,
-        'f1': f1,
-        'roots': roots
+        # 'precision': precision,
+        # 'recall': recall,
+        # 'f1': f1,
+        # 'roots': roots
     }
 
     data = {}
@@ -105,14 +106,15 @@ def main():
                                            sorted(args.legends)):
             paths = pkl.load(open(experiment_path))
             result_path = paths['result']
-            true_events_path = paths['true_events']
+            # true_events_path = paths['true_events']
 
             assert legend in result_path, (legend, result_path)
 
             data[metric_name].append(
                 evaluate(
                     pkl.load(open(result_path)),
-                    pkl.load(open(true_events_path)),
+                    None,
+                    # pkl.load(open(true_events_path)),
                     metric,
                     k=args.k
                 )
@@ -122,6 +124,7 @@ def main():
                                          columns=np.arange(len(data[metric_name][0]))
         )
 
+    print(data)
     pkl.dump(
         data,
         open(args.output_path, 'w')

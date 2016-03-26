@@ -1,6 +1,10 @@
 #! /bin/bash
 
-./scripts/synthetic_sampling_methods.sh  data
-./scripts/synthetic_sampling_methods.sh  gen
-./scripts/synthetic_sampling_methods.sh  eval
-./scripts/synthetic_sampling_methods.sh  viz
+dataset=$1
+
+if [ -z $dataset ]; then
+    exit -1
+fi
+# ./scripts/sampling_methods_experiment.sh  gen
+./scripts/sampling_methods_experiment.sh  $dataset eval
+./scripts/sampling_methods_experiment.sh  $dataset viz
