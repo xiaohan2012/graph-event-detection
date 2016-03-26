@@ -91,6 +91,7 @@ if [ ${operation} == "eval" ]; then
     python synthetic_evaluation.py \
 	--experiment_paths ${result_dir}/paths/*-${round}.pkl \
 	--output_path ${result_dir}/eval/eval_result-${round}.pkl \
+	--xticks $(seq ${fraction_start} ${fraction_step} ${fraction_end}) \
 	--experiment noise
 
 fi

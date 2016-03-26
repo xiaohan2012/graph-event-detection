@@ -5,6 +5,7 @@ import numpy as np
 
 def combine(results):
     """
+    ronuds of experiment result
     results: list<dict<str, pandas.DataFrame>>
     """
     metrics = results[0].keys()
@@ -16,11 +17,15 @@ def combine(results):
         columns = results[0][m].columns
         index = results[0][m].index
 
+        data3d = []
         for r in results:
-            acc += r[m].as_matrix()
-        
+            mat = r[m].as_matrix()
+            # print(mat.shape)
+            data3d.append(mat)
+        # print(data3d)
+        mean_val = np.nanmean(np.asarray(data3d), axis=0)
         combined_result[m] = pd.DataFrame(
-            acc / len(results),
+            mean_val,
             columns=columns,
             index=index
         )

@@ -50,6 +50,7 @@ def evaluate_general(
         result_paths, interactions_paths, events_paths, metrics,
         x_axis_name, x_axis_type,
         group_key, group_key_name_func, sort_keyfunc=None,
+        xticks=[],
         K=10):
     """
     Return a 3D table
@@ -60,12 +61,15 @@ def evaluate_general(
     groups = group_paths(result_paths, group_key, sort_keyfunc)
 
     # inferring x labels
-    xs = set()
-    for k, paths in groups:
-        xs |= set(get_values_by_key(groups[0][1],
-                                    x_axis_name,
-                                    x_axis_type))
-    xs = sorted(xs)
+    if not xticks:
+        xticks = set()
+        for k, paths in groups:
+            xticks |= set(get_values_by_key(
+                    groups[0][1],
+                    x_axis_name,
+                    x_axis_type)
+                          )
+        xticks = sorted(xticks)
 
     group_keys = [k for k, _ in groups]
     legend_names = [group_key_name_func(k)
@@ -92,9 +96,8 @@ def evaluate_general(
     }
     enhanced_groups = defaultdict(list)
     for k, result_paths in groups:
-        print(k)
         i = 0
-        for x in xs:
+        for x in xticks:
             if i < len(result_paths) and x_axis_type(parse_result_path(result_paths[i])[x_axis_name]):
                 enhanced_groups[k].append(
                     result_path2all_paths[result_paths[i]]
@@ -133,8 +136,6 @@ def evaluate_general(
     #     for key, _ in groups])
 
     # change axis to to (metric, method, U)
-    for d in data3d:
-        print(len(d))
     data3d = np.swapaxes(data3d, 0, 1)
     data3d = np.swapaxes(data3d, 0, 2)
 
@@ -142,59 +143,9 @@ def evaluate_general(
                   for k in group_keys]
     ret = {}
     for metric, matrix in itertools.izip(metric_names, data3d):
-        ret[metric] = pd.DataFrame(matrix, columns=xs, index=group_keys)
-    print(ret)
+        ret[metric] = pd.DataFrame(matrix, columns=xticks, index=group_keys)
 
     return ret
-
-# deprecated
-def evaluate_U(result_paths, interactions_path, events_path, metrics,
-               K=10):
-    return evaluate_general(
-        result_paths,
-        [interactions_path] * len(result_paths),
-        [events_path] * len(result_paths),
-        metrics,
-        x_axis_name='U', x_axis_type=float,
-        group_key=lambda p: (p['args'][0], p['dijkstra']),
-        group_key_name_func=(lambda (m, dij):
-                             ("{}-dij".format(m)
-                              if dij == 'True' else m)),
-        sort_keyfunc=lambda p: float(p['U']),
-        K=K
-    )
-
-# deprecated
-def evaluate_preprune_seconds(result_paths, interactions_path,
-                              events_path, metrics,
-                              K=10):
-    return evaluate_general(
-        result_paths,
-        [interactions_path] * len(result_paths),
-        [events_path] * len(result_paths),
-        metrics,
-        x_axis_name='preprune_secs', x_axis_type=int,
-        group_key=lambda p: 'greedy',
-        group_key_name_func=lambda k: k,
-        sort_keyfunc=lambda p: float(p['preprune_secs']),
-        K=10
-    )
-
-# deprecated
-def evaluate_sampling(result_paths, interactions_path,
-                      events_path, metrics,
-                      K=10):
-    return evaluate_general(
-        result_paths,
-        [interactions_path] * len(result_paths),
-        [events_path] * len(result_paths),
-        metrics,
-        x_axis_name='cand_tree_percent', x_axis_type=float,
-        group_key=lambda p: p['root_sampling'],
-        group_key_name_func=lambda k: k,
-        sort_keyfunc=lambda p: float(p['cand_tree_percent']),
-        K=10
-    )
 
 
 metrics = [metrics.adjusted_rand_score,
@@ -203,36 +154,8 @@ metrics = [metrics.adjusted_rand_score,
            metrics.completeness_score,
            metrics.v_measure_score]
 
-# deprecated
-def main_DEPRECATED(exp_name):
-    exp_func = {
-        'preprune_seconds': evaluate_preprune_seconds,
-        'U': evaluate_U,
-        'sampling': evaluate_sampling
-    }
-    labels = {
-        'preprune_seconds': 'preprune_seconds',
-        'U': 'U',
-        'sampling': 'sampling_fraction'
-    }
-    func = exp_func[exp_name]
-    result = func(
-        result_paths=glob('tmp/synthetic/{}/result-*.pkl'.format(exp_name)),
-        interactions_path='data/synthetic/interactions.json',
-        events_path='data/synthetic/events.json',
-        metrics=metrics,
-        K=10)
-    plot_evalution_result(
-        result,
-        xlabel=labels[exp_name],
-        output_dir='/cs/home/hxiao/public_html/figures/synthetic/{}'.format(
-            exp_name
-        )
-    )
-
-
 def evaluate_against_noise(result_paths, interactions_paths, events_paths,
-                         metrics):
+                           metrics, xticks):
     assert_equal(len(result_paths),
                  len(interactions_paths))
     assert_equal(len(interactions_paths),
@@ -243,6 +166,7 @@ def evaluate_against_noise(result_paths, interactions_paths, events_paths,
         interactions_paths,
         events_paths,
         metrics,
+        xticks=xticks,
         x_axis_name='fraction', x_axis_type=float,
         group_key=lambda p: (p['args'][0], p['dijkstra']),
         group_key_name_func=(lambda (m, dij):
@@ -254,8 +178,9 @@ def evaluate_against_noise(result_paths, interactions_paths, events_paths,
     return result
 
 
-def evaluate_against_event_size(result_paths, interactions_paths, events_paths,
-                         metrics):
+def evaluate_against_event_size(
+    result_paths, interactions_paths, events_paths,    
+    metrics, xticks):
     assert_equal(len(result_paths),
                  len(interactions_paths))
     assert_equal(len(interactions_paths),
@@ -266,7 +191,7 @@ def evaluate_against_event_size(result_paths, interactions_paths, events_paths,
         interactions_paths,
         events_paths,
         metrics,
-        x_axis_name='event_size', x_axis_type=int,
+        xticks=xticks, x_axis_name='event_size', x_axis_type=int,
         group_key=lambda p: p['args'][0],
         group_key_name_func=lambda m: m,
         sort_keyfunc=lambda k: float(k['event_size']),
@@ -280,6 +205,9 @@ def main():
 
     parser = argparse.ArgumentParser('')
     parser.add_argument('--experiment_paths',
+                        nargs='+')
+    parser.add_argument('--xticks', 
+                        type=float,
                         nargs='+')
     parser.add_argument('--output_path', required=True)
     parser.add_argument('--experiment', choices=('noise', 'event_size'), required=True)
@@ -297,7 +225,7 @@ def main():
          'noise': evaluate_against_noise}
     eval_func = m[args.experiment]
     result = eval_func(
-        result_paths, interactions_paths, events_paths, metrics=[]
+        result_paths, interactions_paths, events_paths, metrics=[], xticks=args.xticks
     )
     pkl.dump(result, open(args.output_path, 'w'))
 

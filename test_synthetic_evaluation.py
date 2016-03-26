@@ -94,7 +94,8 @@ class SyntheticEvaluationTest(unittest.TestCase):
             result_paths=self.result_paths_single_tree,
             interactions_paths=interactions_paths,
             events_paths=events_paths,
-            metrics=[metrics.adjusted_rand_score]
+            metrics=[metrics.adjusted_rand_score],
+            xticks=[]
         )
         for key in ('recall', 'precision', 'f1',
                     'adjusted_rand_score'):

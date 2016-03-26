@@ -86,7 +86,7 @@ if [ ${operation} == "eval" ]; then
     python synthetic_evaluation.py \
 	--experiment_paths ${result_dir}/paths/*-${round}.pkl \
 	--output_path ${result_dir}/eval/eval_result-${round}.pkl \
-	--experiment event_size
-
+	--experiment event_size \
+	--xticks $(seq ${event_size_start} ${event_size_step} ${event_size_end})
 fi
 
