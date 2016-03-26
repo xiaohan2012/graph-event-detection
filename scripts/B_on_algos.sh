@@ -29,7 +29,7 @@ echo "using dataset '${dataset}'"
 if [ ${operation} == 'gen' ]; then
 
     U_start=0.0
-    U_step=1.0
+    U_step=2.5
     U_end=50.0
 
     # U_start=1.0
@@ -66,7 +66,7 @@ if [ ${operation} == 'gen' ]; then
 
 	python gen_candidate_trees.py \
 	    --method=$2 \
-	    --root_sampling=random \
+	    --root_sampling=adaptive \
 	    --dist=cosine \
 	    --result_prefix=${root_dir}/tmp/${dataset}-${dir_suffix}/result- \
             --all_paths_pkl_prefix=${root_dir}/tmp/${dataset}-${dir_suffix}/paths- \
@@ -93,7 +93,8 @@ if [ ${operation} == 'gen' ]; then
     rm -r ${root_dir}/tmp/${dataset}-${dir_suffix}/result-*
     rm -r ${root_dir}/tmp/${dataset}-${dir_suffix}/path-*
 
-    ${PARALLEL} run_experiment ::: ${Us[@]}  :::  ${methods[@]} ::: 100
+    # 60 comes from sampling method experiment result
+    ${PARALLEL} run_experiment ::: ${Us[@]}  :::  ${methods[@]} ::: 60
 fi
 
 if [ ${operation} == 'eval' ]; then
