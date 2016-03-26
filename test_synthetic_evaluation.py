@@ -6,7 +6,7 @@ import cPickle as pkl
 from nose.tools import assert_equal, assert_true, assert_almost_equal
 from sklearn import metrics
 
-from .synthetic_evaluation import group_paths, evaluate_single_tree,\
+from .synthetic_evaluation import group_paths, evaluate_against_noise,\
     get_values_by_key
 from .test_util import make_path
 from .util import load_items_by_line, json_load
@@ -78,7 +78,7 @@ class SyntheticEvaluationTest(unittest.TestCase):
              for p in actual[0][1]]
         )
 
-    def test_evaluate_single_tree(self):
+    def test_evaluate_against_noise(self):
         make_single_tree_path = (lambda p:
                                  make_path(
                                      'test/data/synthetic_single_tree/', p)
@@ -90,15 +90,14 @@ class SyntheticEvaluationTest(unittest.TestCase):
                        'events--n_noisy_interactions_fraction=0.4.pkl']
         events_paths = sorted(map(make_single_tree_path, events_paths) * 2)
 
-        actual = evaluate_single_tree(
+        actual = evaluate_against_noise(
             result_paths=self.result_paths_single_tree,
             interactions_paths=interactions_paths,
             events_paths=events_paths,
             metrics=[metrics.adjusted_rand_score]
         )
         for key in ('recall', 'precision', 'f1',
-                    'adjusted_rand_score',
-                    'tree_similarity'):
+                    'adjusted_rand_score'):
             # each key => dataframe
             assert_true(key in actual)
             assert_true(
