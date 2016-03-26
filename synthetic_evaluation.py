@@ -98,7 +98,12 @@ def evaluate_general(
     for k, result_paths in groups:
         i = 0
         for x in xticks:
-            if i < len(result_paths) and x_axis_type(parse_result_path(result_paths[i])[x_axis_name]):
+            x_prime = x_axis_type(parse_result_path(result_paths[i])[x_axis_name])
+            print(parse_result_path(result_paths[i]))
+            print('x', x)
+            print('x_prime', x_prime)
+
+            if i < len(result_paths) and x_prime == x:
                 enhanced_groups[k].append(
                     result_path2all_paths[result_paths[i]]
                     )
@@ -109,6 +114,7 @@ def evaluate_general(
 
     data3d = []
     for method, _ in groups:
+        print(method)
         data2d = []
         for result_path, interactions_path, events_path in enhanced_groups[method]:
             if result_path is None:
@@ -120,7 +126,10 @@ def evaluate_general(
                     get_interaction_ids(interactions_path),
                     metrics).values()
                               )
+        print(data2d)
         data3d.append(data2d)
+    print metric_names
+    # method, x_axis, metric
 
     # some checking on size of results for different methods should be done
     # filling None if possible
@@ -168,10 +177,8 @@ def evaluate_against_noise(result_paths, interactions_paths, events_paths,
         metrics,
         xticks=xticks,
         x_axis_name='fraction', x_axis_type=float,
-        group_key=lambda p: (p['args'][0], p['dijkstra']),
-        group_key_name_func=(lambda (m, dij):
-                             ("{}-dij".format(m)
-                              if dij == 'True' else m)),
+        group_key=lambda p: p['args'][0],
+        group_key_name_func=lambda m: m,
         sort_keyfunc=lambda k: float(k['fraction']),
         K=1
     )
@@ -224,6 +231,7 @@ def main():
     m = {'event_size': evaluate_against_event_size, 
          'noise': evaluate_against_noise}
     eval_func = m[args.experiment]
+    print(args.xticks)
     result = eval_func(
         result_paths, interactions_paths, events_paths, metrics=[], xticks=args.xticks
     )
