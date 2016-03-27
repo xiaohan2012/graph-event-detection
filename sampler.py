@@ -212,7 +212,7 @@ class AdaptiveSampler(RootedTreeSampler):
         self.root2upperbound
         return 1 - float(len(self.covered_nodes)) / self.n_nodes_to_cover
 
-    def random_action(self, debug=True):
+    def random_action(self, debug=False):
         # rnd = random.random()
         # if rnd <= self.explore_proba:
         #     return 'explore'

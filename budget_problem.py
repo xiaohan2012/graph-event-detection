@@ -116,6 +116,13 @@ def charikar_algo(g, root, terminals, k, level):
             edges_to_remove |= (set(in_edges) - {min_cost_edge})
     dag.remove_edges_from(edges_to_remove)
     dag.add_node(root)  # ensure non-empty
+
+    # copy attrs
+    for u, v in dag.edges_iter():
+        dag[u][v] = g[u][v]
+    for u in dag.nodes_iter():
+        dag.node[u] = g.node[u]
+
     return dag
 
 

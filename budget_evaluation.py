@@ -25,10 +25,12 @@ def main():
     args = parser.parse_args()
     
     paths = glob(args.experiment_paths_regexp)
-
+    print(args.experiment_paths_regexp)
+    print(paths)
     groups_by_method = group_paths(paths,
                                    keyfunc=lambda p: p['args'][0],
                                    sort_keyfunc=lambda k: float(k['U']))
+    print(len(groups_by_method))
     obj_func_mat = []
     calculation_time_mat = []
     
