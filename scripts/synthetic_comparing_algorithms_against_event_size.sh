@@ -2,9 +2,6 @@
 
 methods=("random" "greedy" "lst" "lst+dij" "quota")
 
-data_dir='/cs/home/hxiao/code/lst/data/synthetic_event_size'
-result_dir='/cs/home/hxiao/code/lst/tmp/synthetic_event_size'
-
 event_size_start=10
 event_size_step=5
 event_size_end=100
