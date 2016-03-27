@@ -28,13 +28,13 @@ echo "using dataset '${dataset}'"
 
 if [ ${operation} == 'gen' ]; then
 
-    # U_start=0.0
-    # U_step=2.5
-    # U_end=50.0
+    U_start=0.0
+    U_step=2.5
+    U_end=50.0
 
-    U_start=1.0
-    U_step=1.0
-    U_end=2.0
+    # U_start=1.0
+    # U_step=1.0
+    # U_end=2.0
 
     Us=$(seq ${U_start} ${U_step} ${U_end})
 
