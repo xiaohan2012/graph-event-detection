@@ -15,24 +15,26 @@ def plot_evalution_result(result, output_dir,
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    for metric, df in result.items():
-        plt.clf()
-        fig = plt.figure()
+    plt.clf()
+    nrows, ncols = 2, 5
+
+    fig = plt.figure()
+
+    for i, (metric, df) in enumerate(result.items()):
+        plt.subplot(nrows, ncols, i+1)
         xs = df.columns.tolist()
         for r, series in df.iterrows():
             ys = series.tolist()
             plt.plot(xs, ys)
-            plt.hold(True)
+
         plt.xlabel(xlabel)
         plt.ylabel(metric)
-        # plt.ylim([0, 1])
-        plt.legend(df.index.tolist(), loc='lower right')
+        plt.title(metric)
+    fig.legend(df.index.tolist(), loc='lower right')
 
-        fig.savefig(
-            os.path.join(output_dir,
-                         '{}{}.png'.format(file_prefix, metric)
-                     )
-        )
+    fig.savefig(
+        os.path.join(output_dir, 'together.png')
+    )
 
 
 def main():

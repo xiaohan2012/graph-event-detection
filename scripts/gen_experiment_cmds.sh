@@ -28,7 +28,7 @@ do
 	    base="python gen_candidate_trees.py --method lst --dij ${sub_common} ${common_params}"
 	    echo $base
 	    if [[ $decompose == 'd' ]]; then
-		echo "${base} --decompose"
+			echo "${base} --decompose"
 	    fi
 	done
     done

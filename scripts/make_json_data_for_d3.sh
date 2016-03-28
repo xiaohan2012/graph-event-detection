@@ -15,10 +15,6 @@ if [ -z $1 ]; then
 	exit -1
 fi
 
-# if [ -z $2 ]; then
-# 	echo "events pickle dir is not given"
-# 	exit -1
-# fi
 
 dataset=$1
 pickle_dir=tmp/${dataset}
@@ -41,7 +37,7 @@ for p in $(ls ${pickle_dir}/result-*.pkl); do
 		--interactions_path "data/${dataset}/interactions.json" \
 		--people_path "data/${dataset}/people.json" \
 		--to_original_graph \
-		-k 20 \
+		-k 5 \
 		${extra}
 
 	echo 'dumping event to meta graph'
@@ -50,16 +46,9 @@ for p in $(ls ${pickle_dir}/result-*.pkl); do
 		--dirname "${output_dir}/event/meta_graph" \
 		--interactions_path "data/${dataset}/interactions.json" \
 		--people_path "data/${dataset}/people.json" \
-		-k 20 \
+		-k 5 \
 		${extra}
 done
-
-# echo "dumping meta information..."
-# python dump_meta_info_to_json.py \
-# 	--interactions_path "data/${dataset}/interactions.json" \
-# 	--interactions_output_path ${output_dir}/id2interactions.json \
-# 	--people_path "data/${dataset}/people.json" \
-# 	--people_output_path ${output_dir}/id2people.json
 
 echo "dumping event names..."
 python dump_all_event_json_names.py \

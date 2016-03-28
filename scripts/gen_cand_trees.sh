@@ -38,7 +38,7 @@ time ${CMD} gen_candidate_trees.py \
 	--root_sampling=${sampler} \
 	--dist=cosine \
 	--result_prefix=${root_dir}/tmp/${dataset}/result- \
-        --all_paths_pkl_prefix=${root_dir}/tmp/${dataset}/paths- \
+    --all_paths_pkl_prefix=${root_dir}/tmp/${dataset}/paths- \
 	--lda_path=$(ls ${root_dir}/data/${dataset}/model-*.lda) \
 	--corpus_dict_path=${root_dir}/data/${dataset}/dict.pkl \
 	--interaction_path=${root_dir}/data/${dataset}/interactions.json \
