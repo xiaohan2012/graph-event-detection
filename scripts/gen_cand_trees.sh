@@ -4,7 +4,7 @@ root_dir='/cs/home/hxiao/code/lst'
 
 dataset=$1
 U=$2
-cand_n_percent=$3
+cand_n=$3
 
 # sampler="random"
 sampler="adaptive"
@@ -23,7 +23,7 @@ if [ -z $2 ]; then
 fi
 
 if [ -z $3 ]; then
-	echo "'cand_n_percent' required as \$3"
+	echo "'cand_n' required as \$3"
 	exit -1
 fi
 
@@ -34,7 +34,7 @@ if [ ! -d ${root_dir}/tmp/${dataset} ]; then
 fi
 
 time ${CMD} gen_candidate_trees.py \
-	--method=quota \
+	--method=greedy \
 	--root_sampling=${sampler} \
 	--dist=cosine \
 	--result_prefix=${root_dir}/tmp/${dataset}/result- \
@@ -44,6 +44,6 @@ time ${CMD} gen_candidate_trees.py \
 	--interaction_path=${root_dir}/data/${dataset}/interactions.json \
 	--meta_graph_path_prefix=${root_dir}/tmp/${dataset}/meta-graph \
 	--U=${U} \
-        --cand_n_percent=${cand_n_percent} \
+        --cand_n=${cand_n} \
 	${extra}
 
