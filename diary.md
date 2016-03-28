@@ -1581,3 +1581,66 @@ About speeding up budget problem:
 
 - more agressive Q adjust?
 - if slightly smaller than B, then we save the next few runnings of quota method as the extra gain is not so big
+
+More about topic models:
+
+- [relational topic models](http://machinelearning.wustl.edu/mlpapers/paper_files/AISTATS09_ChangB.pdf)
+  - [matlab implementation](http://www.ics.uci.edu/~asuncion/software/fast.htm#rtm)
+  - [python implementation](https://github.com/arongdari/python-topic-model/blob/master/ptm/rtm.py)
+- interesting papers: [network of topics](http://www.ics.uci.edu/~asuncion/pubs/TIST_11.pdf)
+
+Current assumption of synthetic data:
+
+- people can talk with each other: in real, there are groups/cliques
+- people can talk about topic: in real, people tend to talk about one or two topics they are into
+- noise are just scattered words about random topic, in other words, noise tend not to form big trees: in reality, this is not true of course
+
+new synthetic data
+
+- beside noise, we add smaller topically coherent events
+
+
+Some interaction dataset that is semi-structured
+  - [Semantic Web Chat Log](http://chatlogs.planetrdf.com/swig/2013-09-30.html)
+
+
+Switched back to smaller enron dataset
+ 
+
+
+Day 4:
+
+had discussion
+
+
+
+Day 6:
+
+On sampling method:
+
+- exploiation score using log * density works better in certain cases
+- changing the event number, k affects the sampler performance. it seems that:
+  - if k is small, adaptive works better
+  - if k is large, upperbound works better
+  - needs more experiment
+
+Day 7:
+
+algorithms on real dataset:
+
+- pure lst explodes memory consumption so that it's killed by OS halfway
+- random is better than lst+dij, strange
+
+synthetic on noise:
+
+- quota method takes up to 50% memory when fraction = 100
+- greedy is the best
+
+## Week 19
+
+Day 1:
+
+more on enron:
+
+- 1490 sends half of the emails
+- different U gives different ordering of the events
