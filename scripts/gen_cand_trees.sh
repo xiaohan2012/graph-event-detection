@@ -34,9 +34,8 @@ if [ ! -d ${root_dir}/tmp/${dataset} ]; then
 fi
 
 time ${CMD} gen_candidate_trees.py \
-	--method=greedy \
+	--method=quota \
 	--root_sampling=${sampler} \
-	--days 1 \
 	--dist=cosine \
 	--result_prefix=${root_dir}/tmp/${dataset}/result- \
     --all_paths_pkl_prefix=${root_dir}/tmp/${dataset}/paths- \

@@ -30,7 +30,7 @@ def greedy_choice_by_cost(g, edges,
 def greedy_choice_by_cost_numpy(g, edges,
                                 edge_cost_key,
                                 node_reward_key):
-    costs = np.asarray([s][t][edge_cost_key] for s, t in edges)
+    costs = np.asarray([g[s][t][edge_cost_key] for s, t in edges])
     return edges[np.argmin(costs)]
 
 

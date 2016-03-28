@@ -8,6 +8,7 @@ from util import memoized
 
 def transitive_closure(g, node_weight='r', edge_weight='c'):
     new_g = nx.DiGraph()
+
     l = nx.all_pairs_dijkstra_path_length(g, weight=edge_weight)
     # add shortest path and weight
     new_g.add_edges_from([
@@ -115,6 +116,13 @@ def charikar_algo(g, root, terminals, k, level):
             edges_to_remove |= (set(in_edges) - {min_cost_edge})
     dag.remove_edges_from(edges_to_remove)
     dag.add_node(root)  # ensure non-empty
+
+    # copy attrs
+    for u, v in dag.edges_iter():
+        dag[u][v] = g[u][v]
+    for u in dag.nodes_iter():
+        dag.node[u] = g.node[u]
+
     return dag
 
 

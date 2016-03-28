@@ -94,6 +94,11 @@ def evaluate_meta_tree_result(
     scores['recall'] = r
     scores['f1'] = f1
     
+    if 'calculation_time' in pred_events[0].graph:
+        scores['log(running_time)'] = np.log(np.mean(
+                [t.graph['calculation_time'] for t in pred_events]
+                ))
+    
     # mean of tree edit distance across all (true, pred) pairs
     # weighted mean can be added
     # scores['tree_similarity'] = np.mean(
