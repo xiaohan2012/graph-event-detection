@@ -35,6 +35,15 @@ function load_event_1(config){
 		var graph = graphs[config.event_index];
 		console.log(config.event_index + ' / ' + graphs.length);
 
+		var participants = _.uniq(_.map(graph.nodes, function(n){
+			return n.sender_id;
+		}));
+		console.log('participants:', participants);
+
+		var people_color = d3.scale.ordinal()
+			.domain(participants)
+			.range(d3.scale.category10().range())
+
 		if (error) throw error;
 
 		force
@@ -84,18 +93,41 @@ function load_event_1(config){
 		
 
 		var node = gnodes.append("circle")
+			.attr('stroke', config.node.stroke)
+			.attr('stroke-width', config.node['stroke-width'])
 			.attr("class", "node")
 			.attr("r", call_func_or_just_value(config.node.r))
-			.style("fill", config.node.fill)
+			// .style("fill", config.node.fill)
+			.style("fill", function(d){
+				return people_color(d.sender_id);
+			})
+			.attr('opacity', 0.3)
 			.call(force.drag)
-			.on('mouseover', tip.show)
+			.on('mousein', tip.show)
 			.on('mouseout',  tip.hide)
+			.on('click', function(d){
+				var text = d3.select(this.nextSibling);
+				console.log(text);
+				console.log(text.style('display'));
+				if (text.style('display') == 'none'){
+					text.style('display', 'inline');
+					d3.select(this).attr('opacity', 1.0);
+				}
+				else{
+					text.style('display', 'none');
+					d3.select(this).attr('opacity', 0.5);
 
-		if(false){
+				}
+				// text.toggle();
+			})
+
+		if(true){
 			var node_labels = gnodes.append("text")
 				.text(config.node.label)
-				.attr('font-size', 10)
-				.attr('font-weight', 'bold');
+				.attr('font-size', 16)
+				.attr('font-weight', 'bold')
+				.style('display', 'none')
+				.style('text-anchor', 'middle');
 		}
 
 		force.on("tick", function() {
@@ -118,6 +150,9 @@ function load_event_1(config){
 				var y = (d.source.y + d.target.y) / 2;
 				return 'translate(' + [x, y] + ')';
 			});
+			node_labels.attr('transform', function(d){
+				return 'translate(' + [0, -12] + ')'; 
+			})
 
 		});
 	});

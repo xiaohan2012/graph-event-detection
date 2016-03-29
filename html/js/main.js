@@ -21,11 +21,13 @@ $(document).ready(function(){
 	}
 
 	
-	var EDGE_BROADCAST = 1, EDGE_REPLY = 2, EDGE_RELAY = 3,	NODE_EVENT = 4;
+	var EDGE_BROADCAST = 1, EDGE_REPLY = 4, EDGE_RELAY = 7,	NODE_EVENT = 4;
 	var palette = d3.scale.ordinal()
 		.domain([EDGE_BROADCAST, EDGE_REPLY, EDGE_RELAY])
 		.range(d3.scale.category10().range());
 	var cluster_palette = d3.scale.category20c();
+	// var sender_scale = d3.scale.oridinal()
+	// 	.domain()
 
 	var format_time = d3.time.format("%Y-%m-%d");
 
@@ -37,7 +39,7 @@ $(document).ready(function(){
 		};
 		var context_flag_config = {
 			'event': {
-				force: {charge: -300, linkDistance: 10}
+				force: {charge: -200, linkDistance: 10}
 			},
 			'contexted_event': {
 				force: {charge: -200, linkDistance: 200}
@@ -73,13 +75,14 @@ $(document).ready(function(){
 		
 		var graph_type_config = {
 			'original_graph': {
-				force: {charge: -100, linkDistance: 50},
+				force: {charge: -200, linkDistance: 20},
 				tip: {
 					html: function(d){
 						return dict2html(d);
 					}
 				},
 				node: {
+					stroke: 'black',
 					label: function(d){
 						return d.name;
 					}
@@ -87,7 +90,7 @@ $(document).ready(function(){
 			},
 			'meta_graph': {
 				svg: {width: 1200, height: 750},
-				force: {charge: -500, linkDistance: 50},
+				force: {charge: -200, linkDistance: 10},
 				tip: {
 					html: function(d){
 						console.log('iteraction:', d);
@@ -102,13 +105,28 @@ $(document).ready(function(){
 				},
 				node: {
 					fill: function(d){
-						return cluster_palette(d['cluster_label']);
+						// return cluster_palette(d['cluster_label']);
+						console.log(d);
+						if(d['root']){
+							return 'red';
+						}
+						else{
+							return "#888";
+						}
 					},
 					r: function(d){
 						// console.log(d);
-						return 8;// d['retweet_count'] + 1;
+						if(d['root']){
+							return 12;// d['retweet_count'] + 1;
+						}
+						else{
+							// return 5;
+							return 8;
+						}
 					},
-					label: dataset_setting.node_label
+					label: function(d){
+						return d.body.substring(0, 70) + '..';
+					}
 				},
 				link: {
 					stroke: function(d){
@@ -117,21 +135,30 @@ $(document).ready(function(){
 							console.log("broadcast..")
 							return palette(EDGE_BROADCAST); // broadcast
 						}
-						else if(_.intersection(s["recipient_ids"], [t["sender_id"]]) && 
-								_.intersection(t["recipient_ids"], [s["sender_id"]])){
+						else if(_.intersection(s["recipient_ids"], [t["sender_id"]]).length > 0 && 
+								_.intersection(t["recipient_ids"], [s["sender_id"]]).length > 0){
+							// console.log('s["recipient_ids"]', s["recipient_ids"])
+							// console.log('t["sender_id"]', t["sender_id"])
+							// console.log(_.intersection(s["recipient_ids"], [t["sender_id"]]));
+
+							// console.log('t["recipient_ids"]', t["recipient_ids"])
+							// console.log('s["sender_id"]', s["sender_id"])
+							// console.log(_.intersection(t["recipient_ids"], [s["sender_id"]]));
 							console.log("reply..")
 							return palette(EDGE_REPLY); // reply
 						}
-						else if(_.intersection(s["recipient_ids"], [t["sender_id"]]) && 
-								!_.intersection(t["recipient_ids"], [s["sender_id"]])){
+						else if(_.intersection(s["recipient_ids"], [t["sender_id"]]).length > 0 && 
+								_.intersection(t["recipient_ids"], [s["sender_id"]]).length == 0){
 							console.log("relay..")
 							return palette(EDGE_RELAY); // relay
 						}else{
 							throw new Exception("impossible!");
 						}
 					},
+					"stroke-width": 6,
 					label: function(d){
-						return d['c'].toFixed(3);
+						// return d['c'].toFixed(3);
+						return '';
 					}
 				}
 			}
