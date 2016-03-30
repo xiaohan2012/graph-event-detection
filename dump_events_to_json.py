@@ -11,6 +11,7 @@ from clustering import greedy_clustering_on_graph
 from util import json_dump
 from viz_util import to_d3_graph
 from experiment_util import get_output_path
+from dag_util import get_roots
 
 
 def run(candidate_tree_path,
@@ -29,6 +30,7 @@ def run(candidate_tree_path,
     
     # add people and content
     for e in events:
+        root = get_roots(e)[0]
         for n in e.nodes_iter():
             e.node[n]['sender'] = id2people[e.node[n]['sender_id']]
             e.node[n]['recipients'] = [id2people[id_]
@@ -41,6 +43,7 @@ def run(candidate_tree_path,
                 e.node[n][f] = id2interaction[n].get(f)
             
             e.node[n]['body'] = id2interaction[n]['body']
+            e.node[n]['root'] = (n == root)
 
         # some simple clustering
         assignment = greedy_clustering_on_graph(e)

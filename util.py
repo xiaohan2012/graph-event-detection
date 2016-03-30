@@ -128,3 +128,7 @@ class memoized(object):
         """Support instance methods.
         """
         return functools.partial(self.__call__, obj)
+
+
+def format_timestamp(s, format='%Y-%m-%d'):
+    return datetime.fromtimestamp(s).strftime(format)

@@ -102,12 +102,12 @@ function load_event_1(config){
 				return people_color(d.sender_id);
 			})
 			.attr('opacity', 0.3)
+			// .attr('opacity', 1.0)
 			.call(force.drag)
-			.on('mousein', tip.show)
-			.on('mouseout',  tip.hide)
 			.on('click', function(d){
+				console.log(d['message_id']);
+				console.log(d['message_id']);
 				var text = d3.select(this.nextSibling);
-				console.log(text);
 				console.log(text.style('display'));
 				if (text.style('display') == 'none'){
 					text.style('display', 'inline');
@@ -118,8 +118,12 @@ function load_event_1(config){
 					d3.select(this).attr('opacity', 0.5);
 
 				}
-				// text.toggle();
 			})
+			// .on('mousein', tip.show)
+			.on('mousein', function(){
+				console.log('mousein');
+			})
+			.on('mouseout',  tip.hide);
 
 		if(true){
 			var node_labels = gnodes.append("text")

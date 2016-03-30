@@ -16,7 +16,7 @@ def plot_evalution_result(result, output_dir,
         os.makedirs(output_dir)
 
     plt.clf()
-    nrows, ncols = 2, 5
+    nrows, ncols = 3, 2
 
     fig = plt.figure()
 
@@ -30,7 +30,7 @@ def plot_evalution_result(result, output_dir,
         plt.xlabel(xlabel)
         plt.ylabel(metric)
         plt.title(metric)
-    fig.legend(df.index.tolist(), loc='lower right')
+        plt.legend(df.index.tolist(), loc='lower right')
 
     fig.savefig(
         os.path.join(output_dir, 'together.png')

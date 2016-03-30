@@ -1644,3 +1644,15 @@ more on enron:
 
 - 1490 sends half of the emails
 - different U gives different ordering of the events
+
+
+Day 2:
+
+\#beefban:
+
+1. supporting beefban: mainly self-talking by `someone somewhere` with some opposite opinions(argument)
+2. both supporting beefban and opposing it(two groups of self-talking)
+3. mostly self-talking
+
+
+First 
