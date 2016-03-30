@@ -29,6 +29,11 @@ def random_topic(n_topics, topic_noise=0.0001, taboo_topics=set()):
     return np.random.dirichlet(dirich_alpha), main_topic
 
 
+def random_topic_distribution(n_topics):
+    raw_vect = np.random.random(n_topics)
+    return raw_vect / raw_vect.sum()
+
+
 def gen_event_with_known_tree_structure(event_size, participants,
                                         start_time, end_time,
                                         event_topic_param,
@@ -227,7 +232,7 @@ def random_noisy_interactions(n_noisy_interactions,
     noisy_interactions = []
     # noisy events
     for i in xrange(n_noisy_interactions):
-        topic, _ = random_topic(n_topics, topic_noise, taboo_topics)
+        topic = random_topic_distribution(n_topics)
         sender_id, recipient_id = np.random.permutation(
             n_total_participants
         )[:2]
@@ -388,8 +393,7 @@ def main():
                         default='')
     parser.add_argument('--random_seed',
                         type=int,
-                        default=None)
-    
+                        default=None)    
 
     args = parser.parse_args()
 
