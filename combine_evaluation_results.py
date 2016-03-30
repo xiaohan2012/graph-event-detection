@@ -20,7 +20,9 @@ def combine(results):
         data3d = []
         for r in results:
             mat = r[m].as_matrix()
-            # print(mat.shape)
+            # if mat.shape == (5, 41):
+            #     print "debug!! if you see it, please think if you should remove it"
+            print mat.shape
             data3d.append(mat)
         # print(data3d)
         mean_val = np.nanmean(np.asarray(data3d), axis=0)

@@ -151,6 +151,7 @@ if [ "$1" == "viz" ]; then
     python draw_evaluation_result.py \
 	--result_path ${combined_eval_result_path} \
 	--xlabel "event size" \
+	--subplot_ordering precision recall f1 set_cover_obj "log(running_time)" \
 	--output_dir ${result_dir}/figure
     scp ${result_dir}/figure/*  shell.cs.helsinki.fi:/cs/home/hxiao/public_html/figures/synthetic/event_size/
 fi

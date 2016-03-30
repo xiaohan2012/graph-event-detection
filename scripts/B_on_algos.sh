@@ -77,14 +77,13 @@ if [ ${operation} == 'gen' ]; then
 	    --U=$1 \
             --cand_n=$3 \
             --random_seed 123456 \
-	    --weight_for_topics=0.8 \
-	    --weight_for_bow=0.2 \
-	    --weeks 4
-	    # --days=1 \
-	    # --weight_for_topics=0.4 \
-	    # --weight_for_hashtag_bow=0.4 \
-	    # --weight_for_bow=0.2
-
+	    --days=1 \
+	    --weight_for_topics=0.4 \
+	    --weight_for_hashtag_bow=0.4 \
+	    --weight_for_bow=0.2
+	    # --weight_for_topics=0.8 \
+	    # --weight_for_bow=0.2 \
+	    # --weeks 4
     }
 
 

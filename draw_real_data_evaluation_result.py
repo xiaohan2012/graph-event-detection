@@ -42,7 +42,7 @@ def plot_evalution_result(results,
     for r, series in df.iterrows():
         ys = series.tolist()
         plt.plot(xs[:1], ys[:1])
-    plt.legend(df.index.tolist(), loc='lower right')
+    plt.legend(df.index.tolist(), loc='center')
     ax.set_xticklabels(())
     ax.set_yticklabels(())
     ax.axis('off')
