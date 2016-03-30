@@ -380,7 +380,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--charikar_level',
                         type=int,
-                        default=2,
+                        default=1,
                         help="the `level` parameter in charikar's algorithm"
     )
 
