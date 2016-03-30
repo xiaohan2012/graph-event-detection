@@ -28,13 +28,13 @@ echo "using dataset '${dataset}'"
 
 if [ ${operation} == 'gen' ]; then
 
-    # U_start=0.0
-    # U_step=2.5
-    # U_end=50.0
+    U_start=0.0
+    U_step=2.5
+    U_end=50.0
 
-    U_start=1.0
-    U_step=1.0
-    U_end=2.0
+    # U_start=1.0
+    # U_step=1.0
+    # U_end=2.0
 
     Us=$(seq ${U_start} ${U_step} ${U_end})
 
@@ -77,14 +77,13 @@ if [ ${operation} == 'gen' ]; then
 	    --U=$1 \
             --cand_n=$3 \
             --random_seed 123456 \
-	    --weight_for_topics=0.8 \
-	    --weight_for_bow=0.2 \
-	    --weeks 4
-	    # --days=1 \
-	    # --weight_for_topics=0.4 \
-	    # --weight_for_hashtag_bow=0.4 \
-	    # --weight_for_bow=0.2
-
+	    --days=1 \
+	    --weight_for_topics=0.4 \
+	    --weight_for_hashtag_bow=0.4 \
+	    --weight_for_bow=0.2
+	    # --weight_for_topics=0.8 \
+	    # --weight_for_bow=0.2 \
+	    # --weeks 4
     }
 
 

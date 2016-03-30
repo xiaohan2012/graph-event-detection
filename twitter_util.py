@@ -1,5 +1,6 @@
 import itertools
 import pandas as pd
+import langdetect
 from langdetect import detect
 
 from merge_similar_messages import merge_messages
@@ -21,6 +22,11 @@ def remove_mentions_and_urls(df):
 
     return df
 
+def detect_lan(msg):
+    try:
+        return detect(msg)
+    except langdetect.lang_detect_exception.LangDetectException:
+        return ''
 
 def main():
     import argparse
@@ -35,7 +41,7 @@ def main():
 
     df = remove_mentions_and_urls(df)
     df = df[df['body'].map(len) > 10]  # filter short body
-    df = df[df['body'].map(detect) == 'en']  # non english
+    df = df[df['body'].map(detect_lan) == 'en']  # non english
 
     df = merge_messages(df,
                         timedelta(days=1),
