@@ -18,16 +18,20 @@ for p in $(ls ${pickle_dir}/result-*.pkl); do
 	output_name=$(basename ${p})
 	output_name="${output_name%.*}.json"
 
-	python dump_vis_timeline_data.py \
-		--cand_trees_path ${p} \
-		--interactions_path data/${dataset}/interactions.json \
-		--people_path data/${dataset}/people.json \
-		--corpus_dict_path  data/${dataset}/dict.pkl \
-		--lda_model_path $(ls data/${dataset}/model-*.lda) \
-		--output_path "${output_dir}/timeline/${output_name}" \
-		-k 10 \
-		${extra}
-	echo "Writing to '${output_dir}/timeline/${output_name}'"
+	if [ ! -f ${output_dir}/timeline/${output_name} ]; then
+		python dump_vis_timeline_data.py \
+			--cand_trees_path ${p} \
+			--interactions_path data/${dataset}/interactions.json \
+			--people_path data/${dataset}/people.json \
+			--corpus_dict_path  data/${dataset}/dict.pkl \
+			--lda_model_path $(ls data/${dataset}/model-*.lda) \
+			--output_path "${output_dir}/timeline/${output_name}" \
+			-k 10 \
+			${extra}
+		echo "Writing to '${output_dir}/timeline/${output_name}'"
+	else
+		echo "computed, ingore ${output_dir}/timeline/${output_name}"
+	fi
 done
 
 echo "dumping timeline names..."

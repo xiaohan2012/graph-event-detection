@@ -30,24 +30,35 @@ fi
 for p in $(ls ${pickle_dir}/result-*.pkl); do
 	echo "${p}"
 	# just events
-	echo 'dumping event to original graph'
-	python dump_events_to_json.py \
-		--candidate_tree_path ${p} \
-		--dirname "${output_dir}/event/original_graph" \
-		--interactions_path "data/${dataset}/interactions.json" \
-		--people_path "data/${dataset}/people.json" \
-		--to_original_graph \
-		-k 5 \
-		${extra}
+	output_name=$(basename ${p})
+	output_name="${output_name%.*}.json"
 
-	echo 'dumping event to meta graph'
-	python dump_events_to_json.py \
-		--candidate_tree_path ${p} \
-		--dirname "${output_dir}/event/meta_graph" \
-		--interactions_path "data/${dataset}/interactions.json" \
-		--people_path "data/${dataset}/people.json" \
-		-k 5 \
-		${extra}
+	if [ ! -f "${output_dir}/event/original_graph/${output_name}" ]; then
+		echo 'dumping event to original graph'
+		python dump_events_to_json.py \
+			--candidate_tree_path ${p} \
+			--dirname "${output_dir}/event/original_graph" \
+			--interactions_path "data/${dataset}/interactions.json" \
+			--people_path "data/${dataset}/people.json" \
+			--to_original_graph \
+			-k 5 \
+			${extra}
+	else
+		echo "original graph exists"
+	fi
+
+	if [ ! -f "${output_dir}/event/meta_graph/${output_name}" ]; then
+		echo 'dumping event to meta graph'
+		python dump_events_to_json.py \
+			--candidate_tree_path ${p} \
+			--dirname "${output_dir}/event/meta_graph" \
+			--interactions_path "data/${dataset}/interactions.json" \
+			--people_path "data/${dataset}/people.json" \
+			-k 5 \
+			${extra}
+	else
+		echo "meta graph exists"
+	fi
 done
 
 echo "dumping event names..."
