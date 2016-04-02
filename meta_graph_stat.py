@@ -166,6 +166,7 @@ class MetaGraphStat(object):
             *[self.g.node[n]['hashtags']
               for n in self.g.nodes_iter()]
         )
+        tags = map(lambda t: t.lower(), tags)
         return sorted(Counter(tags).items(),
                       key=lambda (t, c): c,
                       reverse=True)

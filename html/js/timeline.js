@@ -67,7 +67,7 @@ function showMacro(json_url){
 							g['content'] += '</br>';
 							g['content'] += _.map(
 								_.head(g['hashtags'], 10),
-								function(v){return '#'+v[0]}
+								function(v){return '#'+v[0]+'(' + v[1] + ')'}
 							)
 								.join(' ');
 						}
