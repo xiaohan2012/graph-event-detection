@@ -32,21 +32,29 @@ def main():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--dataset', required=True)
+    parser.add_argument('--hashtag_ban')
 
     args = parser.parse_args()
     
     df = pd.read_json('data/{}/interactions.json'.format(args.dataset))
 
-    # df = df.iloc[:100]
+    df['hashtags'] = df['hashtags'].apply(
+        lambda hs: list(set(map(lambda s: s.lower(), hs)))
+        )
 
-    df = remove_mentions_and_urls(df)
-    df = df[df['body'].map(len) > 10]  # filter short body
-    df = df[df['body'].map(detect_lan) == 'en']  # non english
+    if args.hashtag_ban:
+        df['hashtags'] = df['hashtags'].apply(
+            lambda hs: filter(lambda h: h != args.hashtag_ban, hs)
+            )
 
-    df = merge_messages(df,
-                        timedelta(days=1),
-                        50,
-                        'datetime')
+    # df = remove_mentions_and_urls(df)
+    # df = df[df['body'].map(len) > 10]  # filter short body
+    # df = df[df['body'].map(detect_lan) == 'en']  # non english
+
+    # df = merge_messages(df,
+    #                     timedelta(days=1),
+    #                     50,
+    #                     'datetime')
 
     df.to_json('data/{}/interactions_new.json'.format(args.dataset),
                orient='records')

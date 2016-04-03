@@ -1,14 +1,22 @@
 #! /bin/bash
 
-rounds=50
+DEBUG=false
+
+rounds=20
+
 
 export methods=("random" "greedy" "lst" "lst+dij" "quota")
 export data_dir='/cs/home/hxiao/code/lst/data/synthetic_noise'
 export result_dir='/cs/home/hxiao/code/lst/tmp/synthetic_noise'
 
 export fraction_start=0.0
-export fraction_step=2.5
+export fraction_step=5.0
 export fraction_end=100.0
+
+if [ "$DEBUG" = true ]; then
+    rounds=10
+    export fraction_end=50.0
+fi
 
 PARALLEL="/cs/home/hxiao/.local/bin/parallel --tmpdir /cs/home/hxiao/tmp "
 SINGLE_ROUND_SCRIPT="./scripts/synthetic_comparing_algorithms_against_noise.sh"
@@ -45,13 +53,13 @@ if [ "$1" == "data" ]; then
 	    --event_size_sigma 1 \
 	    --participant_mu 4 \
 	    --participant_sigma 0.1 \
-	    --n_total_participants 25 \
+	    --n_total_participants 10 \
 	    --min_time 10 \
 	    --max_time  51 \
 	    --event_duration_mu 50 \
 	    --n_topics 10 \
 	    --n_noisy_interactions_fraction ${fraction} \
-	    --topic_noise 1.0 \
+	    --topic_noise 0.01 \
 	    --topic_scaling_factor 10.0 \
 	    --output_dir ${data_dir} \
 	    --result_suffix "-${round}" \

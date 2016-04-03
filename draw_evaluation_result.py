@@ -6,6 +6,8 @@ import os
 import cPickle as pkl
 import matplotlib.pyplot as plt
 
+from global_vars import legend_mapping
+
 
 def plot_evalution_result(result, output_dir,
                           subplot_ordering,
@@ -32,6 +34,10 @@ def plot_evalution_result(result, output_dir,
         plt.xticks(np.arange(np.min(xs), np.max(xs)+1, 20))
         plt.xlabel(xlabel)
         plt.ylabel(metric)
+        all_ys = [e for r, s in df.iterrows() for e in s.tolist()]
+        if np.min(all_ys) >= 0:
+            plt.ylim(ymin=0)
+        plt.ylim(ymax=np.max(all_ys)+0.1)
 
     # draw legend
     ax = plt.subplot(nrows, ncols, 6)
@@ -39,7 +45,8 @@ def plot_evalution_result(result, output_dir,
     for r, series in df.iterrows():
         ys = series.tolist()
         plt.plot(xs[:1], ys[:1])
-    plt.legend(df.index.tolist(), loc='lower right')
+    plt.legend(map(lambda k: legend_mapping[k], df.index.tolist()),
+               loc='lower right')
     ax.set_xticklabels(())
     ax.set_yticklabels(())
     ax.axis('off')

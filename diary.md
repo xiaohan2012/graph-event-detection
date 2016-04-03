@@ -1655,4 +1655,3 @@ Day 2:
 3. mostly self-talking
 
 
-First 
