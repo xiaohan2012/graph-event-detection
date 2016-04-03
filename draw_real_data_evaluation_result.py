@@ -14,10 +14,15 @@ def plot_evalution_result(results,
                           titles,
                           output_path,
                           legend_in_which_subplot=1,
-                          layout=(2, 2)):
+                          layout=(2, 2),
+                          figure_size=(None, None)):
     """
     subplots across different dataset
     """
+    if figure_size[0] and figure_size[1]:
+        from pylab import rcParams
+        rcParams['figure.figsize'] = figure_size
+
     output_dir=os.path.dirname(output_path)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -61,6 +66,8 @@ def main():
     parser.add_argument('--legend_in_which_subplot', type=int)
     parser.add_argument('--ncols', type=int, default=2)
     parser.add_argument('--nrows', type=int, default=2)
+    parser.add_argument('--figure_height', type=int)
+    parser.add_argument('--figure_width', type=int)
     parser.add_argument('--output_path')
     
     args = parser.parse_args()
@@ -75,7 +82,8 @@ def main():
         titles=args.titles,
         output_path=args.output_path,
         legend_in_which_subplot=args.legend_in_which_subplot,
-        layout=(args.nrows, args.ncols)
+        layout=(args.nrows, args.ncols),
+        figure_size=(args.figure_width, args.figure_height)
     )
 
 if __name__ == '__main__':
