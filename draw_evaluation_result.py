@@ -5,8 +5,11 @@ import numpy as np
 import os
 import cPickle as pkl
 import matplotlib.pyplot as plt
+from matplotlib import lines
+line_styles = lines.lineStyles.keys()
 
-from global_vars import legend_mapping
+from global_vars import legend_mapping, mpl_font, label_mapping, markers, colors
+mpl.rc('font', **mpl_font)
 
 
 def plot_evalution_result(result, output_dir,
@@ -25,15 +28,18 @@ def plot_evalution_result(result, output_dir,
     fig = plt.figure()
     for i, metric in enumerate(subplot_ordering):
         df = result[metric]
-        plt.subplot(nrows, ncols, i+1)
+        ax = plt.subplot(nrows, ncols, i+1)
         plt.tight_layout()
         xs = df.columns.tolist()
-        for r, series in df.iterrows():
+        for ith, (r, series) in enumerate(df.iterrows()):
             ys = series.tolist()
-            plt.plot(xs, ys, '.-')
+            plt.plot(xs, ys, marker=markers[ith], color=colors[ith], markersize=6, linewidth=3.0)
         plt.xticks(np.arange(np.min(xs), np.max(xs)+1, 20))
-        plt.xlabel(xlabel)
-        plt.ylabel(metric)
+        if i / ncols > 0:
+            plt.xlabel(xlabel)
+        plt.ylabel(label_mapping.get(metric, metric))
+        ax.yaxis.label.set_size(20)
+        ax.xaxis.label.set_size(20)
         all_ys = [e for r, s in df.iterrows() for e in s.tolist()]
         if np.min(all_ys) >= 0:
             plt.ylim(ymin=0)
@@ -42,9 +48,10 @@ def plot_evalution_result(result, output_dir,
     # draw legend
     ax = plt.subplot(nrows, ncols, 6)
     xs = df.columns.tolist()
-    for r, series in df.iterrows():
+    for ith, (r, series) in enumerate(df.iterrows()):
         ys = series.tolist()
-        plt.plot(xs[:1], ys[:1])
+        plt.plot(xs[:1], ys[:1],
+                 marker=markers[ith], color=colors[ith])
     plt.legend(map(lambda k: legend_mapping[k], df.index.tolist()),
                loc='lower right')
     ax.set_xticklabels(())

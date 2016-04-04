@@ -6,7 +6,9 @@ import os
 import cPickle as pkl
 import matplotlib.pyplot as plt
 
-from global_vars import legend_mapping, ban_list
+from global_vars import legend_mapping, mpl_font, label_mapping, ban_list, markers, colors
+# mpl_font['size']=18
+
 
 def plot_evalution_result(results,
                           metric,
@@ -19,6 +21,8 @@ def plot_evalution_result(results,
     """
     subplots across different dataset
     """
+    font_size = 22
+    legend_fontsize = 18
     if figure_size[0] and figure_size[1]:
         from pylab import rcParams
         rcParams['figure.figsize'] = figure_size
@@ -36,19 +40,21 @@ def plot_evalution_result(results,
         ax = plt.subplot(nrows, ncols, i+1)
         plt.tight_layout()
         xs = df.columns.tolist()
-        print(xs)
-        for r, series in df.iterrows():
+        for ith, (r, series) in enumerate(df.iterrows()):
             if r not in ban_list:
                 ys = series.tolist()
-                plt.plot(xs, ys, '.-')
+                plt.plot(xs, ys, marker=markers[ith], color=colors[ith], markersize=10, linewidth=3.0)
         plt.xticks(np.arange(np.min(xs), np.max(xs)+1, 20))
         plt.xlabel(xlabel)
-        if i % 2 == 0:
-            plt.ylabel(metric)
-        plt.title(titles[i])
+        ax.yaxis.label.set_size(font_size)
+        ax.xaxis.label.set_size(font_size)
+        if i % ncols == 0:
+            plt.ylabel(label_mapping.get(metric, metric))
+        plt.title(titles[i], fontsize=font_size)
 
         legends = [a for a in df.index.tolist() if a not in ban_list]
         if i+1 == legend_in_which_subplot:
+            mpl.rc('font', size=legend_fontsize)
             plt.legend(map(lambda k: legend_mapping.get(k, k), legends),
                        loc='lower right')
 

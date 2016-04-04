@@ -6,8 +6,8 @@ rounds=20
 
 
 export methods=("random" "greedy" "lst" "lst+dij" "quota")
-export data_dir='/cs/home/hxiao/code/lst/data/synthetic_noise'
-export result_dir='/cs/home/hxiao/code/lst/tmp/synthetic_noise'
+export data_dir='/cs/home/hxiao/code/lst/data/synthetic_noise_tmp'
+export result_dir='/cs/home/hxiao/code/lst/tmp/synthetic_noise_tmp'
 
 export fraction_start=0.0
 export fraction_step=5.0
@@ -59,7 +59,7 @@ if [ "$1" == "data" ]; then
 	    --event_duration_mu 50 \
 	    --n_topics 10 \
 	    --n_noisy_interactions_fraction ${fraction} \
-	    --topic_noise 0.01 \
+	    --topic_noise 0.1 \
 	    --topic_scaling_factor 10.0 \
 	    --output_dir ${data_dir} \
 	    --result_suffix "-${round}" \
@@ -72,7 +72,7 @@ fi
 
 if [ "$1" == "gen" ]; then
     if [ -d ${result_dir} ]; then
-	rm -r ${result_dir}/*
+	rm -r ${result_dir}/
     fi
 
     mkdir -p "${result_dir}/paths"

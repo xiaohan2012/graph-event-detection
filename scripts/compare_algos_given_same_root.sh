@@ -34,5 +34,5 @@ export -f gen_tree
 
 methods=("greedy" "lst+dij" "quota")
 for method in ${methods[@]}; do
-    gen_tree ${method} 15.0 "${roots[@]}"
+    gen_tree ${method} 30.0 "${roots[@]}"
 done
