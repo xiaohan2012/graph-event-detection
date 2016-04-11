@@ -1700,8 +1700,9 @@ Budget effect: 100 too small?
 
 Week 1: 
 
-Day 4:
+Reading and writing related work.
 
-Interesting topics:
 
-- topic modeling in dynamic text streams(\cite{aggarwal2012event})
+Week 2:
+
+

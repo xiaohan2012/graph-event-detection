@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<head>
+  <title>NVD3</title>
+  <meta charset="utf-8">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.2/d3.min.js"></script>
+  <script src="js/nv.d3.js"></script>
+  <link href="https://cdn.rawgit.com/novus/nvd3/v1.8.1/build/nv.d3.css" rel="stylesheet" type="text/css">
+  <style>
+   text {
+     font: 18px sans-serif;
+   }
+   svg {
+     display: block;
+   }
+   html, body, svg {
+     margin: 0px;
+	 margin-left: 100px;
+	 margin-top: 50px;
+     padding: 0px;
+     height: 100%;
+     width: 100%;
+   }
+   .nvd3 text {
+    font: normal 24px Arial;
+   }
+   .nvd3.nv-stackedarea path.nv-area{
+	 fill-opacity:1;
+   }
+  </style>
+</head>
+
+<body class='with-3d-shadow with-transitions'>
+  <select id="dataset">
+	<option value="ukraine">#ukraine</option>
+	<option value="baltimore">#Baltimore</option>
+	<option value="beefban">#beefban</option>
+	<option value="enron_small">Enron small</option>
+  </select>
+  <button onclick="expandLegend();">Expand/Contract Legend</button>
+  <script>
+   var expandLegend = function() {
+     var exp = chart.legend.expanded();
+     chart.legend.expanded(!exp);
+     chart.update();
+   }
+  </script>
+  <svg id="chart"></svg>
+  <script src="js/stacked_area.js"></script>
+</body>
+</html>
+

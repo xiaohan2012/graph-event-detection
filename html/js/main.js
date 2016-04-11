@@ -1,3 +1,4 @@
+
 $(document).ready(function(){
 	function get_meta_config(){
 		return {
@@ -90,7 +91,7 @@ $(document).ready(function(){
 			},
 			'meta_graph': {
 				svg: {width: 1200, height: 750},
-				force: {charge: -200, linkDistance: 10},
+				force: {charge: -100, linkDistance: 10},
 				tip: {
 					html: function(d){
 						console.log('iteraction:', d);
@@ -117,15 +118,15 @@ $(document).ready(function(){
 					r: function(d){
 						// console.log(d);
 						if(d['root']){
-							return 12;// d['retweet_count'] + 1;
+							return 20;// d['retweet_count'] + 1;
 						}
 						else{
 							// return 5;
-							return 8;
+							return 5;
 						}
 					},
 					label: function(d){
-						return d.body.substring(0, 70) + '..';
+						return d.body.substring(0, 60) + '..';
 					}
 				},
 				link: {
@@ -155,10 +156,28 @@ $(document).ready(function(){
 							throw new Exception("impossible!");
 						}
 					},
-					"stroke-width": 6,
+					strokeWidth: function(d){
+						// if(d['c'] > 0.8){
+						// 	return 10;
+						// }
+						// else{
+						// 	return 2;
+						// }
+						// var max = 4;
+						// console.log(d['c']);
+						// var width = Math.round(max * d['c'])+1;
+						// return width;
+						return 2;
+					},
 					label: function(d){
-						// return d['c'].toFixed(3);
+						// console.log(d['c']);
 						return '';
+						if(d['c'] >= 0.5){
+							return d['c'].toFixed(2);
+						}
+						else{
+							return '';
+						}
 					}
 				}
 			}

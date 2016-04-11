@@ -1,5 +1,7 @@
 #! /bin/bash
 
+DEBUG=false
+
 export root_dir='/cs/home/hxiao/code/lst'
 export dir_suffix="-budget-experiment"
 
@@ -21,25 +23,20 @@ export dataset=$1
 
 echo "using dataset '${dataset}'"
 
-
-#  "quota"
-# "lst --dij"
-
-
 if [ ${operation} == 'gen' ]; then
-
-    U_start=0.0
-    U_step=2.5
-    U_end=50.0
-
-    # U_start=1.0
-    # U_step=1.0
-    # U_end=2.0
+    if [ ${DEBUG} = true ]; then
+	U_start=0.0
+	U_step=5.0
+	U_end=10.0
+    else
+	U_start=5.0
+	U_step=5.0
+	U_end=100.0
+    fi
 
     Us=$(seq ${U_start} ${U_step} ${U_end})
 
-    methods=("random" "greedy" "lst+dij" "quota")
-    # methods=("quota")
+    methods=("random" "greedy" "lst" "lst+dij" "quota")
 
     if [ ! -d ${root_dir}/tmp/${dataset}${dir_suffix} ]; then
 	mkdir -p ${root_dir}/tmp/${dataset}${dir_suffix}
@@ -64,6 +61,13 @@ if [ ${operation} == 'gen' ]; then
 	    exit -1
 	fi
 
+	if [ ${dataset} != "enron_small" ]; then
+	    extra="--days=1   --weight_for_topics=0.4  --weight_for_hashtag_bow=0.4   --weight_for_bow=0.2"
+	else
+	    extra="--weight_for_topics=0.8 --weight_for_bow=0.2 --weeks 4"
+	fi
+	echo ${extra}
+
 	python gen_candidate_trees.py \
 	    --method=$2 \
 	    --root_sampling=upperbound \
@@ -77,13 +81,8 @@ if [ ${operation} == 'gen' ]; then
 	    --U=$1 \
             --cand_n=$3 \
             --random_seed 123456 \
-	    --days=1 \
-	    --weight_for_topics=0.4 \
-	    --weight_for_hashtag_bow=0.4 \
-	    --weight_for_bow=0.2
-	    # --weight_for_topics=0.8 \
-	    # --weight_for_bow=0.2 \
-	    # --weeks 4
+	    ${extra}
+
     }
 
 
@@ -97,7 +96,7 @@ if [ ${operation} == 'gen' ]; then
     rm -r ${root_dir}/tmp/${dataset}${dir_suffix}/paths-*
 
     # 60 comes from sampling method experiment result
-    ${PARALLEL} run_experiment ::: ${Us[@]}  :::  ${methods[@]} ::: 40
+    ${PARALLEL} run_experiment ::: ${Us[@]}  :::  ${methods[@]} ::: 100
 fi
 
 if [ ${operation} == 'eval' ]; then

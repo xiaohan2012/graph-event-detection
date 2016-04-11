@@ -1,7 +1,7 @@
 #! /bin/bash
+DEBUG=false
 
-rounds=50
-# rounds=2
+rounds=20
 
 PARALLEL="/cs/home/hxiao/.local/bin/parallel --tmpdir /cs/home/hxiao/tmp "
 SINGLE_ROUND_SCRIPT="./scripts/synthetic_comparing_algorithms_against_event_size.sh"
@@ -9,19 +9,22 @@ SINGLE_ROUND_SCRIPT="./scripts/synthetic_comparing_algorithms_against_event_size
 export data_dir='/cs/home/hxiao/code/lst/data/synthetic_event_size'
 export result_dir='/cs/home/hxiao/code/lst/tmp/synthetic_event_size'
 
-export methods=("random" "greedy" "lst+dij" "quota")
+export methods=("random" "greedy" "lst" "lst+dij" "quota")
 
 event_size_start=10
 event_size_step=5
 event_size_end=100
 
-# event_size_start=10
-# event_size_step=5
-# event_size_end=15
+if [ "$DEBUG" = true ]; then
+    rounds=10
+    export event_size_end=50.0
+fi
+
+
 
 export event_sizes=$(seq ${event_size_start} ${event_size_step} ${event_size_end})
 
-export fraction=5.0
+export fraction=20.0
 
 rounds_array=$(seq 1 1 ${rounds})
 
@@ -56,7 +59,7 @@ if [ "$1" == "data" ]; then
 	    --event_duration_mu 50 \
 	    --n_topics 10 \
 	    --n_noisy_interactions_fraction ${fraction} \
-	    --topic_noise 1.0 \
+	    --topic_noise 0.1 \
 	    --topic_scaling_factor 10.0 \
 	    --output_dir ${data_dir} \
 	    --result_suffix "-${round}"
@@ -152,6 +155,8 @@ if [ "$1" == "viz" ]; then
 	--result_path ${combined_eval_result_path} \
 	--xlabel "event size" \
 	--subplot_ordering precision recall f1 set_cover_obj "log(running_time)" \
-	--output_dir ${result_dir}/figure
+	--output_dir ${result_dir}/figure \
+	--figure_width 10 \
+	--figure_height 5
     scp ${result_dir}/figure/*  shell.cs.helsinki.fi:/cs/home/hxiao/public_html/figures/synthetic/event_size/
 fi

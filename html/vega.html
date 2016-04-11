@@ -2,7 +2,8 @@
 <head>
   <title>Vega Lite Bar Chart</title>
   <meta charset="utf-8">
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
   <script src="//d3js.org/d3.v3.min.js"></script>
   <script src="//vega.github.io/vega/vega.js"></script>
   <script src="//vega.github.io/vega-lite/vega-lite.js"></script>
@@ -17,40 +18,70 @@
 </head>
 <body>
   <!-- Container for the visualization -->
+  <select id="dataset">
+	<option value="ukraine">#ukraine</option>
+	<option value="baltimore">#Baltimore</option>
+	<option value="beefban">#beefban</option>
+	<option value="enron_small">Enron small</option>
+  </select>
   <div id="vis"></div>
 
   <script>
-   var vlSpec = {
-     "data": {
-	   "url": "data/enron_small/vega/data.json"
-     },
-	 "mark": "area",
-	 "encoding": {
-       "x": {
+   function draw(ds){
+	 console.log(ds);
+	 var x = null;
+	 if(ds == 'enron_small'){
+	   x = {
 		 "timeUnit": "yearmonth", "field": "datetime", "type": "temporal",
 		 "scale": {"nice": "month"},
 		 "axis": {"axisWidth": 0, "format": "%y-%m", "labelAngle": 0}
+	   };
+	 }
+	 else{
+	   x = {
+		 "timeUnit": "yearmonthdayhours", "field": "datetime", "type": "temporal",
+		 "scale": {"nice": "hour"},
+		 "axis": {"axisWidth": 0, "format": "%m-%d %H:00", "labelAngle": 15}
+	   };
+	 }
+	 console.log(x);
+	 var vlSpec = {
+       "data": {
+		 "url": "data/"+ ds + "/vega/data.json"
        },
-       "y": {
-		 "aggregate": "count", "field": "*"
-       },
-       "color": {"field":"series", "type":"nominal", "scale":{"range": "category20"}}
-	 },
-	 "config": {"cell": {"width": 300, "height": 200}}
-   };
+	   "mark": "area",
+	   "encoding": {
+		 "x": x,
+		 "y": {
+		   "aggregate": "count", "field": "*"
+		 },
+		 "color": {"field":"series", "type":"nominal", "scale":{"range": "category20"}}
+	   },
+	   "config": {"cell": {"width": 800, "height": 800}}
+	 };
 
-   var embedSpec = {
-     mode: "vega-lite",  // Instruct Vega-Embed to use the Vega-Lite compiler
-     spec: vlSpec
-   };
+	 var embedSpec = {
+       mode: "vega-lite",  // Instruct Vega-Embed to use the Vega-Lite compiler
+       spec: vlSpec
+	 };
 
-   // Embed the visualization in the container with id `vis`
-   vg.embed("#vis", embedSpec, function(error, result) {
-     // Callback receiving the View instance and parsed Vega spec
-     // result.view is the View, which resides under the '#vis' element
-	 console.log(error);
-	 console.log(result);
-   });
+	 // Embed the visualization in the container with id `vis`
+	 vg.embed("#vis", embedSpec, function(error, result) {
+       // Callback receiving the View instance and parsed Vega spec
+       // result.view is the View, which resides under the '#vis' element
+	   console.log(error);
+	   console.log(result);
+	 });
+   }
+   $('#dataset').on('change', function(){
+	 $('#vis').remove()	 
+	 $('body').append('<div id="vis">');
+	 draw($(this).val());
+   })
+   /*  $('#dataset').change(); */
+   draw('baltimore');
+
+
   </script>
 </body>
 </html>
