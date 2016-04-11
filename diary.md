@@ -1656,3 +1656,52 @@ Day 2:
 
 
 First 
+
+Ukraine:
+
+- event 1, 2: against ukraine
+- event 3: news
+- 4: self-talking
+- 5: against russia
+
+
+
+Day 4:
+
+- Twitter not showing any temporal event or evolution: problem with the dataset?
+  - try one with longer time?
+
+Day 5:
+
+- Since we are working on summarizing. we need to evaluate the summarizing performance somehow.
+- U is too small for Twitter(which contains 10k messages)
+
+
+Day 6:
+
+- beefban:
+  1. against
+  2. support+against
+  3. heated argument
+  5. support
+- ukraine:
+  1. against uk
+  2. blue: against, purple: support(and some advises), red/purple: news
+  3. blue: retweeters, news
+  4. blue: support
+
+Day 7:
+
+Budget effect: 100 too small?
+
+
+
+# Thesis writing starts
+
+Week 1: 
+
+Day 4:
+
+Interesting topics:
+
+- topic modeling in dynamic text streams(\cite{aggarwal2012event})
