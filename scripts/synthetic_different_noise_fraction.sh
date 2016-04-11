@@ -2,7 +2,7 @@
 
 DEBUG=false
 
-rounds=20
+rounds=10
 
 
 export methods=("random" "greedy" "lst" "lst+dij" "quota")
@@ -10,7 +10,7 @@ export data_dir='/cs/home/hxiao/code/lst/data/synthetic_noise_tmp'
 export result_dir='/cs/home/hxiao/code/lst/tmp/synthetic_noise_tmp'
 
 export fraction_start=0.0
-export fraction_step=5.0
+export fraction_step=10.0
 export fraction_end=100.0
 
 if [ "$DEBUG" = true ]; then

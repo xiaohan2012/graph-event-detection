@@ -15,10 +15,17 @@ mpl.rc('font', **mpl_font)
 def plot_evalution_result(result, output_dir,
                           subplot_ordering,
                           xlabel='U',
-                          file_prefix=''):
+                          file_prefix='',
+                          figure_size=(None, None)):
     """
     result: similar to 3d matrix (metric, method, U)
     """
+    print figure_size
+    if figure_size[0] and figure_size[1]:
+        print('changing size', figure_size)
+        from pylab import rcParams
+        rcParams['figure.figsize'] = figure_size
+
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -58,7 +65,8 @@ def plot_evalution_result(result, output_dir,
     ax.set_yticklabels(())
     ax.axis('off')
     fig.savefig(
-        os.path.join(output_dir, 'together.png')
+        os.path.join(output_dir, 'together.png'),
+        bbox_inches='tight'
     )
 
 
@@ -69,6 +77,8 @@ def main():
     parser.add_argument('--result_path')
     parser.add_argument('--subplot_ordering', nargs='+')
     parser.add_argument('--xlabel', default='x')
+    parser.add_argument('--figure_height', type=float)
+    parser.add_argument('--figure_width', type=float)
     parser.add_argument('--output_dir')
     
     args = parser.parse_args()
@@ -77,7 +87,8 @@ def main():
         result,
         xlabel=args.xlabel,
         subplot_ordering=args.subplot_ordering,
-        output_dir=args.output_dir
+        output_dir=args.output_dir,
+        figure_size=(args.figure_width, args.figure_height)
     )
 
 if __name__ == '__main__':

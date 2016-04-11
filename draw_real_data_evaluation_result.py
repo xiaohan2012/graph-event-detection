@@ -58,7 +58,7 @@ def plot_evalution_result(results,
             plt.legend(map(lambda k: legend_mapping.get(k, k), legends),
                        loc='lower right')
 
-    fig.savefig(output_path)
+    fig.savefig(output_path, bbox_inches='tight')
 
 
 def main():
@@ -90,7 +90,7 @@ def main():
         legend_in_which_subplot=args.legend_in_which_subplot,
         layout=(args.nrows, args.ncols),
         figure_size=(args.figure_width, args.figure_height)
-    )
+        )
 
 if __name__ == '__main__':
     main()
