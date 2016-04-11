@@ -1706,3 +1706,6 @@ Reading and writing related work.
 Week 2:
 
 
+    len(recipients): 659
+    len(senders):    609
+    len(ss & rs):    228

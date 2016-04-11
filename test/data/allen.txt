@@ -1,0 +1,1309 @@
+<B_ALLEN>
+
+<Q_ALL_A_1579_T_WALLEN> <L_ALLEN_001> <A_WILLIAM_ALLEN> <A-GENDER_MALE>
+<A-REL_---> <A-DOB_1532> <R_RICHARD_HOPKINS> <R-GENDER_MALE>
+<R-REL_---> <R-DOB_1546?>
+
+<P_8>
+
+{ED:4._ALLEN_TO_RICHARD_HOPKINS._RHEIMS,_5_APRIL_1579.}
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+Mr. Hopkins yow discourse wisely and frindly in the behallf of our
+countrymen ther and elsewher dispersed ; ALLEN,8.001.1
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+and being discreete and well experimented by their owne long miseryes I
+doubt not but now or very speedily they will repayre all defalts and
+defects of their government employing theime selves to Goddes honour ,
+the profit of our afflicted country , and the most advauncement of
+their owne firme credite and estimation . Wherunto the more effectually
+to move theim I have of dewtifull affection and for our common country
+sake made theime proffer to be partaker <paren> And so I yet once
+agayne pray theime to be </paren> so many at least as doo complayne of
+lacke or as list ether teache or learne , of what soever we have or
+shall have here . ALLEN,8.001.2
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+Yow say som were in dignity at home ; to whome I promis that their
+lyving here shall be as correspondent <P_9> to their quality and degree
+in England , as that that they have in Loven {ED:Louvain} ;
+ALLEN,9.001.3
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+and I say further to yow that ther be here sundry of as highe calling ,
+as any of our frinds ther , which be more contented here then ever they
+were of their lyvings in their owne contrye and withowt comparison
+muche more enamoured with our trade here in common , then ever of
+theire owne or of other students any where lyving at their private .
+ALLEN,9.001.4
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+But they have ended this course that we follow longe sithence yow saye
+, ALLEN,9.001.5
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+and therfore it were not seemely to begin agayne with yonge men ,
+ALLEN,9.001.6
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+and that is trew ; ALLEN,9.001.7
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+but it were not unseemely for suche to teache other that that they have
+learned so longe since theime sellfe , nor against charitye nor their
+honour , nor their age , nor any dignity what soever they have had , or
+be worthy of , ALLEN,9.001.8
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+but they list not be apoynted by other ; ALLEN,9.001.9
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+then lette theime ether-2 doo good of theime selves and their owne
+accord or els no hoorte ALLEN,9.001.10
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+and diswade not those that list and must lyve in order , ALLEN,9.001.11
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+and so they shall be welcom allso ; ALLEN,9.001.12
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+here be at this time sundry auncient men ALLEN,9.001.13
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+and at divers tymes have been divers . ALLEN,9.001.14
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+And yet the day is to com that we ever forced any of theim to worke or
+any strayte order which theme selves misliked of : ALLEN,9.001.15
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+Yea the things that we do be so agreeable to every mans mynd , that we
+could not hold theim from theim if we wold . ALLEN,9.001.16
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+And many surmise straunge things of our orders that never saw theime ,
+ALLEN,9.001.17
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+but never none that saw theime that I know of was desyrous to leave
+theime . ALLEN,9.001.18
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+A little governement ther is and order , but no bondage nor straitenes
+in the world ; ALLEN,9.001.19
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+ther is nether othe , nor statute , nor other bridle nor chaticement
+but reason and every mans conscience in honest superiority and
+subalternation eche one towardes other . ALLEN,9.001.20
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+Confession , communion , exhortation hath kept us this ix yeare I
+thanke God in great peace amongest our selves , in good estimation
+abrode , with sufficient lyvelihod from God , and in good course of
+service towardes the Churche and our contry , yea so notoriously to
+Goddes glory and the good of many , that our case hathe beene envyed
+and our good indevours detracted <paren> as such things lightly be
+</paren> and meanes made in vayne to sever the Popes exhibition in
+peices and consequently to divide the body of our college , which had
+brought us if it had been unwisely heard as it was indiscreetly
+propownded , to the like nothing that theim selves now be in , and ever
+shall be so longe as they live owt of order company and conference .
+ALLEN,9.001.21
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+Well , constancy and tolleration of all things against us , and going
+forward in this swheete course have enclined now every reasonable mans
+harte to affect us hartely , and taken away from other all habilitye to
+hinder us , thoughe trewly now I know none in the world so sinistrely
+enformed of that wold if they could hoorte . ALLEN,9.001.22
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+And I impute it not to any mans dislike of our trade but rather to
+their ill luck and myne owne sinnes , that <P_10> having their meate
+and drinke and other necessaryes <paren> so farre as we be able and as
+longe as God shall send it us </paren> so freely proffered theime ,
+they compt it not worth , God have mercy , or accepting , namely being
+in miserye as som and most part pretend . And specially offering eche
+man to be respected according to their qualitye which taketh away all
+just excuses of their refusal , ALLEN,10.001.23
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+for I am suer they be to good and wise men to mislike order , unity ,
+common conference . ALLEN,10.001.24
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+Nether was ther ever yet any man so incompatible of other mens company
+and society , but he hath bene pleaced . ALLEN,10.001.25
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+And know yow my good frind Mr. Hopkins , and so it may pleace all my
+loving brethren whose honour and good <paren> Christ Jesu so deale with
+me as I say trueth </paren> I so much affect , it may like yow and
+theim I say to knowe , that I doo not desyre nor hope to be their
+governor nor heade , nor any proffit by their cooming hether other then
+their owne correspondence in good will and prayers ; ALLEN,10.001.26
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+but I wold have theim to doo it for their owne $proffit and reliefe and
+estimation , which I say $because yow make an insinuation of chewsing
+me theire heade ; at least say yow for to sew for their pensions ; at
+which your good will to theime and condescending to their infirmitye on
+the one side , and for your preferment of me to so proud a headship , I
+laughed hartely . ALLEN,10.001.27
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+Trewly Mr. Hopkins they shall not neede to chewse me their head for
+that , ALLEN,10.001.28
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+for I wold willingly be their man to doo theim ether that or any other
+pleasure in the world , with as good a will as for myne own companye ;
+ALLEN,10.001.29
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+and the time was as yow I dare say know when by accepting onely my name
+in their postill they might have spede : ALLEN,10.001.30
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+sed omnis inordinatus appetitus sibi ipsi est poena . ALLEN,10.001.31
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+And now I doubt <paren> my speciall frind D. Sander being gone owt of
+the court and contry of Spayne , and our nation in disgrace at Rome and
+generally as I feare throughe an unhappy and the straungest mutiny ther
+in the seminary betwixt thenglish and Wellshe that ever yow heard abowt
+, D. {ED:Owen} Lewis and Mr. Mores {ED:Dr._Morys_Clynnog} whome the
+students will not for King nor Pope obaye </paren> whether my credit
+will be so good to doo any good in the pension matter or no .
+ALLEN,10.001.32
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+But I may perhaps write to S. Frances {ED:Englefield} abowt it if our
+frinds ther wold have me and wold be content to growe into any society
+and order reasonable , which for their good I desyre . And for which
+cause I offer theime so fayre play : not for any abundance that we have
+here <paren> which at this time God is my wittnes lyve of borrowing ,
+as Mr. Bridgewatter knoweth </paren> but for assured hope and
+confidence that I have in God that if we were in peace and collegiall
+conformity or other ruled societye we should not want . ALLEN,10.001.33
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+And it may please yow to communicate this my letter , in hast scribled
+, bothe-1 to those at Loven {ED:Louvain} and Liedge and wher yow thinke
+good ; ALLEN,10.001.34
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+for John Lyon , because he is no student thoughe I most <P_11> hartely
+wold , and he well deserveth , I can not tell what to saye :
+ALLEN,11.001.35
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+our profession and good will is to help every body , ALLEN,11.001.36
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+mary the students and priests be in special recommendacion .
+ALLEN,11.001.37
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+Yet iff Mr. Lyon can find no meanes , somewhat for som servise abowt
+our howse he shall be allowed as longe as we $are hable ; which is the
+condition we must adde to every mater ; ALLEN,11.001.38
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+for ultra posse it will not be . ALLEN,11.001.39
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+What to do for good Mistress Giles with Father Prior I know not .
+ALLEN,11.001.40
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+For he is in the like case with Doctor Bristow for certayne odde
+reckonings of more matter then hirs is , ALLEN,11.001.41
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+and he hath promised him of late by his letters to see him so
+discharged . ALLEN,11.001.42
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+But the moony I can not yet heare of . ALLEN,11.001.43
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+Commend me I pray yow to Mr. Hide Mr. Taylor Mr. Foster Mr. Freeman and
+every bodye . ALLEN,11.001.44
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+I have none of those bookes that yow speak of , ALLEN,11.001.45
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+onely Mr. Raynolds hath the last replye of Whitegift , ALLEN,11.001.46
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+and he is not now at home . ALLEN,11.001.47
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+Fare yow hartely well my deare frinds . ALLEN,11.001.48
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+I wold I might have but one houres conference with Mr. Hide Mr. Foster
+or Mr. Freeman in the premisses : ALLEN,11.001.49
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+it is trooblesome for me to write every thing . ALLEN,11.001.50
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+Christ keepe yow . ALLEN,11.001.51
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+At Rhemes this 5 of Aprill 1579 . ALLEN,11.001.52
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+Your poore frind W. Allen . ALLEN,11.001.53
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:RICHARD_HOPKINS:MALE:_:1546?:33?
+LETTER:ALLEN_001:E2:1579:AUTOGRAPH:OTHER
+{ED:ADDRESSED_BY_ALLEN:} A Mons=r= Mons=r= Richard Hopkins gentilhomme
+Anglois a Loven chez Madame d'Hungerford . ALLEN,11.001.54
+
+<Q_ALL_A_1579_T_WALLEN> <L_ALLEN_002> <A_WILLIAM_ALLEN> <A-GENDER_MALE>
+<A-REL_---> <A-DOB_1532> <R_OWEN_LEWIS> <R-GENDER_MALE> <R-REL_--->
+<R-DOB_--->
+
+<P_12>
+
+{ED:5._ALLEN_TO_OWEN_LEWIS._PARIS,_12_MAY_1579.}
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+Most dearly beloved frind , all your letters came safely to my handes ,
+as I thinke , ever since those tumults did begin ; wherby , as allso by
+as many contrary letters of the students we here understood all from
+the very grownd and marked every thinge and all actions and deportments
+of the scholars and dooers on all sides ; ALLEN,12.002.55
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+and often conferred with the wisest and principall here in our company
+as D. Bristow , Mr. Bayly , D. Webbe , L. Martin with other of
+judgement as well to see what they liked or misliked in all this
+tragedy , as to use their advise how I might deale to save or salve
+that great sore and exulceration of myndes betwixt the two parties
+Englishe and Welshe <paren> much greater and muche further spreadde by
+that beginning and roote ther unluckely planted then <P_13> yow ther
+can perceive thoughe yow may see to your greefe much </paren> : which
+partiality and division if it be not utterly taken away may breed
+marvelous skandal and inconvenience . ALLEN,13.002.56
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+My first care was that it should take no hold in our company : where I
+thanke God at this day they live as sweetely together with owt all
+differences or respect of nation , or other distraction , as ever I
+knew any suche number in my life : ALLEN,13.002.57
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+and yet so to hold it <paren> because we well perceived the common
+inclination of Adam to like and whisper underhand for their owne
+against other of other contryes </paren> great moderation and dexterity
+was necessary I assure yow . ALLEN,13.002.58
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+The principall poynt was that no meddling nor mayntenance of nether
+side should be openly or privatly used , but every man to apply his
+booke and to pray for the appeacing of the tumult and specially for his
+Holines that God wold give him the spirit of wisdom and mercy that he
+might take the best way for the ending of the matter , and to pardon
+the falt of disobedience , disorder or scandale what soever , for the
+honour of God and perfecting of the work begon . ALLEN,13.002.59
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+And lest any breache might chaunce to be , <paren> otherwise then my
+coustom and somwhat agaynst my health </paren> I thought it necessary
+allwayes to be in the hall bothe dinner and supper and all exercises
+ever sithence , so that all hath bene well and is here very well ,
+never in better contentment , but all very whofull and carefull till
+this last day when the newes of the ending of all , and of the Jesuits
+establishing came unto us both by your letters and divers others ,
+which I assure yow made us a dooble Easter . Till which end <paren> to
+tell yow simply and playnely </paren> I could not tell how to write for
+feare of dooing hurte ; ALLEN,13.002.60
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+the broyle was so perilous ALLEN,13.002.61
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+and I saw the students ther every one so bent that they wold have lost
+all rather then have bene under one of that nation , yea and forsaken
+me and whome and what elles so ever : ALLEN,13.002.62
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+not doubting but of wisdom both your sellf and his Holines wold rather
+condescend to theire infirmity then by this sinister accident or by all
+their expulsions undoo that worke so happely begon , yea and our whole
+country and yours , specially seeing they might be appeaced , with so
+honest a thing as to have the fathers for their governors . Which their
+request <paren> to make yow understand our whole mind </paren> seemed
+to all our nation most lawfull and godly thoughe their maner of
+proceding and their unkind alienation from yow that hath doone and
+dayly doo endevour so muche good for this seminary , and that , and all
+our country , together with refusing so peremptorily to obey the
+Protectors or Popes order , which might have tended to the ruyn of all
+if God had not of his great mercy otherwise farr above their deserts
+and our disposed by the swheete end that his Holines hath made .
+ALLEN,13.002.63
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+This disorder and hazard of all in theime was exceedingly misliked of
+all the wise and myself here ; thoughe the committing the howse to the
+Society <P_14> was all our desyres . ALLEN,14.002.64
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+And right sory we were of that error that Mr. Mores
+{ED:Dr._Morys_Clynnog} was made Rector , ALLEN,14.002.65
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+and gladly wold have had <paren> if the Jesuits might not or wold not
+have bene </paren> rather D. Bristow , for that both his quality was
+excellent , and his person gratefull , and was a divine which had bene
+more fit then one of an other profession , besydes the country , which
+yow know many respect , <paren> how well and wisely , I do not say
+</paren> ; ALLEN,14.002.66
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+therfor that he or som other like was not chosen or first appoynted ,
+at the beginning it was as I told yow an error , the rather noted ,
+because Mr. Mores , being other wise a very honest and frindly man ,
+and a great advauncer of the students and seminaryes cause , had
+admitted , yea and sent for or called for up to the seminary <paren> as
+by sondry letters written not to me but to other men is particularized
+</paren> som of his contriefolkes and frinds for age quality and
+intuition unfitt for the study and seminary ; which gave both just
+occasion in the sight of vulgar men to doo as they did , and that many
+there be so extremely alienated <paren> which it peetyeth my hart to
+heare </paren> from yow and that province , which hath bredde and dooth
+bring up so many vertuous constant and Catholike men . Which was no
+falt in yow I dare be bold to saye ; but yet an eskape or defalt in
+managing that affayre , because yow did not dehort Mr. Mores from
+taking upon him that charge in the beginning ; for which in deede no
+dishonour be it unto him , he was not sufficient . ALLEN,14.002.67
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+The scholars falt agayne was that they wold not advertise me , that I
+might with yow and by yow rather have obtayned by sute and supplication
+, then by tumultuous meanes so hazardous and scandalous , have
+prosecuted the matter : which animosity and contentious dealing is
+farre unfit for the state of students and often joyned to hatred ,
+emulation , detraction , and other sinnes thereon depending ,
+ALLEN,14.002.68
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+yea it grew so farre <paren> woe be to our sinnes </paren> that as we
+were advertised mischiefe and murder had like to have bene committed in
+ipso collegio . For which horrible disorder , and afterwards of the
+expulsion of all thenglish how heavy our hartes were , my tonge nor
+penne can not expresse ; ALLEN,14.002.69
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+and yow ther seeing the same must needes be in much more .
+ALLEN,14.002.70
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+And I nothing doubt but yow did all yow could to stay the Pope and
+Cardinall from that rigorous order raysed by our mens disorder ;
+ALLEN,14.002.71
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+but yet for that most men attribute all to that originall error of
+making Mr. Mores heade , I see the scholares ether will not be
+perswaded that yow did help any thing to the mitigation of the matter ,
+or elles so farre their minds be exacerbated that they will accept
+nothing for benefit that coometh from yow <paren> ut fit in aegris
+animis </paren> . ALLEN,14.002.72
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+And because I wold have this their extreme alienation from yow , taken
+away ; that yow may , having the good will of all men , as yow deserve
+by your knowne benefites to all men <paren> which I <P_15> will never
+cease to protest and suerly do all here most hartely </paren> , hold on
+to doo good to our common contry , which hath exceding ill luck to be
+hindered by our unhappy contentions and disagreements ; I will for that
+cause use all diligence and dexteritye to treact opportune et importune
+with the principall of the students , who now having obteyned this
+happy resolution , will I trust condescend to my order and counsell ,
+and quiet theime selves giving over meddling or harkening to whisperers
+, whome former groodges have incited agaynst yow and deceived theime .
+ALLEN,15.002.73
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+And in any wise as I love and honour yow , use all meanes possible to
+coom in to the grace and liking of the students : ALLEN,15.002.74
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+and shew your wisdom , charity , and zeale in condescending , bearing ,
+and supporting their youthfull infermityes so farre as withowt sinne
+yow may ; ALLEN,15.002.75
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+for interest causae et vestri mirifice that this begon faction doo
+cease . ALLEN,15.002.76
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+And because I will be sincere and playne with so deare a frind , not
+doubting but you will keepe all thinges close from all sides , as I doo
+yours , yow must tempre your coosen Hughes {ED:Griffin} tonge and
+behaviour , who is of a bitter , odde , and incompatible nature :
+ALLEN,15.002.77
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+for so , not the students ther any of theime , but I assure yow others
+have signified , that his disordered humoures have bene a great cause
+of your hatred and of all those garboyles . ALLEN,15.002.78
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+And some here have told me that I did an ill deede to send him uppe who
+for choler and other singularityes was never portable amongst his
+fellowes here . ALLEN,15.002.79
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+For Goddes love therfore correct his nature , as much as yow can .
+ALLEN,15.002.80
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+And I will by all the forces that I may possibly divise as well in
+writing to the students as to their governors and confessors to make an
+attonement . ALLEN,15.002.81
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+I have written to Father Generall allso , ALLEN,15.002.82
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+and will doo to who soever I may thinke to have credite with the
+students ; who I know many of theime , of theim selves be not of ill
+nature , but have bene by zeale rather then malice caried into this
+action : with whom and with your sellf wold God I had a monthes
+companye ther . ALLEN,15.002.83
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+I doubt not but a joyfull reconciliation on all handes might be made ,
+which concerneth so much the wellth of our coontrye , as the contrary
+dooth the undooing of the same , that D. Bristow , Mr. Bayly , Mr. D.
+Bernard wold needes have had me to have gone up owt of hande ,
+ALLEN,15.002.84
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+but my band of remayning here coometh of my superiors , as they knowe
+not , ALLEN,15.002.85
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+but yow onely know ; ALLEN,15.002.86
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+and therfor I yelded not in any wise to their motion , lest his Holines
+or Como might be offended , as yow I dare say thinke allso :
+ALLEN,15.002.87
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+at the least I dare not hazard it . ALLEN,15.002.88
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+And perhappes the students , or other rather , wold thinke I wold wholy
+be ledde away from theime by the great familiarity betwixt us ;
+ALLEN,15.002.89
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+but God so love me as I feele no inclination of partiality ether on
+your part for the great benefite and comforts which I have had at your
+handes , nether towards their part for conjunction of country or name
+of Englishe , or for <P_16> bloodde or such like : as partly yow may
+see by my playness in this letter , ALLEN,16.002.90
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+but I only seeke the honour of God , and the necessary attonement of
+all sicke mynds , withowt which what soever we goe abowt for our poore
+contry will be lost , though all suche honorable and charitable
+endevours before God can not perishe . ALLEN,16.002.91
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+Thomas your man <paren> what soever other occasion yow have to suspect
+him , and I speake this for the answer of a certayne secret poynt of
+your last letters </paren> hath written once or twise to me these
+formall words : ALLEN,16.002.92
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+the students and thenglishe be marvelously alienated from my Master ,
+trewly for anything that I know without cause : ALLEN,16.002.93
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+and I am suspected on both handes ; ALLEN,16.002.94
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+haec ille : ALLEN,16.002.95
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+adding more that he wold have my counsell how otherwise to dispose of
+him sellfe , which I have given him by this letter enclosed .
+ALLEN,16.002.96
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+Cause the rest to be delyvered to eche part I pray yow ,
+ALLEN,16.002.97
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+and lette no vexation alienate your mind from doing us and all other as
+much good as yow can . ALLEN,16.002.98
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+The best that ever was non reddidit bonum pro bono tantum , sed pro
+malo bonum . ALLEN,16.002.99
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+Father Norton shall have his turne served according to your last ,
+ALLEN,16.002.100
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+and is all ready in a good part dispatched . ALLEN,16.002.101
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+The Spaniards have had a bloody repoolse at Mastricke {ED:Maastricht}
+ALLEN,16.002.102
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+God helpe us : ALLEN,16.002.103
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+and the Low contry coometh in slowly . ALLEN,16.002.104
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+I may perchaunce if I find so much vacant time before these letters goe
+forward , write a few wordes to our old patron Como , to appeace his
+mind if percase he have taken any misliking on ether sid by this
+garboyle ; which yow will delyver him accordingly I doubt not .
+ALLEN,16.002.105
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+Mr. Gilbert came not this way , ALLEN,16.002.106
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+but is arrived in Paris ALLEN,16.002.107
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+and hath payd the pistolets which yow lent him , to Mr. Baylyes handes
+being then ther ; ALLEN,16.002.108
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+and he desyreth yow to send his bill therof to Mr. {ED:Thomas} Morgan
+in Paris . ALLEN,16.002.109
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+Here is no Irishman in these parts that I know , saving Mr. Fitzsimons
+, ALLEN,16.002.110
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+and therfore the cataloge is quickly made . ALLEN,16.002.111
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+My Lord of Cambray is retired again for fear of the Castelane in to
+Fraunce , God knowing what will becoom of those Low country .
+ALLEN,16.002.112
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+The great talke of Monsieurs mariage with our queene is on slate still
+. ALLEN,16.002.113
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+Mr. {ED:Thomas} Pownde brother to the priest ther is in yrons still for
+his faith , ALLEN,16.002.114
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+and hath answered stoutly , that who soever denyeth the Popes holines
+to be heade of the Churche of England as well as all other churches
+Christian , that he is an heretike . ALLEN,16.002.115
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+Som thinke that he shall suffer or at least fall into the premunire .
+ALLEN,16.002.116
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+God comfort him and all his fellowes . ALLEN,16.002.117
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+I wrote your mynd to the Deane touching the woman in your howse :
+ALLEN,16.002.118
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+but if he writeth to me agayne Salvo meliori juditio non esset
+dimitanda , cum honestissime se gerat , et optime servet res et
+praecipue frumentum : ALLEN,16.002.119
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+cum etiam inveniri non potest aliquis subditus ecclesiae qui vult
+accipere curam domus et omnium rerum , nisi esset certus de habitatione
+ibidem per longiorem terminum , quam expedit promittere .
+ALLEN,16.002.120
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+Wherupon <P_17> I can say no farther but committe all to his wisdom as
+yow require . ALLEN,17.002.121
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+Corne will not be sold they say for any thing , ALLEN,17.002.122
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+and therfor I gett no mony no ways . ALLEN,17.002.123
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+And if these new garboyles begin agayne this summer as it is not unlike
+, all will be in hazarde . ALLEN,17.002.124
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+Mr. Pewes will not nor dare not coom back as he sayeth to Cambray ,
+ALLEN,17.002.125
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+and therfor requireth onely , a little roome for his stuff
+{COM:IN_THE_EDITION_stufff} as is left . ALLEN,17.002.126
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+Being coom this farre I had necessary busines to Paris whether I went
+leaving this rest to be written ther , ALLEN,17.002.127
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+and now being ther 5 dayes I have received ij other packets of letters
+from your sellfe and divers others , all of marvelous ingratefull
+matter ; giving me evident tokens of feares that those unhappy
+differences and mutineis , not ceased by the Popes so manifold mercies
+, will bring all to naught , and utter shame by which disorder ther I
+perceive the Scottish nation begin to put in foote , so as the Pope
+will be wearyed with all . ALLEN,17.002.128
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+My Lord of Rosse did lett me see allso what yow wrote to him concerning
+the same matter : wherin yow say <paren> as I doubt not but it is trewe
+</paren> that yow never knew of Mr. Seatons request before it was made
+. ALLEN,17.002.129
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+But now in deede what soever is donne amisse is layde unjustly upon
+your backe , both ther and of divers here , ALLEN,17.002.130
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+the faction of the Welsh and Englishe concerning those seminary matters
+are growne so greate . ALLEN,17.002.131
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+And as they have at their fingers endes all the pretended errours and
+defalts of Mr. Morres for this twenty years , so certayne speaches of
+yours , be in every mans mouth : viz. that yow once sayd to my Lord of
+Rosse : My Lorde let us stick together , ALLEN,17.002.132
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+for we are the old and trew enhabitors and owners of the yle of
+Britanny , ALLEN,17.002.133
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+these others be but usurpers and new possessors . ALLEN,17.002.134
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+Item , Rather then this College should be seminarium litium , yow wold
+seeke to extinguish it utterly ; of which latter worde many bothe
+scholars and other write from Rome to divers here and in Rhemes with
+great exclamation : saing , that yow meane it to be collegium or
+seminarium litium , for that they will not meddle with yow , now after
+the Pope hath appoynted them other governors , and that you meane
+rather to destroy all thence that yow should not have your will and be
+a dealer still . ALLEN,17.002.135
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+On the other side Hughe {ED:Griffin} writeth to me , and to D. Bristow
+more playnely , that the Jesuits have bene and shall be proved the
+causers and counselers of all these tumults , and that they wold not
+have our priests to goe to England but to tary longe in Rome and take
+their temporall commoditye , and that therupon a generall othe and
+examination was taken of all , whither they wold or were fit to goe in
+to England when their superiors should command theime .
+ALLEN,17.002.136
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+Item he sayeth that the Jesuits have no skill nor experience of our
+countryes state nor our mens natures , and that their trade of
+syllogising ther is not so fit for the use of our people , and that
+therfor if D. Bristow had coom up or wold yet coom up he should be made
+rector exhorting him <P_18> earnestly so to do . All of which I see
+tendeth to new and endles sturres ; by which in fine it will com to
+passe that our nation and that begon good worke will be forsaken
+bothe-4 of the Jesuits and your sellfe , and all our superiors .
+ALLEN,18.002.137
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+And then shall I be weary of life which allready by these unhappy
+luckes of our country is more tedious to me than ever before .
+ALLEN,18.002.138
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+If more alterations be yet sought all will be lost ; ALLEN,18.002.139
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+and all cometh of the devill no doubt . ALLEN,18.002.140
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+And except the matter be used with wisdom and great patience and with
+condonation of eche other for God and our country and common Churches
+sake , all will be lost that yow have doone and that I have doone , or
+that any man shall doo for our reames recovery ; ALLEN,18.002.141
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+wold God I were ther one month that I might ether take up these extreme
+alienations of mynd or els if I could not doo so much , that I mighte
+shortly ther end my life and all the frames of mind and miseries rysing
+of these calamities procured by our owne follyes and sinnes .
+ALLEN,18.002.142
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+I thought not good to write to the whole company generall letters , for
+that every party , as they be affectionate to their owne , and
+alienated from the other , wold referre that which I speake agaynest
+their obstinacy , animosity , sedition , emulation , partiality etc .
+to be spoken and meant of the other faction that theime sellves be not
+of . ALLEN,18.002.143
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+For yow will not perhaps beleeve how bothe partyes I meane certaine of
+ether faction doo describe and sett forth by letters hether the wicked
+attempts , speaches , purposes and practizes of the other .
+ALLEN,18.002.144
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+But I write to Mr. {ED:Richard} Barret of whose honesty and discretion
+I have great hope , ALLEN,18.002.145
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+and I write in his a letter to the iij eldest priests which have bene
+the principall doers in this dolefull action . ALLEN,18.002.146
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+And so I make an end of this ungratefull talke , and of my scribbled
+letters ; which be the worste scribled for that at this present I am
+very weeke and weary of body quia aliquandiu stomacho et digestionis
+imbecillitate laboro , which will cause these ALLEN,18.002.147
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+to our good patron Cardinall Como I have a scruple now whether I had
+best send these so ill written to his grace having none here that I
+dare trust to write them agayne : ALLEN,18.002.148
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+but tomorrow I goe home if I be hable agayne , from thence to write
+theim by the next post
+{COM:THE_BEGINNING_I_have_a_scruple_ENDING_by_the_next_post_WRI
+TTEN_IN_THE_MARGIN} . to be worse redde ; ALLEN,18.002.149
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+but when you deliver theime to his grace I hope he will read theime
+before yow the rather for what {COM:SIC?} they touch yow and that
+affayre . ALLEN,18.002.150
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+Fare well my most dear frind , ALLEN,18.002.151
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+and God be your comfort and myne ; ALLEN,18.002.152
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+for of men I see we shall not have much . ALLEN,18.002.153
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+Lutetiae {ED:Paris} ALLEN,18.002.154
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+12 May $1579 . ALLEN,18.002.155
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+Your owne assuredly for ever W. Allen . ALLEN,18.002.156
+
+<P_19>
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+{ED:P.S.} Commend me <paren> with thankes for his letters </paren> to
+your nephew . ALLEN,19.002.157
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+And for Goddes sake warne in my name allso him and his brother to take
+heede what they write and to whome they write . ALLEN,19.002.158
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+Off Hughes {ED:Griffin} communication <paren> for putting owt of ye
+Jesuit Rector , and inducing D. Brist {ED:ow} with Mr. {ED:Thomas}
+Cottam before he entered into the Society , muche is written downe from
+thence . ALLEN,19.002.159
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+They must be ye more wise , for that what soever they write or say
+toucheth yow , and me to whome som suspect to incline to much for love
+of yow , to the Welsh faction as they terme it
+{COM:THE_BEGINNING_Off_Hughes_ENDING_they_terme_it_WRITTEN_IN_T
+HE_MARGIN} . ALLEN,19.002.160
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+For they geve suspicition {ED:SIC} and offense to ye Englishe many
+wayes , ALLEN,19.002.161
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+and of this division , som calleth up by their letters <paren> as
+folkes cry owt here , and it is in every mans mouth </paren> all the
+Welshmen , yea omnes oriundos ex Wallia to coom to Rome , as the yonge
+Powels , Mr. Probert and others . ALLEN,19.002.162
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+One of theim writeth hether to Paris over playnely of Wentworths
+treason and dissimulation towards yow ; which the very party to whome
+he wrot so , could not abide , nor to heare any thing for the Welshe
+against the Englishe : ALLEN,19.002.163
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+<paren> as the divell hath now made the division </paren> they must be
+discrite and seeke to sow up , and not to make ye breache bigger .
+ALLEN,19.002.164
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+Yff I see any fitt of the Wellshe men , they shall as well be preferred
+to Rome <paren> if it lye in my hande </paren> as the Englishe .
+ALLEN,19.002.165
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+God is my judge I never put difference , ALLEN,19.002.166
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+nor never will doo . ALLEN,19.002.167
+
+{ED:ADDRESSED_BY_ALLEN:}
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+Rdo . ALLEN,19.002.168
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+in Christo Patri Dno . ALLEN,19.002.169
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+Audoeno {COM:DIAERESIS_ABOVE_THE_LETTER_e_IN_AUDOENO} Ludovico Anglo
+Hannoniae Archidiacono et Referendario Apostolico . ALLEN,19.002.170
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:47
+RECIPIENT:OWEN_LEWIS:MALE:_:_:_
+LETTER:ALLEN_002:E2:1579:AUTOGRAPH:OTHER
+Romae . ALLEN,19.002.171
+
+<Q_ALL_A_1593_T_WALLEN> <L_ALLEN_003> <A_WILLIAM_ALLEN> <A-GENDER_MALE>
+<A-REL_---> <A-DOB_1532> <R_JOHN_ARDEN> <R-GENDER_MALE> <R-REL_--->
+<R-DOB_--->
+
+<P_230>
+
+{ED:97._ALLEN_TO_JOHN_ARDEN._[ROME],_21_MARCH_[1593].}
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:61
+RECIPIENT:JOHN_ARDEN:MALE:_:_:_
+LETTER:ALLEN_003:E2:1593:AUTOGRAPH:OTHER
+Mr. Arden , yours written in the morning I received but now two houres
+after dinner : to which I say onely this , that the things <P_231> that
+passed yesterday were doon on our part of necessity , and with as much
+respect to your estimation as could be divised ; all being don with as
+much secrecy as could be , and so may be kept still ; although ,
+whether any thing coom abrode or no , all will be to your justification
+. ALLEN,231.003.172
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:61
+RECIPIENT:JOHN_ARDEN:MALE:_:_:_
+LETTER:ALLEN_003:E2:1593:AUTOGRAPH:OTHER
+Therefore lett not yt nor any thing els discourage you for any good
+enterprise in God 's service . ALLEN,231.003.173
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:61
+RECIPIENT:JOHN_ARDEN:MALE:_:_:_
+LETTER:ALLEN_003:E2:1593:AUTOGRAPH:OTHER
+Fare you well , ALLEN,231.003.174
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:61
+RECIPIENT:JOHN_ARDEN:MALE:_:_:_
+LETTER:ALLEN_003:E2:1593:AUTOGRAPH:OTHER
+from my house this afternone 21 Martij {ED:1593} . ALLEN,231.003.175
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:61
+RECIPIENT:JOHN_ARDEN:MALE:_:_:_
+LETTER:ALLEN_003:E2:1593:AUTOGRAPH:OTHER
+Your owne surely The Cardinall . ALLEN,231.003.176
+
+<Q_ALL_A_1593_T_WALLEN> <L_ALLEN_004> <A_WILLIAM_ALLEN> <A-GENDER_MALE>
+<A-REL_---> <A-DOB_1532> <R_JOHN_ARDEN> <R-GENDER_MALE> <R-REL_--->
+<R-DOB_--->
+
+<P_235>
+
+{ED:100._ALLEN_TO_JOHN_ARDEN._ROME,_4_SEPTEMBER_1593.}
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:61
+RECIPIENT:JOHN_ARDEN:MALE:_:_:_
+LETTER:ALLEN_004:E2:1593:AUTOGRAPH:OTHER
+Mr. Arden , least you should thinke your last to me were lost , I
+thought good to give you thes lines for answer of that secret poynt you
+wrote of : videlicet that if any such thing shall fall out as you seeme
+to foresee and foresaye , then shall those that perhaps accompt of me
+as an enimye , find more faithfull and proffitable frendship and
+servise for them and our country then they looked for ; which I write
+with myne owne hand because you wold have all goe secretly :
+ALLEN,235.004.177
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:61
+RECIPIENT:JOHN_ARDEN:MALE:_:_:_
+LETTER:ALLEN_004:E2:1593:AUTOGRAPH:OTHER
+And so not doubting but you know the hand and matter , I bid you fare
+well . ALLEN,235.004.178
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:61
+RECIPIENT:JOHN_ARDEN:MALE:_:_:_
+LETTER:ALLEN_004:E2:1593:AUTOGRAPH:OTHER
+Rome ALLEN,235.004.179
+
+AUTHOR:WILLIAM_ALLEN:MALE:_:1532:61
+RECIPIENT:JOHN_ARDEN:MALE:_:_:_
+LETTER:ALLEN_004:E2:1593:AUTOGRAPH:OTHER
+4 Sept. 1593 . ALLEN,235.004.180
+
+{ED:NO_SIGNATURE.}
