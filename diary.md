@@ -1705,7 +1705,29 @@ Reading and writing related work.
 
 Week 2:
 
+Day 1:
 
     len(recipients): 659
     len(senders):    609
     len(ss & rs):    228
+
+
+
+	Period  Date      
+	M3      1350-1419
+	M4      1420-1499
+	E1      1500-1569
+	E2      1570-1639
+	E3      1640-1710
+
+
+
+dt(1640, 1, 1, 1)
+dt(1710, 12, 31, 24)
+
+Day 2
+
+Data:
+
+- [NBA gamecast stat](http://espn.go.com/nba/playbyplay?gameId=400829090)
+- [Football gamecast stat](http://www.espnfc.us/uefa-champions-league/match/446394/manchester-city-paris-saint-germain/preview)
