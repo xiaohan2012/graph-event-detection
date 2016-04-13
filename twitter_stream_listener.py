@@ -40,8 +40,10 @@ class StdOutListener(StreamListener):
 
     def on_data(self, raw_data):
         data = json.loads(raw_data)
-        if data["lang"] == 'en':
-            if data["entities"]['user_mentions']:
+        if data.get("lang") == 'en':
+            if data.get("entities") and \
+               data.get("entities").get('user_mentions') and \
+               data["entities"]['user_mentions']:
                 tweet = convert_tweet(data)
                 # print tweet
                 self.collection.insert(tweet)
