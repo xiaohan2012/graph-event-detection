@@ -2,6 +2,7 @@
 
 import networkx as nt
 
+from datetime import datetime
 from collections import defaultdict
 from memory_profiler import profile
 from itertools import izip
@@ -53,6 +54,11 @@ def convert_to_meta_graph(interaction_names, sources,
         else:
             p2i[s].add((i, time))
 
+    if isinstance(datetimes[0], datetime):
+        time_diff = lambda t1, t2: (t1 - t2).total_seconds()
+    else:
+        time_diff = lambda t1, t2: (t1 - t2)
+
     for row_n, (i1, s, ts, time1) in enumerate(izip(
             interaction_names, sources, targets, datetimes)):
         if row_n % 5000 == 0:
@@ -70,14 +76,14 @@ def convert_to_meta_graph(interaction_names, sources,
         for i2, time2 in p2i[s]:
             if time1 < time2:
                 if (preprune_secs is None or
-                    (time2 - time1).total_seconds() <= preprune_secs):
+                    time_diff(time2, time1) <= preprune_secs):
                     g.add_edge(i1, i2)
         # relay pattern
         for t in ts:
             for i2, time2 in p2i[t]:
                 if time1 < time2:
                     if (preprune_secs is None or
-                        (time2 - time1).total_seconds() <= preprune_secs):
+                        time_diff(time2, time1) <= preprune_secs):
                         g.add_edge(i1, i2)
     return g
 

@@ -402,11 +402,15 @@ class InteractionsUtil(object):
         """collect the subtrees, st, rooted at r that all nodes in st
         are within a timeframe of length secs start from r['datetime']
         """
+        if isinstance(g.node[g.nodes()[0]]['datetime'], dt):
+            func = (lambda n:
+                        ((g.node[n]['datetime'] - g.node[r]['datetime']).total_seconds() <= secs))
+        else:
+            func = (lambda n:
+                        ((g.node[n]['datetime'] - g.node[r]['datetime']) <= secs))
         return cls.filter_dag_given_root(
-            g, r,
-            lambda n:
-            ((g.node[n]['datetime'] - g.node[r]['datetime']).total_seconds() <= secs)
-        )
+            g, r, func
+            )
 
     @classmethod
     def add_penalty_to_self_talking_edges(cls, g, penalty):

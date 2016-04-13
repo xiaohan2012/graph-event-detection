@@ -22,10 +22,10 @@ def test_node_scores_from_tree():
         tree.node[n]['r'] = 1
     scores = node_scores_from_tree(tree, 0)
     assert_equal(
-        {0: np.log(9) * 8 / 7,
-         1: np.log(6) * 5 / 4,
-         2: np.log(4) * 3 / 2,
-         6: np.log(3) * 2 / 1},
+        {0: np.log(9) * 8 / 7.1,
+         1: np.log(6) * 5 / 4.1,
+         2: np.log(4) * 3 / 2.1,
+         6: np.log(3) * 2 / 1.1},
         scores
     )
 
@@ -43,7 +43,7 @@ class UpperboundTest(unittest.TestCase):
         self.g = g
         for t, n in enumerate(g.nodes_iter()):
             g.node[n]['p'] = 1
-            g.node[n]['timestamp'] = t
+            g.node[n]['datetime'] = t
 
     def test_quota_upperbound_1(self):
         assert_equal(
@@ -101,7 +101,7 @@ class AdaptiveSamplerTest(unittest.TestCase):
         self.tree = tree
         for t, nodes in enumerate([(0, ), (1, 6, 8), (2, 3, 7), (4, 5)]):
             for n in nodes:
-                tree.node[n]['timestamp'] = t
+                tree.node[n]['datetime'] = t
 
         self.s = AdaptiveSampler(self.tree, B=3,
                                  timespan_secs=1,
