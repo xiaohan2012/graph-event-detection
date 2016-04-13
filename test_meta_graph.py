@@ -1,6 +1,7 @@
 import string
 import scipy
 from nose.tools import assert_equal
+from datetime import datetime as dt
 
 from .meta_graph import convert_to_meta_graph, \
     convert_to_original_graph, \
@@ -20,22 +21,24 @@ def get_example():
         {'sender_id': A, 'recipient_ids': [B], 'datetime': 4, 'message_id': 4},
         {'sender_id': G, 'recipient_ids': [F], 'datetime': 5, 'message_id': 5},
     ]
+    for i in interactions:
+        i['datetime'] = dt.utcfromtimestamp(i['datetime'])
     return interactions
 
 
 def test_meta_graph_with_prepruning():
     interactions = get_example()
-    node_names, sources, targets, time_stamps = clean_unzip(interactions)
-    graph = convert_to_meta_graph(node_names, sources, targets, time_stamps,
+    node_names, sources, targets, datetimes = clean_unzip(interactions)
+    graph = convert_to_meta_graph(node_names, sources, targets, datetimes,
                                   preprune_secs=0)
     assert_equal(0, len(graph.edges()))
 
 
 def test_meta_graph_with_decomposition():
     interactions = get_example()
-    node_names, sources, targets, time_stamps = clean_decom_unzip(
+    node_names, sources, targets, datetimes = clean_decom_unzip(
         interactions)
-    graph = convert_to_meta_graph(node_names, sources, targets, time_stamps)
+    graph = convert_to_meta_graph(node_names, sources, targets, datetimes)
 
     expected_edges = sorted([('1.B', '2'), ('1.C', '2'), ('1.D', '2'),
                              ('1.B', '4'), ('1.C', '4'), ('1.D', '4'),
@@ -45,8 +48,8 @@ def test_meta_graph_with_decomposition():
 
 def test_meta_graph_without_decomposition():
     interactions = get_example()
-    node_names, sources, targets, time_stamps = clean_unzip(interactions)
-    graph = convert_to_meta_graph(node_names, sources, targets, time_stamps)
+    node_names, sources, targets, datetimes = clean_unzip(interactions)
+    graph = convert_to_meta_graph(node_names, sources, targets, datetimes)
 
     expected_edges = sorted([(1, 2), (1, 4),
                              (1, 3), (2, 4)])
@@ -58,9 +61,9 @@ def test_meta_graph_1():
     node_names = range(1, 6)
     sources = [a, a, b, d, b]
     targets = [c, b, a, c, d]
-    time_stamps = [1, 1, 2, 2, 3]
+    datetimes = [1, 1, 2, 2, 3]
     
-    g = convert_to_meta_graph(node_names, sources, targets, time_stamps)
+    g = convert_to_meta_graph(node_names, sources, targets, datetimes)
     
     expected_edges = sorted([(2, 3), (3, 5), (2, 5)])
     assert_equal(expected_edges, sorted(g.edges()))
@@ -86,8 +89,8 @@ def get_undirected_example():
         ('c', 'd'),
         ('a', 'c'),
     ]
-    time_stamps = (1, 2, 3, 4)
-    return node_names, participants, time_stamps
+    datetimes = (1, 2, 3, 4)
+    return node_names, participants, datetimes
 
 
 def test_meta_graph_undirected():

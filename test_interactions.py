@@ -14,7 +14,7 @@ from scipy.sparse import issparse
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from .test_util import  make_path
+from .test_util import make_path
 from .dag_util import binarize_dag
 from .interactions import InteractionsUtil as IU,\
     clean_decom_unzip, clean_unzip
@@ -51,8 +51,8 @@ class InteractionsUtilTest(unittest.TestCase):
         assert_equal(cleaned_interactions[3]['recipient_ids'], ["B"])
         assert_true(isinstance(cleaned_interactions[3]['datetime'],
                                datetime))
-        assert_true(isinstance(cleaned_interactions[1]['timestamp'],
-                               float))
+        # assert_true(isinstance(cleaned_interactions[1]['timestamp'],
+        #                        float))
 
     def test_get_meta_graph_without_decomposition(self):
         g = IU.get_meta_graph(
@@ -65,7 +65,7 @@ class InteractionsUtilTest(unittest.TestCase):
         assert_equal(5, len(g.nodes()))
         for n in g.nodes():
             assert_true(isinstance(g.node[n]['datetime'], datetime))
-            assert_true(isinstance(g.node[n]['timestamp'], float))
+            # assert_true(isinstance(g.node[n]['timestamp'], float))
 
     def test_get_meta_graph_with_pagerank(self):
         new_mg = IU.get_meta_graph(self.interactions,
@@ -90,7 +90,7 @@ class InteractionsUtilTest(unittest.TestCase):
         assert_equal(self.g.node['1.B']['body'], 'b1')
         assert_equal(self.g.node['1.B']['message_id'], 1)
         assert_equal(self.g.node['1.B']['subject'], 's1')
-        assert_equal(self.g.node['1.B']['timestamp'], 989587576)
+        # assert_equal(self.g.node['1.B']['timestamp'], 989587576)
         assert_equal(sorted(self.g.node['1.B']['peers']),
                      sorted(['1.B', '1.C', '1.D']))
         assert_equal(self.g.node['1.B']['datetime'],
@@ -98,7 +98,7 @@ class InteractionsUtilTest(unittest.TestCase):
         assert_equal(self.g.node['2']['body'], '...')
         assert_equal(self.g.node['2']['message_id'], 2)
         assert_equal(self.g.node['2']['subject'], '...')
-        assert_equal(self.g.node['2']['timestamp'], 989587577)
+        # assert_equal(self.g.node['2']['timestamp'], 989587577)
         assert_equal(self.g.node['2']['peers'], [])
         assert_equal(self.g.node['2']['datetime'],
                      datetime.fromtimestamp(989587577))
@@ -176,7 +176,7 @@ class InteractionsUtilTest(unittest.TestCase):
             sub_g = IU.filter_dag_given_root(
                 self.g, r,
                 lambda n:
-                self.g.node[n]['timestamp'] - self.g.node[r]['timestamp'] <= max_time_diff,
+                (self.g.node[n]['datetime'] - self.g.node[r]['datetime']).total_seconds() <= max_time_diff,
             )
             assert_equal(sorted(sub_g.edges()), sorted(expected_edges))
 
@@ -193,10 +193,10 @@ class InteractionsUtilTest(unittest.TestCase):
         sub_g = IU.filter_dag_given_root(
             g, 0,
             lambda n:
-            g.node[n]['timestamp'] - g.node[0]['timestamp'] <= timespan,
+            (g.node[n]['datetime'] - g.node[0]['datetime']) <= timespan,
         )
-        assert g.node[3]['timestamp'] - g.node[0]['timestamp'] <= timespan
-        assert g.node[1]['timestamp'] - g.node[0]['timestamp'] <= timespan, (g.node[1]['timestamp'] - g.node[0]['timestamp'])
+        assert (g.node[3]['datetime'] - g.node[0]['datetime']) <= timespan
+        assert (g.node[1]['datetime'] - g.node[0]['datetime']) <= timespan, (g.node[1]['datetime'] - g.node[0]['datetime'])
 
         assert_true(sub_g.has_edge(1, 3))
         
@@ -306,7 +306,7 @@ class InteractionsUtilTest(unittest.TestCase):
         (interaction_names,
          sources,
          targets,
-         time_stamps) = clean_unzip(self.interactions)
+         datetimes) = clean_unzip(self.interactions)
 
         assert_equal(range(1, 7),
                      interaction_names)
@@ -315,9 +315,10 @@ class InteractionsUtilTest(unittest.TestCase):
         for e, a in zip([["B", "C", "D"], ['F'], ['E'], ['B'], ['F'], ['XXX']],
                         targets):
             assert_equal(sorted(e), sorted(a))
-        assert_equal([989587576, 989587577, 989587578, 989587579,
-                      989587580, 989587581],
-                     time_stamps)
+        assert_equal(map(datetime.fromtimestamp,
+                         [989587576, 989587577, 989587578, 989587579,
+                          989587580, 989587581]),
+                     datetimes)
 
     def test_get_topic_meta_graph(self):
         g = IU.get_topic_meta_graph(
@@ -539,6 +540,9 @@ class InteractionsUtilTest(unittest.TestCase):
         return IU.assign_edge_weights(mg, cosine)
 
     def test_add_recency(self):
+        # DEPRECATED
+        return 
+
         g_before = self._get_meta_graph()
         g = IU.add_recency(g_before.copy(),
                            alpha=1.0, tau=0.8,
@@ -553,6 +557,7 @@ class InteractionsUtilTest(unittest.TestCase):
                             g[1][2]['orig_c'])
 
 
+# DEPRECATED
 class InteractionsUtilTestUndirected(unittest.TestCase):
     """undirected case
     """
@@ -591,6 +596,7 @@ class InteractionsUtilTestUndirected(unittest.TestCase):
         assert_equal(827, g.number_of_nodes())
         assert_equal(3874, g.number_of_edges())
 
+
 class InteractionsUtilTestGivenTopics(unittest.TestCase):
     """when topics are given
     """
@@ -607,7 +613,7 @@ class InteractionsUtilTestGivenTopics(unittest.TestCase):
             given_topics=True,
         )
         assert_equal(297, g.number_of_nodes())
-        assert_equal(2325, g.number_of_edges())  # smaller
+        assert_equal(2535, g.number_of_edges())  # smaller
 
     def test_get_topical_meta_graph_given_topics(self):
         g = IU.get_topic_meta_graph(
@@ -618,7 +624,7 @@ class InteractionsUtilTestGivenTopics(unittest.TestCase):
             given_topics=True,
         )
         assert_equal(297, g.number_of_nodes())
-        assert_equal(2325, g.number_of_edges())
+        assert_equal(2535, g.number_of_edges())
         for s, t in g.edges_iter():
             assert_true('c' in g[s][t])
             assert_true(g[s][t]['c'] != float('inf'))

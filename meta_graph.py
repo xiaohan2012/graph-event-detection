@@ -14,15 +14,15 @@ logger.setLevel(logging.DEBUG)
 
 
 def convert_to_meta_graph(interaction_names, sources,
-                          targets, time_stamps,
+                          targets, datetimes,
                           preprune_secs=None):
     """
     sources: list of source node id for each interaction
     targets: list of target node ids for each interaction
-    time_stamps: happening time of the interactions
+    datetimes: happening time of the interactions
 
     All four fields shall be sorted from earliest to lastest
-    according to time_stamps
+    according to datetimes
     """
     if isinstance(preprune_secs, int) or isinstance(preprune_secs, float):
         logger.info("preprune_by_secs {} enabled..".format(preprune_secs))
@@ -34,9 +34,9 @@ def convert_to_meta_graph(interaction_names, sources,
                 )
             )
 
-    assert len(interaction_names) == len(sources) == len(targets) == len(time_stamps), \
+    assert len(interaction_names) == len(sources) == len(targets) == len(datetimes), \
         "{},{},{},{}".format(
-            len(interaction_names), len(sources), len(targets), len(time_stamps))
+            len(interaction_names), len(sources), len(targets), len(datetimes))
     g = nt.DiGraph()
     
     # source to nodes mapping
@@ -47,14 +47,14 @@ def convert_to_meta_graph(interaction_names, sources,
     for row_n, (i, s, time) in enumerate(
             izip(interaction_names,
                  sources,
-                 time_stamps)):
+                 datetimes)):
         if (i, time) in p2i[s]:
             logger.warning("{} added already".format((i, time)))
         else:
             p2i[s].add((i, time))
 
     for row_n, (i1, s, ts, time1) in enumerate(izip(
-            interaction_names, sources, targets, time_stamps)):
+            interaction_names, sources, targets, datetimes)):
         if row_n % 5000 == 0:
             logger.debug("building: {} / {}".format(
                 row_n, len(interaction_names)))
@@ -70,14 +70,14 @@ def convert_to_meta_graph(interaction_names, sources,
         for i2, time2 in p2i[s]:
             if time1 < time2:
                 if (preprune_secs is None or
-                    time2 - time1 <= preprune_secs):
+                    (time2 - time1).total_seconds() <= preprune_secs):
                     g.add_edge(i1, i2)
         # relay pattern
         for t in ts:
             for i2, time2 in p2i[t]:
                 if time1 < time2:
                     if (preprune_secs is None or
-                        time2 - time1 <= preprune_secs):
+                        (time2 - time1).total_seconds() <= preprune_secs):
                         g.add_edge(i1, i2)
     return g
 

@@ -1,5 +1,5 @@
-import os
 import re
+import numpy as np
 import codecs
 import pandas as pd
 
@@ -147,5 +147,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     df = parse_to_df(args.data_dir)
-    df.to_json(args.output_path,
-               orient='records')
+    df.to_pickle(args.output_path)

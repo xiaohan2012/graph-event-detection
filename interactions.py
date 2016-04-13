@@ -8,6 +8,7 @@ import time
 import numpy as np
 import networkx as nx
 
+from datetime import datetime as dt
 from memory_profiler import profile
 from scipy.sparse import csr_matrix, issparse
 from sklearn.feature_extraction.text import TfidfTransformer, TfidfVectorizer
@@ -51,7 +52,10 @@ class InteractionsUtil(object):
         new_interactions = []
         for row_n, i in enumerate(interactions):
             if row_n % 5000 == 0:
-                logger.debug("cleaning: {} / {}".format(row_n, len(interactions)))
+                logger.debug("cleaning: {} / {}".format(
+                    row_n,
+                    len(interactions))
+                )
 
             i = copy.deepcopy(i)
             if not undirected:
@@ -74,9 +78,7 @@ class InteractionsUtil(object):
                         )
                     )
                     continue
-                i['timestamp'] = time.mktime(
-                    i['datetime'].timetuple()
-                )
+
             new_interactions.append(i)
         return new_interactions
 
@@ -118,7 +120,7 @@ class InteractionsUtil(object):
         """
         sort interactions by time and
         convert list of interactions to
-        tuple of (interaction_names, sources, targets, time_stamps)
+        tuple of (interaction_names, sources, targets, datetimes)
         """
         # sorting is important
         interactions = sorted(interactions, key=lambda r: r['datetime'])
@@ -126,24 +128,24 @@ class InteractionsUtil(object):
         interaction_names = [i['message_id'] for i in interactions]
         sources = [i['sender_id'] for i in interactions]
         targets = [i['recipient_ids'] for i in interactions]
-        time_stamps = [i['timestamp'] for i in interactions]
+        datetimes = [i['datetime'] for i in interactions]
 
-        return (interaction_names, sources, targets, time_stamps)
+        return (interaction_names, sources, targets, datetimes)
 
     @classmethod
     def unzip_interactions_undirected(cls, interactions):
         """
         undirected case
-        tuple of (interaction_names, participants, time_stamps)
+        tuple of (interaction_names, participants, datetimes)
         """
         # sorting is important
         interactions = sorted(interactions, key=lambda r: r['datetime'])
         
         interaction_names = [i['message_id'] for i in interactions]
         particpants = [i['participant_ids'] for i in interactions]
-        time_stamps = [i['timestamp'] for i in interactions]
+        datetimes = [i['datetime'] for i in interactions]
 
-        return (interaction_names, particpants, time_stamps)
+        return (interaction_names, particpants, datetimes)
 
     @classmethod
     def get_meta_graph(cls, interactions,
@@ -203,7 +205,6 @@ class InteractionsUtil(object):
                 g.node[n]['topics'] = i['topics']
                     
             g.node[n]['datetime'] = i['datetime']
-            g.node[n]['timestamp'] = i['timestamp']
 
             if 'hashtags' in i:
                 g.node[n]['hashtags'] = i['hashtags']
@@ -239,6 +240,7 @@ class InteractionsUtil(object):
         substract some edge weight by the recency of the edge,
         e.g,  \alpha \tau^{t2 - t1}
         """
+        raise Exception("Not in use")
         for s, t in g.edges_iter():
             t1 = timestamp_converter(g.node[s]['timestamp'])
             t2 = timestamp_converter(g.node[t]['timestamp'])
@@ -403,7 +405,7 @@ class InteractionsUtil(object):
         return cls.filter_dag_given_root(
             g, r,
             lambda n:
-            (g.node[n]['timestamp'] - g.node[r]['timestamp'] <= secs)
+            ((g.node[n]['datetime'] - g.node[r]['datetime']).total_seconds() <= secs)
         )
 
     @classmethod
@@ -424,7 +426,7 @@ class InteractionsUtil(object):
         """
         N = g.number_of_edges()
         dists_mat = np.zeros((N, len(fields_with_weights)))
-        
+
         fields, fields_weight = fields_with_weights.keys(), \
                                 fields_with_weights.values()
         for i, (s, t) in enumerate(g.edges_iter()):
@@ -584,11 +586,19 @@ class InteractionsUtil(object):
         """for each node, prune its children nodes
         that are temporally far away from it
         """
+        if isinstance(g.node[g.nodes()[0]]['datetime'], dt):
+            is_datetime = True
+        else:
+            is_datetime = False
+
         g = g.copy()
         for n in g.nodes():
             nbrs = g.neighbors(n)
             for nb in nbrs:
-                if g.node[nb]['timestamp'] - g.node[n]['timestamp'] > secs:
+                time_diff = (g.node[nb]['datetime'] - g.node[n]['datetime'])
+                if is_datetime:
+                    time_diff = time_diff.total_seconds()
+                if time_diff > secs:
                     g.remove_edge(n, nb)
         return g
 
