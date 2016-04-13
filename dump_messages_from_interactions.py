@@ -1,11 +1,16 @@
+import pandas as pd
 import codecs
 from util import json_load
 
 
 def dump_lines_of_message(interactions_path, output_path):
-    obj = json_load(interactions_path)
+    print interactions_path
+    if interactions_path.endswith('.json'):
+        df = pd.read_json(interactions_path)
+    else:
+        df = pd.read_pickle(interactions_path)
     with codecs.open(output_path, 'w', 'utf8') as f:
-        for r in obj:
+        for i, r in df.iterrows():
             f.write(u'{} {}\n'.format(
                 r['subject'].replace('\n', ' '),
                 r['body'].replace('\n', ' ')))

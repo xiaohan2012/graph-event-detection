@@ -10,7 +10,7 @@ fi
 if [ -z $2 ]; then
     echo 'dumping messages'
     python dump_messages_from_interactions.py \
-	--interactions_path data/${dataset}/interactions.json \
+	--interactions_path data/${dataset}/interactions.* \
 	--output_path data/${dataset}/content.txt
 
     echo 'making .mm corpus'
@@ -23,7 +23,7 @@ fi
 echo 'training model'
 time python lda/lda.py \
     --n_topics 10 \
-    --n_iters 10 \
+    --n_iters 100 \
     --lda_update_every 1 \
     --lda_chunksize 1000 \
     --id2token data/${dataset}/id2token.pkl \
