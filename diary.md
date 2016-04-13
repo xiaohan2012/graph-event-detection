@@ -1733,3 +1733,20 @@ Data:
 - [Football gamecast stat](http://www.espnfc.us/uefa-champions-league/match/446394/manchester-city-paris-saint-germain/preview)
 
 some background writing
+
+Day 3:
+
+- Inferring edge attributes from citation network: why this paper cites the other?
+  - related work?
+  - uses the dataset?
+  - similar methods, different problem?
+  - similar problem, different method?
+- Structure in code repository?
+  - bug influence network in repository
+  - within one repo: how each module uses the other?
+- Skill network?
+  - the relationship between skills
+    - A is similar to B
+	- A is sub/super-category of B
+
+

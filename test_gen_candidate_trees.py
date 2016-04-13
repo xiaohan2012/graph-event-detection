@@ -21,7 +21,7 @@ from .dag_util import get_roots
 
 
 directed_params = {
-    'interaction_json_path': make_path('test/data/enron-head-100.json'),
+    'interaction_path': make_path('test/data/enron-head-100.json'),
     'lda_model_path': make_path('test/data/test.lda'),
     'corpus_dict_path': make_path('test/data/test_dictionary.gsm'),
     'meta_graph_pkl_path_prefix': make_path('test/data/enron-head-100'),
@@ -57,7 +57,7 @@ class GenCandidateTreeTest(unittest.TestCase):
             },
             'gen_tree_kws': {
                 'timespan': timedelta(days=28),
-                'U': 0.01,
+                'U': 1.0,
                 'dijkstra': False
             },
             'root_sampling_method': 'random',
@@ -195,7 +195,7 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
         --all_paths_pkl_prefix={all_paths_pkl_prefix} \
         --weeks=4 --U=2.0 \
         --lda_path={lda_model_path} \
-        --interaction_path={interaction_json_path} \
+        --interaction_path={interaction_path} \
         --corpus_dict_path={corpus_dict_path} \
         --meta_graph_path_prefix={meta_graph_pkl_path_prefix} \
         --weight_for_topics {weight_for_topics} \
@@ -234,7 +234,7 @@ class GenCandidateTreeCMDTest(unittest.TestCase):
 
     def test_given_topics(self):
         self.directed_params = {
-            'interaction_json_path': make_path(
+            'interaction_path': make_path(
                 'test/data/given_topics/'
                 'interactions--n_noisy_interactions_fraction=0.1.json'
             ),
@@ -283,7 +283,7 @@ class GenCandidateTreeGivenTopicsTest(GenCandidateTreeTest):
 
         distance_weights = distance_weights_1  # 'topics' only for given topics
         self.some_kws_of_run = {
-            'interaction_json_path': make_path(
+            'interaction_path': make_path(
                 'test/data/given_topics/interactions--n_noisy_interactions_fraction=0.1.json'
             ),
             'cand_tree_percent': 0.1,

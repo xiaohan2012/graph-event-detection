@@ -73,6 +73,7 @@ def calc_tree(node_i, r, dag, U,
 
     logger.debug('generating tree ')
 
+    print(dag.number_of_nodes())
     tree = gen_tree_func(dag, r, U)
 
     if should_binarize_dag:
