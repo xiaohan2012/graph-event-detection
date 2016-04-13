@@ -97,7 +97,7 @@ def calc_tree(node_i, r, dag, U,
 
 def run(gen_tree_func,
         root_sampling_method='random',
-        interaction_json_path=os.path.join(CURDIR, 'data/enron.json'),
+        interaction_path=os.path.join(CURDIR, 'data/enron.json'),
         lda_model_path=os.path.join(CURDIR, 'models/model-4-50.lda'),
         corpus_dict_path=os.path.join(CURDIR, 'models/dictionary.pkl'),
         meta_graph_pkl_path_prefix=os.path.join(CURDIR, 'data/enron'),
@@ -133,10 +133,16 @@ def run(gen_tree_func,
         timespan = gen_tree_kws['timespan']
     U = gen_tree_kws['U']
         
-    try:
-        interactions = json.load(open(interaction_json_path))
-    except ValueError:
-        interactions = load_json_by_line(interaction_json_path)
+    if interaction_path.endswith(".json"):
+        try:
+            interactions = json.load(open(interaction_path))
+        except ValueError:
+            interactions = load_json_by_line(interaction_path)
+    elif interaction_path.endswith(".pkl"):
+        interactions = pickle.load(open(interaction_path))
+    else:
+        raise ValueError("invalid path extension: {}".format(interaction_path))
+
 
     logger.info('loading lda from {}'.format(lda_model_path))
     if not given_topics:
@@ -261,7 +267,7 @@ def run(gen_tree_func,
     all_paths_pkl_path = make_detailed_path(all_paths_pkl_prefix,
                                             all_paths_pkl_suffix)
     logger.info('Dumping the paths info to {}'.format(all_paths_pkl_path))
-    paths_dict = {'interactions': interaction_json_path,
+    paths_dict = {'interactions': interaction_path,
                   'meta_graph': meta_graph_pkl_path,
                   'result': result_pkl_path,
                   'true_events': true_events_path,
@@ -467,7 +473,7 @@ if __name__ == '__main__':
         
     paths = run(methods[args.method],
                 root_sampling_method=args.root_sampling,
-                interaction_json_path=args.interaction_path,
+                interaction_path=args.interaction_path,
                 corpus_dict_path=args.corpus_dict_path,
                 meta_graph_pkl_path_prefix=args.meta_graph_path_prefix,
                 meta_graph_pkl_suffix=args.meta_graph_pkl_suffix,

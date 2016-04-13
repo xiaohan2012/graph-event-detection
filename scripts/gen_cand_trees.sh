@@ -6,8 +6,7 @@ dataset=$1
 U=$2
 cand_n=$3
 
-# sampler="random"
-sampler="adaptive"
+sampler="upperbound"
 
 # CMD="kernprof -l "
 CMD="python"
@@ -41,7 +40,7 @@ time ${CMD} gen_candidate_trees.py \
         --all_paths_pkl_prefix=${root_dir}/tmp/${dataset}/paths- \
 	--lda_path=$(ls ${root_dir}/data/${dataset}/model-*.lda) \
 	--corpus_dict_path=${root_dir}/data/${dataset}/dict.pkl \
-	--interaction_path=${root_dir}/data/${dataset}/interactions.json \
+	--interaction_path ${root_dir}/data/${dataset}/interactions.* \
 	--meta_graph_path_prefix=${root_dir}/tmp/${dataset}/meta-graph \
 	--U=${U} \
         --cand_n=${cand_n} \
