@@ -1,5 +1,4 @@
 import re
-import numpy as np
 import codecs
 import pandas as pd
 
@@ -121,12 +120,6 @@ def parse_file(path):
                 print(path)
                 print l
                 raise
-
-            # print('line:', l)
-            # print('action:', action)
-            # print('fst.current', fst.current)
-            # print('\n')
-
     return letters
 
 
@@ -135,6 +128,8 @@ def parse_to_df(data_dir):
     for path in glob(data_dir):
         letters += parse_file(path)
 
+    for i, l in enumerate(letters):
+        l['message_id'] = i
     return pd.DataFrame(letters)
 
 
