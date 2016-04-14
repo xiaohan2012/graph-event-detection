@@ -135,10 +135,7 @@ function load_event_1(config){
 					me.attr('r', deactive_r);
 				}
 			})
-			// .on('mousein', tip.show)
-			.on('mousein', function(){
-				console.log('mousein');
-			})
+			.on('mouseover', tip.show)
 			.on('mouseout',  tip.hide);
 
 		if(true){

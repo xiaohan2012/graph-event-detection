@@ -38,8 +38,8 @@ for p in $(ls ${pickle_dir}/result-*.pkl); do
 		python dump_events_to_json.py \
 			--candidate_tree_path ${p} \
 			--dirname "${output_dir}/event/original_graph" \
-			--interactions_path "data/${dataset}/interactions.*" \
-			--people_path "data/${dataset}/people.*" \
+			--interactions_path data/${dataset}/interactions.* \
+			--people_path data/${dataset}/people.* \
 			--to_original_graph \
 			-k 5 \
 			${extra}
@@ -52,8 +52,8 @@ for p in $(ls ${pickle_dir}/result-*.pkl); do
 		python dump_events_to_json.py \
 			--candidate_tree_path ${p} \
 			--dirname "${output_dir}/event/meta_graph" \
-			--interactions_path "data/${dataset}/interactions.*" \
-			--people_path "data/${dataset}/people.*" \
+			--interactions_path data/${dataset}/interactions.* \
+			--people_path data/${dataset}/people.* \
 			-k 5 \
 			${extra}
 	else
