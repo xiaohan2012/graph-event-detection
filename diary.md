@@ -1722,8 +1722,7 @@ Day 1:
 
 
 
-dt(1640, 1, 1, 1)
-dt(1710, 12, 31, 24)
+`df[(df['datetime'] >= dt(1640, 1, 1, 1)) & (df['datetime'] <= dt(1710, 12, 31, 23))].to_pickle('data/letter1640/interactions.pkl')`
 
 Day 2
 
@@ -1744,9 +1743,29 @@ Day 3:
 - Structure in code repository?
   - bug influence network in repository
   - within one repo: how each module uses the other?
-- Skill network?
+  - Code contributor network
+- Skill network
   - the relationship between skills
     - A is similar to B
 	- A is sub/super-category of B
+- Knowledge network
+  - What's the prerequisite of learning linear algebra?
+  -
+- Ingredient network
+  - which ingredients are good/bad to be cooked together for health/tasteness/decorative reasons?
+  - give rating for a potential recipe
+  - ingredient embedding?
+- Music network
+  - melody network?
+- Company network
 
+
+Day 4:
+
+- some figures in event detection
+- more on information diffusion, differences, the virus model, etc
+- text summarization, good to read
+- comment out the figures/algorithms, etc
+- DP, charikar's algorithm
+- future work
 
