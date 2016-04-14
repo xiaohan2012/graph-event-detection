@@ -10,14 +10,16 @@ from fysom import Fysom
 
 def get_action(l, fst):
     l = l.strip()
-    if l.startswith('<Q_'):
-        return 'Q'
+    if fst.current == 'C' and l.startswith('<Q_'):
+        return 'letter_end'
+    elif l.startswith('<Q_'):
+        return '<q'
+    elif fst.current == 'Q' and l.startswith('{ED'):
+        return '{ed'
     elif l.startswith('AUTHOR:'):
         return 'author'
     elif l.startswith('RECIPIENT:'):
         return 'recipient'
-    elif fst.current == 'C' and len(l) == 0:
-        return 'one_letter_done'
     elif len(l) > 0:
         return 'non_empty'
     else:
@@ -27,7 +29,10 @@ def get_action(l, fst):
 year_regexp = re.compile('(\d{4})')
 author_regexp = re.compile('AUTHOR:(\w+)')
 recipient_regexp = re.compile('RECIPIENT:([\w&]+)')
-
+ymd_regexp = re.compile(
+    '(\?|\d{1,2})[^_\d]*_[^_\d]*(\?|JANUARY|February|March|April|May|June|July|August|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER)\D*_\D*(\d{4})',
+    re.I)
+content_regexp = re.compile('([A-Z]+,\d{1,3}.\d{3}.\d{1,3})|(\{.*?\})|(=)|(<.*?>)|(\$)')
 
 def get_year(l):
     return int(year_regexp.findall(l)[0])
@@ -41,24 +46,43 @@ def get_recipient(l):
     return recipient_regexp.findall(l)[0]
 
 
-date = None
+def get_year_month_day(l):
+    try:
+        day, month, year = ymd_regexp.findall(l)[0]
+        if day == '?':
+            day = 1
+        else:
+            day = int(day)
+
+        if  month == '?':
+            month = 1
+        else:
+            month = datetime.strptime(month, '%B').month
+
+        year = int(year)
+        return year, month, day
+    except IndexError:
+        return None, None, None
+
+
+def process_content_line(l):
+    return content_regexp.sub('', l)
+
+date = {}
 
 
 def onQ(e):
     global date
-    year = get_year(e.line)
-    date = datetime(year, 1, 1)
+    date = {'month': 1, 'day': 1}
+    date['year'] = get_year(e.line)
 
-
-def onA(e):
-    global date
-    assert date is not None
-    e.letter['datetime'] = date
-    e.letter['sender_id'] = get_author(e.line)
+    e.letter['datetime'] = None
     e.letter['subject'] = ''
     e.letter['body'] = ''
 
-    date += timedelta(hours=1)  # need some time difference
+def onA(e):
+    global date
+    e.letter['sender_id'] = get_author(e.line)
 
 
 def onR(e):
@@ -66,60 +90,89 @@ def onR(e):
 
 
 def onC(e):
-    # print('onC', e.line)
-    e.letter['body'] += e.line
-    # print('body', e.letter['body'])
+    e.letter['body'] += process_content_line(e.line)
 
+def onED(e):
+    global date
+    year, month, day = get_year_month_day(e.line)
+    if year:
+        date['year'] = year
+        if month:
+            date['month'] = month
+        if day:
+            if day > 31:
+                date['day'] = 1
+            else:
+                date['day'] = day
 
-def onafterone_letter_done(e):
+def onletter_end(e):
+    global date
+    try:
+        e.letter['datetime'] = datetime(**date)
+    except ValueError:
+        print date
+        raise
     e.letters.append(copy(e.letter))
-    e.letter = {}
 
 
 fst = Fysom(
-    initial='N',
+    initial='S',
     events=[
-        ('author', 'N', 'A'),
-        ('non_empty', 'N', 'N'),
-        ('empty', 'N', 'N'),
-        ('Q', 'N', 'Q'),
-        ('non_empty', 'Q', 'N'),
-        ('empty', 'Q', 'N'),
+        ('non_empty', 'S', 'S'),
+        ('<q', 'S', 'Q'),
+        ('{ed', 'Q', 'ED'),
+        ('{ed', 'ED', 'ED'),
+        ('non_empty', 'ED', 'ED'),
+        ('non_empty', 'Q', 'Q'),
+        ('author', 'Q', 'A'),
+        ('author', 'ED', 'A'),
         ('recipient', 'A', 'R'),
         ('non_empty', 'R', 'L'),
         ('non_empty', 'L', 'C'),
         ('non_empty', 'C', 'C'),
-        ('one_letter_done', 'C', 'N'),
+        ('author', 'C', 'A'),
+        ('letter_end', 'C', 'Q'),
+        ('file_end', 'C', 'T')
     ],
     callbacks={
         'onQ': onQ,
         'onA': onA,
         'onR': onR,
+        'onenterED': onED,
+        'onreenterED': onED,
         'onenterC': onC,
         'onreenterC': onC,
-        'onafterone_letter_done': onafterone_letter_done
+        'onbeforeletter_end': onletter_end,
+        'onbeforefile_end': onletter_end
     }
 )
 
 
 def parse_file(path):
-    fst.current = 'N'
+    fst.current = 'S'
     with codecs.open(path, 'r', 'utf8') as f:
         letter = {}
         letters = []
         for i, l in enumerate(f):
-            action = get_action(l, fst)
-            take_action = getattr(fst, action)
-            try:
-                take_action(action=action,
-                            line=l,
-                            letter=letter,
-                            letters=letters)
-            except:
-                print('#line', i+1)
-                print(path)
-                print l
-                raise
+            if l.strip():
+                action = get_action(l, fst)
+                take_action = getattr(fst, action)
+                try:
+                    take_action(action=action,
+                                line=l,
+                                letter=letter,
+                                letters=letters)
+                except:
+                    print('#line', i+1)
+                    print(path)
+                    print l
+                    raise
+
+        # the last letter
+        fst.file_end(line='',
+                     letter=letter,
+                     letters=letters)
+
     return letters
 
 

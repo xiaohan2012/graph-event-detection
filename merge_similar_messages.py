@@ -53,30 +53,32 @@ def merge_messages_by_single_user(df,
     
     while len(msg_ids) > 0:
         msg_id = msg_ids.pop(0)
-        # print(msg_id)
+
         msg = df[df['message_id'] == msg_id].iloc[0]
         msg_text = get_text(msg)
 
         sub_df = df[df[time_field] > msg[time_field]]
-        sub_df = sub_df[
-            (sub_df[time_field] - msg[time_field]) <= max_time_diff
-        ]
+
         if not sub_df.empty:
-            similar_msgs = sub_df[
-                sub_df.apply(
-                    lambda r: fuzz.ratio(
-                        get_text(r),
-                        msg_text),
-                    axis=1
-                ) > string_similar_threshold
+            sub_df = sub_df[
+                ((sub_df[time_field] - msg[time_field]) <= max_time_diff)
             ]
+            if not sub_df.empty:
+                similar_msgs = sub_df[
+                    sub_df.apply(
+                        lambda r: fuzz.ratio(
+                            get_text(r),
+                            msg_text),
+                        axis=1
+                    ) > string_similar_threshold
+                ]
 
-            for _, m in similar_msgs.iterrows():
-                msg['recipient_ids'] += m['recipient_ids']
+                for _, m in similar_msgs.iterrows():
+                    msg['recipient_ids'] += m['recipient_ids']
 
-            similar_msgs_ids = set(similar_msgs['message_id'].tolist())
-            msg_ids = [m for m in msg_ids if m not in similar_msgs_ids]
-        # print(msg['message_id'])
+                similar_msgs_ids = set(similar_msgs['message_id'].tolist())
+                msg_ids = [m for m in msg_ids if m not in similar_msgs_ids]
+
         merged_msgs.append(msg)
     
     return pd.DataFrame(merged_msgs)

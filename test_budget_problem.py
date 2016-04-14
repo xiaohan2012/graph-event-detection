@@ -129,7 +129,7 @@ class CharikarAlgoTest(unittest.TestCase):
         preprune_secs = params['preprune_secs']
         mg = IU.get_topic_meta_graph_from_synthetic(
             make_path('test/data/quota_test_cases/interactions.json'),
-            preprune_secs
+            preprune_secs            
         )
         dag = IU.get_rooted_subgraph_within_timespan(
             mg, root, preprune_secs

@@ -66,20 +66,20 @@ def test_dump():
     expected = {
         'items': [
             {'id': 1, 'content': 'item 1',
-             'start': '2014-01-30', 'group': 1},
+             'start': '2014-01-30 00:00:00', 'group': 1},
             {'id': 2, 'content': 'item 2',
-             'start': '2014-01-18', 'group': 1},
+             'start': '2014-01-18 00:00:00', 'group': 1},
             {'id': 3, 'content': 'Event 1',
-             'start': '2014-01-18', 'end': '2014-01-30',
+             'start': '2014-01-18 00:00:00', 'end': '2014-01-30 00:00:00',
              'type': 'background', 'group': 1},
             {'id': 4, 'content': 'item 1',
-             'start': '2014-01-30', 'group': 2},
+             'start': '2014-01-30 00:00:00', 'group': 2},
             {'id': 5, 'content': 'item 3',
-             'start': '2014-01-21', 'group': 2},
+             'start': '2014-01-21 00:00:00', 'group': 2},
             {'id': 6, 'content': 'item 4',
-             'start': '2014-01-17', 'group': 2},
+             'start': '2014-01-17 00:00:00', 'group': 2},
             {'id': 7, 'content': 'Event 2',
-             'start': '2014-01-17', 'end': '2014-01-30',
+             'start': '2014-01-17 00:00:00', 'end': '2014-01-30 00:00:00',
              'type': 'background', 'group': 2}
         ],
         'groups': [
@@ -89,8 +89,8 @@ def test_dump():
                 'participants': dict(
                     summaries[0]['participants']['sender_count']
                 ),
-                'start': '2014-01-18',
-                'end': '2014-01-30',
+                'start': '2014-01-18 00:00:00',
+                'end': '2014-01-30 00:00:00',
                 'days': 12,
                 'link_type_freq': {'broadcast': 0, 'reply': 1, 'relay': 0}
             },
@@ -100,13 +100,13 @@ def test_dump():
                 'participants': dict(
                     summaries[1]['participants']['sender_count']
                 ),
-                'start': '2014-01-17', 'end': '2014-01-30',
+                'start': '2014-01-17 00:00:00', 'end': '2014-01-30 00:00:00',
                 'days': 13,
                 'link_type_freq': {'broadcast': 1, 'relay': 0, 'reply': 1}
             }
         ],
-        'start': '2014-01-17',
-        'end': '2014-01-30',
+        'start': '2014-01-17 00:00:00',
+        'end': '2014-01-30 00:00:00',
     }
     # wierd just because terms are not the same...
     assert_equal(expected['items'], actual['items'])
