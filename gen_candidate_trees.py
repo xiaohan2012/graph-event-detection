@@ -338,7 +338,11 @@ if __name__ == '__main__':
                         default='')
     parser.add_argument('--true_events_path',
                         default='')
-                
+
+    parser.add_argument('--years',
+                        type=int,
+                        default=0,
+                        help="Time span in terms of years")                
     parser.add_argument('--weeks',
                         type=int,
                         default=0,
@@ -459,6 +463,9 @@ if __name__ == '__main__':
         elif args.days:
             logger.info('using `days` as timespan unit')
             timespan = timedelta(days=args.days)
+        elif args.years:
+            logger.info('using `years` as timespan unit')
+            timespan = timedelta(days=args.years*365)
         else:
             assert args.weeks > 0
             logger.info('using `weeks` as timespan unit')

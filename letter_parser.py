@@ -183,6 +183,8 @@ def parse_to_df(data_dir):
     for path in glob(data_dir):
         letters += parse_file(path)
 
+    for i, l in enumerate(letters):
+        l['message_id'] = i
     return pd.DataFrame(letters)
 
 
