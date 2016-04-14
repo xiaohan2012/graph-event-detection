@@ -7,6 +7,7 @@ import time
 
 import numpy as np
 import networkx as nx
+import pandas as pd
 
 from datetime import datetime as dt
 from memory_profiler import profile
@@ -50,7 +51,11 @@ class InteractionsUtil(object):
         """Some cleaning. Functional
         """
         new_interactions = []
-        for row_n, i in enumerate(interactions):
+        if isinstance(interactions, pd.DataFrame):
+            iters = interactions.iterrows()
+        else:
+            iters = enumerate(interactions)
+        for row_n, i in iters:
             if row_n % 5000 == 0:
                 logger.debug("cleaning: {} / {}".format(
                     row_n,

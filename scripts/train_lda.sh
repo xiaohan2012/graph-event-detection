@@ -25,7 +25,7 @@ time python lda/lda.py \
     --n_topics 10 \
     --n_iters 100 \
     --lda_update_every 1 \
-    --lda_chunksize 1000 \
+    --lda_chunksize 4969 \
     --id2token data/${dataset}/id2token.pkl \
     --mm_path data/${dataset}/content.mm \
     --model_prefix data/${dataset}/model
