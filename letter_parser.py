@@ -196,3 +196,13 @@ if __name__ == '__main__':
 
     df = parse_to_df(args.data_dir)
     df.to_pickle(args.output_path)
+    
+    people = set(
+        df['sender_id'].unique().tolist() +
+        df['recipient_ids'].apply(lambda r: r[0]).unique().tolist()
+    )
+    people = pd.DataFrame(list(people), columns=['id'])
+    people.to_pickle(op.path.join(
+        os.dirname(args.output_path),
+        'people.pkl')
+    )

@@ -22,11 +22,11 @@ def load_json_by_line(path):
 
 
 def load_id2obj_dict(path, id_key):
-    df = pd.read_json(path)
-    # try:
-    #     interactions = json.load(open(path))
-    # except ValueError:
-    #     interactions = load_json_by_line(path)
+    try:
+        df = pd.read_json(path)
+    except (ValueError, IOError):
+        df = pd.read_pickle(path)
+
     d = defaultdict(lambda: {'id': 'unknown', 'name': 'unknown',
                              'subject': '', 'body': ''})
     for _, r in df.iterrows():
