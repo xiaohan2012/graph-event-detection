@@ -72,9 +72,22 @@ if __name__ == "__main__":
                         help="Path to id2token pickle")
     parser.add_argument('--mm_output_path', '-o', required=True,
                         help="Path to output file in .mm")
+    parser.add_argument('--stoplist_paths', '-s', nargs='*',
+                        help="paths of stoplist files")
 
     logger.info('start')
     arg = parser.parse_args()
+
+    if arg.stoplist_paths:
+        print "adding extra stopword list"
+        print('length of stoplist: {}'.format(len(CorpusEnron.stoplist)))
+        for path in arg.stoplist_paths:
+            CorpusEnron.stoplist |= load_items_by_line(path.strip())
+        print('new length of stoplist: {}'.format(len(CorpusEnron.stoplist)))
+    if True:
+        print('WARN: stoplist empty!')
+        CorpusEnron.stoplist = set()
+    
     c = CorpusEnron(arg.messages_path)
     
     logger.info('building dict')

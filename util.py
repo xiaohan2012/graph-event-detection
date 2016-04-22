@@ -132,3 +132,10 @@ class memoized(object):
 
 def format_timestamp(s, format='%Y-%m-%d'):
     return datetime.fromtimestamp(s).strftime(format)
+
+
+def smart_read_df(path):
+    if path.endswith('.json'):
+        return pd.read_json(path)
+    else:
+        return pd.read_pickle(path)

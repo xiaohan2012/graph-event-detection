@@ -9,6 +9,7 @@ import numpy as np
 import networkx as nx
 import pandas as pd
 
+from itertools import izip
 from datetime import datetime as dt
 from memory_profiler import profile
 from scipy.sparse import csr_matrix, issparse
@@ -270,22 +271,28 @@ class InteractionsUtil(object):
         ]
 
     @classmethod
-    def add_topics_to_graph(cls, g, lda_model, dictionary):
+    def add_topics_to_graph(cls, g, lda_model, dictionary, msg_ids):
         """
         """
+        mid2topic = {
+            mid: topic
+            for topic, mid in izip(lda_model.load_document_topics(), msg_ids)
+            }
         N = g.number_of_nodes()
         for i, n in enumerate(g.nodes_iter()):
             if i % 1000 == 0:
                 logger.debug('adding topics: {} / {}'.format(i, N))
-            doc = u'{} {}'.format(g.node[n]['subject'], g.node[n]['body'])
-            bow = dictionary.doc2bow(cls.tokenize_document(doc))
-            topic_dist = lda_model.get_document_topics(
-                bow,
-                minimum_probability=0
-            )
-            g.node[n]['topics'] = np.asarray([v for _, v in topic_dist],
-                                             dtype=np.float)
-            g.node[n]['doc_bow'] = bow
+            # doc = u'{} {}'.format(g.node[n]['subject'], g.node[n]['body'])
+            # bow = dictionary.doc2bow(cls.tokenize_document(doc))
+            # topic_dist = lda_model.get_document_topics(
+            #     bow,
+            #     minimum_probability=0
+            # )
+            # g.node[n]['topics'] = np.asarray([v for _, v in topic_dist],
+            #                                  dtype=np.float)
+            # g.node[n]['doc_bow'] = bow
+            topic = np.asarray([w for t, w in  mid2topic[g.node[n]['message_id']]])
+            g.node[n]['topics'] = topic
             
         return g
 
@@ -499,6 +506,7 @@ class InteractionsUtil(object):
 
     @classmethod
     def get_topic_meta_graph(cls, interactions,
+                             msg_ids,
                              dist_func,
                              lda_model=None, dictionary=None,
                              undirected=False,
@@ -533,7 +541,8 @@ class InteractionsUtil(object):
                 mg = cls.add_topics_to_graph(
                     mg,
                     lda_model,
-                    dictionary
+                    dictionary,
+                    msg_ids=msg_ids
                 )
             if 'bow' in distance_weights and distance_weights['bow'] > 0:
                 logger.debug('adding bow...')

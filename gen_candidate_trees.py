@@ -97,6 +97,7 @@ def calc_tree(node_i, r, dag, U,
 
 
 def run(gen_tree_func,
+        msg_ids_path,
         root_sampling_method='random',
         interaction_path=os.path.join(CURDIR, 'data/enron.json'),
         lda_model_path=os.path.join(CURDIR, 'models/model-4-50.lda'),
@@ -147,7 +148,7 @@ def run(gen_tree_func,
 
     logger.info('loading lda from {}'.format(lda_model_path))
     if not given_topics:
-        lda_model = gensim.models.ldamodel.LdaModel.load(
+        lda_model = gensim.models.wrappers.LdaMallet.load(
             os.path.join(CURDIR, lda_model_path)
         )
         dictionary = gensim.corpora.dictionary.Dictionary.load(
@@ -169,11 +170,14 @@ def run(gen_tree_func,
         # it's not there so we have to
         logger.info('calculating meta_graph...')
         meta_graph_kws_copied = copy.deepcopy(meta_graph_kws)
+        with open(msg_ids_path) as f:
+            msg_ids = [l.strip() for l in f]
 
         if isinstance(meta_graph_kws_copied['preprune_secs'], timedelta):
             meta_graph_kws_copied['preprune_secs'] = meta_graph_kws['preprune_secs'].total_seconds()
         g = IU.get_topic_meta_graph(
             interactions,
+            msg_ids=msg_ids,
             lda_model=lda_model,
             dictionary=dictionary,
             undirected=False,  # deprecated
@@ -224,7 +228,11 @@ def run(gen_tree_func,
     dags = []
     for i in xrange(cand_tree_number):
         logger.info("sampling root...")
-        root, dag = root_sampler.take()
+        try:
+            root, dag = root_sampler.take()
+        except IndexError:
+            logger.warn('not enough root to take, terminate')
+            break
         dags.append(dag)
         
         
@@ -291,6 +299,9 @@ if __name__ == '__main__':
     parser.add_argument('--interaction_path', required=True,
                         type=str,
                         help="Path to the interaction json file")
+    parser.add_argument('--msg_ids_path', required=True,
+                        type=str,
+                        help="Path to the message ids")
     parser.add_argument('--lda_path', required=True,
                         help="Path of LDA model")
     parser.add_argument('--corpus_dict_path', required=True,
@@ -480,6 +491,7 @@ if __name__ == '__main__':
     #     timestamp_converter = time_unit2converter[args.time_diff_unit]
         
     paths = run(methods[args.method],
+                msg_ids_path=args.msg_ids_path,
                 root_sampling_method=args.root_sampling,
                 interaction_path=args.interaction_path,
                 corpus_dict_path=args.corpus_dict_path,

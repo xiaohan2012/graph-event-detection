@@ -1780,3 +1780,51 @@ y=u=
 $shall $be
 {TEXT:shalbe}
 
+Day 5:
+
+- [http://www.localhistories.org/timeline.html]: England history
+- [http://www.localhistories.org/worcester.html]: worcester history
+
+
+
+remove:
+- [{
+- [\...\]
+
+- N=o= -> No
+- <P 286>
+
+Recipeint, date
+
+[} [\486. WELWYN, HERTS. (SU.) 18 MARCH 1764. GEORGE KEATE.\] }]
+[^YOUNG TO GEORGE KEATE^]
+
+[} [\457. (WELWYN, HERTS.) (TU.) 1 JUNE 1762. DUCHESS OF
+PORTLAND.\] }] [^YOUNG TO MARGARET HARLEY^]
+
+[} [\MARY HALLOWS TO GEORGE KEATE. WELWYN, HERTS. (SU.) 28
+APRIL 1765.\] }]
+
+[} [\331. TO WILLIAM GODWIN\] }]
+[\LONDON, JULY 4, 1797\]
+
+[} [\166. TO ELIZA W. BISHOP\] }]
+[\LONDON, C. APRIL 23, 1795\]
+
+[} [\165. (TO ROBERT HARLEY, EARL OF OXFORD). 19 JUNE 1711\] }]
+[^FROM DANIEL DEFOE^]
+
+[^FROM ALLEN, LORD BATHURST TO THOMAS WENTWORTH, EARL OF
+STRAFFORD^]
+[\RECEIVED OCTOBER 18, 1736\]
+
+
+
+Sender 
+
+<X MARY WOLLSTONECRAFT>
+<X MARY HALLOWS>
+<A DANIEL DEFOE>
+<X EDWARD YOUNG>
+
+`4945 -> 4857`: after removing letters with vague dates, such as "Autumn", "early summer"
