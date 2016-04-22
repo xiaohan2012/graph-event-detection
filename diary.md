@@ -1878,7 +1878,23 @@ Day 4:
 - letter
   1. 
 
-Day 5:
 
 - mavericks vs thunder(3)
 - rockets vs warriors(3)
+
+
+- [http://www.localhistories.org/timeline.html]: England history
+- [http://www.localhistories.org/worcester.html]: worcester history
+
+
+Processing of letter_18c:
+
+remove:
+- [{
+- [\...\]
+
+- N=o= -> No
+- <P 286>
+
+`4945 -> 4857`: after removing letters with vague dates, such as "Autumn", "early summer"
+

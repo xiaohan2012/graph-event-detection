@@ -41,7 +41,7 @@ def main():
     except (ValueError, IOError):
         df = pd.read_pickle('data/{}/interactions.pkl'.format(args.dataset))
         
-
+    df = df.drop_duplicates(subset=['message_id'])
     df['hashtags'] = df['hashtags'].apply(
         lambda hs: list(set(map(lambda s: s.lower(), hs)))
         )
@@ -55,14 +55,14 @@ def main():
     df = df[df['body'].map(len) > 10]  # filter short body
     # df = df[df['body'].map(detect_lan) == 'en']  # non english
 
-    df = merge_messages(df,
-                        timedelta(days=1),
-                        50,
-                        'datetime')
+    # df = merge_messages(df,
+    #                     timedelta(days=1),
+    #                     50,
+    #                     'datetime')
 
     # df.to_json('data/{}/interactions_new.json'.format(args.dataset),
     #            orient='records')
-    df.to_pickle('data/{}/interactions_new.pkl'.format(args.dataset))
+    df.to_pickle('data/{}/interactions.pkl'.format(args.dataset))
 
 if __name__ == '__main__':
     main()

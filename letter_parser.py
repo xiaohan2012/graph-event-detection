@@ -1,4 +1,5 @@
 import re
+import os
 import codecs
 import pandas as pd
 
@@ -64,9 +65,12 @@ def get_year_month_day(l):
     except IndexError:
         return None, None, None
 
+valid_word_regexp = re.compile('([\d\w-]+_(N\w*|V\w*|ADJ))', re.I)
 
 def process_content_line(l):
-    return content_regexp.sub('', l)
+    l = content_regexp.sub('', l)
+    matches = valid_word_regexp.findall(l)
+    return ' '.join(w for w, _ in matches)
 
 date = {}
 
@@ -202,7 +206,7 @@ if __name__ == '__main__':
         df['recipient_ids'].apply(lambda r: r[0]).unique().tolist()
     )
     people = pd.DataFrame(list(people), columns=['id'])
-    people.to_pickle(op.path.join(
-        os.dirname(args.output_path),
+    people.to_pickle(os.path.join(
+        os.path.dirname(args.output_path),
         'people.pkl')
     )

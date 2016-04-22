@@ -3,6 +3,7 @@ import gensim
 import cPickle as pkl
 from argparse import ArgumentParser
 
+MALLET_PATH='/cs/home/hxiao/code/lst/external/mallet-2.0.8RC3/bin/mallet'
 
 def main():
     parser = ArgumentParser(description="LDA training tool")
@@ -38,14 +39,19 @@ def main():
 
     print(mm)
 
-    lda = gensim.models.ldamodel.LdaModel(corpus=mm,
-                                          id2word=id2word,
-                                          num_topics=arg.n_topics,
-                                          update_every=arg.lda_update_every,
-                                          chunksize= (mm.num_docs
-                                                      if arg.lda_chunksize == -1 
-                                                      else arg.lda_chunksize),
-                                          passes=arg.n_iters)
+    lda = gensim.models.wrappers.LdaMallet(
+        MALLET_PATH,
+        corpus=mm,
+        id2word=id2word,
+        num_topics=arg.n_topics,
+        # update_every=arg.lda_update_every,
+        # chunksize= (mm.num_docs
+        #             if arg.lda_chunksize == -1 
+        #             else arg.lda_chunksize),
+        # passes=arg.n_iters
+        iterations=arg.n_iters,
+        workers=4
+        )
 
     lda.print_topics(arg.n_topics, 20)
     lda.save("{}-{}-{}.lda".format(

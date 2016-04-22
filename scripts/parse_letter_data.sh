@@ -1,7 +1,5 @@
 #! /bin/bash
 
-HOME='/cs/home/hxiao'
-
 python letter_parser.py \
-	--data_dir "${HOME}/Downloads/letters/*.txt" \
+	--data_dir "${HOME}/Downloads/letters-pos/*.pos" \
 	--output_path "${HOME}/code/lst/data/letter/interactions.pkl"

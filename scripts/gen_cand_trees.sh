@@ -33,16 +33,17 @@ if [ ! -d ${root_dir}/tmp/${dataset} ]; then
 fi
 
 time ${CMD} gen_candidate_trees.py \
-	--method=greedy \
-	--root_sampling=${sampler} \
-	--dist=cosine \
-	--result_prefix=${root_dir}/tmp/${dataset}/result- \
-        --all_paths_pkl_prefix=${root_dir}/tmp/${dataset}/paths- \
-	--lda_path=$(ls ${root_dir}/data/${dataset}/model-*.lda) \
-	--corpus_dict_path=${root_dir}/data/${dataset}/dict.pkl \
-	--interaction_path ${root_dir}/data/${dataset}/interactions.* \
-	--meta_graph_path_prefix=${root_dir}/tmp/${dataset}/meta-graph \
-	--U=${U} \
-        --cand_n=${cand_n} \
-	${extra}
+    --method=greedy \
+    --root_sampling=${sampler} \
+    --dist=cosine \
+    --msg_ids_path ${root_dir}/data/${dataset}/msg_ids.txt \
+    --result_prefix=${root_dir}/tmp/${dataset}/result- \
+    --all_paths_pkl_prefix=${root_dir}/tmp/${dataset}/paths- \
+    --lda_path=$(ls ${root_dir}/data/${dataset}/model-*.lda) \
+    --corpus_dict_path=${root_dir}/data/${dataset}/dict.pkl \
+    --interaction_path ${root_dir}/data/${dataset}/interactions.* \
+    --meta_graph_path_prefix=${root_dir}/tmp/${dataset}/meta-graph \
+    --U=${U} \
+    --cand_n=${cand_n} \
+    ${extra}
 

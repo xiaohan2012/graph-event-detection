@@ -1,11 +1,13 @@
 import numpy
+import re
 import gensim
 
 import sys
 
 path = sys.argv[1]
 
-m = gensim.models.ldamodel.LdaModel.load(path)
+# m = gensim.models.ldamodel.LdaModel.load(path)
+m = gensim.models.wrappers.LdaMallet.load(path)
 
 
 def get_topic_terms(model, topicid, topn, id2token):
@@ -19,5 +21,12 @@ def get_topic_terms(model, topicid, topn, id2token):
     bestn = numpy.argsort(topic)[::-1][:topn]
     return [id2token[id] for id in bestn]
 
-for i in xrange(m.num_topics):
-    print(' '.join(get_topic_terms(m, i, 10, m.id2word)))
+# for i in xrange(m.num_topics):
+#     print(' '.join(get_topic_terms(m, i, 10, m.id2word)))
+
+s = '\n'.join([' '.join([w for _, w in lst])
+               for lst in m.show_topics(num_topics=-1, formatted=False)]
+              )
+
+print s
+
