@@ -81,8 +81,14 @@ def json_load(path):
 
 def load_summary_related_data(interactions_path, people_path,
                               corpus_dict_path, lda_model_path):
-    interactions = json.load(open(interactions_path))
-    people_info = json.load(open(people_path))
+    try:
+        interactions = json.load(open(interactions_path))
+    except ValueError:
+        interactions = pd.read_pickle(interactions_path)
+    try:
+        people_info = json.load(open(people_path))
+    except ValueError:
+        people_info = pd.read_pickle(people_path).to_dict(orient='records')
 
     dictionary = gensim.corpora.dictionary.Dictionary.load(
         corpus_dict_path

@@ -22,8 +22,9 @@ DB = 'twitter_stream'
 def convert_tweet(d):
     mentions = d["entities"]['user_mentions']
     return {
-        'id': d['id'],
-        'text': d['text'],
+        'message_id': d['id'],
+        'subject': '',
+        'body': d['text'],
         'sender_id': d['user']['id'],
         'recipient_ids': [m['id'] for m in mentions],
         'datetime': dt.fromtimestamp(float(d['timestamp_ms']) / 1000),

@@ -13,7 +13,9 @@
   <div>
 	Dataset:
 	<select id="dataset">
-	  <option value="letter">letter</option>
+	  <option value="letter_18c">letter_18c</option>
+	  <option value="nba_grizz_spurs">nba_grizz_spurs</option>
+	  <option value="nba_celtics_hawks">nba_celtics_hawks</option>
 	  <option value="nba">nba</option>
 	  <option value="ukraine">#ukraine</option>
 	  <option value="baltimore">#Baltimore</option>
@@ -35,7 +37,7 @@
 
   Display type: 
   <label>
-	<input type="radio" name="display_type"  value="macro"/>
+	<input type="radio" name="display_type"  value="macro" checked='checked'/>
 	Macro(overview)
   </label>
   <label>
@@ -63,6 +65,11 @@
 	 }
    });
    init_dataset_and_paths_widget('timeline_names.json')
+   $('#dataset').change();
+   setTimeout(function(){
+	 $("input[name=display_type]:radio").change();
+   }, 1500);
+   
    // $("input[name=display_type][value=micro]").attr('checked', 'checked').change();
  });
 

@@ -10,7 +10,7 @@ fi
 ds=$1
 
 
-rm -r "${root}/${ds}/event/meta_graph/"
-rm -r "${root}/${ds}/event/original_graph/"
+# rm -r "${root}/${ds}/event/meta_graph/"
+# rm -r "${root}/${ds}/event/original_graph/"
 rm -r "${root}/${ds}/timeline/"
 

@@ -21,8 +21,8 @@ for p in $(ls ${pickle_dir}/result-*.pkl); do
 	if [ ! -f ${output_dir}/timeline/${output_name} ]; then
 		python dump_vis_timeline_data.py \
 			--cand_trees_path ${p} \
-			--interactions_path data/${dataset}/interactions.json \
-			--people_path data/${dataset}/people.json \
+			--interactions_path data/${dataset}/interactions.* \
+			--people_path data/${dataset}/people.* \
 			--corpus_dict_path  data/${dataset}/dict.pkl \
 			--lda_model_path $(ls data/${dataset}/model-*.lda) \
 			--output_path "${output_dir}/timeline/${output_name}" \

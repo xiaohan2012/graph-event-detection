@@ -15,13 +15,19 @@ fi
 
 if [ ${dataset} == "enron_small" ]; then
 	extra="--freq 1w --k 10"
+elif [ ${dataset} == "letter" ]; then
+	extra="--freq 12m --k 10"
+elif [[ ${dataset} == nba* ]]; then
+	extra="--freq 5Min --k 10 --non_event_sample_n 1000"
 else
 	extra="--non_event_sample_n 5000 --freq 1h --k 5"
 fi
 
+echo "$extra"
+
 python  dump_events_to_nvd3.py \
 	--result_path tmp/${dataset}/result*.pkl \
-	--interactions_path data/${dataset}/interactions.json \
+	--interactions_path data/${dataset}/interactions.* \
 	--output_path ${output_dir}/data.json \
 	${extra}
 

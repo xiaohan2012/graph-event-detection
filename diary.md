@@ -1,3 +1,12 @@
+
+
+
+
+
+
+
+
+
 # Week 1(Nov 23)
 
 Day 1: 
@@ -1698,12 +1707,12 @@ Budget effect: 100 too small?
 
 # Thesis writing starts
 
-Week 1: 
+## Week 1: 
 
 Reading and writing related work.
 
 
-Week 2:
+## Week 2:
 
 Day 1:
 
@@ -1741,42 +1750,135 @@ Day 3:
   - similar methods, different problem?
   - similar problem, different method?
 - Structure in code repository?
-  - bug influence network in repository
+  - bug influence network in repository(not many related results)
   - within one repo: how each module uses the other?
   - Code contributor network
+  - [Software viz](http://vidi.cs.ucdavis.edu/research/softvis)
+  - [class hierarchy in circle packing](https://strongriley.github.io/d3/ex/pack.html): what I still don't known, what's Flare, what does those classes mean?
+  - summarizing software development
 - Skill network
+  - [based on co-occurrence, centrality analysis](https://gooroo.io/GoorooTHINK/Article/16229/A-network-graph-of-technical-skills/17450#.VxTddSYYz7A)
   - the relationship between skills
     - A is similar to B
 	- A is sub/super-category of B
+	- A is out to replace B
+	- A's functional overlap with B
+  - a question: what are the skill set worth learning given you want to be expert in big data
+    - input: a synergy/compatibility graph,
+	- goal: 
+  - or event further, assign type to each skill. For example, Java is a programming language skill, Hadoop is a library skill
 - Knowledge network
   - What's the prerequisite of learning linear algebra?
   -
 - Ingredient network
+  - [recipe recommendation](http://arxiv.org/abs/1111.3919)
   - which ingredients are good/bad to be cooked together for health/tasteness/decorative reasons?
   - give rating for a potential recipe
-  - ingredient embedding?
 - Music network
   - melody network?
 - Company network
+- Sentence graph
+  - what's the relationship between different sentences
+- Robot graph
+  - synergy graph, compatibibility between two agents  
+  - application: inferring synergy graph, select best performing team
 
+- [signed network](http://arxiv.org/pdf/1511.07569v1.pdf)
 
 Day 4:
 
 - some figures in event detection
+- comment out the figures/algorithms, etc
 - more on information diffusion, differences, the virus model, etc
 - text summarization, good to read
-- comment out the figures/algorithms, etc
 - DP, charikar's algorithm
 - future work
 
+## Week 3
 
-{ED:Dr._Morys_Clynnog}
-{COM:ADDRESSED:}
-<paren>
-</paren>
-ALLEN,14.002.67
-yo=r=
-y=u=
-$shall $be
-{TEXT:shalbe}
+## Week 4
 
+becker2010learning:
+
+- online clustering(how to limit the cluster size? some threshold?)
+- with each post's event label
+- uses clustering quality measure
+- however, it's not message(no sender and recipient)
+- X
+
+
+becker2011beyond:
+
+- twitter data
+- event identification: classify each cluster/event as
+  - real-world event
+  - twitter-centric event
+  - ambiguous
+  - non-event
+- precision @ K
+- NDCG @ K(requires relevance score)
+- it focuses on classifying detected event
+- X
+
+weng2011event:
+
+- twitter
+- manually label each event as whether real-event or not
+- only consider precision
+- X
+
+aggarwal2012event:
+
+- twitter/enron
+- two evaluations:
+  - clustering
+    - hashtag as label for twitter
+	- each email is labeled from a pool of frequent tokens extracted from the subject line for Enron(can have multiple label)
+	- use cluster purity
+  - event detection(supervised learning)
+    - a continuous-temporal labeled event stream, 0-1, for event and non-event for a given topic(\#japan)
+	- a threshold to determine the alarm level(trade-off)
+    - precision-recall curve
+- not manual labeling
+
+meladianos2015degeneracy:
+  - ground truth from ESPN: time, event_type(game start/end, (disallowed)goal, red/yellow cards, etc)
+  - human label each extracted event
+  - precision/recall/f1
+  - DET curve: missed detection proba vs false alarm(like ROC)
+
+What can be used in our work:
+
+- precision(manual labeling), more general: precision @ K
+  - an event is correct if it's
+    - topically coherent(need some better representation)
+	- and reflects outside event(not necessary)
+- cluster purity
+  - need some cluster label 
+- precision/recall/f1 and ground truth from NBA statistics
+
+- similarity metrics to use in our case
+
+
+Day 4:
+
+- celtics vs hawks(2)
+  1. people's discussion(during game)
+  2. mascot bust this ass
+  3. pessimisism on celtics
+  4. event 4 loss
+  5. celtics fan's disappointment
+  6. congrats on hawks from fans
+  7. 
+- spurs vs grizz(dominated by \#gospursgo), gave up
+  1. self-talking of spurs fan
+  2. hotspur(football match)
+  3. half time
+  4. cheers from spurs fan
+- letter
+  1. 
+
+Day 5:
+
+- mavericks vs thunder(3)
+- rockets vs warriors(3)

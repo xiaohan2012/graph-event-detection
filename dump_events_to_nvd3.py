@@ -19,12 +19,17 @@ def main():
     args = parser.parse_args()
     result = pkl.load(open(args.result_path))
     trees = k_best_trees(result, args.k)
-    df = pd.read_json(args.interactions_path)
+    try:
+        df = pd.read_json(args.interactions_path)
+    except ValueError:
+        df = pd.read_pickle(args.interactions_path)
 
     # for enron:
-    df = df[df['datetime'] > dt(2000, 6, 1)]
+    # df = df[df['datetime'] > dt(2000, 6, 1)]
     
-    timestamps = df.groupby(pd.Grouper(key='datetime', freq=args.freq))['message_id'].count().index
+    timestamps = df.groupby(
+        pd.Grouper(key='datetime', freq=args.freq)
+    )['message_id'].count().index
     
     values = lambda counts: [{'ts': ts.value/1000000,
                               'c': counts[ts] if ts in counts else 0}

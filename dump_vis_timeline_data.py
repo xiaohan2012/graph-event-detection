@@ -5,7 +5,10 @@ from collections import Counter
 
 
 def format_time(dt):
-    return datetime.strftime(dt, '%Y-%m-%d %H:00:00')
+    if dt.year < 1900:
+        return str(dt)
+    else:
+        return datetime.strftime(dt, '%Y-%m-%d %H:%M:%S')
 
 
 def run(cand_trees, k, summary_kws, undirected):
@@ -50,6 +53,7 @@ def run(cand_trees, k, summary_kws, undirected):
         g = {
             'id': group_id,
             'terms': summ['topics']['topic_terms'],
+            # 'terms': summ['frequent_terms'],
             'participants': dict(
                 summ['participants']['participant_count']
             ),

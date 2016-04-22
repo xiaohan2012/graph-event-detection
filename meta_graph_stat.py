@@ -107,6 +107,7 @@ class MetaGraphStat(object):
             'subjects(top{})'.format(top_k): msgs
         }
         
+    # DEPRECATED
     def _topic_divergence(self, msg_ids, id2msg, dictionary, lda):
         raw_topics = [
             lda.get_document_topics(
@@ -137,10 +138,12 @@ class MetaGraphStat(object):
                        for n in self.g.nodes()]
         concated_msg = ' '.join([id2msg[mid] for mid in message_ids])
         bow = dictionary.doc2bow(IU.tokenize_document(concated_msg))
-        topic_dist = lda.get_document_topics(
-            bow,
-            minimum_probability=0
-        )
+        topic_dist = lda.__getitem__(bow, iterations=100)
+        print("topic inference done")
+        # topic_dist = lda.get_document_topics(
+        #     bow,
+        #     minimum_probability=0
+        # )
         topic_dist = np.asarray([v for _, v in topic_dist])
         
         # topic_terms
@@ -161,6 +164,23 @@ class MetaGraphStat(object):
                 'topic_terms': topic_terms,
                 'topic_divergence': topic_divergence}
 
+    def frequent_terms(self, interactions, top_k=10):
+        id2msg = {}
+        for m in interactions:
+            id2msg[m['message_id']] = u"{} {}".format(
+                m['subject'], m['body']
+            )
+
+        # topic_dist
+        message_ids = [self.g.node[n]['message_id']
+                       for n in self.g.nodes()]
+        concated_msg = ' '.join([id2msg[mid] for mid in message_ids])
+        tokens = IU.tokenize_document(concated_msg)
+        freqs = Counter(tokens)
+        terms = [t for t, _ in freqs.most_common(top_k)]
+        print 'frequent_terms', terms
+        return terms
+
     def hashtags(self):
         tags = itertools.chain(
             *[self.g.node[n]['hashtags']
@@ -175,6 +195,7 @@ class MetaGraphStat(object):
                      people_repr_template="{name}({email})",
                      undirected=False,
                      top_k=10):
+
         peopleid2info = {r['id']: people_repr_template.format(**r)
                          for r in people_info}
         id2interaction = {i['message_id']: i
@@ -307,6 +328,10 @@ def build_default_summary_kws(interactions, people_info,
         'link_type_freq': {
             'interactions': interactions,
             'undirected': undirected
+        },
+        'frequent_terms': {
+            'interactions': interactions,
+            'top_k': 10
         }
     }
     return summary_kws

@@ -5,6 +5,9 @@ $('#dataset').on('change', function(){
 	if(ds == "enron_small"){
 		time_format = "%b, %y";
 	}
+	else if(ds.startsWith('nba')){
+		time_format = "%H:%M";
+	}
 	else{
 		time_format = "%b %d %H:00";
 	}
