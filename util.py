@@ -93,9 +93,10 @@ def load_summary_related_data(interactions_path, people_path,
     dictionary = gensim.corpora.dictionary.Dictionary.load(
         corpus_dict_path
     )
-    lda = gensim.models.ldamodel.LdaModel.load(
-        lda_model_path
-    )
+    # lda = gensim.models.ldamodel.LdaModel.load(
+    #     lda_model_path
+    # )
+    lda = gensim.models.wrappers.LdaMallet.load(lda_model_path)
     return interactions, people_info, dictionary, lda
 
 

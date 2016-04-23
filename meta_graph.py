@@ -141,6 +141,12 @@ def convert_to_meta_graph_undirected(node_names, participants, timestamps,
 
 def convert_to_original_graph(mg):
     g = nt.DiGraph()
+    for m in mg.nodes():
+        s = mg.node[m]['sender']
+        g.add_node(s['id'], s)
+        for r in mg.node[m]['recipients']:
+            g.add_node(r['id'], r)
+
     for n in mg.nodes():
         sender = mg.node[n]['sender_id']
         for recipient in mg.node[n]['recipient_ids']:

@@ -9,6 +9,7 @@ import numpy as np
 import networkx as nx
 import pandas as pd
 
+import cPickle as pkl
 from itertools import izip
 from datetime import datetime as dt
 from memory_profiler import profile
@@ -354,6 +355,10 @@ class InteractionsUtil(object):
             if i % 1000 == 0:
                 logger.debug('adding BoW: {} / {}'.format(i, N))
             g.node[n]['bow'] = tfidf_mat[node2row[n], :]
+
+        print('dumping tfidf vectorizer')
+        pkl.dump(tfidf, open('/cs/home/hxiao/code/lst/tmp/tfidf.pkl', 'w'))
+
         return g
 
     @classmethod
