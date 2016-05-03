@@ -1,3 +1,4 @@
+import pandas as pd
 from meta_graph import convert_to_meta_graph
 from interactions import InteractionsUtil
 
@@ -19,7 +20,69 @@ def main():
 
     print graph.edges()
 
-    ('a', 'b', )
+
+def main1():
+    C, P, T1, T2 = ('CEO', 'PM', 'T1', 'T2')
+    p = 'progress'
+    s = 'suggetion'
+    f = 'football'
+    correct_edge_to_color = {
+        ('a', 'b'): 'red',
+        ('b', 'c'): 'red',
+        ('c', 'd'): 'red',
+        ('e', 'f'): 'green'
+    }
+
+    interactions = [
+        ('a', C, [P], p, 1),
+        ('b', P, [T1, T2], p, 2),
+        ('c', T1, [P], p, 3),
+        ('d', P, [C], p, 4),
+        ('e', T2, [P], s, 3),
+        ('f', P, [C], p, 5),
+        ('g', T2, [T1], f, 4)
+    ]
+    new_interactions = []
+    for msg_id, sender, recs, topic, time in interactions:
+        new_interactions.append(
+            {'sender_id': sender,
+             'recipient_ids': recs,
+             'datetime': time,
+             'message_id': msg_id},
+        )
+    
+    node_names, sources, targets, time_stamps = InteractionsUtil.unzip_interactions(
+        new_interactions
+    )
+    graph = convert_to_meta_graph(node_names, sources, targets, time_stamps)
+    # nx.write_dot(graph, 'tmp/illustration.dot')
+    print """digraph {
+    node [fontsize=20];
+"""
+    for u, v in  graph.edges():
+        print "{} -> {}[color={}];".format(
+            u, v,
+            # correct_edge_to_color.get((u, v), 'gray')
+            'black'
+        )
+    print "}"
+    
+    df = pd.DataFrame(new_interactions,
+                      columns=['sender_id', 'recipient_ids', 'datetime'],
+                      index=[i[0] for i in interactions])
+    df = df.rename(columns={'sender_id': 'sender',
+                       'recipient_ids': 'recipients',
+                       'datetime': 'time'})
+
+    mapping = {
+        1: 'Mon',
+        2: 'Tue',
+        3: 'Wed',
+        4: 'Thu',
+        5: 'Fri'
+    }
+    df['time'] = df['time'].map(lambda t: mapping[t])
+    df.to_latex('tmp/example.tex')
 
 if __name__ == '__main__':
-    main()
+    main1()

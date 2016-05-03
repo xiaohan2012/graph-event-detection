@@ -79,7 +79,7 @@ $(document).ready(function(){
 				force: {charge: -200, linkDistance: 20},
 				tip: {
 					html: function(d){
-						return dict2html(d);
+						return dict2html(d, ['id', 'desc']);
 					}
 				},
 				node: {
@@ -95,13 +95,13 @@ $(document).ready(function(){
 				tip: {
 					html: function(d){
 						console.log('iteraction:', d);
-						d['date'] = format_time(new Date(d['timestamp']*1000));
+						// d['date'] = format_time(new Date(d['timestamp']*1000));
 
 						d['sender_str'] = d.sender.name;
 						d['recipients_str'] = _.map(d['recipients'], function(r){
 							return r.name;
 						}).join(',  ');
-						return dict2html(d, ['subject', 'body', 'hashtags', 'sender_str', 'recipients_str', 'date', 'message_id', 'cluster_label', 'retweet_count', 'favorite_count']);
+						return dict2html(d, ['subject', 'body', 'hashtags', 'sender_id', 'recipient_ids', 'datetime', 'message_id']);
 					}
 				},
 				node: {
@@ -171,7 +171,8 @@ $(document).ready(function(){
 					},
 					label: function(d){
 						// console.log(d['c']);
-						return '';
+						// return '';
+						return d['c'].toFixed(2);
 						if(d['c'] >= 0.5){
 							return d['c'].toFixed(2);
 						}

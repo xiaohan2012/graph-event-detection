@@ -1876,8 +1876,19 @@ Day 4:
   3. half time
   4. cheers from spurs fan
 - letter
-  1. 
-
+  1. [Samuel Johnson](https://en.wikipedia.org/wiki/Samuel_Johnson) talks about his health and wrinting(he died this year), plus Charles Burney's letters with his family
+  2. [Daniel Fleming](https://en.wikipedia.org/wiki/Daniel_Fleming) and [Henry Brougham](https://en.wikipedia.org/wiki/Henry_Brougham,_1st_Baron_Brougham_and_Vaux) are cousins
+     - George, good boy, was asked to take care of his brothers, Roger and James, who seem to misbehave a lot
+	 - 
+  3. William Pitt to his wife, love and wishes
+     - one msg correponds to multiple replies(wierd?)
+	 - inferring conversation structure?
+  4.
+  5.
+  6. Mary Montagu with his friend, Philippa and his husband Edward Montagu
+     - discusses with Edward about this resistance for a designed marraige
+	 - talked with Philippa about her illness
+  10. the faterh, [George William Frederick](https://en.wikipedia.org/wiki/George_III_of_the_United_Kingdom), the King of England, his son, George Hanover and his daughter, [Amelia Hanover](https://en.wikipedia.org/wiki/Princess_Amelia_of_Great_Britain), the princess
 
 - mavericks vs thunder(3)
 - rockets vs warriors(3)
