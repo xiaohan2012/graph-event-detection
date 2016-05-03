@@ -6,7 +6,7 @@ import collections
 import functools
 import pandas as pd
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from collections import defaultdict
 
 
@@ -93,9 +93,10 @@ def load_summary_related_data(interactions_path, people_path,
     dictionary = gensim.corpora.dictionary.Dictionary.load(
         corpus_dict_path
     )
-    lda = gensim.models.ldamodel.LdaModel.load(
-        lda_model_path
-    )
+    # lda = gensim.models.ldamodel.LdaModel.load(
+    #     lda_model_path
+    # )
+    lda = gensim.models.wrappers.LdaMallet.load(lda_model_path)
     return interactions, people_info, dictionary, lda
 
 
@@ -145,3 +146,8 @@ def smart_read_df(path):
         return pd.read_json(path)
     else:
         return pd.read_pickle(path)
+
+def parse_time_delta(s):
+    number, unit = s.split('-')
+    number = int(number)
+    return timedelta(**{unit: number})

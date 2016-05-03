@@ -1,4 +1,5 @@
 import scipy
+import cPickle as pkl
 import numpy as np
 import itertools
 import networkx as nx
@@ -145,9 +146,15 @@ class MetaGraphStat(object):
         #     minimum_probability=0
         # )
         topic_dist = np.asarray([v for _, v in topic_dist])
-        
+
+        # some mask to filter out trivial topics
+        topic_dist[topic_dist < 0.05] = 0
+
         # topic_terms
-        beta = lda.state.get_lambda()
+        if not hasattr(lda, 'wordtopics'):
+            lda.load_word_topics()
+        beta = lda.wordtopics
+        # beta = lda.state.get_lambda()
 
         # normalize and weight by beta dist
         weighted_terms = (
@@ -158,11 +165,15 @@ class MetaGraphStat(object):
 
         topic_terms = [lda.id2word[id] for id in bestn]
         
-        topic_divergence = self._topic_divergence(message_ids, id2msg,
-                                                  dictionary, lda)
-        return {'topic_dist': topic_dist,
+        top_topics = np.nonzero(topic_dist)  # np.argsort(topic_dist)[::-1][:3]
+        print('top_topics', top_topics)
+        # topic_divergence = self._topic_divergence(message_ids, id2msg,
+        #                                           dictionary, lda)
+        return {# 'topic_dist': topic_dist,
                 'topic_terms': topic_terms,
-                'topic_divergence': topic_divergence}
+                'top_topics': top_topics
+                # 'topic_divergence': topic_divergence
+                }
 
     def frequent_terms(self, interactions, top_k=10):
         id2msg = {}
@@ -180,6 +191,25 @@ class MetaGraphStat(object):
         terms = [t for t, _ in freqs.most_common(top_k)]
         print 'frequent_terms', terms
         return terms
+
+    def tfidf_terms(self, interactions, dictionary, top_k=10):
+        text = '\n'.join(['{} {}'.format(m['subject'], m['body'])
+                   for m in interactions])
+        tfidf_vec = pkl.load(open('/cs/home/hxiao/code/lst/tmp/tfidf.pkl'))
+        counts = dictionary.doc2bow(
+            IU.tokenize_document(text)
+            )
+        raw_vect = np.zeros(len(dictionary.keys()))
+        for word, cnt in counts:
+            raw_vect[word] = cnt
+
+        vect = tfidf_vec.transform([raw_vect])
+        vect = np.asarray(vect.todense()).flatten()
+
+        tfidf_terms = [dictionary[i]
+                       for i in np.argsort(vect)[::-1][:top_k]]
+        print 'tfidf_terms', tfidf_terms
+        return tfidf_terms
 
     def hashtags(self):
         tags = itertools.chain(
@@ -308,6 +338,7 @@ def build_default_summary_kws(interactions, people_info,
     summary_kws = {
         'basic_structure_stats': {},
         'time_span': {},
+        # Deprecated
         'topics': {
             'interactions': interactions,
             'dictionary': dictionary,
@@ -329,10 +360,15 @@ def build_default_summary_kws(interactions, people_info,
             'interactions': interactions,
             'undirected': undirected
         },
-        'frequent_terms': {
-            'interactions': interactions,
-            'top_k': 10
-        }
+        # 'frequent_terms': {
+        #     'interactions': interactions,
+        #     'top_k': 10
+        # },
+        # 'tfidf_terms': {
+        #     'interactions': interactions,
+        #     'dictionary': dictionary,
+        #     'top_k': 10
+        # }
     }
     return summary_kws
 

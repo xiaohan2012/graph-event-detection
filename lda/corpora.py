@@ -84,7 +84,7 @@ if __name__ == "__main__":
         for path in arg.stoplist_paths:
             CorpusEnron.stoplist |= load_items_by_line(path.strip())
         print('new length of stoplist: {}'.format(len(CorpusEnron.stoplist)))
-    if True:
+    if False:
         print('WARN: stoplist empty!')
         CorpusEnron.stoplist = set()
     

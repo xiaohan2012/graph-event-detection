@@ -44,15 +44,17 @@ def run(candidate_tree_path,
             
             e.node[n]['body'] = id2interaction[n]['body']
             e.node[n]['root'] = (n == root)
+            e.node[n]['datetime'] = str(e.node[n]['datetime'])
 
-        # some simple clustering
-        assignment = greedy_clustering_on_graph(e)
-        for n in e.nodes_iter():
-            e.node[n]['cluster_label'] = assignment[n]
+        # # some simple clustering
+        # assignment = greedy_clustering_on_graph(e)
+        # for n in e.nodes_iter():
+        #     e.node[n]['cluster_label'] = assignment[n]
             
     if to_original_graph:
         events = map(convert_to_original_graph,
                      events)
+        # import pdb; pdb.set_trace()
 
     d3_events = [to_d3_graph(e)
                  for e in events]

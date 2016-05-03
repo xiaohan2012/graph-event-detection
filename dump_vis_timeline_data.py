@@ -54,6 +54,7 @@ def run(cand_trees, k, summary_kws, undirected):
             'id': group_id,
             'terms': summ['topics']['topic_terms'],
             # 'terms': summ['frequent_terms'],
+            # 'terms': summ['tdidf_terms'],
             'participants': dict(
                 summ['participants']['participant_count']
             ),

@@ -24,9 +24,12 @@ def get_topic_terms(model, topicid, topn, id2token):
 # for i in xrange(m.num_topics):
 #     print(' '.join(get_topic_terms(m, i, 10, m.id2word)))
 
-s = '\n'.join([' '.join([w for _, w in lst])
-               for lst in m.show_topics(num_topics=-1, formatted=False)]
-              )
+for i, lst in enumerate(m.show_topics(num_topics=-1, formatted=False)):
+    print '{}: {}'.format(i, ' '.join([w for _, w in lst]))
 
-print s
+# s = '\n'.join([' '.join([w for _, w in lst])
+#                for lst in m.show_topics(num_topics=-1, formatted=False)]
+#               )
+
+# print s
 

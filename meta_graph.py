@@ -73,11 +73,13 @@ def convert_to_meta_graph(interaction_names, sources,
         
         # add edges
         # broadcast pattern
-        for i2, time2 in p2i[s]:
-            if time1 < time2:
-                if (preprune_secs is None or
-                    time_diff(time2, time1) <= preprune_secs):
-                    g.add_edge(i1, i2)
+        if True:
+            for i2, time2 in p2i[s]:
+                if time1 < time2:
+                    if (preprune_secs is None or
+                        time_diff(time2, time1) <= preprune_secs):
+                        g.add_edge(i1, i2)
+
         # relay pattern
         for t in ts:
             for i2, time2 in p2i[t]:
@@ -141,6 +143,12 @@ def convert_to_meta_graph_undirected(node_names, participants, timestamps,
 
 def convert_to_original_graph(mg):
     g = nt.DiGraph()
+    for m in mg.nodes():
+        s = mg.node[m]['sender']
+        g.add_node(s['id'], s)
+        for r in mg.node[m]['recipients']:
+            g.add_node(r['id'], r)
+
     for n in mg.nodes():
         sender = mg.node[n]['sender_id']
         for recipient in mg.node[n]['recipient_ids']:
