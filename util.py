@@ -6,7 +6,7 @@ import collections
 import functools
 import pandas as pd
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from collections import defaultdict
 
 
@@ -146,3 +146,8 @@ def smart_read_df(path):
         return pd.read_json(path)
     else:
         return pd.read_pickle(path)
+
+def parse_time_delta(s):
+    number, unit = s.split('-')
+    number = int(number)
+    return timedelta(**{unit: number})

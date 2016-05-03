@@ -73,11 +73,13 @@ def convert_to_meta_graph(interaction_names, sources,
         
         # add edges
         # broadcast pattern
-        for i2, time2 in p2i[s]:
-            if time1 < time2:
-                if (preprune_secs is None or
-                    time_diff(time2, time1) <= preprune_secs):
-                    g.add_edge(i1, i2)
+        if True:
+            for i2, time2 in p2i[s]:
+                if time1 < time2:
+                    if (preprune_secs is None or
+                        time_diff(time2, time1) <= preprune_secs):
+                        g.add_edge(i1, i2)
+
         # relay pattern
         for t in ts:
             for i2, time2 in p2i[t]:

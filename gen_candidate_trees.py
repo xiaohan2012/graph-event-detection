@@ -16,7 +16,7 @@ from interactions import InteractionsUtil as IU
 from meta_graph_stat import MetaGraphStat
 from experiment_util import experiment_signature,\
     get_number_and_percentage
-from util import load_json_by_line
+from util import load_json_by_line, parse_time_delta
 from baselines import random_grow, greedy_grow_by_discounted_reward, \
     greedy_grow, greedy_grow_numpy
 from budget_problem import binary_search_using_charikar
@@ -350,26 +350,26 @@ if __name__ == '__main__':
     parser.add_argument('--true_events_path',
                         default='')
 
-    parser.add_argument('--years',
-                        type=int,
-                        default=0,
-                        help="Time span in terms of years")                
-    parser.add_argument('--weeks',
-                        type=int,
-                        default=0,
-                        help="Time span in terms of weeks")
-    parser.add_argument('--days',
-                        type=int,
-                        default=0,
-                        help="Time span in terms of days")
-    parser.add_argument('--hours',
-                        type=int,
-                        default=0,
-                        help="Time span in terms of hours")
-    parser.add_argument('--seconds',
-                        type=int,
-                        default=0,
-                        help="Time span in terms of seconds")
+    # parser.add_argument('--years',
+    #                     type=int,
+    #                     default=0,
+    #                     help="Time span in terms of years")                
+    # parser.add_argument('--weeks',
+    #                     type=int,
+    #                     default=0,
+    #                     help="Time span in terms of weeks")
+    # parser.add_argument('--days',
+    #                     type=int,
+    #                     default=0,
+    #                     help="Time span in terms of days")
+    # parser.add_argument('--hours',
+    #                     type=int,
+    #                     default=0,
+    #                     help="Time span in terms of hours")
+    # parser.add_argument('--seconds',
+    #                     type=int,
+    #                     default=0,
+    #                     help="Time span in terms of seconds")
     parser.add_argument('--given_topics',
                         action='store_true',
                         help="whether topics are given")
@@ -381,6 +381,9 @@ if __name__ == '__main__':
     parser.add_argument('--event_param_pickle_path',
                         default=None,
                         help="Path of pickle file that contains the U, preprune_secs and roots parameters")
+
+    parser.add_argument('--max_time_distance', help='the minimum time difference between two nodes. Example: 1 min, 2 hous, 15 day')
+    parser.add_argument('--max_time_span', help='maximum time span of one event. the same format')
 
     parser.add_argument('--fixed_point',
                         type=int,
@@ -463,24 +466,27 @@ if __name__ == '__main__':
         timespan = params['preprune_secs']
         U = params['U']
         roots = params['roots']
+        raise Exception("things change")
     else:
+        max_time_distance = parse_time_delta(args.max_time_distance)
+        max_time_span = parse_time_delta(args.max_time_span)
         # `seconds` of higher priority
-        if args.seconds:
-            logger.info('using `seconds` as timespan unit')
-            timespan = args.seconds
-        elif args.hours:
-            logger.info('using `hours` as timespan unit')
-            timespan = timedelta(hours=args.hours)
-        elif args.days:
-            logger.info('using `days` as timespan unit')
-            timespan = timedelta(days=args.days)
-        elif args.years:
-            logger.info('using `years` as timespan unit')
-            timespan = timedelta(days=args.years*365)
-        else:
-            assert args.weeks > 0
-            logger.info('using `weeks` as timespan unit')
-            timespan = timedelta(weeks=args.weeks)
+        # if args.seconds:
+        #     logger.info('using `seconds` as timespan unit')
+        #     timespan = args.seconds
+        # elif args.hours:
+        #     logger.info('using `hours` as timespan unit')
+        #     timespan = timedelta(hours=args.hours)
+        # elif args.days:
+        #     logger.info('using `days` as timespan unit')
+        #     timespan = timedelta(days=args.days)
+        # elif args.years:
+        #     logger.info('using `years` as timespan unit')
+        #     timespan = timedelta(days=args.years*365)
+        # else:
+        #     assert args.weeks > 0
+        #     logger.info('using `weeks` as timespan unit')
+        #     timespan = timedelta(weeks=args.weeks)
 
         U = args.U
         roots = args.roots
@@ -509,12 +515,12 @@ if __name__ == '__main__':
                 true_events_path=args.true_events_path,
                 meta_graph_kws={
                     'dist_func': dist_func,
-                    'preprune_secs': timespan,
+                    'preprune_secs': max_time_distance,
                     'distance_weights': distance_weights,
                     # 'timestamp_converter': timestamp_converter
                 },
                 gen_tree_kws={
-                    'timespan': timespan,
+                    'timespan': max_time_span,
                     'U': U,
                     'dijkstra': apply_dij,
                 },

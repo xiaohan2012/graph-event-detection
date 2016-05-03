@@ -13,4 +13,4 @@ if [ -z $1 ]; then
 else
     arg="dump_msg"
 fi
-./scripts/train_lda.sh letter $arg 15 500 -1 "-s /cs/home/hxiao/code/lst/data/letter_18c_stopwords.txt"
+./scripts/train_lda.sh letter $arg 100 500 -1 "-s /cs/home/hxiao/code/lst/data/letter_18c_stopwords.txt"

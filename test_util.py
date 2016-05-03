@@ -2,17 +2,18 @@ import matplotlib
 # Force matplotlib to not use any Xwindows backend.
 matplotlib.use('Agg')
 
+import unittest
 import matplotlib.pyplot as plt
 import os
 import gensim
 import ujson as json
 import glob
 import networkx as nx
-from nose.tools import assert_true, assert_raises
-from datetime import datetime
+from nose.tools import assert_true, assert_raises, assert_equal
+from datetime import datetime, timedelta
 from interactions import InteractionsUtil as IU
 
-from util import get_datetime
+from util import get_datetime, parse_time_delta
 
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
@@ -76,3 +77,23 @@ def test_get_datetime():
 
     assert_raises(TypeError, get_datetime, dict())
     assert_raises(ValueError, get_datetime, 'bad formatsadfasfd')
+
+
+class TimeDeltaParserTest(unittest.TestCase):
+    def test_parse_min(self):
+        td = parse_time_delta('2-minutes')
+        assert_equal(timedelta(minutes=2), td)
+
+    def test_parse_hour(self):
+        td = parse_time_delta('2-hours')
+        assert_equal(timedelta(hours=2), td)
+
+    def test_parse_day(self):
+        td = parse_time_delta('1-days')
+        assert_equal(timedelta(days=1), td)
+
+    def test_parse_sec(self):
+        td = parse_time_delta('10-seconds')
+        assert_equal(timedelta(seconds=10), td)
+
+        

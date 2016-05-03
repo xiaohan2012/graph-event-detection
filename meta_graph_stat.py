@@ -147,6 +147,9 @@ class MetaGraphStat(object):
         # )
         topic_dist = np.asarray([v for _, v in topic_dist])
 
+        # some mask to filter out trivial topics
+        topic_dist[topic_dist < 0.05] = 0
+
         # topic_terms
         if not hasattr(lda, 'wordtopics'):
             lda.load_word_topics()
@@ -162,7 +165,7 @@ class MetaGraphStat(object):
 
         topic_terms = [lda.id2word[id] for id in bestn]
         
-        top_topics = np.argsort(topic_dist)[::-1][:3]
+        top_topics = np.nonzero(topic_dist)  # np.argsort(topic_dist)[::-1][:3]
         print('top_topics', top_topics)
         # topic_divergence = self._topic_divergence(message_ids, id2msg,
         #                                           dictionary, lda)
