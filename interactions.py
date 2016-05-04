@@ -275,10 +275,17 @@ class InteractionsUtil(object):
     def add_topics_to_graph(cls, g, lda_model, dictionary, msg_ids):
         """
         """
+        
+        if isinstance(g.nodes()[0], int):
+            convert_id = lambda s: int(s)
+        else:
+            convert_id = lambda s: s    
+
         mid2topic = {
-            mid: topic
+            convert_id(mid): topic
             for topic, mid in izip(lda_model.load_document_topics(), msg_ids)
             }
+
         N = g.number_of_nodes()
         for i, n in enumerate(g.nodes_iter()):
             if i % 1000 == 0:

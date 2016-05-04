@@ -19,7 +19,6 @@ def remove_mentions_and_urls(df):
         aux,
         axis=1
     )
-
     return df
 
 def detect_lan(msg):

@@ -37,10 +37,11 @@ class CorpusEnron(corpora.TextCorpus):
 
         .cor format: one document per line, words separated by whitespace.
         """
-        with codecs.open(self.input) as f:
+        with codecs.open(self.input, 'r', 'utf8') as f:
             for i, doc in enumerate(f):
                 if (i+1) % 1000 == 0:
                     logger.debug('{} lines processed'.format(i+1))
+
                 yield [
                     word for word in nltk.word_tokenize(doc.lower())
                     if (word not in CorpusEnron.stoplist and

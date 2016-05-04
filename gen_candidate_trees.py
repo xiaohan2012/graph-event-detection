@@ -382,7 +382,7 @@ if __name__ == '__main__':
                         default=None,
                         help="Path of pickle file that contains the U, preprune_secs and roots parameters")
 
-    parser.add_argument('--max_time_distance', help='the minimum time difference between two nodes. Example: 1 min, 2 hous, 15 day')
+    parser.add_argument('--max_time_distance', help='the minimum time difference between two nodes. Example: 1-minutes, 2-hours, 15-days')
     parser.add_argument('--max_time_span', help='maximum time span of one event. the same format')
 
     parser.add_argument('--fixed_point',
