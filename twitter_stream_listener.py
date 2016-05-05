@@ -40,14 +40,18 @@ class StdOutListener(StreamListener):
         self.collection.remove()
 
     def on_data(self, raw_data):
-        data = json.loads(raw_data)
-        if data.get("lang") == 'en':
-            if data.get("entities") and \
-               data.get("entities").get('user_mentions') and \
-               data["entities"]['user_mentions']:
-                tweet = convert_tweet(data)
-                # print tweet
-                self.collection.insert(tweet)
+        try:
+            data = json.loads(raw_data)
+            if data.get("lang") == 'en':
+                if data.get("entities") and \
+                        data.get("entities").get('user_mentions') and \
+                        data["entities"]['user_mentions']:
+                    tweet = convert_tweet(data)
+                    # print tweet
+                    self.collection.insert(tweet)
+        except:
+            import traceback
+            traceback.print_exc(file=sys.stdout)
         return True
 
     def on_error(self, status):
