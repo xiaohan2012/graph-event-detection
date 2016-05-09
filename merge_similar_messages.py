@@ -21,7 +21,7 @@ def merge_messages(df, max_time_diff,
     merged_msgs = []
     for sender_id, sub_df in df.groupby(['sender_id']):
         msg_processed += len(sub_df)
-        if len(sub_df) > 1:
+        if len(sub_df) > 5:
             new_df = merge_messages_by_single_user(
                 sub_df,
                 max_time_diff,
@@ -29,12 +29,14 @@ def merge_messages(df, max_time_diff,
                 time_field
                 )
             merged_msgs.append(new_df)
-            print('{} -> {}'.format(len(sub_df), len(new_df)))
+            if len(sub_df) > len(new_df):
+                print('{} -> {}'.format(len(sub_df), len(new_df)))
         else:
             merged_msgs.append(sub_df)
         cnt += 1
-
-        print('{} / {}'.format(msg_processed, len(df)))
+        
+        if msg_processed % 10000 == 0:
+            print('{} / {}'.format(msg_processed, len(df)))
     return pd.concat(merged_msgs)
 
 

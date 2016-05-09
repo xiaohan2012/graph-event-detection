@@ -54,10 +54,10 @@ def main():
     df = df[df['body'].map(len) > 10]  # filter short body
     # df = df[df['body'].map(detect_lan) == 'en']  # non english
 
-    # df = merge_messages(df,
-    #                     timedelta(days=1),
-    #                     50,
-    #                     'datetime')
+    df = merge_messages(df,
+                        timedelta(minutes=30),
+                        50,
+                        'datetime')
 
     # df.to_json('data/{}/interactions_new.json'.format(args.dataset),
     #            orient='records')

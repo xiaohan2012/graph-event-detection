@@ -14,10 +14,10 @@ for metric in ${metrics[@]}; do
 	--xlabel B \
 	--output_path tmp/budget_experiment/budget-experiment-${metric}.png \
 	--legend_in_which_subplot 4 \
-	--nrows 1 \
-	--ncols 4 \
-	--figure_width 20 \
-	--figure_height 4
+	--nrows 2 \
+	--ncols 2 \
+	--figure_width 10 \
+	--figure_height 10
 
 done
 

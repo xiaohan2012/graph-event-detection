@@ -48,3 +48,7 @@ For the last two fields, it can be replaced by `participant_ids`
 # 
 
 `gen_cand_trees.sh` and `check_events.sh`
+
+# 
+
+- `B_on_algos.sh`: increaing budget vs treesize on various algorithms 

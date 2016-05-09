@@ -61,7 +61,9 @@ if [ ${operation} == 'gen' ]; then
 	    exit -1
 	fi
 
-	if [ ${dataset} != "enron_small" ]; then
+	if [ ${dataset} == "letter" ]; then
+	    extra="--max_time_distance 90-days --max_time_span 365-days --weight_for_topics=1.0 --weight_for_bow=0.0"
+	elif [ ${dataset} != "enron_small" ]; then
 	    extra="--days=1   --weight_for_topics=0.4  --weight_for_hashtag_bow=0.4   --weight_for_bow=0.2"
 	else
 	    extra="--weight_for_topics=0.8 --weight_for_bow=0.2 --weeks 4"
@@ -72,11 +74,12 @@ if [ ${operation} == 'gen' ]; then
 	    --method=$2 \
 	    --root_sampling=upperbound \
 	    --dist=cosine \
+	    --msg_ids_path ${root_dir}/data/${dataset}/msg_ids.txt \
 	    --result_prefix=${root_dir}/tmp/${dataset}${dir_suffix}/result- \
             --all_paths_pkl_prefix=${root_dir}/tmp/${dataset}${dir_suffix}/paths- \
 	    --lda_path=$(ls ${root_dir}/data/${dataset}/model-*.lda) \
 	    --corpus_dict_path=${root_dir}/data/${dataset}/dict.pkl \
-	    --interaction_path=${root_dir}/data/${dataset}/interactions.json \
+	    --interaction_path ${root_dir}/data/${dataset}/interactions.* \
 	    --meta_graph_path_prefix=${root_dir}/tmp/${dataset}${dir_suffix}/meta-graph \
 	    --U=$1 \
             --cand_n=$3 \

@@ -163,6 +163,8 @@ if [ "$1" == "viz" ]; then
 	--result_path ${combined_eval_result_path} \
 	--xlabel "noise fraction" \
 	--subplot_ordering precision recall f1 set_cover_obj "log(running_time)" \
-	--output_dir ${result_dir}/figure
+	--output_dir ${result_dir}/figure \
+	--figure_width 10 \
+	--figure_height 5
     scp ${result_dir}/figure/*  shell.cs.helsinki.fi:/cs/home/hxiao/public_html/figures/synthetic/noise_fraction/
 fi
